@@ -1,0 +1,255 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+/////////////////////////////////////////////////////////////////////////////
+// Neutral resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(936)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUT_DLG DIALOGEX 0, 0, 272, 138
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_BORDER | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "&Ok",1,110,120,50,14
+    CTEXT           "MultiClipboard Plugin v2.2 for the Textrument Editor",IDC_ABOUT_TITLE,7,7,257,17,SS_CENTERIMAGE,WS_EX_DLGMODALFRAME | WS_EX_TRANSPARENT
+    LTEXT           "Original Author:\t\tLoonyChewy",IDC_ABOUT_AUTHOR,12,31,183,9
+    LTEXT           "eMail:",IDC_ABOUT_EMAIL,12,41,21,8
+    LTEXT           "loonychewy@users.sourceforge.net",IDC_EMAIL_LINK,65,41,147,8
+    LTEXT           "URL:",IDC_ABOUT_URL,12,52,21,8
+    LTEXT           "http://www.peepor.net/loonchew/index.php?p=multiclipboard",IDC_NPP_PLUGINS_URL,65,52,199,8
+    GROUPBOX        "Menu entries",IDC_ABOUT_MENU_ENTRIES,7,65,257,51
+    LTEXT           "MultiClip Viewer...\t\tToggles the MultiClip Viewer.",IDC_MENU_ENTRY_MULTICLIP,15,75,242,8
+    LTEXT           "MultiClipboard Paste\t\tShows the paste menu.",IDC_MENU_ENTRY_PASTE_MENU,15,85,241,8
+    LTEXT           "Options...\t\t\tShows the option dialog.",IDC_MENU_ENTRY_OPTIONS,15,95,242,8
+    LTEXT           "About...\t\t\tShows this dialog.",IDC_MENU_ENTRY_ABOUT,15,104,203,8
+END
+
+IDD_DOCK_DLG DIALOGEX 64536, 0, 164, 267
+STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "MultiClipboard"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+END
+
+IDD_OPTIONS_DLG DIALOGEX 0, 0, 301, 284
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "MultiClipboard Options"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,84,263,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,244,263,50,14
+    EDITTEXT        IDC_OPTION_EXPLANATION,7,203,287,51,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | NOT WS_TABSTOP
+    CONTROL         "Copy text from other programs",IDC_CHECK_COPY_FROM_OTHER_PROGRAMS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,36,287,12
+    CONTROL         "But only when pasted into Notepad++",IDC_CHECK_ONLY_WHEN_PASTE_IN_NPP,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,27,51,267,11
+    CONTROL         "Use paste menu (Uncheck: Use cyclic paste)",IDC_CHECK_USE_PASTE_MENU,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,62,287,13
+    LTEXT           "Number of clip texts to display",IDC_TEXT_MAX_CLIPLIST_SIZE_1,26,23,268,11
+    CONTROL         "Use numbered mnemonics in paste menu",IDC_CHECK_NUMBERED_PASTE_MENU,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,27,76,267,11
+    EDITTEXT        IDC_EDIT_PASTE_MENU_WIDTH,18,89,16,12,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Width of paste menu",IDC_TEXT_PASTE_MENU_WIDTH,142,91,152,11
+    CONTROL         "Auto copy text selection",IDC_CHECK_AUTO_COPY_SELECTION,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,102,287,14
+    CONTROL         "Use middle click paste",IDC_CHECK_MIDDLE_CLICK_PASTE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,117,287,13
+    CONTROL         "Do not copy large text",IDC_CHECK_NO_COPY_LARGE_TEXT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,130,287,12
+    CONTROL         "No editing of large text",IDC_CHECK_NO_LARGE_TEXT_EDIT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,143,287,12
+    CONTROL         "Paste All: Items in reverse order",IDC_CHECK_PASTE_ALL_REVERSE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,156,287,11
+    CONTROL         "Paste All: Newline between items",IDC_CHECK_PASTE_ALL_NEWLINE_BETWEEN,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,169,287,13
+    CONTROL         "Persist clipboard list across sessions",IDC_CHECK_PERSIST_CLIPBOARD_LIST,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,183,287,13
+    LTEXT           "Number of clip texts to store",IDC_TEXT_MAX_CLIPLIST_SIZE,26,8,268,11
+    EDITTEXT        IDC_EDIT_MAX_CLIPLIST_SIZE_1,7,22,16,12,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_BORDER,WS_EX_STATICEDGE
+    EDITTEXT        IDC_EDIT_MAX_CLIPLIST_SIZE,7,7,16,12,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_BORDER,WS_EX_STATICEDGE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_ABOUT_DLG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 271
+        BOTTOMMARGIN, 137
+    END
+
+    IDD_DOCK_DLG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 163
+    END
+
+    IDD_OPTIONS_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 294
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 277
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,1,0,0
+ PRODUCTVERSION 2,1,0,0
+ FILEFLAGSMASK 0x1fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "CompanyName", "LoonyChewy"
+            VALUE "FileDescription", "MultiClipboard plugin for the Textrument Editor"
+            VALUE "FileVersion", "2, 2, 0, 0"
+            VALUE "InternalName", "MultiClipboard"
+            VALUE "LegalCopyright", "Copyright ??? 2011"
+            VALUE "OriginalFilename", "MultiClipboard.dll"
+            VALUE "ProductName", "MultiClipboard"
+            VALUE "ProductVersion", "2, 2, 0, 0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_MULTICLIPBOARD      ICON                    "..\\res\\multiclipboard.ico"
+
+IDR_MULTICLIPBOARD_ICO  ICON                    "..\\res\\paste_muple.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_EX_MULTICLIPBOARD   BITMAP                  "..\\res\\multiclipboard.bmp"
+
+IDB_EX_UP               BITMAP                  "..\\res\\up.bmp"
+
+IDB_EX_DOWN             BITMAP                  "..\\res\\down.bmp"
+
+IDB_EX_PASTE            BITMAP                  "..\\res\\paste.bmp"
+
+IDB_EX_PASTE_ALL        BITMAP                  "..\\res\\page_white_stack.bmp"
+
+IDB_EX_COPY_TO_CLIPBOARD BITMAP                  "..\\res\\brick_go.bmp"
+
+IDB_EX_DELETE           BITMAP                  "..\\res\\delete.bmp"
+
+IDB_EX_DELETE_ALL       BITMAP                  "..\\res\\bin_empty.bmp"
+
+IDB_EX_OPTIONS          BITMAP                  "..\\res\\cog.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_LEFTRIGHT           CURSOR                  "..\\res\\leftright.cur"
+
+IDC_UPDOWN              CURSOR                  "..\\res\\updown.cur"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_OPTIONS_DLG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // Neutral resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

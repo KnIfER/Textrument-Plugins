@@ -1,0 +1,312 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\MCSubClassWndProc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MultiClipboardProxy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AboutDlg\AboutDialog.cpp">
+      <Filter>Source Files\AboutDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardControls\CBContextMenu.cpp">
+      <Filter>Source Files\WndControls</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardControls\CBEditbox.cpp">
+      <Filter>Source Files\WndControls</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardControls\CBListbox.cpp">
+      <Filter>Source Files\WndControls</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardControls\SplitterPanel.cpp">
+      <Filter>Source Files\WndControls</Filter>
+    </ClCompile>
+    <ClCompile Include="$(PW)\..\plugins\CPPCommon\SysMsg.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MultiClipboardViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(PW)\src\WinControls\ImageListSet\ImageListSet.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="$(PW)\src\wutils.cpp" />
+    <ClCompile Include="$(PW)\src\WinControls\AboutDlg\URLCtrl.cpp" />
+    <ClCompile Include="$(PW)\..\plugins\CPPCommon\common_patch.cpp" />
+    <ClCompile Include="$(PW)\..\plugins\CPPCommon\ToolbarPanel.cpp" />
+    <ClCompile Include="$(PW)\src\WinControls\ToolBar\ToolBar.cpp" />
+    <ClCompile Include="$(PW)\src\DarkMode\DarkMode.cpp">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClCompile>
+    <ClCompile Include="$(PW)\src\NppDarkMode.cpp">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClCompile>
+    <ClCompile Include="$(PW)\src\WinControls\Window.cpp">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="$(PW)\src\WinControls\InsituDebug.cpp">
+      <Filter>Source Files\PluginFeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardMVC\SelectedTextAutoCopier.cpp">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardMVC\ArraysOfClips.cpp">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardMVC\ModelViewController.cpp">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardMVC\MultiClipCyclicPaste.cpp">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardMVC\MultiClipOLEDragDrop.cpp">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardMVC\MultiClipPasteMenu.cpp">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardMVC\OSClipboardController.cpp">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardControls\CBListPanel.cpp">
+      <Filter>Source Files\WndControls</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardMVC\MultiClipDlg.cpp">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardSettings\McOptionsManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClipboardSettings\OptionsDlg.cpp">
+      <Filter>Source Files\AboutDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="$(PW)\src\WinControls\StaticDialog\StaticDialog.cpp">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\MCSubClassWndProc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MultiClipboardProxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MultiClipboardStringType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\NativeLang\src\NativeLang_def.h">
+      <Filter>Header Files\NativeLang</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TinyXML\tinystr.h">
+      <Filter>Header Files\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TinyXML\tinyxml.h">
+      <Filter>Header Files\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\src\WinControls\ToolBar\ToolBar.h" />
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\ToolbarPanel.h" />
+    <ClInclude Include="src\Scintilla_plugin.h" />
+    <ClInclude Include="$(PW)\src\DarkMode\DarkMode.h">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\src\DarkMode\IatHook.h">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\src\DarkMode\UAHMenuBar.h">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\src\NppDarkMode.h">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PluginDefinition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\src\WinControls\InsituDebug.h">
+      <Filter>Source Files\PluginFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardMVC\ArraysOfClips.h">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardMVC\ModelViewController.h">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardMVC\MultiClipCyclicPaste.h">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardMVC\MultiClipOLEDragDrop.h">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardMVC\MultiClipPasteMenu.h">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardMVC\OSClipboardController.h">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardMVC\SelectedTextAutoCopier.h">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardControls\SplitterPanel.h">
+      <Filter>Source Files\WndControls</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardControls\CBEditbox.h">
+      <Filter>Source Files\WndControls</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardControls\CBListbox.h">
+      <Filter>Source Files\WndControls</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardControls\CBContextMenu.h">
+      <Filter>Source Files\WndControls</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\src\WinControls\Control.h">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardControls\CBListPanel.h">
+      <Filter>Source Files\WndControls</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardMVC\MultiClipDlg.h">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardSettings\McOptions.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardSettings\McOptionsManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\Docking.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\DockingDlgInterface.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\ImageListSet.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\Notepad_plus_msgs.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\PluginInterface.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\SciSubClassWrp.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\SysMsg.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\URLCtrl.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\Window.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AboutDlg\AboutDialog.h">
+      <Filter>Source Files\AboutDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClipboardSettings\OptionsDlg.h">
+      <Filter>Source Files\AboutDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\src\WinControls\StaticDialog\StaticDialog.h">
+      <Filter>Source Files\DialogFeatures</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\delete.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\down.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\leftright.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\multiclipboard.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\multiclipboard.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\lang\MultiClipboard_en.ini">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\paste.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\up.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\updown.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\brick_go.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\page_white_stack.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\bin_empty.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\cog.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{249b0d22-9296-4172-bbe3-f7fb6d5b1a36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{55c9cb55-b3db-4bc5-a697-7b8bd3622a5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{3a19b324-de31-4096-9ed3-c8325f3c168f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common">
+      <UniqueIdentifier>{0447afa3-9611-461d-9c02-0ed02df39662}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AboutDlg">
+      <UniqueIdentifier>{1e648e16-d741-4ce6-b051-caecb1f21702}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Common">
+      <UniqueIdentifier>{77b49b84-1416-43c5-8e84-e3b04cc827ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AboutDlg">
+      <UniqueIdentifier>{f284964a-7bae-4009-9bb9-4be5a014d016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ClipboardControls">
+      <UniqueIdentifier>{c719cfea-901c-413c-9286-953780a2d202}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\NativeLang">
+      <UniqueIdentifier>{5ed9ea85-84f1-470d-98ef-9cbafb0c3fdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ClipboardSettings">
+      <UniqueIdentifier>{f787e012-7a6d-4bf0-9f44-140e95f1c3ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\TinyXML">
+      <UniqueIdentifier>{ff8ac628-4c4e-4dd4-9b59-158c615295dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DarkMode">
+      <UniqueIdentifier>{2f948ea3-9c42-420f-84c6-ff6373e018ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DialogFeatures">
+      <UniqueIdentifier>{91e44cc1-4800-4e91-b5be-f95a8b24e331}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PluginFeatures">
+      <UniqueIdentifier>{99d06cca-0584-4b5f-80fe-1b1019bb1303}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WndControls">
+      <UniqueIdentifier>{a48a531a-652a-4411-a4a4-ffefc91206c1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\MultiClipboard.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\paste_muple.ico" />
+  </ItemGroup>
+</Project>

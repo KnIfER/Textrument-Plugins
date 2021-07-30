@@ -1,0 +1,304 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0A9F9D63-C282-4AE8-9F80-A6D5F541AD12}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+    <Import Project="..\plugins_dev.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+    <Import Project="..\plugins_dev.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+    <Import Project="..\plugins_dev.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+    <Import Project="..\plugins_dev.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>src/TinyXML;src;src/AboutDlg;src/ClipboardMVC;src/ClipboardControls;src/ClipboardSettings;../CPPCommon;../NativeLang/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;MultiClipboard_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;comctl32.lib;tinyxml32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(DLLOU_)</OutputFile>
+      <AdditionalLibraryDirectories>src/TinyXML;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)MultiClipboard.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)MultiClipboard.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>src/TinyXML;src;src/AboutDlg;src/ClipboardMVC;src/ClipboardControls;src/ClipboardSettings;../CPPCommon;../NativeLang/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;TBPIsWrapper=0;PluginToolbar;TIXMLA_USE_STL;_USRDLL;MultiClipboard_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;comctl32.lib;tinyxml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(DLLOU)</OutputFile>
+      <AdditionalLibraryDirectories>src/TinyXML;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)MultiClipboard.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)MultiClipboard.lib</ImportLibrary>
+      <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>src/TinyXML;src;src/AboutDlg;src/ClipboardMVC;src/ClipboardControls;src/ClipboardSettings;../CPPCommon;../NativeLang/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;MultiClipboard_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;shlwapi.lib;comctl32.lib;tinyxml32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(DLLOU_)</OutputFile>
+      <AdditionalLibraryDirectories>src/TinyXML;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <ImportLibrary>$(OutDir)MultiClipboard.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>src/TinyXML;src;src/AboutDlg;src/ClipboardMVC;src/ClipboardControls;src/ClipboardSettings;../CPPCommon;../NativeLang/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WIN64=1;TBPIsWrapper=0;PluginToolbar;TIXMLA_USE_STL;NDEBUG;_WINDOWS;_USRDLL;MarkDownText_EXPORTS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;shlwapi.lib;comctl32.lib;tinyxml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(DLLOU)</OutputFile>
+      <AdditionalLibraryDirectories>src/TinyXML;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <ImportLibrary>$(OutDir)MultiClipboard.lib</ImportLibrary>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="$(PW)\src\DarkMode\DarkMode.cpp" />
+    <ClCompile Include="$(PW)\src\NppDarkMode.cpp" />
+    <ClCompile Include="$(PW)\src\WinControls\AboutDlg\URLCtrl.cpp" />
+    <ClCompile Include="$(PW)\src\WinControls\ImageListSet\ImageListSet.cpp" />
+    <ClCompile Include="$(PW)\src\WinControls\InsituDebug.cpp" />
+    <ClCompile Include="$(PW)\src\WinControls\StaticDialog\StaticDialog.cpp" />
+    <ClCompile Include="$(PW)\src\WinControls\ToolBar\ToolBar.cpp" />
+    <ClCompile Include="$(PW)\src\WinControls\Window.cpp" />
+    <ClCompile Include="$(PW)\src\wutils.cpp" />
+    <ClCompile Include="$(PW)\..\plugins\CPPCommon\common_patch.cpp" />
+    <ClCompile Include="$(PW)\..\plugins\CPPCommon\ToolbarPanel.cpp" />
+    <ClCompile Include="src\ClipboardControls\CBListPanel.cpp" />
+    <ClCompile Include="src\ClipboardMVC\MultiClipOLEDragDrop.cpp" />
+    <ClCompile Include="src\MCSubClassWndProc.cpp" />
+    <ClCompile Include="src\MultiClipboardViewer.cpp" />
+    <ClCompile Include="src\MultiClipboardProxy.cpp" />
+    <ClCompile Include="$(PW)\..\plugins\CPPCommon\SysMsg.cpp" />
+    <ClCompile Include="src\AboutDlg\AboutDialog.cpp" />
+    <ClCompile Include="src\ClipboardControls\CBContextMenu.cpp" />
+    <ClCompile Include="src\ClipboardControls\CBEditbox.cpp" />
+    <ClCompile Include="src\ClipboardControls\CBListbox.cpp" />
+    <ClCompile Include="src\ClipboardControls\SplitterPanel.cpp" />
+    <ClCompile Include="src\ClipboardMVC\ArraysOfClips.cpp" />
+    <ClCompile Include="src\ClipboardMVC\ModelViewController.cpp" />
+    <ClCompile Include="src\ClipboardMVC\MultiClipCyclicPaste.cpp" />
+    <ClCompile Include="src\ClipboardMVC\MultiClipPasteMenu.cpp" />
+    <ClCompile Include="src\ClipboardMVC\MultiClipDlg.cpp" />
+    <ClCompile Include="src\ClipboardMVC\OSClipboardController.cpp" />
+    <ClCompile Include="src\ClipboardMVC\SelectedTextAutoCopier.cpp" />
+    <ClCompile Include="src\ClipboardSettings\McOptionsManager.cpp" />
+    <ClCompile Include="src\ClipboardSettings\OptionsDlg.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(PW)\src\DarkMode\DarkMode.h" />
+    <ClInclude Include="$(PW)\src\DarkMode\IatHook.h" />
+    <ClInclude Include="$(PW)\src\DarkMode\UAHMenuBar.h" />
+    <ClInclude Include="$(PW)\src\NppDarkMode.h" />
+    <ClInclude Include="$(PW)\src\WinControls\Control.h" />
+    <ClInclude Include="$(PW)\src\WinControls\InsituDebug.h" />
+    <ClInclude Include="$(PW)\src\WinControls\StaticDialog\StaticDialog.h" />
+    <ClInclude Include="$(PW)\src\WinControls\ToolBar\ToolBar.h" />
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\ToolbarPanel.h" />
+    <ClInclude Include="src\ClipboardControls\CBListPanel.h" />
+    <ClInclude Include="src\ClipboardMVC\MultiClipOLEDragDrop.h" />
+    <ClInclude Include="src\ClipboardSettings\McOptions.h" />
+    <ClInclude Include="src\ClipboardSettings\McOptionsManager.h" />
+    <ClInclude Include="src\ClipboardSettings\OptionsDlg.h" />
+    <ClInclude Include="src\MCSubClassWndProc.h" />
+    <ClInclude Include="src\MultiClipboardProxy.h" />
+    <ClInclude Include="src\MultiClipboardStringType.h" />
+    <ClInclude Include="src\PluginDefinition.h" />
+    <ClInclude Include="src\resource.h" />
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\Docking.h" />
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\DockingDlgInterface.h" />
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\ImageListSet.h" />
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\Notepad_plus_msgs.h" />
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\PluginInterface.h" />
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\SciSubClassWrp.h" />
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\SysMsg.h" />
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\URLCtrl.h" />
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\Window.h" />
+    <ClInclude Include="src\AboutDlg\AboutDialog.h" />
+    <ClInclude Include="src\ClipboardControls\CBContextMenu.h" />
+    <ClInclude Include="src\ClipboardControls\CBEditbox.h" />
+    <ClInclude Include="src\ClipboardControls\CBListbox.h" />
+    <ClInclude Include="src\ClipboardControls\SplitterPanel.h" />
+    <ClInclude Include="src\ClipboardMVC\ArraysOfClips.h" />
+    <ClInclude Include="src\ClipboardMVC\ModelViewController.h" />
+    <ClInclude Include="src\ClipboardMVC\MultiClipCyclicPaste.h" />
+    <ClInclude Include="src\ClipboardMVC\MultiClipPasteMenu.h" />
+    <ClInclude Include="src\ClipboardMVC\MultiClipDlg.h" />
+    <ClInclude Include="src\ClipboardMVC\OSClipboardController.h" />
+    <ClInclude Include="src\ClipboardMVC\SelectedTextAutoCopier.h" />
+    <ClInclude Include="$(PW)\..\plugins\NativeLang\src\NativeLang_def.h" />
+    <ClInclude Include="src\Scintilla_plugin.h" />
+    <ClInclude Include="src\TinyXML\tinystr.h" />
+    <ClInclude Include="src\TinyXML\tinyxml.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\bin_empty.bmp" />
+    <None Include="res\brick_go.bmp" />
+    <None Include="res\cog.bmp" />
+    <None Include="res\delete.bmp" />
+    <None Include="res\down.bmp" />
+    <None Include="res\leftright.cur" />
+    <None Include="res\multiclipboard.bmp" />
+    <None Include="res\multiclipboard.ico" />
+    <None Include="..\..\lang\MultiClipboard_en.ini" />
+    <None Include="res\page_white_stack.bmp" />
+    <None Include="res\paste.bmp" />
+    <None Include="res\up.bmp" />
+    <None Include="res\updown.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\MultiClipboard.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\paste_muple.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
