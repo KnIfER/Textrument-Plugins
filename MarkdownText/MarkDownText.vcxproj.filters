@@ -262,7 +262,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="res\skin\wv2.xml">
       <Filter>resource\skin</Filter>
     </None>

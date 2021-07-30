@@ -1,0 +1,14 @@
+Release
+x64
+.vs
+Unicode Release
+Unicode Debug
+bin
+Output-Build.txt
+*.zip
+packages
+*.lnk
+
+/*/
+!MarkdownText
+!CPPCommon

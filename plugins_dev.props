@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <scintilla>$(SolutionDir)\..\scintilla</scintilla>
+    <PowerEditor>$(SolutionDir)\..\PowerEditor</PowerEditor>
+    <PowerExecDir>$(PowerEditor)\bin64</PowerExecDir>
+    <PowerExecDir1>$(SolutionDir)\..\秘籍\npp.8.0.portable.x64</PowerExecDir1>
+    <DLLOU>$(PowerExecDir)\plugins\$(TargetName)\$(TargetName)$(TargetExt)</DLLOU>
+    <DLLOU1>$(PowerExecDir1)\plugins\$(TargetName)\$(TargetName)$(TargetExt)</DLLOU1>
+    <PW>$(PowerEditor)</PW>
+    <BOOST>D:\Code\FigureOut\Textrument\boost_1_74_0</BOOST>
+    <DLLOU_32>$(PowerEditor)\bin\plugins\$(TargetName)\$(TargetName)$(TargetExt)</DLLOU_32>
+    <cleanup>$(PowerEditor)\../tools/cleanup.bat $(PowerEditor)\bin64\tools\cleandll.bat</cleanup>
+    <PowerExec>$(PowerExecDir)\Textrument.exe</PowerExec>
+    <PowerExec1>$(PowerExecDir1)\notepad++.exe</PowerExec1>
+    <DUPA>..\DirectUILib\DuiLib</DUPA>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>16.0.28916.169</_ProjectFileVersion>
+    <_PropertySheetDisplayName>plugin_dev</_PropertySheetDisplayName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./src/public;$(PowerEditor)/../plugins/CPPCommon;$(PowerEditor)\src\WinControls\AboutDlg;$(scintilla)\include;$(PowerEditor)\include;$(PowerEditor)\src\WinControls;$(PowerEditor)\src\WinControls\ImageListSet;$(PowerEditor)\src\WinControls\OpenSaveFileDialog;$(PowerEditor)\src\WinControls\SplitterContainer;$(PowerEditor)\src\WinControls\StaticDialog;$(PowerEditor)\src\WinControls\TabBar;$(PowerEditor)\src\WinControls\ToolBar;$(PowerEditor)\src\MISC\Process;$(PowerEditor)\src\ScitillaComponent;$(PowerEditor)\src\MISC;$(PowerEditor)\src\MISC\SysMsg;$(PowerEditor)\src\WinControls\StatusBar;$(PowerEditor)\src;$(PowerEditor)\src\WinControls\StaticDialog\RunDlg;$(PowerEditor)\src\tinyxml;$(PowerEditor)\src\WinControls\ColourPicker;$(PowerEditor)\src\Win32Explr;$(PowerEditor)\src\MISC\RegExt;$(PowerEditor)\src\WinControls\TrayIcon;$(PowerEditor)\src\WinControls\shortcut;$(PowerEditor)\src\WinControls\Grid;$(PowerEditor)\src\WinControls\ContextMenu;$(PowerEditor)\src\MISC\PluginsManager;$(PowerEditor)\src\WinControls\Preference;$(PowerEditor)\src\WinControls\WindowsDlg;$(PowerEditor)\src\WinControls\TaskList;$(PowerEditor)\src\WinControls\DockingWnd;$(PowerEditor)\src\WinControls\ToolTip;$(PowerEditor)\src\MISC\Exception;$(PowerEditor)\src\MISC\Common;$(PowerEditor)\src\tinyxml\tinyXmlA;$(PowerEditor)\src\WinControls\AnsiCharPanel;$(PowerEditor)\src\WinControls\ClipboardHistory;$(PowerEditor)\src\WinControls\FindCharsInRange;$(PowerEditor)\src\WinControls\VerticalFileSwitcher;$(PowerEditor)\src\WinControls\ProjectPanel;$(PowerEditor)\src\WinControls\DocumentMap;$(PowerEditor)\src\WinControls\FunctionList;$(PowerEditor)\src\uchardet;$(PowerEditor)\src\WinControls\FileBrowser;$(PowerEditor)\src\WinControls\ReadDirectoryChanges;$(PowerEditor)\src\MISC\md5;$(PowerEditor)\src\WinControls\PluginsAdmin;$(PowerEditor)\src\json;$(PowerEditor)\src\MISC\sha2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="scintilla">
+      <Value>$(scintilla)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PowerEditor">
+      <Value>$(PowerEditor)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PowerExecDir">
+      <Value>$(PowerExecDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PowerExecDir1">
+      <Value>$(PowerExecDir1)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DLLOU">
+      <Value>$(DLLOU)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DLLOU1">
+      <Value>$(DLLOU1)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PW">
+      <Value>$(PW)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BOOST">
+      <Value>$(BOOST)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DLLOU_32">
+      <Value>$(DLLOU_32)</Value>
+    </BuildMacro>
+    <BuildMacro Include="cleanup">
+      <Value>$(cleanup)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PowerExec">
+      <Value>$(PowerExec)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PowerExec1">
+      <Value>$(PowerExec1)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DUPA">
+      <Value>$(DUPA)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
