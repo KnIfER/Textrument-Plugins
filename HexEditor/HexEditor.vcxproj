@@ -206,7 +206,6 @@
     <ClCompile Include="$(PW)\..\plugins\CPPCommon\common_patch.cpp" />
     <ClCompile Include="..\..\PowerEditor\src\DarkMode\DarkMode.cpp" />
     <ClCompile Include="..\..\PowerEditor\src\NppDarkMode.cpp" />
-    <ClCompile Include="..\..\PowerEditor\src\WinControls\Window.cpp" />
     <ClCompile Include="src\HelpDlg\HelpDialog.cpp" />
     <ClCompile Include="src\Hex.cpp" />
     <ClCompile Include="src\HEXDialog.cpp" />

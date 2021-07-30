@@ -42,9 +42,6 @@
     <ClCompile Include="$(PW)\src\NppDarkMode.cpp">
       <Filter>Source Files\DarkMode</Filter>
     </ClCompile>
-    <ClCompile Include="$(PW)\src\WinControls\Window.cpp">
-      <Filter>Source Files\DialogFeatures</Filter>
-    </ClCompile>
     <ClCompile Include="$(PW)\src\WinControls\InsituDebug.cpp">
       <Filter>Source Files\PluginFeatures</Filter>
     </ClCompile>

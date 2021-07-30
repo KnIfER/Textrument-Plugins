@@ -206,7 +206,6 @@
     <ClCompile Include="$(PW)\src\WinControls\InsituDebug.cpp" />
     <ClCompile Include="$(PW)\src\WinControls\StaticDialog\StaticDialog.cpp" />
     <ClCompile Include="$(PW)\src\WinControls\ToolBar\ToolBar.cpp" />
-    <ClCompile Include="$(PW)\src\WinControls\Window.cpp" />
     <ClCompile Include="$(PW)\src\wutils.cpp" />
     <ClCompile Include="$(PW)\..\plugins\CPPCommon\common_patch.cpp" />
     <ClCompile Include="$(PW)\..\plugins\CPPCommon\ToolbarPanel.cpp" />

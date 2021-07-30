@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HexEditor", "HexEditor\HexE
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiClipboard", "MultiClipboard\MultiClipboard.vcxproj", "{0A9F9D63-C282-4AE8-9F80-A6D5F541AD12}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PyNPP", "PyNPP\PyNPP.vcxproj", "{CFAA244D-7561-44CD-A3FB-2A5843850A89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -60,6 +62,14 @@ Global
 		{0A9F9D63-C282-4AE8-9F80-A6D5F541AD12}.Release|Win32.Build.0 = Release|Win32
 		{0A9F9D63-C282-4AE8-9F80-A6D5F541AD12}.Release|x64.ActiveCfg = Release|x64
 		{0A9F9D63-C282-4AE8-9F80-A6D5F541AD12}.Release|x64.Build.0 = Release|x64
+		{CFAA244D-7561-44CD-A3FB-2A5843850A89}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CFAA244D-7561-44CD-A3FB-2A5843850A89}.Debug|Win32.Build.0 = Debug|Win32
+		{CFAA244D-7561-44CD-A3FB-2A5843850A89}.Debug|x64.ActiveCfg = Debug|x64
+		{CFAA244D-7561-44CD-A3FB-2A5843850A89}.Debug|x64.Build.0 = Debug|x64
+		{CFAA244D-7561-44CD-A3FB-2A5843850A89}.Release|Win32.ActiveCfg = Release|Win32
+		{CFAA244D-7561-44CD-A3FB-2A5843850A89}.Release|Win32.Build.0 = Release|Win32
+		{CFAA244D-7561-44CD-A3FB-2A5843850A89}.Release|x64.ActiveCfg = Release|x64
+		{CFAA244D-7561-44CD-A3FB-2A5843850A89}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

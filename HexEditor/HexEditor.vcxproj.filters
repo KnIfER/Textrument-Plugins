@@ -84,9 +84,6 @@
     <ClCompile Include="..\..\PowerEditor\src\NppDarkMode.cpp">
       <Filter>Source Files\DarkMode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\PowerEditor\src\WinControls\Window.cpp">
-      <Filter>Source Files\DarkMode</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\misc\ColorCombo.h">

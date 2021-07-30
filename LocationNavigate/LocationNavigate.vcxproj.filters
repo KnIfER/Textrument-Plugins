@@ -48,9 +48,6 @@
     <ClCompile Include="..\CPPCommon\ToolbarPanel.cpp">
       <Filter>Source Files\PluginFeatures</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\PowerEditor\src\WinControls\Window.cpp">
-      <Filter>Source Files\PluginFeatures</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\PowerEditor\src\WinControls\ImageListSet\ImageListSet.cpp">
       <Filter>Source Files\PluginFeatures</Filter>
     </ClCompile>
