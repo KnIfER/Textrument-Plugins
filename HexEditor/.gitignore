@@ -1,0 +1,12 @@
+Release
+x64
+.vs
+Unicode Realeas
+Unicode Debug
+bin
+Output-Build.txt
+*.zip
+*.ncb
+*.suo
+Debug
+Release

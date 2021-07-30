@@ -1,0 +1,191 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{51daef39-ee9f-4741-83fe-58460a164595}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{51f795a5-08bb-4eb2-a4d4-c03756dead52}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Common">
+      <UniqueIdentifier>{1ef462f5-8470-4cf0-91e3-a53d4460c66d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\if_def_files">
+      <UniqueIdentifier>{fa493a46-b962-499e-93dc-acf3365bb8a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{11ab56c1-b0c6-49f8-8a4f-3229d3d3aad1}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+    <Filter Include="Source Files\DarkMode">
+      <UniqueIdentifier>{90d406ab-eda3-473e-8750-16c81ef967d9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\misc\ColorCombo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\misc\ColorPopup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OptionDlg\ColumnDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserDlg\CompareDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserDlg\FindReplaceDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserDlg\GotoDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HEXDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HelpDlg\HelpDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\misc\ModifyMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\misc\MultiTypeCombo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OptionDlg\OptionDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserDlg\PatternDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utf8_16.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(PW)\src\WinControls\AboutDlg\URLCtrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(PW)\src\WinControls\StaticDialog\StaticDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(PW)\..\plugins\CPPCommon\common_patch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(PW)\src\WinControls\ToolTip\ToolTip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PowerEditor\src\DarkMode\DarkMode.cpp">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PowerEditor\src\NppDarkMode.cpp">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PowerEditor\src\WinControls\Window.cpp">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\misc\ColorCombo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\ColorPopup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OptionDlg\ColumnDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserDlg\CompareDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserDlg\FindReplaceDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserDlg\GotoDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HEXDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HEXResource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HelpDlg\HelpDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Hex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\ModifyMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc\MultiTypeCombo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OptionDlg\OptionDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserDlg\PatternDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HelpDlg\URLCtrl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utf8_16.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\keys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\NativeLang\src\NativeLang_def.h">
+      <Filter>Header Files\if_def_files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(PW)\..\plugins\CPPCommon\stdafx.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PowerEditor\src\DarkMode\DarkMode.h">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PowerEditor\src\DarkMode\DarkModePlus.h">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PowerEditor\src\DarkMode\IatHook.h">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PowerEditor\src\NppDarkMode.h">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PowerEditor\src\DarkMode\UAHMenuBar.h">
+      <Filter>Source Files\DarkMode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PluginDefinition.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\HEXDialog.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\hex.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\lang\NativeLang_ger.ini" />
+    <None Include="..\lang\NativeLang_template.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\change.log" />
+  </ItemGroup>
+</Project>
