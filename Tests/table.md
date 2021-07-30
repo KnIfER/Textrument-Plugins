@@ -1,6 +1,0 @@
-| Beep |   No.  |   Boop |
-| :--- | :----: | -----: |
-| beep |  1024  |    xyz |
-| boop | 338845 |    tuv |
-| foo  |  10106 | qrstuv |
-| bar  |   45   |   lmno |
