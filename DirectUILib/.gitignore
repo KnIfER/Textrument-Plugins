@@ -1,0 +1,16 @@
+Debug
+Release
+.vs
+*.exe
+
+*.rar
+
+DemoBundles
+
+FileTree
+
+*.aps
+*.dmp
+
+*.log
+*.FileListAbsolute.txt
