@@ -18,22 +18,7 @@
 #include "PluginDefinition.h"
 #include "menuCmdID.h"
 
-//
-// The plugin data that Notepad++ needs
-//
-FuncItem funcItem[nbFunc];
-
-//
-// The data of Notepad++ that you can use in your plugin commands
-//
-NppData nppData;
-
 // Define the Icon Resources for the Toolbar
-toolbarIcons* left_icon = new toolbarIcons;
-toolbarIcons* right_icon = new toolbarIcons;
-toolbarIcons* open_icon = new toolbarIcons;
-toolbarIcons* start_icon = new toolbarIcons;
-toolbarIcons* end_icon = new toolbarIcons;
 
 // Define the global variables for this plugin
 bigfile_struct bigfile[10];
@@ -62,8 +47,6 @@ extern int ft_length;
 
 extern std::vector<FileTracker> ftv;
 
-HANDLE global_npp_handle;
-
 //--------- START LOADING AND UNLOADING FUNCTIONS ----------------
 
 //
@@ -71,13 +54,9 @@ HANDLE global_npp_handle;
 // It will be called while plugin loading   
 void pluginInit(HANDLE g_npp_handle /*hModule*/)
 {
-	global_npp_handle = g_npp_handle;
+	g_hModule = g_npp_handle;
 
-	left_icon->hToolbarBmp = (HBITMAP)::LoadImage((HINSTANCE)g_npp_handle, MAKEINTRESOURCE(IDB_BITMAP1), IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
-	right_icon->hToolbarBmp = (HBITMAP)::LoadImage((HINSTANCE)g_npp_handle,MAKEINTRESOURCE(IDB_BITMAP2), IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
-	open_icon->hToolbarBmp = (HBITMAP)::LoadImage((HINSTANCE)g_npp_handle, MAKEINTRESOURCE(IDB_BITMAP3), IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
-	start_icon->hToolbarBmp = (HBITMAP)::LoadImage((HINSTANCE)g_npp_handle, MAKEINTRESOURCE(IDB_BITMAP5), IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
-	end_icon->hToolbarBmp = (HBITMAP)::LoadImage((HINSTANCE)g_npp_handle, MAKEINTRESOURCE(IDB_BITMAP4), IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
+
 
 	//This section below can go to command menu init and get modified by configuration file
 	AltLeftKey->_isAlt = true;
@@ -120,29 +99,17 @@ void pluginCleanUp()
 // You should fill your plugins commands here
 void commandMenuInit()
 {
+	funcItems = new FuncItem[]{
+		{TEXT("Open BigFile"), openBigFileDlg3, menuOpen, false, NULL}
+		,{TEXT("Backward"), move_backward3, menuBack, false, AltLeftKey}
+		,{TEXT("Forward"), move_forward3, menuFore, false, AltRightKey} 
+		,{TEXT("Move to Start"), move_to_start3, menuSt, false, AltUpKey} 
+		,{TEXT("Move to End"), move_to_end3, menuEd, false, AltDownKey} 
+		,{TEXT("-SEPARATOR-"), NULL, menuSeparator, false} 
+		,{TEXT("Change Config"), openConfigFile, menuOptions, false, NULL} 
+		,NULL
+	};
 
-    //--------------------------------------------//
-    //-- STEP 3. CUSTOMIZE YOUR PLUGIN COMMANDS --//
-    //--------------------------------------------//
-    // with function :
-    // setCommand(int index,                      // zero based number to indicate the order of command
-    //            TCHAR *commandName,             // the command name that you want to see in plugin menu
-    //            PFUNCPLUGINCMD functionPointer, // the symbol of function (function pointer) associated with this command. The body should be defined below. See Step 4.
-    //            ShortcutKey *shortcut,          // optional. Define a shortcut to trigger this command
-    //            bool check0nInit                // optional. Make this menu item be checked visually
-    //            );
-
-	setCommand(0, TEXT("Open BigFile"), openBigFileDlg3, NULL, false);
-	setCommand(1, TEXT("Backward"), move_backward3, AltLeftKey, false);
-	setCommand(2, TEXT("Forward"), move_forward3, AltRightKey, false);
-
-	setCommand(3, TEXT("Move to Start"), move_to_start3, AltUpKey, false);
-	setCommand(4, TEXT("Move to End"), move_to_end3, AltDownKey, false);
-
-	// Separator
-	setCommand(5, TEXT("---"), NULL, NULL, false);
-	
-	setCommand(6, TEXT("Change Config"), openConfigFile, NULL, false);
 	// TODO: New Features
 	/*
 	// Search for a string in a big file, move page automatically
@@ -153,7 +120,6 @@ void commandMenuInit()
 
 	//Get configuration
 	bigfiles_config = new Configuration(nppData);
-	
 }
 
 INT_PTR CALLBACK ConfigurationDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
@@ -190,6 +156,14 @@ void openConfigFile()
 	bigfiles_config->ConfFileBufferID = (int)::SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);
 }
 
+// https://stackoverflow.com/questions/75701/what-happens-to-global-variables-declared-in-a-dll
+
+toolbarIcons left_icon{0,0,0x666,0,0,0,0,IDB_BITMAP1};
+toolbarIcons right_icon{0,0,0x666,0,0,0,0,IDB_BITMAP2};
+toolbarIcons open_icon{0,0,0x666,0,0,0,0,IDB_BITMAP3};
+toolbarIcons start_icon{0,0,0x666,0,0,0,0,IDB_BITMAP5};
+toolbarIcons end_icon{0,0,0x666,0,0,0,0,IDB_BITMAP4};
+
 //
 // Here you can do the clean up (especially for the shortcut)
 //
@@ -199,47 +173,42 @@ void commandMenuCleanUp()
 
 	// Don't forget to deallocate your shortcut here
 	delete AltLeftKey, AltRightKey, AltDownKey, AltUpKey;
-	delete left_icon, right_icon, open_icon, start_icon, end_icon;
 }
 
-// Register Toolbar Icons
+
 void commandRegToolbarIcons() {
-	//Add icons in the toolbar
+	/* add toolbar icon */
+	auto HRO = (HINSTANCE)g_hModule;
 
-	// Start
-	::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItem[3]._cmdID, (LPARAM)(start_icon));
+	long version = ::SendMessage(nppData._nppHandle, NPPM_GETNOTMADVERSION, 0, 0);
 
-	// Left
-	::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItem[1]._cmdID, (LPARAM)(left_icon));
+	legacy = version<0x666;
 
-	// Open
-	::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItem[0]._cmdID, (LPARAM)(open_icon));
+	start_icon.HRO = HRO;
+	if(legacy) {
+		start_icon.hToolbarBmp = (HBITMAP)::LoadImage(HRO, MAKEINTRESOURCE(IDB_BITMAP3), IMAGE_BITMAP, 0,0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
+		//start_icon.hToolbarIcon = ::LoadIcon(HRO, IDC_);
+	}
+	::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItems[menuSt]._cmdID, (LPARAM)&start_icon);
 
-	// Right
-	::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItem[2]._cmdID, (LPARAM)(right_icon));
+	left_icon.HRO = HRO;
+	if(legacy)left_icon.hToolbarBmp = (HBITMAP)::LoadImage(HRO, MAKEINTRESOURCE(IDB_BITMAP1), IMAGE_BITMAP, 0,0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
+	::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItems[menuBack]._cmdID, (LPARAM)&left_icon);
 
-	//End
-	::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItem[4]._cmdID, (LPARAM)(end_icon));
+	open_icon.HRO = HRO;
+	if(legacy)open_icon.hToolbarBmp = (HBITMAP)::LoadImage(HRO, MAKEINTRESOURCE(IDB_BITMAP2), IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
+	::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItems[menuOpen]._cmdID, (LPARAM)&open_icon);
+
+	right_icon.HRO = HRO;
+	if(legacy)right_icon.hToolbarBmp = (HBITMAP)::LoadImage(HRO, MAKEINTRESOURCE(IDB_BITMAP4), IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
+	::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItems[menuFore]._cmdID, (LPARAM)&right_icon);
+
+	
+	end_icon.HRO = HRO;
+	if(legacy)end_icon.hToolbarBmp = (HBITMAP)::LoadImage(HRO, MAKEINTRESOURCE(IDB_BITMAP4), IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
+	::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItems[menuEd]._cmdID, (LPARAM)&end_icon);
+
 };
-
-//
-// This function help you to initialize your plugin commands
-//
-bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey *sk, bool check0nInit) 
-{
-    if (index >= nbFunc)
-        return false;
-
-    if (!pFunc)
-        return false;
-
-    lstrcpy(funcItem[index]._itemName, cmdName);
-    funcItem[index]._pFunc = pFunc;
-    funcItem[index]._init2Check = check0nInit;
-    funcItem[index]._pShKey = sk;
-
-    return true;
-}
 
 //---------- END LOADING AND UNLOADING FUNCTIONS ----------------
 

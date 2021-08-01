@@ -82,8 +82,29 @@ Function used:
 #define DEBUG_LIBMAGIC
 
 #define PLUGIN_NAME "BigFiles"
-#define PLUGIN_NUMBER_OF_FUNCTIONS 7
 #define PLUGIN_DEFAULT_MESSAGEBOX_TITLE "BigFiles Plugin"
+
+enum MenuEnum
+{
+	menuOpen = 0,
+	menuBack,
+	menuFore,
+	menuSt,
+	menuEd,
+
+	menuSeparator,
+
+	menuOptions,
+	menuCount,
+};
+
+
+__declspec(selectany)  FuncItem* funcItems;
+__declspec(selectany)  NppData nppData;
+__declspec(selectany)  HANDLE				g_hModule;
+
+__declspec(selectany) bool			legacy;
+
 
 //-------- START SETTINGS --------
 //
@@ -94,7 +115,6 @@ const TCHAR NPP_PLUGIN_NAME[] = TEXT(PLUGIN_NAME);
 //
 // Here define the number of your plugin commands
 //
-const int nbFunc = PLUGIN_NUMBER_OF_FUNCTIONS;
 
 //-------- END SETTINGS --------
 

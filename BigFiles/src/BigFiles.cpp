@@ -17,8 +17,6 @@
 
 #include "PluginDefinition.h"
 
-extern FuncItem funcItem[nbFunc];
-extern NppData nppData;
 extern void updateStatusBar3(FileTracker*);
 extern void closeBufferID3(int buffer_ID);
 extern int getBigFileRecordIndex3(int buffer_id);
@@ -66,8 +64,8 @@ extern "C" __declspec(dllexport) const TCHAR * getName()
 
 extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int* nbF)
 {
-	*nbF = nbFunc;
-	return funcItem;
+	*nbF = menuCount;
+	return funcItems;
 }
 
 
