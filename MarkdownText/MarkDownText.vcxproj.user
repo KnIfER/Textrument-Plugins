@@ -11,6 +11,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommand>$(PowerExec)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>"D:\Code\FigureOut\chrome\extesions\MarkdownEngines\TurnDown\README.md" -multiInst -nosession </LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>"D:\zygote\Unpacked\0" -multiInst -nosession </LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

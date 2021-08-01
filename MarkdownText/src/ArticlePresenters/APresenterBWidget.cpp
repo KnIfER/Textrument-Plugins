@@ -165,6 +165,7 @@ BJSCV* getDarkBG(LONG_PTR funcName, int argc, LONG_PTR argv, int sizeofBJSCV)
 
 url_intercept_result* InterceptBrowserWidget(const char* url, const url_intercept_result* ret)
 {
+	//LogIs(3, "InterceptBrowserWidget::%s", url);
 	if(!url)
 	{
 		if(ret)
@@ -200,41 +201,32 @@ url_intercept_result* InterceptBrowserWidget(const char* url, const url_intercep
 		}
 	}
 
-
-	if(strncmp(url, "http://tests/MDT/", 17)==0)
-	{
-		//LogIs(2, url);
-		LONG_PTR bid=0;
-		int from = STR2LONGPTRA((CHAR*)url+17, bid);
-		if(bid&&from) {
-			auto path = url+18+from;
-			char decodedUrl[MAX_PATH];
-			UrlDecode(decodedUrl, path);
-			DWORD dataLen;
-			bool shouldDel = false;
-			auto data = presentee->loadSourceAsset(bid, decodedUrl, dataLen, &shouldDel);
-			if(data) {
-				url_intercept_result* result = new url_intercept_result{data, dataLen, 200, (CHAR*)"OK"};
-				result->delete_internal = shouldDel;
-				//strcpy(result->mime, "text/html; charset=utf-8");
-				//LogIs(2, result->mime);
-				return result;
-			}
-		}
-	}
-
 	if(strncmp(url, "http://mdt/", 11)==0)
 	{
 		//LogIs(2, url);
 		LONG_PTR bid=0;
-		int from = STR2LONGPTRA((CHAR*)url+17, bid);
+		int from = STR2LONGPTRA((CHAR*)url+11, bid);
 		if(bid&&from) {
 			auto path = url+12+from;
 			char decodedUrl[MAX_PATH];
 			UrlDecode(decodedUrl, path);
 			bool shouldDel = false;
+			DWORD dataLen;
+
+			if (strncmp(decodedUrl, "doc.html", 8) && strncmp(decodedUrl, "text.html", 9))
+			{
+				auto data = presentee->loadSourceAsset(bid, decodedUrl, dataLen, &shouldDel);
+				if(data) {
+					url_intercept_result* result = new url_intercept_result{data, dataLen, 200, (CHAR*)"OK"};
+					result->delete_internal = shouldDel;
+					//strcpy(result->mime, "text/html; charset=utf-8");
+					//LogIs(2, result->mime);
+					return result;
+				}
+			}
 
 			size_t len;
+
 			auto data = presentee->GetDocTex(len, bid, &shouldDel);
 
 			if(data) {
@@ -369,7 +361,7 @@ void APresenterBWidget::updateArticle(LONG_PTR bid, int articleType, bool softUp
 	}
 	CHAR* page_id = new CHAR[64];  // LIBCEF 需要拟构网址。 传文件名，只传ID吧。 http://tests/MDT/{bid}/text.html
 	int st,ed;
-	strcpy(page_id, "http://tests/MDT/");
+	strcpy(page_id, "http://MDT/");
 	LONGPTR2STR(page_id+(st=(int)strlen(page_id)), bid);
 	if(articleType==1) {
 		if(softUpdate||update) {
@@ -377,37 +369,41 @@ void APresenterBWidget::updateArticle(LONG_PTR bid, int articleType, bool softUp
 			size_t len;
 			//bwLoadStrData(mWebView, page_id+13, presentee->GetDocTex(len, bid, 0), 0);
 
-			bwLoadUrl(mWebView, page_id+13);
+			//LogIs("bwLoadUrl %s", page_id+13);
+
+			bwLoadUrl(mWebView, page_id);
 
 			if(update) {
 				presentee->lastBid=bid;
 				lstrcpy(last_updated, last_actived);
 			}
 		}
-		return;
-	}
-	strcpy(page_id+(ed=(int)strlen(page_id)), "/text.html");
-	// Workaround for the Win7, random first char.
-	//LogIs(L"bwSoftUpdate::%s", bwGetUrl(mWebView));
-	if(softUpdate && STRSTARTWITH(bwGetUrl(mWebView)+1, page_id+1))
+	} 
+	else 
 	{
-		bwExecuteJavaScript(mWebView, "update()"); // bw soft update
-	}
-	else if(update)
-	{
-		CHAR* page_content = new CHAR[512];
-		strcpy(page_content, "<!doctype html><meta charset=\"utf-8\"><script src=\"http://mdbr/ui.js\"></script><script>window.update=function(){window.APMD(GetDocText('");
+		strcpy(page_id+(ed=(int)strlen(page_id)), "/text.html");
+		// Workaround for the Win7, random first char.
+		//LogIs(L"bwSoftUpdate::%s", bwGetUrl(mWebView));
+		if(softUpdate && STRSTARTWITH(bwGetUrl(mWebView)+1, page_id+1))
+		{
+			bwExecuteJavaScript(mWebView, "update()"); // bw soft update
+		}
+		else if(update)
+		{
+			CHAR* page_content = new CHAR[512];
+			strcpy(page_content, "<!doctype html><meta charset=\"utf-8\"><script src=\"http://mdbr/ui.js\"></script><script>window.update=function(){window.APMD(GetDocText('");
 
-		auto nxt_st=page_content+135;
-		strncpy(nxt_st, page_id+st, ed-st);
-		nxt_st+=ed-st;
+			auto nxt_st=page_content+135;
+			strncpy(nxt_st, page_id+st, ed-st);
+			nxt_st+=ed-st;
 
-		strcpy(nxt_st, "'));}</script><body><script src=\"http://mdbr/");
+			strcpy(nxt_st, "'));}</script><body><script src=\"http://mdbr/");
 
-		presentee->AppendPageResidue(nxt_st+45); // 加载bw
-		bwLoadStrData(mWebView, page_id+13, page_content, 0);
-		presentee->lastBid=bid;
-		lstrcpy(last_updated, last_actived);
+			presentee->AppendPageResidue(nxt_st+45); // 加载bw
+			bwLoadStrData(mWebView, page_id+13, page_content, 0);
+			presentee->lastBid=bid;
+			lstrcpy(last_updated, last_actived);
+		}
 	}
 	delete[] page_id;
 	//bwLoadStrData(mWebView, url_, "<!doctype html><meta charset=\"utf-8\"><script src=\"http://mdbr/main.js\"></script><body><script>window.APMD(GetDocText(0));</script></body>", 0);

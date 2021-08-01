@@ -37,10 +37,11 @@ const TCHAR NPP_PLUGIN_NAME[] = TEXT("Markdown Text");
 //
 // Here define the number of your plugin commands
 //
-enum menuList
+
+enum MenuEnum
 {
 	menuPreviewCurr = 0,
-	menuOption,
+	menuToggle,
 
 	menuSeparator0,
 
@@ -108,16 +109,33 @@ __declspec(selectany) bool			bForcePreview=false;
 __declspec(selectany) int			UISettings=0;
 __declspec(selectany) HWND curScintilla=0;
 
-__declspec(selectany) FuncItem* funcMenu;
-__declspec(selectany) FuncItem* funcSync;
-__declspec(selectany) FuncItem* funcUpdate;
-
 extern int ToggleUIBool(int pos, bool reverse);
 extern bool GetUIBool(int pos);
 extern bool GetUIBool(int pos, bool reverse);
 extern bool GetUIBoolReverse(int pos);
 
-void CheckMenu(FuncItem* funcItem, bool val);
+void CheckMenu(MenuEnum menu, bool val);
 
 #define MAX_PATH_HALF 128
 #endif //PLUGINDEFINITION_H
+
+
+#define MD_SETTINGS_SYNC_SCROLL 0
+
+#define MD_SETTINGS_SYNC_SCROLL_1 1
+
+#define MD_SETTINGS_SYNC_SCROLL_2 2
+
+#define MD_SETTINGS_UPDATE_PAUSED 3
+
+#define MD_SETTINGS_UPDATE_CURRENT_EVENIFPAUSED 4
+
+#define MD_SETTINGS_AUTO_RUN 5
+
+#define MD_SETTINGS_NEVER_AUTO_RUN 6
+
+#define MD_SETTINGS_NEVER_AUTO_SWITCH 7
+
+#define MD_SETTINGS_CHAINED_UPD 8
+
+#define MD_SETTINGS_UDPATE_ON_SAVE 9

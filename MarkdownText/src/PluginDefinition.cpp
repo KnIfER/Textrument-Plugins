@@ -90,7 +90,7 @@ void commandMenuCleanUp()
 
 void ToggleMDPanel()
 {
-	if(!NPPRunning && (GetUIBoolReverse(5)||GetUIBool(6)))
+	if(!NPPRunning && (GetUIBoolReverse(MD_SETTINGS_AUTO_RUN)||GetUIBool(MD_SETTINGS_NEVER_AUTO_RUN)))
 	{// if not runnig and auto-run/never-run is checked, reject the initialization
 		// todo if auto-run is checked, maybe check the extension name and just don't reject?
 		_MDText.bRunRequested = true;
@@ -223,16 +223,17 @@ void voidFunc()
 {
 }
 
-void CheckMenu(FuncItem* funcItem, bool val)
+void CheckMenu(MenuEnum menu, bool val)
 {
-	auto menu = ::GetMenu(nppData._nppHandle);
-	::CheckMenuItem(menu, funcItem->_cmdID, MF_BYCOMMAND | (static_cast<BOOL>(val) ? MF_CHECKED : MF_UNCHECKED));
+	auto hMenu = ::GetMenu(nppData._nppHandle);
+	::CheckMenuItem(hMenu, funcItems[menu]._cmdID, MF_BYCOMMAND | (static_cast<BOOL>(val) ? MF_CHECKED : MF_UNCHECKED));
 }
 
-void PauseUpdate()
+void PauseUpdate(int pos)
 {
-	CheckMenu(funcUpdate, ToggleUIBool(3, false));
-	if(!GetUIBool(3))
+	LogIs("pos::%d", pos);
+	CheckMenu(menuPause, ToggleUIBool(MD_SETTINGS_UPDATE_PAUSED, false));
+	if(!GetUIBool(MD_SETTINGS_UPDATE_PAUSED))
 	{
 		SCNotification note{};
 		note.nmhdr.code=SCN_MODIFIED;
@@ -244,7 +245,7 @@ void PauseUpdate()
 
 void ChainedUpdate()
 {
-	if (legacy&&!GetUIBool(8))
+	if (legacy&&!GetUIBool(MD_SETTINGS_CHAINED_UPD))
 	{
 		WarnDlg* wdlg = new WarnDlg(TEXT("txt.xml"));
 		wdlg->Create(nppData._nppHandle
@@ -253,7 +254,7 @@ void ChainedUpdate()
 		wdlg->CenterWindow();
 		wdlg->ShowModal(nppData._nppHandle);
 	}
-	CheckMenu(&funcItems[8], ToggleUIBool(8, false));
+	CheckMenu(menuChained, ToggleUIBool(MD_SETTINGS_CHAINED_UPD, false));
 }
 
 void SyncScroll()
@@ -319,21 +320,7 @@ void InitResource()
 
 void commandMenuInit()
 {
-	// Initialization of your plugin commands
-	// Firstly we get the parameters from your plugin config file (if any)
-	// get path of plugin configuration
 	_MDText.readParameters();
-	//--------------------------------------------//
-	//-- STEP 3. CUSTOMIZE YOUR PLUGIN COMMANDS --//
-	//--------------------------------------------//
-	// with function :
-	// setCommand(int index,                      // zero based number to indicate the order of command
-	//            TCHAR *commandName,             // the command name that you want to see in plugin menu
-	//            PFUNCPLUGINCMD functionPointer, // the symbol of function (function pointer) associated with this command. The body should be defined below. See Step 4.
-	//            ShortcutKey *shortcut,          // optional. Define a shortcut to trigger this command
-	//            bool check0nInit                // optional. Make this menu item be checked visually
-	//            );
-	#define VK_OEM_MINUS      0xBD
 
 	PluginMenuStrIds = new CHAR*[]{
 		"_vcf",
@@ -354,7 +341,7 @@ void commandMenuInit()
 
 	funcItems = new FuncItem []{
 		 {TEXT("View Current File"), PreviewCurrentFile, menuPreviewCurr, false, new ShortcutKey{0,0,0,NULL}}
-		,{TEXT("Markdown Text Panel"), ToggleMDPanel, menuOption, false, new ShortcutKey{1,0,1,0x4D}} // VK_M
+		,{TEXT("Markdown Text Panel"), ToggleMDPanel, menuToggle, false, new ShortcutKey{1,0,1,0x4D}} // VK_M
 		,{TEXT("-SEPARATOR-"), NULL, NULL, false} 
 		,{TEXT("Bolden"), BoldenText, menuBolden, false, new ShortcutKey{0,0,0,NULL}} 
 		,{TEXT("Italic"), TiltText, menuItalic, false, new ShortcutKey{0,0,0,NULL}} 
@@ -362,15 +349,12 @@ void commandMenuInit()
 		//,{TEXT("-SEPARATOR-"), NULL, NULL, false} 
 		,{TEXT("Tools"), voidFunc, menuTools, false, new ShortcutKey{0,0,0,NULL}} 
 		,{TEXT("-SEPARATOR-"), NULL, NULL, false} 
-		,{TEXT("Pause Update"), PauseUpdate, menuPause, GetUIBool(3), new ShortcutKey{0,0,0,NULL}} 
-		,{TEXT("Chained Update"), ChainedUpdate, menuChained, GetUIBool(8), new ShortcutKey{0,0,0,NULL}} 
-		,{TEXT("Sync Scroll"), SyncScroll, menuSync, GetUIBoolReverse(0), new ShortcutKey{0,0,0,NULL}} 
+		,{TEXT("Pause Update"), (PFUNCPLUGINCMD)PauseUpdate, menuPause, GetUIBool(MD_SETTINGS_UPDATE_PAUSED), new ShortcutKey{0,0,0,NULL}} 
+		,{TEXT("Chained Update"), ChainedUpdate, menuChained, GetUIBool(MD_SETTINGS_CHAINED_UPD), new ShortcutKey{0,0,0,NULL}} 
+		,{TEXT("Sync Scroll"), SyncScroll, menuSync, GetUIBoolReverse(MD_SETTINGS_SYNC_SCROLL), new ShortcutKey{0,0,0,NULL}} 
 		,{TEXT("Options…"), Settings, menuSettings, false, new ShortcutKey{0,0,0,NULL}} 
 		,NULL
 	};
-	funcMenu=&funcItems[1];
-	funcUpdate=&funcItems[7];
-	funcSync=&funcItems[8];
 
 	CPaintManagerUI::SetInstance((HINSTANCE)g_hModule);
 	CPaintManagerUI::SetResourceDll((HINSTANCE)g_hModule);

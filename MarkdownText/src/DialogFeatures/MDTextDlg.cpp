@@ -53,69 +53,81 @@ void MarkDownTextDlg::doScintillaScroll(int ln)
 
 CHAR* MarkDownTextDlg::loadSourceAsset(uptr_t bid, const char* pathA, DWORD & dataLen, bool * shouldDelete)
 {
+	// 用于加载处于源文件同级目录或子目录的资源文件，比如css、js文件。
+	// todo 管理文件访问，增强安全性。
 	TCHAR path[MAX_PATH];
 	MultiByteToWideChar (CP_ACP, 0, pathA, strlen (pathA) + 1, path, MAX_PATH-1) ;
 	TCHAR SrcPath[MAX_PATH]={0};
 	if(!bid) {
 		bid = ::SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);
 	}
+	//LogIs(3, L"Loading_AssetPath %s ...", path);
 	if(bid) {
+		// 获取源文件路径 |SrcPath|
 		::SendMessage(nppData._nppHandle, NPPM_GETFULLPATHFROMBUFFERID, (WPARAM)bid, (LPARAM)SrcPath);
+		// 获取父级目录
 		::PathRemoveFileSpec(SrcPath);
+		// 拼接目标路径路径 |SrcPath|=|SrcPath|+|path|
 		::PathAppend(SrcPath, path);
+		// 标准化路径
 		::PathCanonicalize(path, SrcPath);
+		// 斜杠转换
+		int cc=0;
+		char c;
+		while((c=path[cc])&&cc<MAX_PATH) {
+			if (c=='/')
+			{
+				path[cc]='\\';
+			}
+			cc++;
+		}
 		TCHAR* AssetPath = path;
+
+		if (GetUIBool(MD_SETTINGS_CHAINED_UPD) && !legacy)
+		{
+			// try to read in-memory buffer.
+			LONG_PTR membid = SendMessage(nppData._nppHandle, NPPM_GETBUFFERIDFROMPATH, (WPARAM)AssetPath, 0);
+			if (membid && buffersMap.find(membid)!=buffersMap.end())
+			{
+				// emplace holder.
+				chainedBuffersMap.emplace(membid);
+				LONG_PTR DOCUMENTPTR = SendMessage(nppData._nppHandle, NPPM_GETDOCUMENTPTR, membid, membid);
+				//LogIs(3, L"从内存读取 %d %d ...", membid, DOCUMENTPTR);
+				if (DOCUMENTPTR)
+				{
+					dataLen = SendMessage(nppData._scintillaMainHandle, SCI_GETTEXTLENGTH, DOCUMENTPTR, DOCUMENTPTR);
+					CHAR* raw_data;
+					if(dataLen)
+					{
+						raw_data = (CHAR*)SendMessage(nppData._scintillaMainHandle, SCI_GETRAWTEXT, DOCUMENTPTR, DOCUMENTPTR);
+					}
+					else 
+					{
+						dataLen = 1;
+						raw_data = " ";
+					}
+					if (raw_data)
+					{
+						if(currentkernelType==MINILINK_TYPE)
+						{
+							CHAR* buffer = new CHAR[dataLen];
+							memcpy(buffer, raw_data, dataLen);
+							return buffer;
+						}
+						return raw_data;
+					}
+				}
+			}
+		}
 
 		if(PathFileExists(AssetPath)) 
 		{
-			if (GetUIBool(8))
-			{
-				// try to read in-memory buffer.
-				if(!legacy)
-				{
-					LONG_PTR membid = SendMessage(nppData._nppHandle, NPPM_GETBUFFERIDFROMPATH, (WPARAM)AssetPath, 0);
-					if (membid && buffersMap.find(membid)!=buffersMap.end())
-					{
-						// emplace holder.
-						chainedBuffersMap.emplace(membid);
-						LONG_PTR DOCUMENTPTR = SendMessage(nppData._nppHandle, NPPM_GETDOCUMENTPTR, membid, membid);
-						if (DOCUMENTPTR)
-						{
-							dataLen = SendMessage(nppData._scintillaMainHandle, SCI_GETTEXTLENGTH, DOCUMENTPTR, DOCUMENTPTR);
-							CHAR* raw_data;
-							if(dataLen)
-							{
-								raw_data = (CHAR*)SendMessage(nppData._scintillaMainHandle, SCI_GETRAWTEXT, DOCUMENTPTR, DOCUMENTPTR);
-							}
-							else 
-							{
-								dataLen = 1;
-								raw_data = " ";
-							}
-							if (raw_data)
-							{
-								if(currentkernelType==MINILINK_TYPE)
-								{
-									CHAR* buffer = new CHAR[dataLen];
-									memcpy(buffer, raw_data, dataLen);
-									return buffer;
-								}
-								return raw_data;
-							}
-						}
-					}
-				}
-				else
-				{
-					// no fallback. In legacy mode, only the current buffer is available
-					//	, which makes chained updating pointless.
-				}
-			}
-
 			if(shouldDelete) 
 			{
 				*shouldDelete = true;
 			}
+
+			//LogIs(3, L"从文件读取 %s ...", AssetPath);
 
 			HANDLE hFile = CreateFile(AssetPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 			if (INVALID_HANDLE_VALUE == hFile) { 
@@ -307,7 +319,7 @@ CHAR* MarkDownTextDlg::GetDocTex(size_t & docLength, LONG_PTR bid, bool * should
 
 void MarkDownTextDlg::syncWebToline(bool force)
 {
-	if(force || GetUIBoolReverse(0) && GetUIBoolReverse(1))
+	if(force || GetUIBoolReverse(MD_SETTINGS_SYNC_SCROLL) && GetUIBoolReverse(MD_SETTINGS_SYNC_SCROLL_1))
 	{
 		int currrentSc;
 		SendMessage(nppData._nppHandle, NPPM_GETCURRENTSCINTILLA, 0, (LPARAM)&currrentSc);
@@ -350,7 +362,7 @@ void MarkDownTextDlg::display(bool toShow)
 void MarkDownTextDlg::setClosed(bool toClose) 
 {
 	_isClosed = toClose;
-	::SendMessage(nppData._nppHandle, NPPM_SETMENUITEMCHECK, funcMenu->_cmdID, !toClose);
+	::SendMessage(nppData._nppHandle, NPPM_SETMENUITEMCHECK, funcItems[menuToggle]._cmdID, !toClose);
 }
 
 void MarkDownTextDlg::AppendPageResidue(char* nxt_st) 
@@ -457,80 +469,85 @@ void MarkDownTextDlg::RefreshWebview(int source)
 		}
 		bool bNeedUpdate = b2;
 		//bool autoSwitch = bAutoSwitchEngines&&!fromEditor;
-		bool autoSwitch = GetUIBoolReverse(7)&&source==0;
+		bool autoSwitch = GetUIBoolReverse(MD_SETTINGS_NEVER_AUTO_SWITCH)&&source==0;
 		bool bShouldCheck=true;
 
-		if(!fromEditor && !checkFileExt(RendererTypeIdx))
-		{
-			// 1st priority, auto-switch
-			// auto switch render type according to current actived document's file name extension
-			// and extensions preset.
-			if (autoSwitch)
+		if (lastBid!=bid)
+		{ // 只在切换到不同的文件时，才根据后缀名自动切换渲染引擎。
+			if(!fromEditor && !checkFileExt(RendererTypeIdx))
 			{
-				for (int toIdx = 0; toIdx < 3; toIdx++)
+				// 1st priority, auto-switch
+				// auto switch render type according to current actived document's file name extension
+				// and extensions preset.
+				if (autoSwitch)
 				{
-					if (toIdx!=RendererTypeIdx && checkFileExt(toIdx))
+					for (int toIdx = 0; toIdx < 3; toIdx++)
 					{
-						RendererTypeIdx=toIdx;
-						releaseEnginesMenu();
-						bShouldCheck = false;
-						break;
-					}
-				}
-			}
-			// 2nd priority, mannual-switch memory
-			if (bShouldCheck)
-			{
-				auto prefIdx = prefRndTyps.find(bid);
-				if (prefIdx!=prefRndTyps.end())
-				{
-					bool hmRndTyp = RendererTypeIdx==prefIdx->second;
-					//if (autoSwitch||hmRndTyp)
-					{
-						if (!hmRndTyp)
+						if (toIdx!=RendererTypeIdx && checkFileExt(toIdx))
 						{
-							RendererTypeIdx=prefIdx->second;
+							RendererTypeIdx=toIdx;
 							releaseEnginesMenu();
+							bShouldCheck = false;
+							break;
 						}
-						b2=true;
-						bShouldCheck = false;
 					}
 				}
+				// 2nd priority, mannual-switch memory
+				if (bShouldCheck)
+				{
+					auto prefIdx = prefRndTyps.find(bid);
+					if (prefIdx!=prefRndTyps.end())
+					{
+						bool hmRndTyp = RendererTypeIdx==prefIdx->second;
+						//if (autoSwitch||hmRndTyp)
+						{
+							if (!hmRndTyp)
+							{
+								RendererTypeIdx=prefIdx->second;
+								releaseEnginesMenu();
+							}
+							b2=true;
+							bShouldCheck = false;
+						}
+					}
+				}
+				if (bShouldCheck)
+				{
+					b2=false;
+				}
+				else
+				{
+					b2=true;
+				}
 			}
-			if (bShouldCheck)
+			if(b2 && bShouldCheck)
 			{
-				b2=false;
+				// perform the check again if needed.
+				b2 = checkFileExt(RendererTypeIdx);
 			}
-			else
-			{
-				b2=true;
-			}
-		}
-		if(b2 && bShouldCheck)
-		{
-			// perform the check again if needed.
-			b2 = checkFileExt(RendererTypeIdx);
 		}
 		//if(false)
-		if (bNeedUpdate&&!b2)
+		if (bNeedUpdate&&!b2 && bForcePreview)
 		{
-			if (bForcePreview)
+			if (RendererTypeIdx!=defaultRenderer) // &&GetUIBoolReverse(MD_SETTINGS_NEVER_AUTO_SWITCH)
 			{
-				if (RendererTypeIdx!=defaultRenderer) // &&GetUIBoolReverse(7)
-				{
-					// apply default renderer type
-					RendererTypeIdx = defaultRenderer;
-					releaseEnginesMenu();
-				}
-				prefRndTyps[bid] = RendererTypeIdx;
-				//LogIs("RendererTypeIdx %d, %d", RendererTypeIdx, prefRndTyps[bid]);
-				b2=true;
+				// apply default renderer type
+				RendererTypeIdx = defaultRenderer;
+				releaseEnginesMenu();
 			}
+			prefRndTyps[bid] = RendererTypeIdx; // 记住用户的选择
+			//LogIs("RendererTypeIdx %d, %d", RendererTypeIdx, prefRndTyps[bid]);
+			b2=true;
 		}
-		mWebView0->updateArticle(bid, RendererTypeIdx, b1, b2);
-		if (lastBid!=bidBk)
+
+		if (b1 || b2)
 		{
-			chainedBuffersMap.clear();
+			//LogIs(" 更新展示内容: bid=%d articleType=%d soft=%d upd=%d", bid, RendererTypeIdx, b1, b2);
+			mWebView0->updateArticle(bid, RendererTypeIdx, b1, b2);
+			if (lastBid!=bidBk)
+			{
+				chainedBuffersMap.clear();
+			}
 		}
 	}
 }
@@ -540,6 +557,7 @@ void MarkDownTextDlg::CheckChaninedUpdate(LONG_PTR BID)
 	if (mWebView0 
 		&& chainedBuffersMap.find(BID)!=chainedBuffersMap.end())
 	{
+		//LogIs("CheckChaninedUpdate %s");
 		mWebView0->updateArticle(lastBid, RendererTypeIdx, false, true);
 	}
 }
@@ -677,7 +695,7 @@ INT_PTR CALLBACK MarkDownTextDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 			toolBar.display();
 			//toolBar.enlarge();
 			ListBoxPanel.SetToolbar( &toolBar );
-			toolBar.setCheck(IDM_EX_LOCATE, GetUIBoolReverse(0));
+			toolBar.setCheck(IDM_EX_LOCATE, GetUIBoolReverse(MD_SETTINGS_SYNC_SCROLL));
 		} break;
 		case WM_SIZE:
 		case WM_MOVE:
@@ -812,7 +830,7 @@ bool getMenuItemNeedsKeep(int mid)
 		case menuPause:
 		case menuItalic:
 		case menuUnderLine:
-		case menuOption:
+		case menuToggle:
 		return true;
 	}
 	return false;
@@ -822,12 +840,12 @@ bool getMenuItemChecked(int mid)
 {
 	switch(mid) {
 		case menuPause:
-			return GetUIBool(3);
+			return GetUIBool(MD_SETTINGS_UPDATE_PAUSED);
 		case menuChained:
-			return GetUIBool(8);
+			return GetUIBool(MD_SETTINGS_CHAINED_UPD);
 		case menuSync:
-			return GetUIBoolReverse(0);
-		case menuOption:
+			return GetUIBoolReverse(MD_SETTINGS_SYNC_SCROLL);
+		case menuToggle:
 			return _MDText.isVisible();
 	}
 	return false;
@@ -1331,7 +1349,7 @@ void MarkDownTextDlg::destroyDynamicMenus()
 
 void MarkDownTextDlg::checkAutoRun()
 {
-	if (!GetUIBoolReverse(5))
+	if (!GetUIBoolReverse(MD_SETTINGS_AUTO_RUN))
 	{
 		// if auto-run not checked, run directly.
 		funcItems[1]._pFunc();
@@ -1474,8 +1492,8 @@ void MarkDownTextDlg::GlobalOnPvMnChecked(HMENU hMenu, int idx)
 		// IDM_EX_LOCATE
 		case 260:
 		{
-			bool val=ToggleUIBool(0, true);
-			CheckMenu(funcSync, val);
+			bool val=ToggleUIBool(MD_SETTINGS_SYNC_SCROLL, true);
+			CheckMenu(menuSync, val);
 			if(isCreated())
 			{
 				toolBar.setCheck(IDM_EX_LOCATE, val);
@@ -1485,7 +1503,10 @@ void MarkDownTextDlg::GlobalOnPvMnChecked(HMENU hMenu, int idx)
 		case 261:
 		case 262:
 		{
-			::CheckMenuItem(hMenu, static_cast<UINT>(idx), MF_BYCOMMAND | (static_cast<BOOL>(ToggleUIBool(idx==261?1:2, true)) ? MF_CHECKED : MF_UNCHECKED));
+			::CheckMenuItem(hMenu, static_cast<UINT>(idx)
+				, MF_BYCOMMAND 
+				| (static_cast<BOOL>(ToggleUIBool(idx==261?MD_SETTINGS_SYNC_SCROLL_1:MD_SETTINGS_SYNC_SCROLL_2, true)) 
+					? MF_CHECKED : MF_UNCHECKED));
 		}
 		break;
 		case 263:
@@ -1636,7 +1657,7 @@ void MarkDownTextDlg::create()
 		data.uMask          = DWS_DF_CONT_RIGHT | DWS_ICONTAB;
 		data.pszModuleName = _MDText.getPluginFileName();
 		// the dlgDlg should be the index of funcItem where the current function pointer is
-		data.dlgID = menuOption;
+		data.dlgID = menuToggle;
 		data.hIconTab       = ( HICON )::LoadImage( _MDText.getHinst(),
 			MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 14, 14,
 			LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT );
@@ -1988,8 +2009,8 @@ void MarkDownTextDlg::OnToolBarCommand(UINT CMDID, char source, POINT* pt)
 				if(hMenuLocate==0)
 				{
 					hMenuLocate = buildPluginPrivateMenu(LocateScroll);
-					::CheckMenuItem(hMenuLocate, static_cast<UINT>(261), MF_BYCOMMAND | (static_cast<BOOL>(GetUIBoolReverse(1) ? MF_CHECKED : MF_UNCHECKED)));
-					::CheckMenuItem(hMenuLocate, static_cast<UINT>(262), MF_BYCOMMAND | (static_cast<BOOL>(GetUIBoolReverse(2)) ? MF_CHECKED : MF_UNCHECKED));
+					::CheckMenuItem(hMenuLocate, static_cast<UINT>(261), MF_BYCOMMAND | (static_cast<BOOL>(GetUIBoolReverse(MD_SETTINGS_SYNC_SCROLL_1) ? MF_CHECKED : MF_UNCHECKED)));
+					::CheckMenuItem(hMenuLocate, static_cast<UINT>(262), MF_BYCOMMAND | (static_cast<BOOL>(GetUIBoolReverse(MD_SETTINGS_SYNC_SCROLL_2)) ? MF_CHECKED : MF_UNCHECKED));
 				}
 				PrivateTrackPopup(_hSelf, hMenuLocate, LocateScroll.data(), CMDID);
 			}

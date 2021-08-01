@@ -72,6 +72,8 @@ __declspec(selectany)  toolbarIcons		g_TBMarkdown{0,0,0x666,0,IDI_ICON_MD,0,0,ID
 
 bool autoRunChecking=false;
 
+bool isLoadingNew=false;
+
 extern HMENU GetPluginMenu();
 
 int EditorBG;
@@ -117,7 +119,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 					g_TBMarkdown.hToolbarBmp = (HBITMAP)::LoadImage(HRO, MAKEINTRESOURCE(IDB_BITMAP1), IMAGE_BITMAP, 0,0, (LR_DEFAULTSIZE | LR_LOADMAP3DCOLORS));
 					g_TBMarkdown.hToolbarIcon = ::LoadIcon(HRO, MAKEINTRESOURCE(IDI_ICON_MD));
 				}
-				::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItems[menuOption]._cmdID, (LPARAM)&g_TBMarkdown);
+				::SendMessage(nppData._nppHandle, NPPM_ADDTOOLBARICON, (WPARAM)funcItems[menuToggle]._cmdID, (LPARAM)&g_TBMarkdown);
 
 				if(!_MDText.localeSet) {
 					TCHAR mStr[16]={0};
@@ -149,7 +151,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 		{
 			NeedUpdate=NPPRunning=true;
 			// auto run according to the command line arguments and current active file.
-			if(!GetUIBool(6)&&(_MDText.bRunRequested || GetUIBoolReverse(5))) 
+			if(!GetUIBool(MD_SETTINGS_NEVER_AUTO_RUN)&&(_MDText.bRunRequested || GetUIBoolReverse(MD_SETTINGS_AUTO_RUN))) 
 			{// if never-run is not checked and bRunRequested or auto-run is checked
 				autoRunChecking = true;
 			}
@@ -165,10 +167,6 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 			NPPRunning=true;
 		}
 		break;
-		case NPPN_FILESAVED:
-		{
-		}
-		break;
 		case NPPN_FILEBEFORECLOSE:
 		{
 		}
@@ -176,10 +174,17 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 		case NPPN_FILEBEFOREOPEN:
 		case NPPN_FILEBEFORELOAD:
 		{
+			isLoadingNew = true;
+		}
+		break;
+		case NPPN_FILELOADFAILED:
+		{
+			isLoadingNew = false;
 		}
 		break;
 		case NPPN_FILEOPENED:
 		{
+			isLoadingNew = false;
 			_MDText.buffersMap.insert(notifyCode->nmhdr.idFrom);
 		}
 		break;
@@ -212,9 +217,11 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 		break;
 		case SCN_MODIFIED:
 		{
-			if(NPPRunning && notifyCode->length>0 
+			if(NPPRunning /*&& _MDText.lastBid==notifyCode->nmhdr.idFrom*/ 
+				&& !isLoadingNew
+				&& notifyCode->length>0 
 				&& notifyCode->modificationType & (SC_MOD_DELETETEXT | SC_MOD_INSERTTEXT)
-				&& !GetUIBool(9)
+				&& !GetUIBool(MD_SETTINGS_UDPATE_ON_SAVE)
 				)
 			{
 				NeedUpdate=2;
@@ -249,13 +256,13 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 			}
 		}
 		break;
-		case SCN_SAVEPOINTREACHED:
+		case NPPN_FILESAVED:
 		{
 			if (_MDText.lastBid==(LONG_PTR)notifyCode->nmhdr.idFrom)
 			{
 				_MDText.refreshDlg(false, true);
 			}
-			else if (GetUIBool(8))
+			else if (GetUIBool(MD_SETTINGS_CHAINED_UPD))
 			{
 				_MDText.CheckChaninedUpdate(notifyCode->nmhdr.idFrom);
 			}
@@ -286,9 +293,9 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 		{
 			_MDText.lastSyncLn=-1;
 		}
-		bool doUpdate=!GetUIBool(3);
-		if(!doUpdate && NeedUpdate==2&&GetUIBoolReverse(4))
-		{
+		bool doUpdate=!GetUIBool(MD_SETTINGS_UPDATE_PAUSED); // user paused update
+		if (!doUpdate && NeedUpdate==2 && GetUIBoolReverse(MD_SETTINGS_UPDATE_CURRENT_EVENIFPAUSED))
+		{ // but it's from editor change, so update if the bid matches.
 			LONG_PTR bid = ::SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);
 			doUpdate = _MDText.lastBid==bid;
 		}
@@ -297,7 +304,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 			_MDText.refreshDlg(false, NeedUpdate==2);
 		}
 		// _MDText.RendererTypeIdx==1&&
-		if (NeedUpdate==2&&GetUIBool(8))
+		if (NeedUpdate==2&&GetUIBool(MD_SETTINGS_CHAINED_UPD))
 		{
 			// check chanined update
 			LONG_PTR bid = ::SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);
