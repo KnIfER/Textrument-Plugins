@@ -26,7 +26,7 @@ namespace DuiLib {
 
 	public:
 		BOOL LoadResource(STRINGorID xml, LPCTSTR type = NULL);
-		BOOL LoadResource(CMarkupNode Root);
+		BOOL LoadResource(XMarkupNode Root);
 		void ResetResourceMap();
 		LPCTSTR GetImagePath(LPCTSTR lpstrId);
 		LPCTSTR GetXmlPath(LPCTSTR lpstrId);
@@ -47,7 +47,7 @@ namespace DuiLib {
 		IQueryControlText*	m_pQuerypInterface;
 		CStdStringPtrMap m_mImageHashMap;
 		CStdStringPtrMap m_mXmlHashMap;
-		CMarkup m_xml;
+		XMarkupParser m_xml;
 		CDuiString m_sLauguage;
 		CStdStringPtrMap m_mTextHashMap;
 	};

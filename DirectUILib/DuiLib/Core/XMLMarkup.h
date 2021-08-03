@@ -12,18 +12,18 @@ namespace DuiLib {
 		XMLFILE_ENCODING_ASNI = 2,
 	};
 
-	class CMarkup;
-	class CMarkupNode;
+	class XMarkupParser;
+	class XMarkupNode;
 
 
-	class UILIB_API CMarkup
+	class UILIB_API XMarkupParser
 	{
-		friend class CMarkupNode;
+		friend class XMarkupNode;
 	public:
-		CMarkup(LPCTSTR pstrXML = NULL);
-		~CMarkup();
+		XMarkupParser(LPCTSTR pstrXML = NULL);
+		~XMarkupParser();
 
-		bool Load(LPCTSTR pstrXML);
+		bool Load(LPCTSTR pstrXML, bool copy=false);
 		bool LoadFromMem(BYTE* pByte, DWORD dwSize, int encoding = XMLFILE_ENCODING_UTF8);
 		bool LoadFromFile(LPCTSTR pstrFilename, int encoding = XMLFILE_ENCODING_UTF8);
 		void Release();
@@ -33,9 +33,10 @@ namespace DuiLib {
 		void GetLastErrorMessage(LPTSTR pstrMessage, SIZE_T cchMax) const;
 		void GetLastErrorLocation(LPTSTR pstrSource, SIZE_T cchMax) const;
 
-		CMarkupNode GetRoot();
+		XMarkupNode GetRoot();
 
-	private:
+		XMarkupNode GetNodeAt(int pos);
+
 		typedef struct tagXMLELEMENT
 		{
 			ULONG iStart;
@@ -45,16 +46,25 @@ namespace DuiLib {
 			ULONG iData;
 		} XMLELEMENT;
 
+		void SetDebug(){ _bIsDebug = true; };
+
+		TCHAR m_szErrorMsg[100];
+		TCHAR m_szErrorXML[50];
+	private:
+
 		LPTSTR m_pstrXML;
 		XMLELEMENT* m_pElements;
 		ULONG m_nElements;
 		ULONG m_nReservedElements;
-		TCHAR m_szErrorMsg[100];
-		TCHAR m_szErrorXML[50];
 		bool m_bPreserveWhitespace;
 
+		bool _bIsDebug;
+		bool _bShouldDeleteData;
+
 	private:
+		// 将XML布局分析如全局容器数组
 		bool _Parse();
+		// 将XML布局分析如全局容器数组（递归）
 		bool _Parse(LPTSTR& pstrText, ULONG iParent);
 		XMLELEMENT* _ReserveElement();
 		inline void _SkipWhitespace(LPTSTR& pstr) const;
@@ -68,25 +78,35 @@ namespace DuiLib {
 	};
 
 
-	class UILIB_API CMarkupNode
+	class UILIB_API XMarkupNode
 	{
-		friend class CMarkup;
-	private:
-		CMarkupNode();
-		CMarkupNode(CMarkup* pOwner, int iPos);
+		friend class XMarkupParser;
 
 	public:
+		XMarkupNode();
+		XMarkupNode(XMarkupParser* pOwner, int iPos);
+
 		bool IsValid() const;
 
-		CMarkupNode GetParent();
-		CMarkupNode GetSibling();
-		CMarkupNode GetChild();
-		CMarkupNode GetChild(LPCTSTR pstrName);
+		// 获取父节点
+		XMarkupNode GetParent();
+
+		// 获取父节点
+		int XMarkupNode::GetMarkedPos()
+		{
+			return m_iPos;
+		}
+
+		XMarkupNode GetSibling();
+		XMarkupNode GetChild();
+		XMarkupNode GetChild(LPCTSTR pstrName);
 
 		bool HasSiblings() const;
 		bool HasChildren() const;
 		LPCTSTR GetName() const;
 		LPCTSTR GetValue() const;
+
+		XMarkupParser::XMLELEMENT GetTagElement() const;
 
 		bool HasAttributes();
 		bool HasAttribute(LPCTSTR pstrName);
@@ -96,6 +116,10 @@ namespace DuiLib {
 		LPCTSTR GetAttributeValue(LPCTSTR pstrName);
 		bool GetAttributeValue(int iIndex, LPTSTR pstrValue, SIZE_T cchMax);
 		bool GetAttributeValue(LPCTSTR pstrName, LPTSTR pstrValue, SIZE_T cchMax);
+
+		XMarkupParser* GetMarkUp() const {
+			return IsValid()?&m_pOwner[m_iPos]:NULL;
+		};
 
 	private:
 		void _MapAttributes();
@@ -111,7 +135,9 @@ namespace DuiLib {
 		int m_iPos;
 		int m_nAttributes;
 		XMLATTRIBUTE m_aAttributes[MAX_XML_ATTRIBUTES];
-		CMarkup* m_pOwner;
+
+		// xml 全局容器
+		XMarkupParser* m_pOwner;
 	};
 
 } // namespace DuiLib

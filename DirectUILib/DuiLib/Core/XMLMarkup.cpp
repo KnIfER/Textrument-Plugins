@@ -9,82 +9,87 @@ namespace DuiLib {
 //
 //
 //
-CMarkupNode::CMarkupNode() : m_pOwner(NULL)
+XMarkupNode::XMarkupNode() : m_pOwner(NULL)
 {
 }
 
-CMarkupNode::CMarkupNode(CMarkup* pOwner, int iPos) : m_pOwner(pOwner), m_iPos(iPos), m_nAttributes(0)
+XMarkupNode::XMarkupNode(XMarkupParser* pOwner, int iPos) : m_pOwner(pOwner), m_iPos(iPos), m_nAttributes(0)
 {
 }
 
-CMarkupNode CMarkupNode::GetSibling()
+XMarkupNode XMarkupNode::GetSibling()
 {
-	if( m_pOwner == NULL ) return CMarkupNode();
+	if( m_pOwner == NULL ) return XMarkupNode();
 	ULONG iPos = m_pOwner->m_pElements[m_iPos].iNext;
-	if( iPos == 0 ) return CMarkupNode();
-	return CMarkupNode(m_pOwner, iPos);
+	if( iPos == 0 ) return XMarkupNode();
+	return XMarkupNode(m_pOwner, iPos);
 }
 
-bool CMarkupNode::HasSiblings() const
+bool XMarkupNode::HasSiblings() const
 {
 	if( m_pOwner == NULL ) return false;
 	ULONG iPos = m_pOwner->m_pElements[m_iPos].iNext;
 	return iPos > 0;
 }
 
-CMarkupNode CMarkupNode::GetChild()
+XMarkupNode XMarkupNode::GetChild()
 {
-	if( m_pOwner == NULL ) return CMarkupNode();
+	if( m_pOwner == NULL ) return XMarkupNode();
 	ULONG iPos = m_pOwner->m_pElements[m_iPos].iChild;
-	if( iPos == 0 ) return CMarkupNode();
-	return CMarkupNode(m_pOwner, iPos);
+	if( iPos == 0 ) return XMarkupNode();
+	return XMarkupNode(m_pOwner, iPos);
 }
 
-CMarkupNode CMarkupNode::GetChild(LPCTSTR pstrName)
+XMarkupNode XMarkupNode::GetChild(LPCTSTR pstrName)
 {
-	if( m_pOwner == NULL ) return CMarkupNode();
+	if( m_pOwner == NULL ) return XMarkupNode();
 	ULONG iPos = m_pOwner->m_pElements[m_iPos].iChild;
 	while( iPos != 0 ) {
 		if( _tcsicmp(m_pOwner->m_pstrXML + m_pOwner->m_pElements[iPos].iStart, pstrName) == 0 ) {
-			return CMarkupNode(m_pOwner, iPos);
+			return XMarkupNode(m_pOwner, iPos);
 		}
 		iPos = m_pOwner->m_pElements[iPos].iNext;
 	}
-	return CMarkupNode();
+	return XMarkupNode();
 }
 
-bool CMarkupNode::HasChildren() const
+bool XMarkupNode::HasChildren() const
 {
 	if( m_pOwner == NULL ) return false;
 	return m_pOwner->m_pElements[m_iPos].iChild != 0;
 }
 
-CMarkupNode CMarkupNode::GetParent()
+XMarkupNode XMarkupNode::GetParent()
 {
-	if( m_pOwner == NULL ) return CMarkupNode();
+	if( m_pOwner == NULL ) return XMarkupNode();
 	ULONG iPos = m_pOwner->m_pElements[m_iPos].iParent;
-	if( iPos == 0 ) return CMarkupNode();
-	return CMarkupNode(m_pOwner, iPos);
+	if( iPos == 0 ) return XMarkupNode();
+	return XMarkupNode(m_pOwner, iPos);
 }
 
-bool CMarkupNode::IsValid() const
+bool XMarkupNode::IsValid() const
 {
-	return m_pOwner != NULL;
+	return m_pOwner != NULL && m_iPos<m_pOwner->m_nElements;
 }
 
-LPCTSTR CMarkupNode::GetName() const
+LPCTSTR XMarkupNode::GetName() const
 {
 	if( m_pOwner == NULL ) return NULL;
 	return m_pOwner->m_pstrXML + m_pOwner->m_pElements[m_iPos].iStart;
 }
 
-LPCTSTR CMarkupNode::GetValue() const
+XMarkupParser::XMLELEMENT XMarkupNode::GetTagElement() const
+{
+	return m_pOwner->m_pElements[m_iPos];
+}
+
+LPCTSTR XMarkupNode::GetValue() const
 {
 	if( m_pOwner == NULL ) return NULL;
 	return m_pOwner->m_pstrXML + m_pOwner->m_pElements[m_iPos].iData;
 }
 
-LPCTSTR CMarkupNode::GetAttributeName(int iIndex)
+LPCTSTR XMarkupNode::GetAttributeName(int iIndex)
 {
 	if( m_pOwner == NULL ) return NULL;
 	if( m_nAttributes == 0 ) _MapAttributes();
@@ -92,7 +97,7 @@ LPCTSTR CMarkupNode::GetAttributeName(int iIndex)
 	return m_pOwner->m_pstrXML + m_aAttributes[iIndex].iName;
 }
 
-LPCTSTR CMarkupNode::GetAttributeValue(int iIndex)
+LPCTSTR XMarkupNode::GetAttributeValue(int iIndex)
 {
 	if( m_pOwner == NULL ) return NULL;
 	if( m_nAttributes == 0 ) _MapAttributes();
@@ -100,7 +105,7 @@ LPCTSTR CMarkupNode::GetAttributeValue(int iIndex)
 	return m_pOwner->m_pstrXML + m_aAttributes[iIndex].iValue;
 }
 
-LPCTSTR CMarkupNode::GetAttributeValue(LPCTSTR pstrName)
+LPCTSTR XMarkupNode::GetAttributeValue(LPCTSTR pstrName)
 {
 	if( m_pOwner == NULL ) return NULL;
 	if( m_nAttributes == 0 ) _MapAttributes();
@@ -110,7 +115,7 @@ LPCTSTR CMarkupNode::GetAttributeValue(LPCTSTR pstrName)
 	return _T("");
 }
 
-bool CMarkupNode::GetAttributeValue(int iIndex, LPTSTR pstrValue, SIZE_T cchMax)
+bool XMarkupNode::GetAttributeValue(int iIndex, LPTSTR pstrValue, SIZE_T cchMax)
 {
 	if( m_pOwner == NULL ) return false;
 	if( m_nAttributes == 0 ) _MapAttributes();
@@ -119,7 +124,7 @@ bool CMarkupNode::GetAttributeValue(int iIndex, LPTSTR pstrValue, SIZE_T cchMax)
 	return true;
 }
 
-bool CMarkupNode::GetAttributeValue(LPCTSTR pstrName, LPTSTR pstrValue, SIZE_T cchMax)
+bool XMarkupNode::GetAttributeValue(LPCTSTR pstrName, LPTSTR pstrValue, SIZE_T cchMax)
 {
 	if( m_pOwner == NULL ) return false;
 	if( m_nAttributes == 0 ) _MapAttributes();
@@ -132,21 +137,21 @@ bool CMarkupNode::GetAttributeValue(LPCTSTR pstrName, LPTSTR pstrValue, SIZE_T c
 	return false;
 }
 
-int CMarkupNode::GetAttributeCount()
+int XMarkupNode::GetAttributeCount()
 {
 	if( m_pOwner == NULL ) return 0;
 	if( m_nAttributes == 0 ) _MapAttributes();
 	return m_nAttributes;
 }
 
-bool CMarkupNode::HasAttributes()
+bool XMarkupNode::HasAttributes()
 {
 	if( m_pOwner == NULL ) return false;
 	if( m_nAttributes == 0 ) _MapAttributes();
 	return m_nAttributes > 0;
 }
 
-bool CMarkupNode::HasAttribute(LPCTSTR pstrName)
+bool XMarkupNode::HasAttribute(LPCTSTR pstrName)
 {
 	if( m_pOwner == NULL ) return false;
 	if( m_nAttributes == 0 ) _MapAttributes();
@@ -156,7 +161,7 @@ bool CMarkupNode::HasAttribute(LPCTSTR pstrName)
 	return false;
 }
 
-void CMarkupNode::_MapAttributes()
+void XMarkupNode::_MapAttributes()
 {
 	m_nAttributes = 0;
 	LPCTSTR pstr = m_pOwner->m_pstrXML + m_pOwner->m_pElements[m_iPos].iStart;
@@ -181,7 +186,7 @@ void CMarkupNode::_MapAttributes()
 //
 //
 
-CMarkup::CMarkup(LPCTSTR pstrXML)
+XMarkupParser::XMarkupParser(LPCTSTR pstrXML)
 {
 	m_pstrXML = NULL;
 	m_pElements = NULL;
@@ -190,34 +195,42 @@ CMarkup::CMarkup(LPCTSTR pstrXML)
 	if( pstrXML != NULL ) Load(pstrXML);
 }
 
-CMarkup::~CMarkup()
+XMarkupParser::~XMarkupParser()
 {
+	_bIsDebug = false;
 	Release();
 }
 
-bool CMarkup::IsValid() const
+bool XMarkupParser::IsValid() const
 {
 	return m_pElements != NULL;
 }
 
-void CMarkup::SetPreserveWhitespace(bool bPreserve)
+void XMarkupParser::SetPreserveWhitespace(bool bPreserve)
 {
 	m_bPreserveWhitespace = bPreserve;
 }
 
-bool CMarkup::Load(LPCTSTR pstrXML)
+bool XMarkupParser::Load(LPCTSTR pstrXML, bool copy)
 {
 	Release();
 	SIZE_T cchLen = _tcslen(pstrXML) + 1;
-	m_pstrXML = static_cast<LPTSTR>(malloc(cchLen * sizeof(TCHAR)));
-	::CopyMemory(m_pstrXML, pstrXML, cchLen * sizeof(TCHAR));
+	if (_bShouldDeleteData=copy)
+	{
+		m_pstrXML = static_cast<LPTSTR>(malloc(cchLen * sizeof(TCHAR)));
+		::CopyMemory(m_pstrXML, pstrXML, cchLen * sizeof(TCHAR));
+	}
+	else {
+		m_pstrXML = (LPTSTR)pstrXML;
+	}
 	bool bRes = _Parse();
 	if( !bRes ) Release();
 	return bRes;
 }
 
-bool CMarkup::LoadFromMem(BYTE* pByte, DWORD dwSize, int encoding)
+bool XMarkupParser::LoadFromMem(BYTE* pByte, DWORD dwSize, int encoding)
 {
+	auto lastData = m_pstrXML;
 #ifdef _UNICODE
 	if (encoding == XMLFILE_ENCODING_UTF8)
 	{
@@ -326,13 +339,16 @@ bool CMarkup::LoadFromMem(BYTE* pByte, DWORD dwSize, int encoding)
 		m_pstrXML[dwSize] = _T('\0');
 	}
 #endif // _UNICODE
-
+	if (lastData!=m_pstrXML)
+	{
+		_bShouldDeleteData = true;
+	}
 	bool bRes = _Parse();
 	if( !bRes ) Release();
 	return bRes;
 }
 
-bool CMarkup::LoadFromFile(LPCTSTR pstrFilename, int encoding)
+bool XMarkupParser::LoadFromFile(LPCTSTR pstrFilename, int encoding)
 {
 	Release();
 	CDuiString sFile = CPaintManagerUI::GetResourcePath();
@@ -405,32 +421,46 @@ bool CMarkup::LoadFromFile(LPCTSTR pstrFilename, int encoding)
 	}
 }
 
-void CMarkup::Release()
+void XMarkupParser::Release()
 {
-	if( m_pstrXML != NULL ) free(m_pstrXML);
-	if( m_pElements != NULL ) free(m_pElements);
-	m_pstrXML = NULL;
-	m_pElements = NULL;
+	if( m_pstrXML != NULL && _bShouldDeleteData ) {
+		free(m_pstrXML);
+		m_pstrXML = NULL;
+	}
+	if (!_bIsDebug)
+	{
+		// release memory
+		if( m_pElements != NULL ) {
+			free(m_pElements);
+			m_pElements = NULL;
+		}
+	}
 	m_nElements = 0;
 }
 
-void CMarkup::GetLastErrorMessage(LPTSTR pstrMessage, SIZE_T cchMax) const
+void XMarkupParser::GetLastErrorMessage(LPTSTR pstrMessage, SIZE_T cchMax) const
 {
 	_tcsncpy(pstrMessage, m_szErrorMsg, cchMax);
 }
 
-void CMarkup::GetLastErrorLocation(LPTSTR pstrSource, SIZE_T cchMax) const
+void XMarkupParser::GetLastErrorLocation(LPTSTR pstrSource, SIZE_T cchMax) const
 {
 	_tcsncpy(pstrSource, m_szErrorXML, cchMax);
 }
 
-CMarkupNode CMarkup::GetRoot()
+XMarkupNode XMarkupParser::GetRoot()
 {
-	if( m_nElements == 0 ) return CMarkupNode();
-	return CMarkupNode(this, 1);
+	if( m_nElements == 0 ) return XMarkupNode();
+	return XMarkupNode(this, 1);
 }
 
-bool CMarkup::_Parse()
+XMarkupNode XMarkupParser::GetNodeAt(int pos)
+{
+	if( m_nElements == 0 ) return XMarkupNode();
+	return XMarkupNode(this, pos);
+}
+
+bool XMarkupParser::_Parse()
 {
 	_ReserveElement(); // Reserve index 0 for errors
 	::ZeroMemory(m_szErrorMsg, sizeof(m_szErrorMsg));
@@ -439,7 +469,7 @@ bool CMarkup::_Parse()
 	return _Parse(pstrXML, 0);
 }
 
-bool CMarkup::_Parse(LPTSTR& pstrText, ULONG iParent)
+bool XMarkupParser::_Parse(LPTSTR& pstrText, ULONG iParent)
 {
 	_SkipWhitespace(pstrText);
 	ULONG iPrevious = 0;
@@ -516,7 +546,7 @@ bool CMarkup::_Parse(LPTSTR& pstrText, ULONG iParent)
 	}
 }
 
-CMarkup::XMLELEMENT* CMarkup::_ReserveElement()
+XMarkupParser::XMLELEMENT* XMarkupParser::_ReserveElement()
 {
 	if( m_nElements == 0 ) m_nReservedElements = 0;
 	if( m_nElements >= m_nReservedElements ) {
@@ -526,29 +556,29 @@ CMarkup::XMLELEMENT* CMarkup::_ReserveElement()
 	return &m_pElements[m_nElements++];
 }
 
-void CMarkup::_SkipWhitespace(LPCTSTR& pstr) const
+void XMarkupParser::_SkipWhitespace(LPCTSTR& pstr) const
 {
 	while( *pstr > _T('\0') && *pstr <= _T(' ') ) pstr = ::CharNext(pstr);
 }
 
-void CMarkup::_SkipWhitespace(LPTSTR& pstr) const
+void XMarkupParser::_SkipWhitespace(LPTSTR& pstr) const
 {
 	while( *pstr > _T('\0') && *pstr <= _T(' ') ) pstr = ::CharNext(pstr);
 }
 
-void CMarkup::_SkipIdentifier(LPCTSTR& pstr) const
+void XMarkupParser::_SkipIdentifier(LPCTSTR& pstr) const
 {
 	// 属性只能用英文，所以这样处理没有问题
 	while( *pstr != _T('\0') && (*pstr == _T('_') || *pstr == _T(':') || _istalnum(*pstr)) ) pstr = ::CharNext(pstr);
 }
 
-void CMarkup::_SkipIdentifier(LPTSTR& pstr) const
+void XMarkupParser::_SkipIdentifier(LPTSTR& pstr) const
 {
 	// 属性只能用英文，所以这样处理没有问题
 	while( *pstr != _T('\0') && (*pstr == _T('_') || *pstr == _T(':') || _istalnum(*pstr)) ) pstr = ::CharNext(pstr);
 }
 
-bool CMarkup::_ParseAttributes(LPTSTR& pstrText)
+bool XMarkupParser::_ParseAttributes(LPTSTR& pstrText)
 {   
 	// 无属性
 	LPTSTR pstrIdentifier = pstrText;
@@ -576,7 +606,7 @@ bool CMarkup::_ParseAttributes(LPTSTR& pstrText)
 	return true;
 }
 
-bool CMarkup::_ParseData(LPTSTR& pstrText, LPTSTR& pstrDest, char cEnd)
+bool XMarkupParser::_ParseData(LPTSTR& pstrText, LPTSTR& pstrDest, char cEnd)
 {
 	while( *pstrText != _T('\0') && *pstrText != cEnd ) {
 		if( *pstrText == _T('&') ) {
@@ -605,7 +635,7 @@ bool CMarkup::_ParseData(LPTSTR& pstrText, LPTSTR& pstrDest, char cEnd)
 	return true;
 }
 
-void CMarkup::_ParseMetaChar(LPTSTR& pstrText, LPTSTR& pstrDest)
+void XMarkupParser::_ParseMetaChar(LPTSTR& pstrText, LPTSTR& pstrDest)
 {
 	if( pstrText[0] == _T('a') && pstrText[1] == _T('m') && pstrText[2] == _T('p') && pstrText[3] == _T(';') ) {
 		*pstrDest++ = _T('&');
@@ -632,7 +662,7 @@ void CMarkup::_ParseMetaChar(LPTSTR& pstrText, LPTSTR& pstrDest)
 	}
 }
 
-bool CMarkup::_Failed(LPCTSTR pstrError, LPCTSTR pstrLocation)
+bool XMarkupParser::_Failed(LPCTSTR pstrError, LPCTSTR pstrLocation)
 {
 	// Register last error
 	TRACE(_T("XML Error: %s"), pstrError);

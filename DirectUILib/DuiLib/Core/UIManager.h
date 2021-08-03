@@ -223,6 +223,8 @@ namespace DuiLib {
 		CPaintManagerUI();
 		~CPaintManagerUI();
 
+		void reInit();
+
 	public:
 		void Init(HWND hWnd, LPCTSTR pstrName = NULL);
 		bool IsUpdateNeeded() const;
@@ -301,6 +303,8 @@ namespace DuiLib {
 		static bool LoadPlugin(LPCTSTR pstrModuleName);
 		static CStdPtrArray* GetPlugins();
 
+		void SetAllowAutoFocus(bool bNoAutoFocus);
+
 		bool IsForceUseSharedRes() const;
 		void SetForceUseSharedRes(bool bForce);
 		// 注意：只支持简单类型指针，因为只释放内存，不会调用类对象的析构函数
@@ -367,7 +371,7 @@ namespace DuiLib {
 		bool EnableDragDrop(bool bEnable);
 		virtual bool OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium,DWORD *pdwEffect);
 
-		bool AttachDialog(CControlUI* pControl);
+		bool AttachDialog(CControlUI* pControl, bool bNeedFocus=true);
 		bool InitControls(CControlUI* pControl, CControlUI* pParent = NULL);
 		void ReapObjects(CControlUI* pControl);
 
@@ -550,6 +554,8 @@ namespace DuiLib {
 		bool m_bDragDrop;
 		bool m_bDragMode;
 		HBITMAP m_hDragBitmap;
+
+		bool _bAllowAutoFocus = false;
 		
 		//
 		static HINSTANCE m_hInstance;

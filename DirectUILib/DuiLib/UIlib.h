@@ -48,7 +48,7 @@
 #include "Utils/Utils.h"
 #include "Utils/unzip.h"
 #include "Utils/VersionHelpers.h"
-#include "Core/UIMarkup.h"
+#include "Core/XMLMarkup.h"
 #include "Utils/observer_impl_base.h"
 #include "Utils/UIShadow.h"
 #include "Utils/UIDelegate.h"
@@ -63,6 +63,8 @@
 #include "Core/ControlFactory.h"
 #include "Core/UIControl.h"
 #include "Core/UIContainer.h"
+
+#include "Core/XMLMarkup.h"
 
 #include "Core/UIDlgBuilder.h"
 #include "Core/UIRender.h"

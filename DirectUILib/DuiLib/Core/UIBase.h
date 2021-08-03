@@ -100,7 +100,7 @@ namespace DuiLib {
 
 	protected:
 		HWND m_hParent = 0;
-		HWND m_hWnd;
+		HWND m_hWnd = 0;
 		WNDPROC m_OldWndProc;
 		bool m_bSubclassed;
 		bool m_bUnicode;

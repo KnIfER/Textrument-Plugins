@@ -307,6 +307,36 @@ namespace DuiLib {
 		CShadowUI::Initialize(m_hInstance);
 	}
 
+	void CPaintManagerUI::reInit()
+	{
+		RemoveAllFonts(0);
+		RemoveAllFonts(1);
+		RemoveAllImages(0);
+		RemoveAllImages(1);
+		//RemoveAllStyle(0);
+		//RemoveAllStyle(1);
+		RemoveAllDefaultAttributeList(0);
+		RemoveAllDefaultAttributeList(1);
+		RemoveAllWindowCustomAttribute();
+		RemoveAllOptionGroups();
+		RemoveAllTimers();
+		//RemoveAllDrawInfos();
+
+		//m_ResInfo = {};
+
+
+
+		//m_ResInfo.m_DefaultFontInfo = {};
+		//m_SharedResInfo.m_DefaultFontInfo = {};
+		
+		
+		//m_ResInfo.m_CustomFonts = {};
+		//m_ResInfo.m_ImageHash = {};
+		//m_ResInfo.m_AttrHash = {};
+		//m_ResInfo.m_StyleHash = {};
+		//m_ResInfo.m_DrawInfoHash = {};
+	}
+
 	CPaintManagerUI::~CPaintManagerUI()
 	{
 		// Delete the control-tree structures
@@ -378,6 +408,11 @@ namespace DuiLib {
 			m_hDcPaint = ::GetDC(hWnd);
 			m_aPreMessages.Add(this);
 		}
+	}
+
+	void CPaintManagerUI::SetAllowAutoFocus(bool bAllowAutoFocus)
+	{
+		_bAllowAutoFocus = bAllowAutoFocus;
 	}
 
 	void CPaintManagerUI::DeletePtr(void* ptr)
@@ -524,6 +559,12 @@ namespace DuiLib {
 
 	void CPaintManagerUI::SetResourcePath(LPCTSTR pStrPath)
 	{
+		if( m_bCachedResourceZip && m_hResourceZip != NULL ) {
+			CloseZip((HZIP)m_hResourceZip);
+			m_hResourceZip = NULL;
+		}
+		m_pStrResourceZip = L"";
+		m_bCachedResourceZip = false;
 		m_pStrResourcePath = pStrPath;
 		if( m_pStrResourcePath.IsEmpty() ) return;
 		TCHAR cEnd = m_pStrResourcePath.GetAt(m_pStrResourcePath.GetLength() - 1);
@@ -1912,6 +1953,17 @@ namespace DuiLib {
 		case WM_KILLFOCUS:
 			{
 				if(IsCaptured()) ReleaseCapture();
+				//SetFocus();
+				m_pFocus = NULL;
+				//if( m_pFocus != NULL ) {
+				//	TEventUI event = { 0 };
+				//	event.Type = UIEVENT_KILLFOCUS;
+				//	event.wParam = wParam;
+				//	event.lParam = lParam;
+				//	event.pSender = m_pFocus;
+				//	event.dwTimestamp = ::GetTickCount();
+				//	m_pFocus->Event(event);
+				//}
 				break;
 			}
 		case WM_NOTIFY:
@@ -1975,14 +2027,21 @@ namespace DuiLib {
 		::InvalidateRect(m_hWndPaint, &rcItem, FALSE);
 	}
 
-	bool CPaintManagerUI::AttachDialog(CControlUI* pControl)
+	bool CPaintManagerUI::AttachDialog(CControlUI* pControl, bool bNeedFocus)
 	{
 		ASSERT(::IsWindow(m_hWndPaint));
 		// 创建阴影窗口
 		m_shadow.Create(this);
 
 		// Reset any previous attachment
-		SetFocus(NULL);
+		if (_bAllowAutoFocus)
+		{
+			SetFocus(NULL);
+		}
+		else
+		{
+			m_pFocus = NULL;
+		}
 		m_pEventKey = NULL;
 		m_pEventHover = NULL;
 		m_pEventClick = NULL;
@@ -1998,7 +2057,7 @@ namespace DuiLib {
 		// Go ahead...
 		m_bUpdateNeeded = true;
 		m_bFirstLayout = true;
-		m_bFocusNeeded = true;
+		m_bFocusNeeded = bNeedFocus;
 		// Initiate all control
 		return InitControls(pControl);
 	}
@@ -2300,8 +2359,11 @@ namespace DuiLib {
 
 	void CPaintManagerUI::SetFocusNeeded(CControlUI* pControl)
 	{
+		if( pControl == NULL ) {
+			m_bFocusNeeded = false;
+			return;
+		}
 		::SetFocus(m_hWndPaint);
-		if( pControl == NULL ) return;
 		if( m_pFocus != NULL ) {
 			TEventUI event = { 0 };
 			event.Type = UIEVENT_KILLFOCUS;
@@ -2437,6 +2499,7 @@ namespace DuiLib {
 			::InvalidateRect(m_hWndPaint, NULL, FALSE);
 			return true;
 		}
+		m_bFocusNeeded = false;
 		// Find next/previous tabbable control
 		FINDTABINFO info1 = { 0 };
 		info1.pFocus = m_pFocus;
@@ -2455,7 +2518,6 @@ namespace DuiLib {
 			}
 		}
 		if( pControl != NULL ) SetFocus(pControl);
-		m_bFocusNeeded = false;
 		return true;
 	}
 

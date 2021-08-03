@@ -8,7 +8,7 @@ namespace DuiLib {
 	}
 
 	CControlUI* CDialogBuilder::Create(STRINGorID xml, LPCTSTR type, IDialogBuilderCallback* pCallback, 
-		CPaintManagerUI* pManager, CControlUI* pParent)
+		CPaintManagerUI* pManager, CControlUI* pParent, bool copy)
 	{
 		//资源ID为0-65535，两个字节；字符串指针为4个字节
 		//字符串以<开头认为是XML字符串，否则认为是XML文件
@@ -19,9 +19,19 @@ namespace DuiLib {
 			}
 		}
 
-		if( HIWORD(xml.m_lpstr) != NULL ) {
-			if( *(xml.m_lpstr) == _T('<') ) {
-				if( !m_xml.Load(xml.m_lpstr) ) return NULL;
+		if( HIWORD(xml.m_lpstr) != NULL  ) {
+			int isMemFile = 0;
+			if (type)
+			{
+				if (!lstrcmp(type, TEXT("mem"))) isMemFile |= 0x1;
+				else if (!lstrcmp(type, TEXT("str"))) isMemFile |= 0x2;
+			}
+			if( isMemFile || *(xml.m_lpstr) == _T('<') ) {
+				if(isMemFile&0x1) {
+					if( !m_xml.LoadFromMem((BYTE*)xml.m_lpstr, xml.dataLen) ) return NULL;
+				} else {
+					if( !m_xml.Load(xml.m_lpstr, copy) ) return NULL;
+				}
 			}
 			else {
 				if( !m_xml.LoadFromFile(xml.m_lpstr) ) return NULL;
@@ -57,7 +67,7 @@ namespace DuiLib {
 	CControlUI* CDialogBuilder::Create(IDialogBuilderCallback* pCallback, CPaintManagerUI* pManager, CControlUI* pParent)
 	{
 		m_pCallback = pCallback;
-		CMarkupNode root = m_xml.GetRoot();
+		XMarkupNode root = m_xml.GetRoot();
 		if( !root.IsValid() ) return NULL;
 
 		if( pManager ) {
@@ -66,7 +76,7 @@ namespace DuiLib {
 			LPCTSTR pstrName = NULL;
 			LPCTSTR pstrValue = NULL;
 			LPTSTR pstr = NULL;
-			for( CMarkupNode node = root.GetChild() ; node.IsValid(); node = node.GetSibling() ) {
+			for( XMarkupNode node = root.GetChild() ; node.IsValid(); node = node.GetSibling() ) {
 				pstrClass = node.GetName();
 				if( _tcsicmp(pstrClass, _T("Image")) == 0 ) {
 					nAttributes = node.GetAttributeCount();
@@ -346,7 +356,7 @@ namespace DuiLib {
 		return _Parse(&root, pParent, pManager);
 	}
 
-	CMarkup* CDialogBuilder::GetMarkup()
+	XMarkupParser* CDialogBuilder::GetMarkup()
 	{
 		return &m_xml;
 	}
@@ -361,11 +371,11 @@ namespace DuiLib {
 		return m_xml.GetLastErrorLocation(pstrSource, cchMax);
 	}
 
-	CControlUI* CDialogBuilder::_Parse(CMarkupNode* pRoot, CControlUI* pParent, CPaintManagerUI* pManager)
+	CControlUI* CDialogBuilder::_Parse(XMarkupNode* pRoot, CControlUI* pParent, CPaintManagerUI* pManager)
 	{
 		IContainerUI* pContainer = NULL;
 		CControlUI* pReturn = NULL;
-		for( CMarkupNode node = pRoot->GetChild() ; node.IsValid(); node = node.GetSibling() ) {
+		for( XMarkupNode node = pRoot->GetChild() ; node.IsValid(); node = node.GetSibling() ) {
 			LPCTSTR pstrClass = node.GetName();
 			if( _tcsicmp(pstrClass, _T("Image")) == 0 || _tcsicmp(pstrClass, _T("Font")) == 0 \
 				|| _tcsicmp(pstrClass, _T("Default")) == 0 || _tcsicmp(pstrClass, _T("Style")) == 0 ) continue;
@@ -433,9 +443,9 @@ namespace DuiLib {
 			// 因为某些属性和父窗口相关，比如selected，必须先Add到父窗口
 			CTreeViewUI* pTreeView = NULL;
 			if( pParent != NULL && pControl != NULL ) {
+				pTreeView = static_cast<CTreeViewUI*>(pParent->GetInterface(_T("TreeView")));
 				CTreeNodeUI* pParentTreeNode = static_cast<CTreeNodeUI*>(pParent->GetInterface(_T("TreeNode")));
 				CTreeNodeUI* pTreeNode = static_cast<CTreeNodeUI*>(pControl->GetInterface(_T("TreeNode")));
-				pTreeView = static_cast<CTreeViewUI*>(pParent->GetInterface(_T("TreeView")));
 				// TreeNode子节点
 				if(pTreeNode != NULL) {
 					if(pParentTreeNode) {
@@ -472,6 +482,11 @@ namespace DuiLib {
 				}
 			}
 			if( pControl == NULL ) continue;
+
+			if (true)
+			{ // 记录XML节点
+				pControl->_marked = node.GetMarkedPos();
+			}
 
 			// Init default attributes
 			if( pManager ) {

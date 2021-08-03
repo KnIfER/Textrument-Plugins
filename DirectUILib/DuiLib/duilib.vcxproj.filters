@@ -96,7 +96,7 @@
     <ClInclude Include="Core\UIManager.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Core\UIMarkup.h">
+    <ClInclude Include="Core\XMLMarkup.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\UIRender.h">
@@ -253,13 +253,13 @@
     <ClCompile Include="Core\UIControl.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\UIDlgBuilder.cpp">
+    <ClCompile Include="Core\DialogBuilder.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Core\UIManager.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\UIMarkup.cpp">
+    <ClCompile Include="Core\XMLMarkup.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Core\UIRender.cpp">

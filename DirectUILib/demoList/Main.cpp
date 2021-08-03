@@ -46,6 +46,11 @@ public:
         return _T("ScanMainForm"); 
     };
 
+    DWORD GetItemTextColor(CControlUI* pList, int iItem, int iSubItem, int iState){
+       //= 0;// iState：0-正常、1-激活、2-选择、3-禁用
+        return 0;
+    }
+
     UINT GetClassStyle() const
     { 
         return CS_DBLCLKS; 

@@ -18,6 +18,7 @@ namespace DuiLib
 		STRINGorID(UINT nID) : m_lpstr(MAKEINTRESOURCE(nID))
 		{ }
 		LPCTSTR m_lpstr;
+		size_t dataLen=0;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////

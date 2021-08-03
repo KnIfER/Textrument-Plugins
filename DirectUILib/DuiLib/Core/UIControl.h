@@ -208,6 +208,7 @@ namespace DuiLib {
 		CEventSource OnEvent;
 		CEventSource OnNotify;
 		char* m_sUserDataTally;
+		int _marked;
 
 	protected:
 		CPaintManagerUI* m_pManager;

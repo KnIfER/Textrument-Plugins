@@ -47,7 +47,7 @@ namespace DuiLib {
 		return LoadResource(m_xml.GetRoot());
 	}
 
-	BOOL CResourceManager::LoadResource(CMarkupNode Root)
+	BOOL CResourceManager::LoadResource(XMarkupNode Root)
 	{
 		if( !Root.IsValid() ) return FALSE;
 
@@ -60,10 +60,10 @@ namespace DuiLib {
 		//加载图片资源
 		LPCTSTR pstrId = NULL;
 		LPCTSTR pstrPath = NULL;
-		for( CMarkupNode node = Root.GetChild() ; node.IsValid(); node = node.GetSibling() ) 
+		for( XMarkupNode node = Root.GetChild() ; node.IsValid(); node = node.GetSibling() ) 
 		{
 			pstrClass = node.GetName();
-			CMarkupNode ChildNode = node.GetChild();
+			XMarkupNode ChildNode = node.GetChild();
 			if(ChildNode.IsValid()) LoadResource(node);
 			else if ((_tcsicmp(pstrClass,_T("Image")) == 0) && node.HasAttributes())
 			{
@@ -161,14 +161,14 @@ namespace DuiLib {
 
 	BOOL CResourceManager::LoadLanguage(LPCTSTR pstrXml)
 	{
-		CMarkup xml;
+		XMarkupParser xml;
 		if( *(pstrXml) == _T('<') ) {
 			if( !xml.Load(pstrXml) ) return FALSE;
 		}
 		else {
 			if( !xml.LoadFromFile(pstrXml) ) return FALSE;
 		}
-		CMarkupNode Root = xml.GetRoot();
+		XMarkupNode Root = xml.GetRoot();
 		if( !Root.IsValid() ) return FALSE;
 
 		LPCTSTR pstrClass = NULL;
@@ -180,7 +180,7 @@ namespace DuiLib {
 		//加载图片资源
 		LPCTSTR pstrId = NULL;
 		LPCTSTR pstrText = NULL;
-		for( CMarkupNode node = Root.GetChild() ; node.IsValid(); node = node.GetSibling() ) 
+		for( XMarkupNode node = Root.GetChild() ; node.IsValid(); node = node.GetSibling() ) 
 		{
 			pstrClass = node.GetName();
 			if ((_tcsicmp(pstrClass,_T("Text")) == 0) && node.HasAttributes())
