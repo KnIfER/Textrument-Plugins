@@ -204,6 +204,70 @@ namespace DuiLib {
 						pManager->AddFontArray(pstrPath);
 					}
 				}
+				else if( _tcscmp(pstrClass, _T("EffectsStyles")) == 0 && node.HasChildren() ) {
+					nAttributes = node.GetAttributeCount();
+					LPCTSTR pStrStyleName = NULL;
+					LPCTSTR pStrStyleValue = NULL;
+					for( int i = 0; i < nAttributes; i++ ) {
+						pstrName = node.GetAttributeName(i);
+						pstrValue = node.GetAttributeValue(i);
+
+						if( _tcscmp(pstrName, _T("stylefile")) == 0 ){
+							XMarkupParser mEffectsStyleFile;
+							if(mEffectsStyleFile.LoadFromFile(pstrValue))
+							{
+								for( XMarkupNode nEffectsStyleNode = mEffectsStyleFile.GetRoot(); nEffectsStyleNode.IsValid(); nEffectsStyleNode = nEffectsStyleNode.GetSibling() ) {
+									LPCTSTR pstrClass = nEffectsStyleNode.GetName();
+
+									if( _tcscmp(pstrClass, _T("EffectsStyle")) != 0)
+										continue;
+
+									nAttributes = nEffectsStyleNode.GetAttributeCount();
+									LPCTSTR pControlName = NULL;
+									LPCTSTR pControlValue = NULL;
+									for( int i = 0; i < nAttributes; i++ ) {
+										pstrName = nEffectsStyleNode.GetAttributeName(i);
+										pstrValue = nEffectsStyleNode.GetAttributeValue(i);
+										if( _tcscmp(pstrName, _T("name")) == 0 ) {
+											pControlName = pstrValue;
+										}
+										else if( _tcscmp(pstrName, _T("value")) == 0 ) {
+											pControlValue = pstrValue;
+										}
+									}
+									if( pControlName ) {
+										pManager->AddEffectsStyle(pControlName, pControlValue);
+									}
+								}
+							}
+							break;
+						}
+					}
+
+					for( XMarkupNode nEffectsStyleNode = node.GetChild() ; nEffectsStyleNode.IsValid(); nEffectsStyleNode = nEffectsStyleNode.GetSibling() ) {
+						LPCTSTR pstrClass = nEffectsStyleNode.GetName();
+
+						if( _tcscmp(pstrClass, _T("EffectsStyle")) != 0)
+							continue;
+					
+						nAttributes = nEffectsStyleNode.GetAttributeCount();
+						LPCTSTR pControlName = NULL;
+						LPCTSTR pControlValue = NULL;
+						for( int i = 0; i < nAttributes; i++ ) {
+							pstrName = nEffectsStyleNode.GetAttributeName(i);
+							pstrValue = nEffectsStyleNode.GetAttributeValue(i);
+							if( _tcscmp(pstrName, _T("name")) == 0 ) {
+								pControlName = pstrValue;
+							}
+							else if( _tcscmp(pstrName, _T("value")) == 0 ) {
+								pControlValue = pstrValue;
+							}
+						}
+						if( pControlName ) {
+							pManager->AddEffectsStyle(pControlName, pControlValue);
+						}
+					}
+				}
 			}
 
 			pstrClass = root.GetName();

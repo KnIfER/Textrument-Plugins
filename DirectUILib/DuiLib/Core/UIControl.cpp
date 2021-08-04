@@ -1124,13 +1124,18 @@ namespace DuiLib {
 				DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
 				SetFocusBorderColor(clrColor);
 			}
-			else if( _tcsicmp(pstrName, _T("fx_adv")) == 0 ) {
-
-				//TCHAR buffer[100]={0};
-				//wsprintf(buffer,TEXT("position=%s"), pstrValue);
-				//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
-
-				SetEffectsStyle(pstrValue,&m_tCurEffects);
+			else if( _tcsncicmp(pstrName, _T("fx_"), 3) == 0 ) 
+			{
+				if( _tcsicmp(pstrName, _T("fx_adv")) == 0 ) SetEffectsStyle(pstrValue,&m_tCurEffects);
+				else if( _tcscmp(pstrName, _T("fx_do")) == 0 ) SetAnimEffects(_tcscmp(pstrValue, _T("true")) == 0);
+				else if( _tcscmp(pstrName, _T("fx_ez")) == 0 ) AnyEasyEffectsPorfiles(pstrValue,&m_tCurEffects);
+				else if( _tcscmp(pstrName, _T("fx_min")) == 0 ) SetEffectsStyle(pstrValue,&m_tMouseInEffects);
+				else if( _tcscmp(pstrName, _T("fx_mou")) == 0 ) SetEffectsStyle(pstrValue,&m_tMouseOutEffects);
+				else if( _tcscmp(pstrName, _T("fx_clk")) == 0 ) SetEffectsStyle(pstrValue,&m_tMouseClickEffects);
+				else if( _tcscmp(pstrName, _T("fx_s")) == 0 ) SetEffectsStyle(pstrValue,&m_tCurEffects);
+				else if( _tcscmp(pstrName, _T("fx_min_s")) == 0 ) SetEffectsStyle(pstrValue,&m_tMouseInEffects);
+				else if( _tcscmp(pstrName, _T("fx_mou_s")) == 0 ) SetEffectsStyle(pstrValue,&m_tMouseOutEffects);
+				else if( _tcscmp(pstrName, _T("fx_clk_s")) == 0 ) SetEffectsStyle(pstrValue,&m_tMouseClickEffects);
 			}
 			else c = 0;
 		}

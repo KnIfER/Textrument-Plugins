@@ -25,14 +25,7 @@ namespace DuiLib {
 	//************************************
 	CDuiString CControlUI::GetEffectStyle() const
 	{
-		try
-		{
-			return m_strEffectStyle;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetEffectStyle";
-		}
+		return m_strEffectStyle;
 	}
 
 	//************************************
@@ -46,14 +39,7 @@ namespace DuiLib {
 	//************************************
 	void CControlUI::SetAnimEffects( bool bEnableEffect )
 	{
-		try
-		{
-			m_bEnabledEffect = bEnableEffect;
-		}
-		catch (...)
-		{
-			throw "CControlUI::SetAnimEffects";
-		}
+		m_bEnabledEffect = bEnableEffect;
 	}
 
 	//************************************
@@ -66,14 +52,7 @@ namespace DuiLib {
 	//************************************
 	bool CControlUI::GetAnimEffects() const
 	{
-		try
-		{
-			return m_bEnabledEffect;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetAnimEffects";
-		}
+		return m_bEnabledEffect;
 	}
 	//************************************
 	// Method:    SetEffectsZoom
@@ -86,14 +65,7 @@ namespace DuiLib {
 	//************************************
 	void CControlUI::SetEffectsZoom( int iZoom )
 	{
-		try
-		{
-			m_tCurEffects.m_iZoom = iZoom;
-		}
-		catch (...)
-		{
-			throw "CControlUI::SetEffectsZoom";
-		}
+		m_tCurEffects.m_iZoom = iZoom;
 	}
 
 	//************************************
@@ -106,14 +78,7 @@ namespace DuiLib {
 	//************************************
 	int CControlUI::GetEffectsZoom() const
 	{
-		try
-		{
-			return m_tCurEffects.m_iZoom;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetEffectsZoom";
-		}
+		return m_tCurEffects.m_iZoom;
 	}
 
 	//************************************
@@ -127,14 +92,7 @@ namespace DuiLib {
 	//************************************
 	void CControlUI::SetEffectsFillingBK( DWORD dFillingBK )
 	{
-		try
-		{
-			m_tCurEffects.m_dFillingBK = dFillingBK;
-		}
-		catch (...)
-		{
-			throw "CControlUI::SetEffectsFillingBK";
-		}
+		m_tCurEffects.m_dFillingBK = dFillingBK;
 	}
 
 	//************************************
@@ -147,14 +105,7 @@ namespace DuiLib {
 	//************************************
 	DWORD CControlUI::GetEffectsFillingBK() const
 	{
-		try
-		{
-			return m_tCurEffects.m_dFillingBK;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetEffectsFillingBK";
-		}
+		return m_tCurEffects.m_dFillingBK;
 	}
 
 	//************************************
@@ -168,14 +119,7 @@ namespace DuiLib {
 	//************************************
 	void CControlUI::SetEffectsOffectX( int iOffectX )
 	{
-		try
-		{
-			m_tCurEffects.m_iOffectX = iOffectX;
-		}
-		catch (...)
-		{
-			throw "CControlUI::SetEffectsOffectX";
-		}
+		m_tCurEffects.m_iOffectX = iOffectX;
 	}
 
 	//************************************
@@ -188,14 +132,7 @@ namespace DuiLib {
 	//************************************
 	int CControlUI::GetEffectsOffectX() const
 	{
-		try
-		{
-			return m_tCurEffects.m_iOffectX;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetEffectsOffectX";
-		}
+		return m_tCurEffects.m_iOffectX;
 	}
 
 	//************************************
@@ -209,14 +146,7 @@ namespace DuiLib {
 	//************************************
 	void CControlUI::SetEffectsOffectY( int iOffectY )
 	{
-		try
-		{
-			m_tCurEffects.m_iOffectY = iOffectY;
-		}
-		catch (...)
-		{
-			throw "CControlUI::SetEffectsOffectY";
-		}
+		m_tCurEffects.m_iOffectY = iOffectY;
 	}
 
 	//************************************
@@ -229,14 +159,7 @@ namespace DuiLib {
 	//************************************
 	int CControlUI::GetEffectsOffectY() const
 	{
-		try
-		{
-			return m_tCurEffects.m_iOffectY;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetEffectsOffectY";
-		}
+		return m_tCurEffects.m_iOffectY;
 	}
 
 	//************************************
@@ -250,14 +173,7 @@ namespace DuiLib {
 	//************************************
 	void CControlUI::SetEffectsAlpha( int iAlpha )
 	{
-		try
-		{
-			m_tCurEffects.m_iAlpha = iAlpha;
-		}
-		catch (...)
-		{
-			throw "CControlUI::SetEffectsAlpha";
-		}
+		m_tCurEffects.m_iAlpha = iAlpha;
 	}
 
 	//************************************
@@ -270,14 +186,7 @@ namespace DuiLib {
 	//************************************
 	int CControlUI::GetEffectsAlpha() const
 	{
-		try
-		{
-			return m_tCurEffects.m_iAlpha;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetEffectsAlpha";
-		}
+		return m_tCurEffects.m_iAlpha;
 	}
 
 	//************************************
@@ -291,14 +200,7 @@ namespace DuiLib {
 	//************************************
 	void CControlUI::SetEffectsRotation( float fRotation )
 	{
-		try
-		{
-			m_tCurEffects.m_fRotation = fRotation;
-		}
-		catch (...)
-		{
-			throw "CControlUI::SetEffectsRotation";
-		}
+		m_tCurEffects.m_fRotation = fRotation;
 	}
 
 	//************************************
@@ -311,14 +213,7 @@ namespace DuiLib {
 	//************************************
 	float CControlUI::GetEffectsRotation()
 	{
-		try
-		{
-			return m_tCurEffects.m_fRotation;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetEffectsRotation";
-		}
+		return m_tCurEffects.m_fRotation;
 	}
 
 	//************************************
@@ -332,14 +227,7 @@ namespace DuiLib {
 	//************************************
 	void CControlUI::SetEffectsNeedTimer( int iNeedTimer )
 	{
-		try
-		{
-			m_tCurEffects.m_iNeedTimer = iNeedTimer;
-		}
-		catch (...)
-		{
-			throw "CControlUI::SetEffectsNeedTimer";
-		}
+		m_tCurEffects.m_iNeedTimer = iNeedTimer;
 	}
 
 	//************************************
@@ -352,14 +240,7 @@ namespace DuiLib {
 	//************************************
 	int CControlUI::GetEffectsNeedTimer()
 	{
-		try
-		{
-			return m_tCurEffects.m_iNeedTimer;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetEffectsNeedTimer";
-		}
+		return m_tCurEffects.m_iNeedTimer;
 	}
 
 
@@ -373,14 +254,7 @@ namespace DuiLib {
 	//************************************
 	TEffectAge* CControlUI::GetCurEffects()
 	{
-		try
-		{
-			return &m_tCurEffects;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetCurEffects";
-		}
+		return &m_tCurEffects;
 	}
 
 	//************************************
@@ -393,14 +267,7 @@ namespace DuiLib {
 	//************************************
 	TEffectAge* CControlUI::GetMouseInEffect()
 	{
-		try
-		{
-			return &m_tMouseInEffects;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetMouseInEffect";
-		}
+		return &m_tMouseInEffects;
 	}
 
 	//************************************
@@ -413,14 +280,7 @@ namespace DuiLib {
 	//************************************
 	TEffectAge* CControlUI::GetMouseOutEffect()
 	{
-		try
-		{
-			return &m_tMouseOutEffects;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetMouseOutEffect";
-		}
+		return &m_tMouseOutEffects;
 	}
 
 	//************************************
@@ -433,14 +293,7 @@ namespace DuiLib {
 	//************************************
 	TEffectAge* CControlUI::GetClickInEffect()
 	{
-		try
-		{
-			return &m_tMouseClickEffects;
-		}
-		catch (...)
-		{
-			throw "CControlUI::GetClickInEffect";
-		}
+		return &m_tMouseClickEffects;
 	}
 
 	//************************************
@@ -461,12 +314,8 @@ namespace DuiLib {
 
 			if(m_strEffectStyle.IsEmpty() && pstrEffectStyle)
 			{
-				 //TCHAR buffer[100]={0};
-				 //wsprintf(buffer,TEXT("position=%s"),  pstrEffectStyle);
-				 //::MessageBox(NULL, buffer, TEXT(""), MB_OK);
-
 				AnyEffectsAdvProfiles(pstrEffectStyle,pTEffectAge);
-				//AnyEasyEffectsPorfiles(pstrEffectStyle,pTEffectAge);
+				AnyEasyEffectsPorfiles(pstrEffectStyle,pTEffectAge);
 			}
 			else if(!m_strEffectStyle.IsEmpty())
 			{
@@ -522,6 +371,10 @@ namespace DuiLib {
 				if( *pstrEffects++ != _T('\'') ) break;
 				if( !sValue.IsEmpty() ) {
 
+					//
+					// // ------------- 有点、奇怪。
+					// 
+					
 					//TCHAR buffer[200]={0};
 					//wsprintf(buffer,TEXT("position=%s %d"), sItem, sItem == _T("anim"));
 					//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
@@ -711,7 +564,7 @@ namespace DuiLib {
 				if(GetManager() && m_bEnabledEffect && pcTEffect->m_bEnableEffect)
 				{
 					//GetManager()->AddAnimationJob(CDxAnimationUI(UIANIMTYPE_FLAT,0,GetEffectsNeedTimer(),GetEffectsFillingBK(),GetEffectsFillingBK(),GetPos(),GetEffectsOffectX(),GetEffectsOffectY(),GetEffectsZoom(),GetEffectsAlpha(),GetEffectsRotation()));
-					bool ret = GetManager()->AddAnimationJob(CDxAnimationUI(UIANIMTYPE_FLAT,0,pcTEffect->m_iNeedTimer,pcTEffect->m_dFillingBK,pcTEffect->m_dFillingBK,GetPos(),pcTEffect->m_iOffectX,pcTEffect->m_iOffectY,pcTEffect->m_iZoom,pcTEffect->m_iAlpha,(float)pcTEffect->m_fRotation));
+					GetManager()->AddAnimationJob(CDxAnimationUI(UIANIMTYPE_FLAT,0,pcTEffect->m_iNeedTimer,pcTEffect->m_dFillingBK,pcTEffect->m_dFillingBK,GetPos(),pcTEffect->m_iOffectX,pcTEffect->m_iOffectY,pcTEffect->m_iZoom,pcTEffect->m_iAlpha,(float)pcTEffect->m_fRotation));
 				}
 				mEffectLock.UnLock();
 			}

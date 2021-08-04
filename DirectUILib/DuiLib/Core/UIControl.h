@@ -233,7 +233,7 @@ namespace DuiLib {
 		void AnyEffectsAdvProfiles(LPCTSTR pstrEffects,TEffectAge* pTEffectAge = NULL);
 		void AnyEasyEffectsPorfiles(LPCTSTR pstrEffects,TEffectAge* pTEffectAge = NULL);
 
-	private:
+	protected:
 		bool		m_bEnabledEffect;
 		CDuiString	m_strEffectStyle;
 

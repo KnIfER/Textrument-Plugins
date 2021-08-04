@@ -124,9 +124,9 @@ void CMainWnd::Notify( TNotifyUI& msg )
 			//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
 
 
-			msg.pSender->SetAnimEffects(true);
-			msg.pSender->SetAttribute(_T("fx_adv"),_T("anim='zoom+' offset='80'\0"));
-			msg.pSender->TriggerEffects();
+			//msg.pSender->SetAnimEffects(true);
+			//msg.pSender->SetAttribute(_T("fx_adv"),_T("anim='left2right' offset='180'"));
+			//msg.pSender->TriggerEffects();
 
 			pAnimWnd->SetAnimEffects(true);
 			msg.pSender->SetTag(msg.pSender->GetTag()+1);

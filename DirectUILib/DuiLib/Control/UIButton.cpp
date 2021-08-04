@@ -128,6 +128,10 @@ namespace DuiLib
 		if( m_pManager != NULL )
 		{
 			m_pManager->SendNotify(this, DUI_MSGTYPE_CLICK);
+			if (m_tMouseClickEffects.m_bEnableEffect)
+			{
+				TriggerEffects(&m_tMouseClickEffects);
+			}
 			BindTriggerTabSel();
 		}
 		return true;
