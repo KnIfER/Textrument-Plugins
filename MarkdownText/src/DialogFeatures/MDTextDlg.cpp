@@ -542,7 +542,8 @@ void MarkDownTextDlg::RefreshWebview(int source)
 
 		if (b1 || b2)
 		{
-			//LogIs(" 更新展示内容: bid=%d articleType=%d soft=%d upd=%d", bid, RendererTypeIdx, b1, b2);
+			//static int cc=0;
+			//LogIs(" 更新展示内容: bid=%d articleType=%d soft=%d upd=%d %d", bid, RendererTypeIdx, b1, b2, cc++);
 			mWebView0->updateArticle(bid, RendererTypeIdx, b1, b2);
 			if (lastBid!=bidBk)
 			{
@@ -1771,6 +1772,7 @@ void MarkDownTextDlg::LanguageToMarkdown()
 						{ // useless when switching file 
 							// | 当切换文件时立即调用是无效的，因为菜单尚未更新。所以要deferred。
 							//break;
+							return;
 						}
 						//break;
 					}
@@ -1780,7 +1782,7 @@ void MarkDownTextDlg::LanguageToMarkdown()
 				}
 			}
 			//LogIs(2, L"anguageToMarkdown %s", tmp);
-			SendMessage(nppData._nppHandle, WM_COMMAND, MAKELONG(found, 66), 0);
+			PostMessage(nppData._nppHandle, WM_COMMAND, MAKELONG(found, 66), 0);
 		}
 	}
 }

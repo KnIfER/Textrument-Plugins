@@ -383,8 +383,9 @@ void APresenterBWidget::updateArticle(LONG_PTR bid, int articleType, bool softUp
 	{
 		strcpy(page_id+(ed=(int)strlen(page_id)), "/text.html");
 		// Workaround for the Win7, random first char.
-		//LogIs(L"bwSoftUpdate::%s", bwGetUrl(mWebView));
-		if(softUpdate && STRSTARTWITH(bwGetUrl(mWebView)+1, page_id+1))
+		static int cc=0;
+		//LogIs(2, L"bwSoftUpdate::%s", bwGetUrl(mWebView));
+		if(softUpdate && STRSTARTWITH(bwGetUrl(mWebView)+12, page_id+6))
 		{
 			bwExecuteJavaScript(mWebView, "update()"); // bw soft update
 		}
@@ -400,7 +401,7 @@ void APresenterBWidget::updateArticle(LONG_PTR bid, int articleType, bool softUp
 			strcpy(nxt_st, "'));}</script><body><script src=\"http://mdbr/");
 
 			presentee->AppendPageResidue(nxt_st+45); // 加载bw
-			bwLoadStrData(mWebView, page_id+13, page_content, 0);
+			bwLoadStrData(mWebView, page_id+7, page_content, 0);
 			presentee->lastBid=bid;
 			lstrcpy(last_updated, last_actived);
 		}

@@ -1,5 +1,6 @@
 #include "SU.h"
 #include "assert.h"
+#include "strsafe.h"
 
 
 
@@ -103,15 +104,19 @@ int LONGPTR2STR(CHAR* STR, LONG_PTR LONGPTR)
 
 bool STRSTARTWITH(TCHAR* strA,TCHAR* strB)
 {
-	int valen = lstrlen(strA);
-	int pc = lstrlen(strB);
+	size_t valen=0, pc=0;
+	StringCchLength(strA, 256, &valen);
+	StringCchLength(strB, 256, &pc);
+	//int valen = lstrlen(strA);
+	//int pc = lstrlen(strB);
 	int to = valen-pc;
 	int po = 0;
 	// Note: toffset might be near -1>>>1.
 	if (to < 0) {
 		return false;
 	}
-	while (--pc >= 0) {
+	int len = pc;
+	while (--len >= 0) {
 		if (strA[po] != strB[po++]) {
 			return false;
 		}
@@ -121,15 +126,19 @@ bool STRSTARTWITH(TCHAR* strA,TCHAR* strB)
 
 bool STRENDWITH(TCHAR* strA,TCHAR* strB)
 {
-	int valen = lstrlen(strA);
-	int pc = lstrlen(strB);
+	size_t valen=0, pc=0;
+	StringCchLength(strA, 256, &valen);
+	StringCchLength(strB, 256, &pc);
+	//int valen = lstrlen(strA);
+	//int pc = lstrlen(strB);
 	int to = valen-pc;
 	int po = 0;
 	// Note: toffset might be near -1>>>1.
 	if (to < 0) {
 		return false;
 	}
-	while (--pc >= 0) {
+	int len = pc;
+	while (--len >= 0) {
 		if (strA[to++] != strB[po++]) {
 			return false;
 		}
@@ -140,15 +149,19 @@ bool STRENDWITH(TCHAR* strA,TCHAR* strB)
 #ifdef  UNICODE
 bool STRSTARTWITH(TCHAR* strA,CHAR* strB)
 {
-	int valen = lstrlen(strA);
-	int pc = strlen(strB);
+	size_t valen=0, pc=0;
+	StringCchLength(strA, 256, &valen);
+	StringCchLengthA(strB, 256, &pc);
+	//valen = lstrlen(strA);
+	//pc = strlen(strB);
 	int to = valen-pc;
 	int po = 0;
 	// Note: toffset might be near -1>>>1.
 	if (to < 0) {
 		return false;
 	}
-	while (--pc >= 0) {
+	int len = pc;
+	while (--len >= 0) {
 		if (strA[po] != strB[po++]) {
 			return false;
 		}
@@ -158,15 +171,19 @@ bool STRSTARTWITH(TCHAR* strA,CHAR* strB)
 
 bool STRENDWITH(TCHAR* strA,CHAR* strB)
 {
-	int valen = lstrlen(strA);
-	int pc = strlen(strB);
+	size_t valen=0, pc=0;
+	StringCchLength(strA, 256, &valen);
+	StringCchLengthA(strB, 256, &pc);
+	//int valen = lstrlen(strA);
+	//int pc = strlen(strB);
 	int to = valen-pc;
 	int po = 0;
 	// Note: toffset might be near -1>>>1.
 	if (to < 0) {
 		return false;
 	}
-	while (--pc >= 0) {
+	int len = pc;
+	while (--len >= 0) {
 		if (strA[to++] != strB[po++]) {
 			return false;
 		}

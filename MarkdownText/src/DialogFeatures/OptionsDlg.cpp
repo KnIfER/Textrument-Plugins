@@ -248,7 +248,7 @@ bool OptionsDlg::FindLanguages()
 void OptionsDlg::HandleMessage(int type, TNotifyUI* msg)
 {
     CHAR path[MAX_PATH*2];
-    if(type==0)
+    if(type==0 && msg->pSender)
     {
         ComboeditContext* ctx = (ComboeditContext*)msg->pSender->GetTag();
         if( itemTweakingCtx = ctx )
@@ -274,7 +274,7 @@ void OptionsDlg::HandleMessage(int type, TNotifyUI* msg)
             }
         }
     } 
-    else if(type==1)
+    else if(type==1 && msg->pSender)
     {
         CControlUI* tag = (CControlUI*)msg->pSender->GetTag();
         ComboeditContext* ctx = (ComboeditContext*)tag->GetTag();

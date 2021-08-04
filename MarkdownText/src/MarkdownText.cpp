@@ -74,6 +74,8 @@ bool autoRunChecking=false;
 
 bool isLoadingNew=false;
 
+bool isClosing=false;
+
 extern HMENU GetPluginMenu();
 
 int EditorBG;
@@ -91,11 +93,18 @@ bool deferredUpdateRequested = false;
 
 void changeLanguageToMarkdown()
 {
+	if (isClosing)
+	{
+		return;
+	}
+	if (deferredUpdateRequested)
+	{
+		deferredUpdateRequested = false;
+	}
 	if (_MDText.checkFileExt(0))
 	{
 		_MDText.LanguageToMarkdown();
 	}
-	deferredUpdateRequested = false;
 }
 
 // export the listener
@@ -169,6 +178,16 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 		break;
 		case NPPN_FILEBEFORECLOSE:
 		{
+			isClosing = true;
+		}
+		break;
+		case NPPN_FILECLOSED:
+		{
+			isClosing = false;
+			if(NPPRunning)
+			{
+				_MDText.buffersMap.erase(notifyCode->nmhdr.idFrom);
+			}
 		}
 		break;
 		case NPPN_FILEBEFOREOPEN:
@@ -186,14 +205,6 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 		{
 			isLoadingNew = false;
 			_MDText.buffersMap.insert(notifyCode->nmhdr.idFrom);
-		}
-		break;
-		case NPPN_FILECLOSED:
-		{
-			if(NPPRunning)
-			{
-				_MDText.buffersMap.erase(notifyCode->nmhdr.idFrom);
-			}
 		}
 		break;
 		// 页面切换
@@ -233,10 +244,13 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 			//static int paint_cc = 0; LogIs("paint_cc %d ", paint_cc++);
 			if(NPPRunning)
 			{
-				LONG_PTR bid = ::SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);
-				if(_MDText.lastBid==bid)
+				if (GetUIBoolReverse(MD_SETTINGS_SYNC_SCROLL))
 				{
-					_MDText.syncWebToline();
+					LONG_PTR bid = ::SendMessage(nppData._nppHandle, NPPM_GETCURRENTBUFFERID, 0, 0);
+					if(_MDText.lastBid==bid)
+					{
+						_MDText.syncWebToline();
+					}
 				}
 				if(deferredUpdateRequested) changeLanguageToMarkdown(); 
 			}
