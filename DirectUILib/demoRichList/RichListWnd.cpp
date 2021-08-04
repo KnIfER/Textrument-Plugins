@@ -156,8 +156,8 @@ DUI_END_MESSAGE_MAP()
 
 CRichListWnd::CRichListWnd(void)
 {
-	m_Page1.SetPaintMagager(&m_PaintManager);
-	m_Page2.SetPaintMagager(&m_PaintManager);
+	m_Page1.SetPaintMagager(&m_pm);
+	m_Page2.SetPaintMagager(&m_pm);
 
 	AddVirtualWnd(_T("page1"),&m_Page1);
 	AddVirtualWnd(_T("page2"),&m_Page2);
@@ -238,11 +238,11 @@ void CRichListWnd::OnSelectChanged( TNotifyUI &msg )
 {
 	if(msg.pSender->GetName() == _T("down_list"))
 	{
-		static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("tab_main")))->SelectItem(0);
+		static_cast<CTabLayoutUI*>(m_pm.FindControl(_T("tab_main")))->SelectItem(0);
 	}
 	else if(msg.pSender->GetName() == _T("down_his"))
 	{
-		static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("tab_main")))->SelectItem(1);
+		static_cast<CTabLayoutUI*>(m_pm.FindControl(_T("tab_main")))->SelectItem(1);
 	}
 }
 
@@ -253,7 +253,7 @@ void CRichListWnd::OnItemClick( TNotifyUI &msg )
 	wsprintf(alert_msg, _T("选中了行%d, 查找本行内的下载项目名..."), index);
 	MessageBox(NULL, alert_msg, _T("DUILIB DEMO"), MB_OK);            
 
-	CControlUI *find_ctrl =m_PaintManager.FindSubControlByName(msg.pSender, _T("down_name"));
+	CControlUI *find_ctrl =m_pm.FindSubControlByName(msg.pSender, _T("down_name"));
 
 	if(find_ctrl)
 	{
@@ -268,7 +268,7 @@ void CRichListWnd::OnItemClick( TNotifyUI &msg )
 			_T("DUILIB DEMO"), MB_OK);   
 	}
 
-	find_ctrl =m_PaintManager.FindSubControlByName(msg.pSender, _T("down_progress"));
+	find_ctrl =m_pm.FindSubControlByName(msg.pSender, _T("down_progress"));
 
 	if(find_ctrl)
 	{
@@ -290,8 +290,8 @@ LRESULT CRichListWnd::OnMouseWheel( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 {
 	// 解决ie控件收不到滚动消息的问题
 	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-	::ScreenToClient(m_PaintManager.GetPaintWindow(), &pt);
-	CControlUI* pControl = static_cast<CControlUI*>(m_PaintManager.FindControl(_T("ie")));
+	::ScreenToClient(m_pm.GetPaintWindow(), &pt);
+	CControlUI* pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("ie")));
 	if( pControl && pControl->IsVisible() ) {
 		RECT rc = pControl->GetPos();
 		if( ::PtInRect(&rc, pt) ) {
@@ -315,15 +315,15 @@ LRESULT CRichListWnd::OnSysCommand( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	LRESULT lRes = CWindowWnd::HandleMessage(uMsg, wParam, lParam);
 	if( ::IsZoomed(*this) != bZoomed ) {
 		if( !bZoomed ) {
-			CControlUI* pControl = static_cast<CControlUI*>(m_PaintManager.FindControl(_T("maxbtn")));
+			CControlUI* pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("maxbtn")));
 			if( pControl ) pControl->SetVisible(false);
-			pControl = static_cast<CControlUI*>(m_PaintManager.FindControl(_T("restorebtn")));
+			pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("restorebtn")));
 			if( pControl ) pControl->SetVisible(true);
 		}
 		else {
-			CControlUI* pControl = static_cast<CControlUI*>(m_PaintManager.FindControl(_T("maxbtn")));
+			CControlUI* pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("maxbtn")));
 			if( pControl ) pControl->SetVisible(true);
-			pControl = static_cast<CControlUI*>(m_PaintManager.FindControl(_T("restorebtn")));
+			pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("restorebtn")));
 			if( pControl ) pControl->SetVisible(false);
 		}
 	}
@@ -332,22 +332,22 @@ LRESULT CRichListWnd::OnSysCommand( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 void CRichListWnd::InitWindow()
 {
-	m_pCloseBtn = static_cast<CButtonUI*>(m_PaintManager.FindControl(_T("closebtn")));
-	m_pMaxBtn = static_cast<CButtonUI*>(m_PaintManager.FindControl(_T("maxbtn")));
-	m_pRestoreBtn = static_cast<CButtonUI*>(m_PaintManager.FindControl(_T("restorebtn")));
-	m_pMinBtn = static_cast<CButtonUI*>(m_PaintManager.FindControl(_T("minbtn")));
+	m_pCloseBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("closebtn")));
+	m_pMaxBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("maxbtn")));
+	m_pRestoreBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("restorebtn")));
+	m_pMinBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("minbtn")));
 }
 
 LRESULT CRichListWnd::OnMouseHover(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-	CControlUI* pHover = m_PaintManager.FindControl(pt);
+	CControlUI* pHover = m_pm.FindControl(pt);
 	if( pHover == NULL ) return 0;
 	/*演示悬停在下载列表的图标上时，动态变换下载图标状态显示*/
 	if(pHover->GetName() == _T("down_ico"))
 	{
 		MessageBox(NULL, _T("鼠标在某控件例如按钮上悬停后，对目标控件操作，这里改变了状态图标大小"), _T("DUILIB DEMO"), MB_OK);
-		((CButtonUI *)pHover)->SetAttributeList(
+		((CButtonUI *)pHover)->ApplyAttributeList(
 			_T("normalimage=\"file='downlist_pause.png' dest='15,9,32,26'\""));                
 	}
 	return 0;

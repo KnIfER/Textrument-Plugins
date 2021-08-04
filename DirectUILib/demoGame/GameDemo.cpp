@@ -227,12 +227,12 @@ public:
             pUserList->Add(pListElement);
         }
 
-        CLoginFrameWnd* pLoginFrame = new CLoginFrameWnd();
-        if( pLoginFrame == NULL ) { Close(); return; }
-        pLoginFrame->Create(m_hWnd, _T(""), UI_WNDSTYLE_DIALOG, 0, 0, 0, 0, 0, NULL);
-		pLoginFrame->SetIcon(IDI_ICON_DUILIB);
-        pLoginFrame->CenterWindow();
-        pLoginFrame->ShowModal();
+       //CLoginFrameWnd* pLoginFrame = new CLoginFrameWnd();
+       //if( pLoginFrame == NULL ) { Close(); return; }
+       //pLoginFrame->Create(m_hWnd, _T(""), UI_WNDSTYLE_DIALOG, 0, 0, 0, 0, 0, NULL);
+		//pLoginFrame->SetIcon(IDI_ICON_DUILIB);
+       //pLoginFrame->CenterWindow();
+       //pLoginFrame->ShowModal();
     }
 
     void SendChatMessage() {
