@@ -15,4 +15,5 @@ FileTree
 *.log
 *.FileListAbsolute.txt
 
-Temp
+*.db
+*.ilk

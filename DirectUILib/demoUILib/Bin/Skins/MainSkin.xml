@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window size="900,600" roundcorner="3,3" sizebox="3,3,3,3" caption="2,2,2,96" bktrans="false" >
+	<Font name="微软雅黑,雅黑,宋体" size="12" />
+	<Font name="微软雅黑,雅黑,宋体" size="12" bold="true" />
+	<Font name="微软雅黑,雅黑,宋体" size="22" bold="true" />
+	<Font name="微软雅黑,雅黑,宋体" size="26" bold="true" />
+	<Default name="VScrollBar" value="button1normalimage=&quot;file='WndFrame/scrollbar.bmp' source='0,90,16,106' mask='#FFFF00FF'&quot; button1hotimage=&quot;file='WndFrame/scrollbar.bmp' source='18,90,34,106' mask='#FFFF00FF'&quot; button1pushedimage=&quot;file='WndFrame/scrollbar.bmp' source='36,90,52,106' mask='#FFFF00FF'&quot; button1disabledimage=&quot;file='WndFrame/scrollbar.bmp' source='54,90,70,106' mask='#FFFF00FF'&quot; button2normalimage=&quot;file='WndFrame/scrollbar.bmp' source='0,108,16,124' mask='#FFFF00FF'&quot; button2hotimage=&quot;file='WndFrame/scrollbar.bmp' source='18,108,34,124' mask='#FFFF00FF'&quot; button2pushedimage=&quot;file='WndFrame/scrollbar.bmp' source='36,108,52,124' mask='#FFFF00FF'&quot; button2disabledimage=&quot;file='WndFrame/scrollbar.bmp' source='54,108,70,124' mask='#FFFF00FF'&quot; thumbnormalimage=&quot;file='WndFrame/scrollbar.bmp' source='0,126,16,142' corner='2,2,2,2' mask='#FFFF00FF'&quot; thumbhotimage=&quot;file='WndFrame/scrollbar.bmp' source='18,126,34,142' corner='2,2,2,2' mask='#FFFF00FF'&quot; thumbpushedimage=&quot;file='WndFrame/scrollbar.bmp' source='36,126,52,142' corner='2,2,2,2' mask='#FFFF00FF'&quot; thumbdisabledimage=&quot;file='WndFrame/scrollbar.bmp' source='54,126,70,142' corner='2,2,2,2' mask='#FFFF00FF'&quot; railnormalimage=&quot;file='WndFrame/scrollbar.bmp' source='0,144,16,160' corner='2,2,2,2' mask='#FFFF00FF'&quot; railhotimage=&quot;file='WndFrame/scrollbar.bmp' source='18,144,34,160' corner='2,2,2,2' mask='#FFFF00FF'&quot; railpushedimage=&quot;file='WndFrame/scrollbar.bmp' source='36,144,52,160' corner='2,2,2,2' mask='#FFFF00FF'&quot; raildisabledimage=&quot;file='WndFrame/scrollbar.bmp' source='54,144,70,160' corner='2,2,2,2' mask='#FFFF00FF'&quot; bknormalimage=&quot;file='WndFrame/scrollbar.bmp' source='0,162,16,178' corner='2,2,2,2' mask='#FFFF00FF'&quot; bkhotimage=&quot;file='WndFrame/scrollbar.bmp' source='18,162,34,178' corner='2,2,2,2' mask='#FFFF00FF'&quot; bkpushedimage=&quot;file='WndFrame/scrollbar.bmp' source='36,162,52,178' corner='2,2,2,2' mask='#FFFF00FF'&quot; bkdisabledimage=&quot;file='WndFrame/scrollbar.bmp' source='54,162,70,178' corner='2,2,2,2' mask='#FFFF00FF'&quot; " />
+	<Default name="HScrollBar" value="button1normalimage=&quot;file='WndFrame/scrollbar.bmp' source='0,0,16,16' mask='#FFFF00FF'&quot; button1hotimage=&quot;file='WndFrame/scrollbar.bmp' source='18,0,34,16' mask='#FFFF00FF'&quot; button1pushedimage=&quot;file='WndFrame/scrollbar.bmp' source='36,0,52,16' mask='#FFFF00FF'&quot; button1disabledimage=&quot;file='WndFrame/scrollbar.bmp' source='54,0,70,16' mask='#FFFF00FF'&quot; button2normalimage=&quot;file='WndFrame/scrollbar.bmp' source='0,18,16,34' mask='#FFFF00FF'&quot; button2hotimage=&quot;file='WndFrame/scrollbar.bmp' source='18,18,34,34' mask='#FFFF00FF'&quot; button2pushedimage=&quot;file='WndFrame/scrollbar.bmp' source='36,18,52,34' mask='#FFFF00FF'&quot; button2disabledimage=&quot;file='WndFrame/scrollbar.bmp' source='54,18,70,34' mask='#FFFF00FF'&quot; thumbnormalimage=&quot;file='WndFrame/scrollbar.bmp' source='0,36,16,52' corner='2,2,2,2' mask='#FFFF00FF'&quot; thumbhotimage=&quot;file='WndFrame/scrollbar.bmp' source='18,36,34,52' corner='2,2,2,2' mask='#FFFF00FF'&quot; thumbpushedimage=&quot;file='WndFrame/scrollbar.bmp' source='36,36,52,52' corner='2,2,2,2' mask='#FFFF00FF'&quot; thumbdisabledimage=&quot;file='WndFrame/scrollbar.bmp' source='54,36,70,52' corner='2,2,2,2' mask='#FFFF00FF'&quot; railnormalimage=&quot;file='WndFrame/scrollbar.bmp' source='0,54,16,70' corner='2,2,2,2' mask='#FFFF00FF'&quot; railhotimage=&quot;file='WndFrame/scrollbar.bmp' source='18,54,34,70' corner='2,2,2,2' mask='#FFFF00FF'&quot; railpushedimage=&quot;file='WndFrame/scrollbar.bmp' source='36,54,52,70' corner='2,2,2,2' mask='#FFFF00FF'&quot; raildisabledimage=&quot;file='WndFrame/scrollbar.bmp' source='54,54,70,70' corner='2,2,2,2' mask='#FFFF00FF'&quot; bknormalimage=&quot;file='WndFrame/scrollbar.bmp' source='0,72,16,88' corner='2,2,2,2' mask='#FFFF00FF'&quot; bkhotimage=&quot;file='WndFrame/scrollbar.bmp' source='18,72,34,88' corner='2,2,2,2' mask='#FFFF00FF'&quot; bkpushedimage=&quot;file='WndFrame/scrollbar.bmp' source='36,72,52,88' corner='2,2,2,2' mask='#FFFF00FF'&quot; bkdisabledimage=&quot;file='WndFrame/scrollbar.bmp' source='54,72,70,88' corner='2,2,2,2' mask='#FFFF00FF'&quot; " />
+	
+	<EffectsStyles>
+		<EffectsStyle name="sysMenu" value="anim='zoom+' offset='80' " />
+		<EffectsStyle name="clickeffect" value="anim='zoom-' offset='80' " />
+		<EffectsStyle name="fx_1" value="anim='left2right' offset='180'" />
+	</EffectsStyles>
+	<VerticalLayout bkcolor="#FFFFFFFF" bkimage="file='WndFrame/WndFrameBK.png' corner='6,96,6,2'" inset="1,0,1,1" colorhsl="true" vscrollbar="true">
+		<HorizontalLayout bkimage="file='WndFrame/BannerBG.png' source='2,0,4,96' xtiled='true' ytiled='true'" height="95" >
+			<Control />
+			<VerticalLayout bkimage="file='WndFrame/BannerBG.png' source='4,0,454,96'" height="96" width="450" >
+				<HorizontalLayout height="24">
+					<Control />
+					<HorizontalLayout width="130" inset="0,2,0,0" >
+						<Button name="MenuBtn" width="26" maxheight="17" hotimage="file='WndFrame/sys_btn_menu.png' source='26,0,52,17'" normalimage="file='WndFrame/sys_btn_menu.png' source='0,0,26,17'" pushedimage="file='WndFrame/sys_btn_menu.png' source='52,0,78,17'" />
+						<Button name="SysMinBtn" width="26" maxheight="17" hotimage="file='WndFrame/sys_btn_min.png' source='26,0,52,17'" normalimage="file='WndFrame/sys_btn_min.png' source='0,0,26,17'" pushedimage="file='WndFrame/sys_btn_min.png' source='52,0,78,17'" />
+						<Button name="SysMaxBtn" width="26" maxheight="17" hotimage="file='WndFrame/sys_btn_max.png' source='26,0,52,17'" normalimage="file='WndFrame/sys_btn_max.png' source='0,0,26,17'" pushedimage="file='WndFrame/sys_btn_max.png' source='52,0,78,17'" />
+						<Button name="SysRestoreBtn" width="26" maxheight="17" visible="false" hotimage="file='WndFrame/sys_btn_restore.png' source='26,0,52,17'" normalimage="file='WndFrame/sys_btn_restore.png' source='0,0,26,17'" pushedimage="file='WndFrame/sys_btn_restore.png' source='52,0,78,17'" />
+						<Button name="SysCloseBtn" animeffects="true" mouseineffects="sysMenu" width="45" maxheight="17" hotimage="file='WndFrame/sys_btn_close.png' source='45,0,90,17'" normalimage="file='WndFrame/sys_btn_close.png' source='0,0,45,17'" pushedimage="file='WndFrame/sys_btn_close.png' source='90,0,135,17'"/>
+					</HorizontalLayout>
+				</HorizontalLayout>
+				<Control />
+				
+			</VerticalLayout>
+		</HorizontalLayout>
+		<Label float="true" pos="10,2,0,0"  enabledeffect="true" enabledshadow="true" transshadow1="100" enabledstroke="true" strokecolor="#ffffffff"  shadowoffset="2,-120" text="UiLib Open Source Community" align="center" width="350" height="26" disabledtextcolor="#FFa3c6f2" bkimage="file='WndFrame/ModuleTitleBG.png' corner='5,2,5,5' fade='188'" font="2" />
+		<HorizontalLayout float="true" pos="10,10,800,98" inset="10,24,0,0" childpadding="5" name="MenuBar">
+			<Button name="EffectsDemo" text="动画演示" fx_do="true" fx_clk="fx_1" font="1" width="70" height="60" textpadding="0,40,0,0" textcolor="#C1C1C1" hottextcolor="#FFFFFF" selectedtextcolor="#010101" disabledtextcolor="#FFa3c6f2" bkimage="file='Icon/CtrlDemo.png' dest='10,0,57,53'" />
+			<Button name="CalenderBtn" text="日历测试" calendarprofile="bordercolor=&quot;#ff3b3b3b&quot; bordersize=&quot;1&quot; inset=&quot;1,1,1,1&quot;" width="120" height="30" calendarname="test" />
+			<Label enabledeffect="true" enabledshadow="true" transshadow1="100" enabledstroke="true" strokecolor="#ffffffff"  shadowoffset="5,-100" text="深圳码农公司" align="center" width="350" height="26" disabledtextcolor="#FFa3c6f2" font="2" />
+			<Label enabledeffect="true" enabledshadow="true" enabledstroke="false" transshadow="255" transtext="255" transshadow1="0" transtext1="0" textcolor="#ff0680C9" shadowoffset="2,120" text="渐变透明" align="center" gradientlength="38" disabledtextcolor="#FFa3c6f2" font="2" />
+		</HorizontalLayout>
+		<HorizontalLayout bkcolor="#ffffffff" inset="1,1,1,1" bkimage="file='WndFrame/RightBG.png' fade='255'" childpadding="3">
+			<Include source="ComputerExamine.xml" />
+		</HorizontalLayout>
+		<HorizontalLayout height="31" padding="1,0,1,1" inset="5,0,10,0" bkimage="file='WndFrame/StatusBarBG.png'">
+			<Label name="test" text="Svn Source：http://uilib-project.googlecode.com" textcolor="#3b3b3b" />
+		</HorizontalLayout>
+	</VerticalLayout>
+</Window>

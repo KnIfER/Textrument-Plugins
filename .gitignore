@@ -3,7 +3,6 @@ x64
 .vs
 Unicode Release
 Unicode Debug
-bin
 Output-Build.txt
 *.zip
 packages
@@ -12,4 +11,8 @@ packages
 *.aps
 *.lib
 
+*.exe
+*.exp
+*.pdb
 XMLDesigner
+
