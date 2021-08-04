@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include <zmouse.h>
 
+#include "UIDxAnimation.h"
+
 namespace DuiLib {
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -58,6 +60,10 @@ namespace DuiLib {
 		UINT uWinTimer;
 		bool bKilled;
 	} TIMERINFO;
+
+
+	/////////////////////////////////////////////////////////////////////////////////////
+    CAnimationSpooler m_anim;
 
 
 	tagTDrawInfo::tagTDrawInfo()
@@ -307,6 +313,7 @@ namespace DuiLib {
 		CShadowUI::Initialize(m_hInstance);
 	}
 
+	// 释放缓存，准备更新预览
 	void CPaintManagerUI::reInit()
 	{
 		RemoveAllFonts(0);
@@ -1113,55 +1120,48 @@ namespace DuiLib {
 			}
 			return true;
 		case WM_PAINT:
-			{
-				if( m_pRoot == NULL ) {
+		{
+				if( m_pRoot == NULL ) 
+				{
 					PAINTSTRUCT ps = { 0 };
 					::BeginPaint(m_hWndPaint, &ps);
 					CRenderEngine::DrawColor(m_hDcPaint, ps.rcPaint, 0xFF000000);
 					::EndPaint(m_hWndPaint, &ps);
 					return true;
 				}
-
-				RECT rcClient = { 0 };
-				::GetClientRect(m_hWndPaint, &rcClient);
-
+				
+				// Should we paint?
 				RECT rcPaint = { 0 };
 				if( !::GetUpdateRect(m_hWndPaint, &rcPaint, FALSE) ) return true;
 
-				//if( m_bLayered ) {
-				//	m_bOffscreenPaint = true;
-				//	rcPaint = m_rcLayeredUpdate;
-				//	if( ::IsRectEmpty(&m_rcLayeredUpdate) ) {
-				//		PAINTSTRUCT ps = { 0 };
-				//		::BeginPaint(m_hWndPaint, &ps);
-				//		::EndPaint(m_hWndPaint, &ps);
-				//		return true;
-				//	}
-				//	if( rcPaint.right > rcClient.right ) rcPaint.right = rcClient.right;
-				//	if( rcPaint.bottom > rcClient.bottom ) rcPaint.bottom = rcClient.bottom;
-				//	::ZeroMemory(&m_rcLayeredUpdate, sizeof(m_rcLayeredUpdate));
-				//}
-				//else {
-				//	if( !::GetUpdateRect(m_hWndPaint, &rcPaint, FALSE) ) return true;
-				//}
+				//m_bLayered = false; // 设置 Layered 后导致 dx 动画无法显示。
 
 				// Set focus to first control?
 				if( m_bFocusNeeded ) {
 					SetNextTabControl();
 				}
 
-				SetPainting(true);
-
 				bool bNeedSizeMsg = false;
+
+				RECT rcClient = { 0 };
+				::GetClientRect(m_hWndPaint, &rcClient);
 				DWORD dwWidth = rcClient.right - rcClient.left;
 				DWORD dwHeight = rcClient.bottom - rcClient.top;
 
 				SetPainting(true);
+
+				// Do we need to resize anything?
+				// This is the time where we layout the controls on the form. | 此为布局之良机也
+				// We delay this even from the WM_SIZE messages since resizing can be
+				// a very expensize operation.
 				if( m_bUpdateNeeded ) {
 					m_bUpdateNeeded = false;
-					if( !::IsRectEmpty(&rcClient) && !::IsIconic(m_hWndPaint) ) {
-						if( m_pRoot->IsUpdateNeeded() ) {
+					if( !::IsRectEmpty(&rcClient))  //  && !::IsIconic(m_hWndPaint) 
+					{
+						if( m_pRoot->IsUpdateNeeded() ) 
+						{
 							RECT rcRoot = rcClient;
+							// Reset offscreen device
 							if( m_hDcOffscreen != NULL ) ::DeleteDC(m_hDcOffscreen);
 							if( m_hDcBackground != NULL ) ::DeleteDC(m_hDcBackground);
 							if( m_hbmpOffscreen != NULL ) ::DeleteObject(m_hbmpOffscreen);
@@ -1179,7 +1179,8 @@ namespace DuiLib {
 							m_pRoot->SetPos(rcRoot, true);
 							bNeedSizeMsg = true;
 						}
-						else {
+						else if(false) // WTF??
+						{
 							CControlUI* pControl = NULL;
 							m_aFoundControls.Empty();
 							m_pRoot->FindControl(__FindControlsFromUpdate, NULL, UIFIND_VISIBLE | UIFIND_ME_FIRST | UIFIND_UPDATETEST);
@@ -1193,10 +1194,12 @@ namespace DuiLib {
 						// We'll want to notify the window when it is first initialized
 						// with the correct layout. The window form would take the time
 						// to submit swipes/animations.
-						if( m_bFirstLayout ) {
+						if( m_bFirstLayout ) 
+						{
 							m_bFirstLayout = false;
 							SendNotify(m_pRoot, DUI_MSGTYPE_WINDOWINIT,  0, 0, false);
-							if( m_bLayered && m_bLayeredChanged ) {
+							if( m_bLayered && m_bLayeredChanged ) 
+							{
 								Invalidate();
 								SetPainting(false);
 								return true;
@@ -1206,7 +1209,8 @@ namespace DuiLib {
 						}
 					}
 				}
-				else if( m_bLayered && m_bLayeredChanged ) {
+				else if( m_bLayered && m_bLayeredChanged ) 
+				{
 					RECT rcRoot = rcClient;
 					if( m_pOffscreenBits ) ::ZeroMemory(m_pOffscreenBits, (rcRoot.right - rcRoot.left) 
 						* (rcRoot.bottom - rcRoot.top) * 4);
@@ -1217,7 +1221,8 @@ namespace DuiLib {
 					m_pRoot->SetPos(rcRoot, true);
 				}
 
-				if( m_bLayered ) {
+				if( m_bLayered ) 
+				{
 					DWORD dwExStyle = ::GetWindowLong(m_hWndPaint, GWL_EXSTYLE);
 					DWORD dwNewExStyle = dwExStyle | WS_EX_LAYERED;
 					if(dwExStyle != dwNewExStyle) ::SetWindowLong(m_hWndPaint, GWL_EXSTYLE, dwNewExStyle);
@@ -1229,7 +1234,38 @@ namespace DuiLib {
 				}
 
 				//
-				// Render screen
+				// Render screen // dx 动画
+				//
+				if( m_anim.IsAnimating() )
+				{
+					// 3D animation in progress
+					//   3D动画  
+					int ret = m_anim.Render();
+					
+					// Do a minimum paint loop  做一个最小的绘制循环
+					// Keep the client area invalid so we generate lots of
+					// WM_PAINT messages. Cross fingers that Windows doesn't
+					// batch these somehow in the future.
+					PAINTSTRUCT ps = { 0 };
+					::BeginPaint(m_hWndPaint, &ps);
+					::EndPaint(m_hWndPaint, &ps);
+					::InvalidateRect(m_hWndPaint, NULL, FALSE);
+				}
+				else if( m_anim.IsJobScheduled() ) 
+				{
+					// Animation system needs to be initialized
+					//	动画系统需要初始化
+					m_anim.Init(m_hWndPaint);
+					// A 3D animation was scheduled; allow the render engine to
+					// capture the window content and repaint some other time
+					//翻译(by 金山词霸)一个3d动画被准备;允许渲染引擎捕获窗口内容，并且适时重画
+
+					if( !m_anim.PrepareAnimation(m_hWndPaint) ) m_anim.CancelJobs();
+					::InvalidateRect(m_hWndPaint, NULL, TRUE);
+				} 
+				else {
+				//
+				// Render screen //渲染屏幕
 				//
 				// Prepare offscreen bitmap
 				if( m_bOffscreenPaint && m_hbmpOffscreen == NULL ) {
@@ -1241,7 +1277,7 @@ namespace DuiLib {
 				// Begin Windows paint
 				PAINTSTRUCT ps = { 0 };
 				::BeginPaint(m_hWndPaint, &ps);
-				if( m_bOffscreenPaint ) {
+				if( m_bOffscreenPaint )  {
 					HBITMAP hOldBitmap = (HBITMAP) ::SelectObject(m_hDcOffscreen, m_hbmpOffscreen);
 					int iSaveDC = ::SaveDC(m_hDcOffscreen);
 					if (m_bLayered) {
@@ -1385,6 +1421,11 @@ namespace DuiLib {
 				::EndPaint(m_hWndPaint, &ps);
 
 				// 绘制结束
+
+				}
+
+				// If any of the painting requested a resize again, we'll need
+				// to invalidate the entire window once more.
 				SetPainting(false);
 				m_bLayeredChanged = false;
 				if( m_bUpdateNeeded ) Invalidate();
@@ -1393,8 +1434,8 @@ namespace DuiLib {
 				if(bNeedSizeMsg) {
 					this->SendNotify(m_pRoot, DUI_MSGTYPE_WINDOWSIZE, 0, 0, true);
 				}
-				return true;
-			}
+			return true;
+		}
 		case WM_PRINTCLIENT:
 			{
 				if( m_pRoot == NULL ) break;
@@ -1445,6 +1486,9 @@ namespace DuiLib {
 					event.dwTimestamp = ::GetTickCount();
 					m_pFocus->Event(event);
 				}
+				//当对话框尺寸变化时 删除动画 job
+				if( m_anim.IsAnimating() ) m_anim.CancelJobs();
+				//m_bUpdateNeeded = true;
 				if( m_pRoot != NULL ) m_pRoot->NeedUpdate();
 			}
 			return true;
@@ -1692,6 +1736,9 @@ namespace DuiLib {
 				event.wKeyState = (WORD)wParam;
 				event.dwTimestamp = ::GetTickCount();
 				pControl->Event(event);
+
+				// No need to burden user with 3D animations
+				m_anim.CancelJobs();
 			}
 			break;
 		case WM_LBUTTONDBLCLK:
@@ -1954,7 +2001,7 @@ namespace DuiLib {
 			{
 				if(IsCaptured()) ReleaseCapture();
 				//SetFocus();
-				m_pFocus = NULL;
+				m_pFocus = NULL; // todo 此处有微小影响，当窗口重获焦点时，不恢复焦点所在。
 				//if( m_pFocus != NULL ) {
 				//	TEventUI event = { 0 };
 				//	event.Type = UIEVENT_KILLFOCUS;

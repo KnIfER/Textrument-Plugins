@@ -4,7 +4,6 @@
 #pragma once
 
 namespace DuiLib {
-
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 
@@ -201,6 +200,48 @@ namespace DuiLib {
 		void SetVirtualWnd(LPCTSTR pstrValue);
 		CDuiString GetVirtualWnd() const;
 
+		virtual void SetStyleName(LPCTSTR pStrStyleName,CPaintManagerUI* pm = NULL);
+
+		virtual const CDuiString& GetStyleName();
+
+
+		virtual CDuiString GetEffectStyle() const;
+		virtual void SetAnimEffects(bool bEnableEffect);
+		virtual bool GetAnimEffects() const;
+		virtual void SetEffectsZoom(int iZoom);
+		virtual int  GetEffectsZoom() const;
+		virtual void SetEffectsFillingBK(DWORD dFillingBK);
+		virtual DWORD GetEffectsFillingBK() const;
+		virtual void SetEffectsOffectX(int iOffectX);
+		virtual int  GetEffectsOffectX() const;
+		virtual void SetEffectsOffectY(int iOffectY);
+		virtual int  GetEffectsOffectY() const;
+		virtual void SetEffectsAlpha(int iAlpha);
+		virtual int  GetEffectsAlpha() const;
+		virtual void SetEffectsRotation(float fRotation);
+		virtual float GetEffectsRotation();
+		virtual void SetEffectsNeedTimer(int iNeedTimer);
+		virtual int  GetEffectsNeedTimer();
+
+		virtual TEffectAge* GetCurEffects();
+		virtual TEffectAge* GetMouseInEffect();
+		virtual TEffectAge* GetMouseOutEffect();
+		virtual TEffectAge* GetClickInEffect();
+
+		virtual void TriggerEffects(TEffectAge* pTEffectAge = NULL);
+		virtual void SetEffectsStyle(LPCTSTR pstrEffectStyle,TEffectAge* pTEffectAge = NULL);
+		void AnyEffectsAdvProfiles(LPCTSTR pstrEffects,TEffectAge* pTEffectAge = NULL);
+		void AnyEasyEffectsPorfiles(LPCTSTR pstrEffects,TEffectAge* pTEffectAge = NULL);
+
+	private:
+		bool		m_bEnabledEffect;
+		CDuiString	m_strEffectStyle;
+
+		TEffectAge	m_tCurEffects;
+		TEffectAge m_tMouseInEffects;
+		TEffectAge m_tMouseOutEffects;
+		TEffectAge m_tMouseClickEffects;
+
 	public:
 		CEventSource OnInit;
 		CEventSource OnDestroy;
@@ -233,12 +274,14 @@ namespace DuiLib {
 		TPercentInfo m_piFloatPercent;
 		UINT m_uFloatAlign;
 		bool m_bSetPos; // 防止SetPos循环调用
+		TRelativePosUI m_tRelativePos;
 
 		bool m_bRichEvent;
 		bool m_bDragEnabled;
 		bool m_bDropEnabled;
 
 		bool m_bResourceText;
+		CDuiString m_sStyleName;
 		CDuiString m_sText;
 		CDuiString m_sToolTip;
 		TCHAR m_chShortcut;

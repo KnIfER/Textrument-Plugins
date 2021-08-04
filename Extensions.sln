@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MarkdownText", "MarkdownText\MarkDownText.vcxproj", "{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E106ACD7-4E53-4AEE-942B-D0DD426DB34E} = {E106ACD7-4E53-4AEE-942B-D0DD426DB34E}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "duilib", "DirectUILib\DuiLib\duilib.vcxproj", "{E106ACD7-4E53-4AEE-942B-D0DD426DB34E}"
 EndProject
@@ -14,6 +17,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiClipboard", "MultiClipboard\MultiClipboard.vcxproj", "{0A9F9D63-C282-4AE8-9F80-A6D5F541AD12}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PyNPP", "PyNPP\PyNPP.vcxproj", "{CFAA244D-7561-44CD-A3FB-2A5843850A89}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XMLDesigner", "XMLDesigner\XMLDesigner.vcxproj", "{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E106ACD7-4E53-4AEE-942B-D0DD426DB34E} = {E106ACD7-4E53-4AEE-942B-D0DD426DB34E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,6 +78,14 @@ Global
 		{CFAA244D-7561-44CD-A3FB-2A5843850A89}.Release|Win32.Build.0 = Release|Win32
 		{CFAA244D-7561-44CD-A3FB-2A5843850A89}.Release|x64.ActiveCfg = Release|x64
 		{CFAA244D-7561-44CD-A3FB-2A5843850A89}.Release|x64.Build.0 = Release|x64
+		{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}.Debug|Win32.Build.0 = Debug|Win32
+		{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}.Debug|x64.ActiveCfg = Debug|x64
+		{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}.Debug|x64.Build.0 = Debug|x64
+		{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}.Release|Win32.ActiveCfg = Release|Win32
+		{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}.Release|Win32.Build.0 = Release|Win32
+		{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}.Release|x64.ActiveCfg = Release|x64
+		{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

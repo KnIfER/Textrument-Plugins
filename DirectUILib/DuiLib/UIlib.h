@@ -59,6 +59,8 @@
 #include "Core/UIDefine.h"
 #include "Core/UIResourceManager.h"
 #include "Core/UIManager.h"
+#include "Core/UIDxAnimation.h"
+
 #include "Core/UIBase.h"
 #include "Core/ControlFactory.h"
 #include "Core/UIControl.h"
@@ -117,3 +119,4 @@
 #pragma comment( lib, "comctl32.lib" )
 #pragma comment( lib, "GdiPlus.lib" )
 #pragma comment( lib, "Imm32.lib" )
+#pragma comment( lib, "winmm.lib" )

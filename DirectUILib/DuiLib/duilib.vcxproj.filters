@@ -197,6 +197,12 @@
     <ClInclude Include="..\..\..\..\..\browsers\SunPlayer_DuiLib-master\SunPlayer_DuiLib\DuiLib\Control\UIRing.h">
       <Filter>Control</Filter>
     </ClInclude>
+    <ClInclude Include="Core\UIDxAnimation.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Internal.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils\DPI.cpp">
@@ -359,6 +365,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\browsers\SunPlayer_DuiLib-master\SunPlayer_DuiLib\DuiLib\Control\UIIPAddressEx.cpp">
       <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\UIDxAnimation.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\UIManagerFx.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\UIControlFx.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

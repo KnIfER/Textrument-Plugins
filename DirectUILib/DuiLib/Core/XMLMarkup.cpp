@@ -67,6 +67,17 @@ XMarkupNode XMarkupNode::GetParent()
 	return XMarkupNode(m_pOwner, iPos);
 }
 
+int XMarkupNode::GetLevel()
+{
+	int lv=0;
+	XMarkupNode node = *this;
+	while(node.IsValid()){
+		node = node.GetParent();
+		lv++;
+	}
+	return lv;
+}
+
 bool XMarkupNode::IsValid() const
 {
 	return m_pOwner != NULL && m_iPos<m_pOwner->m_nElements;
@@ -420,6 +431,27 @@ bool XMarkupParser::LoadFromFile(LPCTSTR pstrFilename, int encoding)
 		return ret;
 	}
 }
+
+
+void XMarkupParser::Print()
+{
+	auto rootNode = GetRoot();
+
+	auto child = rootNode.GetChild();
+
+	auto nxt = child.GetSibling();
+
+	nxt.IsValid();
+
+	nxt.GetParent();
+
+	child.GetChild();
+
+
+
+
+}
+
 
 void XMarkupParser::Release()
 {

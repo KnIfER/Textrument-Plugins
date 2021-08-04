@@ -115,6 +115,10 @@ namespace DuiLib
 				if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_MOUSELEAVE);
 			}
 		}
+		if( event.Type == UIEVENT_SETCURSOR ) {
+			::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_HAND)));
+			return;
+		}
 		CLabelUI::DoEvent(event);
 	}
 

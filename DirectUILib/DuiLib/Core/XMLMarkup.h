@@ -29,6 +29,8 @@ namespace DuiLib {
 		void Release();
 		bool IsValid() const;
 
+		void Print();
+
 		void SetPreserveWhitespace(bool bPreserve = true);
 		void GetLastErrorMessage(LPTSTR pstrMessage, SIZE_T cchMax) const;
 		void GetLastErrorLocation(LPTSTR pstrSource, SIZE_T cchMax) const;
@@ -91,7 +93,10 @@ namespace DuiLib {
 		// 获取父节点
 		XMarkupNode GetParent();
 
-		// 获取父节点
+		// 获取节点深度
+		int GetLevel();
+
+		// 获取索引，指向分析下来的节点内容
 		int XMarkupNode::GetMarkedPos()
 		{
 			return m_iPos;
@@ -134,6 +139,8 @@ namespace DuiLib {
 
 		int m_iPos;
 		int m_nAttributes;
+
+		// 浪费内存
 		XMLATTRIBUTE m_aAttributes[MAX_XML_ATTRIBUTES];
 
 		// xml 全局容器
