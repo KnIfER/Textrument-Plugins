@@ -203,6 +203,9 @@
     <ClInclude Include="Utils\Internal.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Control\UICalendar.h">
+      <Filter>Control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils\DPI.cpp">
@@ -374,6 +377,9 @@
     </ClCompile>
     <ClCompile Include="Core\UIControlFx.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\UICalendar.cpp">
+      <Filter>Control</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -116,6 +116,8 @@
 #include "Control/UIFadeButton.h"
 #include "Control/UIRing.h"
 
+#include "Control/UICalendar.h"
+
 #pragma comment( lib, "comctl32.lib" )
 #pragma comment( lib, "GdiPlus.lib" )
 #pragma comment( lib, "Imm32.lib" )
