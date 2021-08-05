@@ -808,8 +808,17 @@ namespace DuiLib {
 		if( !IsVisible() ) return;
 		m_bUpdateNeeded = true;
 		Invalidate();
-
+		// requestParentNeedUpd
 		if( m_pManager != NULL ) m_pManager->NeedUpdate();
+		CControlUI* vp = this;
+		while(vp->m_pParent) {
+			vp = vp->m_pParent;
+		}
+		CContainerUI* root = dynamic_cast<CContainerUI*>(vp);
+		if (root)
+		{
+			root->_UpdateList.push_back(this);
+		}
 	}
 
 	void CControlUI::NeedParentUpdate()

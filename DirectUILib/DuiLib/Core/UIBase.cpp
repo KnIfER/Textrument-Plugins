@@ -101,7 +101,7 @@ DUI_END_MESSAGE_MAP()
 static const DUI_MSGMAP_ENTRY* DuiFindMessageEntry(const DUI_MSGMAP_ENTRY* lpEntry,TNotifyUI& msg )
 {
 	CDuiString sMsgType = msg.sType;
-	CDuiString sCtrlName = msg.pSender->GetName();
+	CDuiString sCtrlName = msg.pSender?msg.pSender->GetName():TEXT("");
 	const DUI_MSGMAP_ENTRY* pMsgTypeEntry = NULL;
 	while (lpEntry->nSig != DuiSig_end)
 	{

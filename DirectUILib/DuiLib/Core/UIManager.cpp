@@ -331,8 +331,6 @@ namespace DuiLib {
 
 		//m_ResInfo = {};
 
-
-
 		//m_ResInfo.m_DefaultFontInfo = {};
 		//m_SharedResInfo.m_DefaultFontInfo = {};
 		
@@ -1137,7 +1135,7 @@ namespace DuiLib {
 				//m_bLayered = false; // 设置 Layered 后导致 dx 动画无法显示。
 
 				// Set focus to first control?
-				if( m_bFocusNeeded ) {
+				if( m_bFocusNeeded) {
 					SetNextTabControl();
 				}
 
@@ -1178,6 +1176,11 @@ namespace DuiLib {
 							}
 							m_pRoot->SetPos(rcRoot, true);
 							bNeedSizeMsg = true;
+							CContainerUI* root = dynamic_cast<CContainerUI*>(m_pRoot);
+							if (root && root->_UpdateList.size())
+							{
+								root->_UpdateList.clear();
+							}
 						}
 						else if(false) // WTF??
 						{
@@ -1188,6 +1191,24 @@ namespace DuiLib {
 								pControl = static_cast<CControlUI*>(m_aFoundControls[it]);
 								if( !pControl->IsFloat() ) pControl->SetPos(pControl->GetPos(), true);
 								else pControl->SetPos(pControl->GetRelativePos(), true);
+							}
+							bNeedSizeMsg = true;
+						}
+						else
+						{
+							CControlUI* pControl = NULL;
+							CContainerUI* root = dynamic_cast<CContainerUI*>(m_pRoot);
+							if (root)
+							{
+								auto & list = root->_UpdateList;
+								while(list.size() && (pControl = list.back())) {
+									if (pControl->IsUpdateNeeded())
+									{ // sanity check
+										if( !pControl->IsFloat() ) pControl->SetPos(pControl->GetPos(), true);
+										else pControl->SetPos(pControl->GetRelativePos(), true);
+									}
+									list.pop_back();
+								}
 							}
 							bNeedSizeMsg = true;
 						}
@@ -2539,6 +2560,10 @@ namespace DuiLib {
 
 	bool CPaintManagerUI::SetNextTabControl(bool bForward)
 	{
+		if (!_bAllowAutoFocus)
+		{
+			return false;
+		}
 		// If we're in the process of restructuring the layout we can delay the
 		// focus calulation until the next repaint.
 		if( m_bUpdateNeeded && bForward ) {

@@ -7,12 +7,19 @@
     <DULib_STATIC_32>$(DUPA)\Build\Bin\Win32\Release</DULib_STATIC_32>
     <DULib_STATIC_64D>$(DUPA)\Build\Bin\Win64\Debug</DULib_STATIC_64D>
     <DU_Lib_s64>$(DUPA)\Build\Bin\Win64\Release</DU_Lib_s64>
+    <DULib_STATIC_64>$(DUPA)\Build\Bin\Win64\Release</DULib_STATIC_64>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
     <Link>
       <AdditionalDependencies>DuiLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>$(DU_Lib_s64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <ClCompile>
+      <PreprocessorDefinitions>UILIB_STATIC;_VC80_UPGRADE=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="DUPA">
@@ -20,6 +27,9 @@
     </BuildMacro>
     <BuildMacro Include="DU_Lib_s64">
       <Value>$(DU_Lib_s64)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DULib_STATIC_64">
+      <Value>$(DULib_STATIC_64)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

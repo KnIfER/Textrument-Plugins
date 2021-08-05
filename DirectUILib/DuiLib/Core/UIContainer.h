@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <list>
+
 namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -113,6 +115,7 @@ namespace DuiLib {
 		virtual CScrollBarUI* GetVerticalScrollBar() const;
 		virtual CScrollBarUI* GetHorizontalScrollBar() const;
 
+		std::list<CControlUI*> _UpdateList;
 	protected:
 		virtual void SetFloatPos(int iIndex);
 		virtual void ProcessScrollBar(RECT rc, int cxRequired, int cyRequired);

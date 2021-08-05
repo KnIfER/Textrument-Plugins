@@ -55,6 +55,8 @@ namespace DuiLib
 		INNER_REGISTER_DUICONTROL(CFadeButtonUI);
 		INNER_REGISTER_DUICONTROL(CRingUI);
 		INNER_REGISTER_DUICONTROL(CCalendarUI);
+
+		INNER_REGISTER_DUICONTROL(ListView);
 	}
 
 	CControlFactory::~CControlFactory()
@@ -76,6 +78,12 @@ namespace DuiLib
 	void CControlFactory::RegistControl(CDuiString strClassName, CreateClass pFunc)
 	{
 		strClassName.MakeLower();
+		int len = strClassName.GetLength();
+		if (len>3 && strClassName[0]==TCHAR('c') && strClassName[len-2]==TCHAR('u') && strClassName[len-1]==TCHAR('i'))
+		{
+			strClassName.SetAt(len-2, '\0');
+			strClassName = strClassName.GetData()+1;
+		}
 		m_mapControl.insert(MAP_DUI_CTRATECLASS::value_type(strClassName, pFunc));
 	}
 

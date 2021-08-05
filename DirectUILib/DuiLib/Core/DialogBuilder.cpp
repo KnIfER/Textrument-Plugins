@@ -480,9 +480,8 @@ namespace DuiLib {
 				continue;
 			}
 			else {
-				CDuiString strClass;
-				strClass.Format(_T("C%sUI"), pstrClass);
-				pControl = dynamic_cast<CControlUI*>(CControlFactory::GetInstance()->CreateControl(strClass));
+				//CDuiString strClass; strClass.Format(_T("C%sUI"), pstrClass);
+				pControl = dynamic_cast<CControlUI*>(CControlFactory::GetInstance()->CreateControl(pstrClass));
 
 				// 检查插件
 				if( pControl == NULL ) {
