@@ -7,11 +7,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MenuWnd.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="ListViewDemo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

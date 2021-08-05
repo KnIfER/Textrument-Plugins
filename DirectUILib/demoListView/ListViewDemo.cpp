@@ -1,127 +1,48 @@
 /*
-* Code By Tojen (qq:342269237)
-* 界面设计图片资源80%原创，布局完全原创,学习作品，不好请拍砖
+* Android-Like ListView Demo By KnIFER
+* 
 */
-#include <objbase.h>
-#include <zmouse.h>
-#include <exdisp.h>
-#include <comdef.h>
-#include <vector>
-#include <sstream>
 
 #include "..\DuiLib\UIlib.h"
 
 using namespace DuiLib;
 
-#define WM_ADDLISTITEM WM_USER + 50
-/*
-* 存放第二列数据
-*/
-std::vector<std::string> domain;
-/*
-* 存放第三列数据
-*/
-std::vector<std::string> desc;
-/*
-*  线程函数中传入的结构体变量，使用线程为了使界面线程立即返回，防止卡住，你们懂得。
-*/
-struct Prama
-{
-    HWND hWnd;
-    CListUI* pList;
-    CButtonUI* pSearch;
-    CDuiString tDomain;
-};
-
-#include "MenuWnd.h"
-
-class ListMainForm : public CWindowWnd, public INotifyUI, public IListCallbackUI
+class ListMainForm : public WindowImplBase, public INotifyUI
 {
 public:
-    ListMainForm() {
-    };
+    ListMainForm() { };     
 
-    LPCTSTR GetWindowClassName() const 
+    LPCTSTR GetWindowClassName() const override
     { 
-        return _T("ScanMainForm"); 
+        return _T("ListMainForm"); 
     };
 
-    DWORD GetItemTextColor(CControlUI* pList, int iItem, int iSubItem, int iState){
-       //= 0;// iState：0-正常、1-激活、2-选择、3-禁用
-        return 0;
-    }
-
-    UINT GetClassStyle() const
+    UINT GetClassStyle() const override
     { 
         return CS_DBLCLKS; 
     };
 
-    void OnFinalMessage(HWND /*hWnd*/) 
+    void OnFinalMessage(HWND hWnd) override
     { 
+        __super::OnFinalMessage(hWnd);
         delete this;
     };
 
-    void Init() 
+    void InitWindow() override
     {
         m_pCloseBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("closebtn")));
         m_pMaxBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("maxbtn")));
         m_pRestoreBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("restorebtn")));
         m_pMinBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("minbtn")));
         m_pSearch = static_cast<CButtonUI*>(m_pm.FindControl(_T("btnSearch")));
-    }
-
-    void OnPrepare(TNotifyUI& msg) 
-    {
-
-    }
-    /*
-    * 关键的回调函数，IListCallbackUI 中的一个虚函数，渲染时候会调用,在[1]中设置了回调对象
-    */
-    LPCTSTR GetItemText(CControlUI* pControl, int iIndex, int iSubItem)
-    {
-        TCHAR szBuf[MAX_PATH] = {0};
-        switch (iSubItem)
+        if (m_pSearch)
         {
-        case 0:
-            _stprintf(szBuf, _T("%d"), iIndex);
-            break;
-        case 1:
-            {
-#ifdef _UNICODE		
-            int iLen = domain[iIndex].length();
-            LPWSTR lpText = new WCHAR[iLen + 1];
-            ::ZeroMemory(lpText, (iLen + 1) * sizeof(WCHAR));
-            ::MultiByteToWideChar(CP_ACP, 0, domain[iIndex].c_str(), -1, (LPWSTR)lpText, iLen) ;
-            _stprintf(szBuf, lpText);
-            delete[] lpText;
-#else
-            _stprintf(szBuf, domain[iIndex].c_str());
-#endif
-            }
-            break;
-        case 2:
-            {
-#ifdef _UNICODE		
-            int iLen = desc[iIndex].length();
-            LPWSTR lpText = new WCHAR[iLen + 1];
-            ::ZeroMemory(lpText, (iLen + 1) * sizeof(WCHAR));
-            ::MultiByteToWideChar(CP_ACP, 0, desc[iIndex].c_str(), -1, (LPWSTR)lpText, iLen) ;
-            _stprintf(szBuf, lpText);
-            delete[] lpText;
-#else
-            _stprintf(szBuf, desc[iIndex].c_str());
-#endif
-            }
-            break;
+            m_pSearch->Activate();
         }
-        pControl->SetUserData(szBuf);
-        return pControl->GetUserData();
     }
-
 
     class ListViewBaseAdapter : public ListViewAdapter
     {
-
        size_t GetItemCount()
        {
            return 5000;
@@ -144,27 +65,21 @@ public:
                label.Format(L"#%d", index);
                btn->SetText(label);
            }
-
        }
-    
     };
 
-
-
-    void Notify(TNotifyUI& msg)
+    CDuiString GetSkinFile() override
     {
-        if( msg.sType == _T("windowinit") ) 
-            OnPrepare(msg);
-        else if( msg.sType == _T("click") ) 
+        return _T("ListViewDemo.xml");
+    }
+
+    void Notify( TNotifyUI &msg ) override
+    {
+        if (msg.sType==L"click")
         {
             if( msg.pSender == m_pCloseBtn ) 
-            {
-                PostQuitMessage(0);
-                return; 
-            }
-            else if( msg.pSender == m_pMinBtn ) 
             { 
-                SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, 0);
+                PostQuitMessage(0); // 因为activex的原因，使用close可能会出现错误
                 return; 
             }
             else if( msg.pSender == m_pMaxBtn ) 
@@ -178,11 +93,8 @@ public:
             else if(msg.pSender == m_pSearch)
             {
                 ListView* pList = static_cast<ListView*>(m_pm.FindControl(_T("vList")));
-
-
                 if (pList)
                 {
-
                     m_pSearch->SetTextColor(0xff0000ff);
 
                     //TCHAR buffer[100]={0};
@@ -199,236 +111,14 @@ public:
                     pList->SetReferenceItemView(refer);
 
                     pList->SetAdapter(ada);
-
                 }
-
-
-
+            }
+            else if( msg.sType == _T("itemclick") ) 
+            {
             }
         }
-        else if(msg.sType==_T("setfocus"))
-        {
-        }
-        else if( msg.sType == _T("itemclick") ) 
-        {
-        }
-        else if( msg.sType == _T("itemactivate") ) 
-        {
-            int iIndex = msg.pSender->GetTag();
-            CDuiString sMessage = _T("Click: ");;
-#ifdef _UNICODE		
-            int iLen = domain[iIndex].length();
-            LPWSTR lpText = new WCHAR[iLen + 1];
-            ::ZeroMemory(lpText, (iLen + 1) * sizeof(WCHAR));
-            ::MultiByteToWideChar(CP_ACP, 0, domain[iIndex].c_str(), -1, (LPWSTR)lpText, iLen) ;
-            sMessage += lpText;
-            delete[] lpText;
-#else
-            sMessage += domain[iIndex].c_str();
-
-#endif
-            ::MessageBox(NULL, sMessage.GetData(), _T("提示(by tojen)"), MB_OK);
-        }
-        else if(msg.sType == _T("menu")) 
-        {
-            if( msg.pSender->GetName() != _T("domainlist") ) return;
-            CMenuWndX* pMenu = new CMenuWndX();
-            if( pMenu == NULL ) { return; }
-            POINT pt = {msg.ptMouse.x, msg.ptMouse.y};
-            ::ClientToScreen(*this, &pt);
-            pMenu->Init(msg.pSender, pt);
-        }
-        else if( msg.sType == _T("menu_Delete") ) {
-            CListUI* pList = static_cast<CListUI*>(msg.pSender);
-            int nSel = pList->GetCurSel();
-            if( nSel < 0 ) return;
-            pList->RemoveAt(nSel);
-            domain.erase(domain.begin() + nSel);
-            desc.erase(desc.begin() + nSel);   
-        }
+        // WindowImplBase::Notify(msg);
     }
-
-    LRESULT OnAddListItem(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        CListTextElementUI* pListElement = (CListTextElementUI*)lParam;
-        CListUI* pList = static_cast<CListUI*>(m_pm.FindControl(_T("domainlist")));
-        if( pList ) pList->Add(pListElement);
-        return 0;
-    }
-
-    LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        LONG styleValue = ::GetWindowLong(*this, GWL_STYLE);
-        styleValue &= ~WS_CAPTION;
-        ::SetWindowLong(*this, GWL_STYLE, styleValue | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-        m_pm.Init(m_hWnd);
-        //m_pm.SetTransparent(100);
-        CDialogBuilder builder;
-        CControlUI* pRoot = builder.Create(_T("ListViewDemo.xml"), (UINT)0, NULL, &m_pm);
-        ASSERT(pRoot && "Failed to parse XML");
-        m_pm.AttachDialog(pRoot);
-        m_pm.AddNotifier(this);
-        Init();
-        return 0;
-    }
-
-    LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        bHandled = FALSE;
-        return 0;
-    }
-
-    LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        ::PostQuitMessage(0L);
-        bHandled = FALSE;
-        return 0;
-    }
-
-    LRESULT OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        if( ::IsIconic(*this) ) bHandled = FALSE;
-        return (wParam == 0) ? TRUE : FALSE;
-    }
-
-    LRESULT OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        return 0;
-    }
-
-    LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        return 0;
-    }
-
-    LRESULT OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        POINT pt; pt.x = GET_X_LPARAM(lParam); pt.y = GET_Y_LPARAM(lParam);
-        ::ScreenToClient(*this, &pt);
-
-        RECT rcClient;
-        ::GetClientRect(*this, &rcClient);
-
-        if( !::IsZoomed(*this) ) {
-            RECT rcSizeBox = m_pm.GetSizeBox();
-            if( pt.y < rcClient.top + rcSizeBox.top ) {
-                if( pt.x < rcClient.left + rcSizeBox.left ) return HTTOPLEFT;
-                if( pt.x > rcClient.right - rcSizeBox.right ) return HTTOPRIGHT;
-                return HTTOP;
-            }
-            else if( pt.y > rcClient.bottom - rcSizeBox.bottom ) {
-                if( pt.x < rcClient.left + rcSizeBox.left ) return HTBOTTOMLEFT;
-                if( pt.x > rcClient.right - rcSizeBox.right ) return HTBOTTOMRIGHT;
-                return HTBOTTOM;
-            }
-            if( pt.x < rcClient.left + rcSizeBox.left ) return HTLEFT;
-            if( pt.x > rcClient.right - rcSizeBox.right ) return HTRIGHT;
-        }
-
-        RECT rcCaption = m_pm.GetCaptionRect();
-        if( pt.x >= rcClient.left + rcCaption.left && pt.x < rcClient.right - rcCaption.right \
-            && pt.y >= rcCaption.top && pt.y < rcCaption.bottom ) {
-                CControlUI* pControl = static_cast<CControlUI*>(m_pm.FindControl(pt));
-                if( pControl && _tcscmp(pControl->GetClass(), DUI_CTR_BUTTON) != 0 && 
-                    _tcscmp(pControl->GetClass(), DUI_CTR_OPTION) != 0 &&
-                    _tcscmp(pControl->GetClass(), DUI_CTR_TEXT) != 0 )
-                    return HTCAPTION;
-        }
-
-        return HTCLIENT;
-    }
-
-    LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        SIZE szRoundCorner = m_pm.GetRoundCorner();
-        if( !::IsIconic(*this) && (szRoundCorner.cx != 0 || szRoundCorner.cy != 0) ) {
-            CDuiRect rcWnd;
-            ::GetWindowRect(*this, &rcWnd);
-            rcWnd.Offset(-rcWnd.left, -rcWnd.top);
-            rcWnd.right++; rcWnd.bottom++;
-            RECT rc = { rcWnd.left, rcWnd.top + szRoundCorner.cx, rcWnd.right, rcWnd.bottom };
-            HRGN hRgn1 = ::CreateRectRgnIndirect( &rc );
-            HRGN hRgn2 = ::CreateRoundRectRgn(rcWnd.left, rcWnd.top, rcWnd.right, rcWnd.bottom - szRoundCorner.cx, szRoundCorner.cx, szRoundCorner.cy);
-            ::CombineRgn( hRgn1, hRgn1, hRgn2, RGN_OR );
-            ::SetWindowRgn(*this, hRgn1, TRUE);
-            ::DeleteObject(hRgn1);
-            ::DeleteObject(hRgn2);
-        }
-
-        bHandled = FALSE;
-        return 0;
-    }
-
-    LRESULT OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        MONITORINFO oMonitor = {};
-        oMonitor.cbSize = sizeof(oMonitor);
-        ::GetMonitorInfo(::MonitorFromWindow(*this, MONITOR_DEFAULTTOPRIMARY), &oMonitor);
-        CDuiRect rcWork = oMonitor.rcWork;
-		rcWork.Offset(-oMonitor.rcMonitor.left, -oMonitor.rcMonitor.top);
-
-        LPMINMAXINFO lpMMI = (LPMINMAXINFO) lParam;
-        lpMMI->ptMaxPosition.x	= rcWork.left;
-        lpMMI->ptMaxPosition.y	= rcWork.top;
-        lpMMI->ptMaxSize.x		= rcWork.right;
-        lpMMI->ptMaxSize.y		= rcWork.bottom;
-
-        bHandled = FALSE;
-        return 0;
-    }
-
-    LRESULT OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        // 有时会在收到WM_NCDESTROY后收到wParam为SC_CLOSE的WM_SYSCOMMAND
-        if( wParam == SC_CLOSE ) {
-            ::PostQuitMessage(0L);
-            bHandled = TRUE;
-            return 0;
-        }
-        BOOL bZoomed = ::IsZoomed(*this);
-        LRESULT lRes = CWindowWnd::HandleMessage(uMsg, wParam, lParam);
-        if( ::IsZoomed(*this) != bZoomed ) {
-            if( !bZoomed ) {
-                CControlUI* pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("maxbtn")));
-                if( pControl ) pControl->SetVisible(false);
-                pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("restorebtn")));
-                if( pControl ) pControl->SetVisible(true);
-            }
-            else {
-                CControlUI* pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("maxbtn")));
-                if( pControl ) pControl->SetVisible(true);
-                pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("restorebtn")));
-                if( pControl ) pControl->SetVisible(false);
-            }
-        }
-        return lRes;
-    }
-
-    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
-    {
-        LRESULT lRes = 0;
-        BOOL bHandled = TRUE;
-        switch( uMsg ) {
-            case WM_ADDLISTITEM:   lRes = OnAddListItem(uMsg, wParam, lParam, bHandled); break;
-            case WM_CREATE:        lRes = OnCreate(uMsg, wParam, lParam, bHandled); break;
-            case WM_CLOSE:         lRes = OnClose(uMsg, wParam, lParam, bHandled); break;
-            case WM_DESTROY:       lRes = OnDestroy(uMsg, wParam, lParam, bHandled); break;
-            case WM_NCACTIVATE:    lRes = OnNcActivate(uMsg, wParam, lParam, bHandled); break;
-            case WM_NCCALCSIZE:    lRes = OnNcCalcSize(uMsg, wParam, lParam, bHandled); break;
-            case WM_NCPAINT:       lRes = OnNcPaint(uMsg, wParam, lParam, bHandled); break;
-            case WM_NCHITTEST:     lRes = OnNcHitTest(uMsg, wParam, lParam, bHandled); break;
-            case WM_SIZE:          lRes = OnSize(uMsg, wParam, lParam, bHandled); break;
-            case WM_GETMINMAXINFO: lRes = OnGetMinMaxInfo(uMsg, wParam, lParam, bHandled); break;
-            case WM_SYSCOMMAND:    lRes = OnSysCommand(uMsg, wParam, lParam, bHandled); break;
-            default:
-                bHandled = FALSE;
-        }
-        if( bHandled ) return lRes;
-        if( m_pm.MessageHandler(uMsg, wParam, lParam, lRes) ) return lRes;
-        return CWindowWnd::HandleMessage(uMsg, wParam, lParam);
-    }
-public:
-    CPaintManagerUI m_pm;
 
 private:
     CButtonUI* m_pCloseBtn;
@@ -436,8 +126,6 @@ private:
     CButtonUI* m_pRestoreBtn;
     CButtonUI* m_pMinBtn;
     CButtonUI* m_pSearch;
-
-    //...
 };
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)
@@ -446,14 +134,17 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
    // CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin"));
     //CPaintManagerUI::SetResourceZip(_T("ListRes.zip"));
 
-
     CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin//ListRes"));
 
-    ListMainForm* pFrame = new ListMainForm();
+    ListMainForm* pFrame = new ListMainForm;
+
     if( pFrame == NULL ) return 0;
-    pFrame->Create(NULL, _T("ListDemo"), UI_WNDSTYLE_FRAME, WS_EX_STATICEDGE | WS_EX_APPWINDOW , 0, 0, 600, 320);
+   
+    pFrame->Create(NULL, _T("ListDemo"), UI_WNDSTYLE_FRAME, WS_EX_STATICEDGE | WS_EX_APPWINDOW , 0, 0, 800, 600);
+    
     pFrame->CenterWindow();
-    ::ShowWindow(*pFrame, SW_SHOW);
+
+    pFrame->ShowModal();
 
     CPaintManagerUI::MessageLoop();
 

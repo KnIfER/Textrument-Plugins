@@ -270,9 +270,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="MenuWnd.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="ListViewDemo.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
