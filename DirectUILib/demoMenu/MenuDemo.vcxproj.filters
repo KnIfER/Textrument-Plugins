@@ -33,29 +33,29 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="debug.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="main_frame.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StdAfx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UICrack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="About.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SkinSetting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="afxres.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UICrack.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="About.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="debug.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main_frame.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinSetting.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StdAfx.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
