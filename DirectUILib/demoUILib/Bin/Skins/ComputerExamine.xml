@@ -7,7 +7,8 @@
 			<Control bkimage="file='WndFrame/start.png' dest='14,14,69,69,'" width="69" height="69"/>
 			<VerticalLayout>
 				<Control />
-				<Label enabledeffect="true" enabledshadow="true" enabledstroke="true" transshadow1="0" transtext1="0" textcolor="#ff0680C9" strokecolor="#ffffffff"  shadowoffset="2,-120" mouse="true" text="SvnSource：uilib-project.googlecode.com)" align="center" height="30" disabledtextcolor="#FFa3c6f2" font="2" />
+				<Label enabledeffect="true" enabledshadow="true" enabledstroke="true" transshadow1="0" transtext1="0" textcolor="#ff0680C9" strokecolor="#ffffffff"  shadowoffset="2,-120" mouse="true" text="SvnSource：uilib-project.googlecode.com)" align="center" height="27" disabledtextcolor="#FFa3c6f2" font="2" />
+				<Edit text="来这里输入文字看看" tipvalue="来这里输入文字看看" height="22" />
 				<Control />
 			</VerticalLayout>
 		</HorizontalLayout>
@@ -26,22 +27,32 @@
       <HorizontalLayout height="1">
         <Container bkimage="WndFrame/horizontal_border.bmp" />
       </HorizontalLayout>
-      <VerticalLayout height="130" inset="10,10,10,10">
-        <Text text="{b}{f 1}功能导航{/f}{b}" pos="0, 13, 100, 28" float="true" showhtml="true"/>
-        <Option text="1" pos="150,10,168,28" float="true" normalimage="file='WndFrame/navigationbar.bmp' source='0,0,18,18'" selectedimage="file='WndFrame/navigationbar.bmp' source='18,0,36,18'" group="true"/>
-        <Option text="2" pos="170,10,188,28" float="true" normalimage="file='WndFrame/navigationbar.bmp' source='0,0,18,18'" selectedimage="file='WndFrame/navigationbar.bmp' source='18,0,36,18'" group="true"/>
-        <Option text="3" pos="190,10,208,28" float="true" normalimage="file='WndFrame/navigationbar.bmp' source='0,0,18,18'" selectedimage="file='WndFrame/navigationbar.bmp' source='18,0,36,18'" group="true"/>
-        <Option text="4" pos="210,10,228,28" float="true" normalimage="file='WndFrame/navigationbar.bmp' source='0,0,18,18'" selectedimage="file='WndFrame/navigationbar.bmp' source='18,0,36,18'" group="true"/>
-        <Text text="{p}{f 5}桌面图标出现异常？{y 20}{n}网络速度越来越慢？{y 20}{n}浏览器访问速度慢？{y 20}{n}开机启动速度太慢？{y 20}{/f}{/p}" pos="0, 28, 200, 208" float="true" showhtml="true"/>
-        <Text text="{p}{f 5}使用{c #0680C9}系统修复{/c}{y 20}{n}使用{c #0680C9}流量监控{/c}{y 20}{n}使用{c #0680C9}插件管理{/c}{y 20}{n}使用{c #0680C9}开机加速{/c}{y 20}{/f}{/p}" pos="150, 28, 400, 208" float="true" showhtml="true"/>
-      </VerticalLayout>
-      <HorizontalLayout height="1">
-        <Container bkimage="WndFrame/horizontal_border.bmp" />
-      </HorizontalLayout>
-      <VerticalLayout>
-        <Text text="{b}{f 1}官方日志{/f}{b}" pos="0, 13, 100, 28" float="true" showhtml="true"/>
-        <Text text="{p}{c #F27D30}QQ和360已恢复兼容，感谢有您！{/c}{y 20}{n}360董事长周鸿祎：不得不说的话{y 20}{n}360全球首创人工智能杀毒引擎{y 20}{n}电脑卡、慢？专家为你解决，只需20元{y 20}{/p}" pos="0, 28, 300, 500" float="true" showhtml="true"/>
-      </VerticalLayout>
+	  <TreeView bkcolor="#ffffffff" visiblefolderbtn="true" visiblecheckbtn="true" >
+		<TreeNode text="A1" folderattr="padding=&quot;0,1,0,0&quot; width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/treeview_b.png' source='0,0,16,16' &quot; hotimage=&quot;file='Icon/treeview_b.png' source='16,0,32,16' &quot; selectedimage=&quot;file='Icon/treeview_a.png' source='0,0,16,16' &quot; selectedhotimage=&quot;file='Icon/treeview_a.png' source='16,0,32,16' &quot;" checkboxattr="width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/unchecked.png' &quot; selectedimage=&quot;file='Icon/checked.png' &quot;" >
+			<TreeNode text="B1" folderattr="padding=&quot;0,1,0,0&quot; width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/treeview_b.png' source='0,0,16,16' &quot; hotimage=&quot;file='Icon/treeview_b.png' source='16,0,32,16' &quot; selectedimage=&quot;file='Icon/treeview_a.png' source='0,0,16,16' &quot; selectedhotimage=&quot;file='Icon/treeview_a.png' source='16,0,32,16' &quot;" checkboxattr="width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/unchecked.png' &quot; selectedimage=&quot;file='Icon/checked.png' &quot;" >
+				<TreeNode text="C1" folderattr="padding=&quot;0,1,0,0&quot; width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/treeview_b.png' source='0,0,16,16' &quot; hotimage=&quot;file='Icon/treeview_b.png' source='16,0,32,16' &quot; selectedimage=&quot;file='Icon/treeview_a.png' source='0,0,16,16' &quot; selectedhotimage=&quot;file='Icon/treeview_a.png' source='16,0,32,16' &quot;" checkboxattr="width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/unchecked.png' &quot; selectedimage=&quot;file='Icon/checked.png' &quot;" >
+					<TreeNode text="D1" folderattr="padding=&quot;0,1,0,0&quot; width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/treeview_b.png' source='0,0,16,16' &quot; hotimage=&quot;file='Icon/treeview_b.png' source='16,0,32,16' &quot; selectedimage=&quot;file='Icon/treeview_a.png' source='0,0,16,16' &quot; selectedhotimage=&quot;file='Icon/treeview_a.png' source='16,0,32,16' &quot;" checkboxattr="width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/unchecked.png' &quot; selectedimage=&quot;file='Icon/checked.png' &quot;" >
+						<Button text="扩展按钮" width="100" />
+					</TreeNode>
+					<Button text="扩展按钮" width="100" />
+				</TreeNode>
+				<Edit text="扩展文本框" tipvalue="扩展文本框" width="100" />
+			</TreeNode>
+			<Edit text="扩展文本框" tipvalue="扩展文本框" width="100" />
+		</TreeNode>
+		<TreeNode text="A2" folderattr="padding=&quot;0,1,0,0&quot; width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/treeview_b.png' source='0,0,16,16' &quot; hotimage=&quot;file='Icon/treeview_b.png' source='16,0,32,16' &quot; selectedimage=&quot;file='Icon/treeview_a.png' source='0,0,16,16' &quot; selectedhotimage=&quot;file='Icon/treeview_a.png' source='16,0,32,16' &quot;" checkboxattr="width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/unchecked.png' &quot; selectedimage=&quot;file='Icon/checked.png' &quot;" >
+			<TreeNode text="B2" folderattr="padding=&quot;0,1,0,0&quot; width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/treeview_b.png' source='0,0,16,16' &quot; hotimage=&quot;file='Icon/treeview_b.png' source='16,0,32,16' &quot; selectedimage=&quot;file='Icon/treeview_a.png' source='0,0,16,16' &quot; selectedhotimage=&quot;file='Icon/treeview_a.png' source='16,0,32,16' &quot;" checkboxattr="width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/unchecked.png' &quot; selectedimage=&quot;file='Icon/checked.png' &quot;" >
+				<TreeNode text="C2" folderattr="padding=&quot;0,1,0,0&quot; width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/treeview_b.png' source='0,0,16,16' &quot; hotimage=&quot;file='Icon/treeview_b.png' source='16,0,32,16' &quot; selectedimage=&quot;file='Icon/treeview_a.png' source='0,0,16,16' &quot; selectedhotimage=&quot;file='Icon/treeview_a.png' source='16,0,32,16' &quot;" checkboxattr="width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/unchecked.png' &quot; selectedimage=&quot;file='Icon/checked.png' &quot;" >
+					<TreeNode text="D2" folderattr="padding=&quot;0,1,0,0&quot; width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/treeview_b.png' source='0,0,16,16' &quot; hotimage=&quot;file='Icon/treeview_b.png' source='16,0,32,16' &quot; selectedimage=&quot;file='Icon/treeview_a.png' source='0,0,16,16' &quot; selectedhotimage=&quot;file='Icon/treeview_a.png' source='16,0,32,16' &quot;" checkboxattr="width=&quot;16&quot; height=&quot;16&quot; normalimage=&quot;file='Icon/unchecked.png' &quot; selectedimage=&quot;file='Icon/checked.png' &quot;" >
+						<Option text="扩展单选框" width="100" group="RadioBoxTest" />
+					</TreeNode>
+					<Option text="扩展单选框" width="100" group="RadioBoxTest" />
+				</TreeNode>
+				<CheckBox text="扩展复选框" width="100" />
+			</TreeNode>
+			<CheckBox text="扩展复选框" width="100" />
+		</TreeNode>
+	  </TreeView>
     </VerticalLayout>
   </HorizontalLayout>
 </Window>

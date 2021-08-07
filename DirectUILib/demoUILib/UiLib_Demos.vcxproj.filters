@@ -17,9 +17,6 @@
     <ClInclude Include="targetver.h">
       <Filter>源文件</Filter>
     </ClInclude>
-    <ClInclude Include="MainWnd.h">
-      <Filter>源文件</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>源文件</Filter>
     </ClInclude>
@@ -32,9 +29,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="UiLib_Demos.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="MainWnd.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
