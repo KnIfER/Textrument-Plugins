@@ -2,7 +2,6 @@
 * Android-Like ListView Demo By KnIFER
 * 
 */
-
 #include "..\DuiLib\UIlib.h"
 
 using namespace DuiLib;
@@ -15,18 +14,25 @@ public:
     LPCTSTR GetWindowClassName() const override
     { 
         return _T("ListMainForm"); 
-    };
+    }
 
     UINT GetClassStyle() const override
     { 
         return CS_DBLCLKS; 
-    };
+    }
 
     void OnFinalMessage(HWND hWnd) override
     { 
         __super::OnFinalMessage(hWnd);
         delete this;
-    };
+    }
+    
+    LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled) override
+    {
+        PostQuitMessage(0);
+        bHandled = TRUE;
+        return 0;
+    }
 
     void InitWindow() override
     {
@@ -45,7 +51,7 @@ public:
     {
        size_t GetItemCount()
        {
-           return 5000;
+           return 100;
        }
        CControlUI* CreateItemView()
        {
@@ -79,7 +85,7 @@ public:
         {
             if( msg.pSender == m_pCloseBtn ) 
             { 
-                PostQuitMessage(0); // 因为activex的原因，使用close可能会出现错误
+                PostQuitMessage(0);
                 return; 
             }
             else if( msg.pSender == m_pMaxBtn ) 
