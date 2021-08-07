@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window mininfo="200,360" size="450,600">
+	<Font shared="true" id="0" size="22" default="true" />
+	
+	<Default shared="true" name="Button" value="textcolor=&quot;#FFFFFF&quot; hottextcolor=&quot;#FFFFFF&quot; focusedtextcolor=&quot;#000000&quot; pushedtextcolor=&quot;#77a8de&quot; hotimage=&quot;file='Button/btn.png' corner='5,11,5,11' source='0,24,96,48'&quot; normalimage=&quot;file='Button/btn.png' corner='5,11,5,11' source='0,24,96,48'&quot; pushedimage=&quot;file='Button/btn.png' corner='5,11,5,11' source='0,48,96,72'&quot; " />
+
+	
+	<VerticalLayout inset="10,6,10,6" bkcolor="#FFFFFFFF" colorhsl="true"
+					vscrollbar="true" autovscroll="true" valign="center" halign="center"	>
+		
+		<control height="15"/>
+		
+		<Button text="· Hello World!" name="T1" textcolor="#FFFFFFFF" width="-1"  bkcolor="#0000E000" nativebkcolor="#0000E000"/>
+		
+		<control height="15"/>
+		
+		<Button text="· DuiLib Test." name="T2" textcolor="#FFFFFFFF" width="-1"  bkcolor="#0000E000" nativebkcolor="#0000E000"/>
+	
+		
+	
+	</VerticalLayout>
+</Window>

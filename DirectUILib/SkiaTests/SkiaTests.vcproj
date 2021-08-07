@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="TestApp1"
+	Name="SkiaTests"
 	ProjectGUID="{41B017E7-7805-40D5-9D96-AABF572F57D1}"
 	TargetFrameworkVersion="0"
 	>
@@ -42,7 +42,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/TestApp1.tlb"
+				TypeLibraryName=".\Release/SkiaTests.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -55,7 +55,7 @@
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Release/TestApp1.pch"
+				PrecompiledHeaderFile=".\Release/SkiaTests.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -75,10 +75,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="../bin/TestApp1.exe"
+				OutputFile="../bin/SkiaTests.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ProgramDatabaseFile=".\Release/TestApp1.pdb"
+				ProgramDatabaseFile=".\Release/SkiaTests.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -94,7 +94,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/TestApp1.bsc"
+				OutputFile=".\Release/SkiaTests.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -134,7 +134,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/TestApp1.tlb"
+				TypeLibraryName=".\Debug/SkiaTests.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -146,7 +146,7 @@
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Debug/TestApp1.pch"
+				PrecompiledHeaderFile=".\Debug/SkiaTests.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
@@ -168,13 +168,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="../bin/TestApp1_d.exe"
+				OutputFile="../bin/SkiaTests_d.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/TestApp1.pdb"
+				ProgramDatabaseFile=".\Debug/SkiaTests.pdb"
 				GenerateMapFile="true"
-				MapFileName=".\Debug/TestApp1.map"
+				MapFileName=".\Debug/SkiaTests.map"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -190,7 +190,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Debug/TestApp1.bsc"
+				OutputFile=".\Debug/SkiaTests.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -230,7 +230,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/TestApp1.tlb"
+				TypeLibraryName=".\Debug/SkiaTests.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -242,7 +242,7 @@
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Debug_u/TestApp1.pch"
+				PrecompiledHeaderFile=".\Debug_u/SkiaTests.pch"
 				AssemblerListingLocation=".\Debug_u/"
 				ObjectFile=".\Debug_u/"
 				ProgramDataBaseFileName=".\Debug_u/"
@@ -264,13 +264,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="../bin/TestApp1_ud.exe"
+				OutputFile="../bin/SkiaTests_ud.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug_u/TestApp1.pdb"
+				ProgramDatabaseFile=".\Debug_u/SkiaTests.pdb"
 				GenerateMapFile="true"
-				MapFileName=".\Debug_u/TestApp1.map"
+				MapFileName=".\Debug_u/SkiaTests.map"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -286,7 +286,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Debug/TestApp1.bsc"
+				OutputFile=".\Debug/SkiaTests.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -326,7 +326,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/TestApp1.tlb"
+				TypeLibraryName=".\Release/SkiaTests.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -339,7 +339,7 @@
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Release_u/TestApp1.pch"
+				PrecompiledHeaderFile=".\Release_u/SkiaTests.pch"
 				AssemblerListingLocation=".\Release_u/"
 				ObjectFile=".\Release_u/"
 				ProgramDataBaseFileName=".\Release_u/"
@@ -359,10 +359,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="../bin/TestApp1_u.exe"
+				OutputFile="../bin/SkiaTests_u.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ProgramDatabaseFile=".\Release_u/TestApp1.pdb"
+				ProgramDatabaseFile=".\Release_u/SkiaTests.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -378,7 +378,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/TestApp1.bsc"
+				OutputFile=".\Release/SkiaTests.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"

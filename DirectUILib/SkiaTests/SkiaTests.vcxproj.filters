@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="HelloWorld.cpp" />
+    <ClCompile Include="..\DuiLib\ControlEx\ComboEdit.cpp">
+      <Filter>DuiLibEx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DuiLib\ControlEx\UIBeautifulSwitch.cpp">
+      <Filter>DuiLibEx</Filter>
+    </ClCompile>
+    <ClCompile Include="TestDuiLib.cpp">
+      <Filter>DuiLibEx</Filter>
+    </ClCompile>
+    <ClCompile Include="_SkiaTests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\DuiLib\ControlEx\ComboEdit.h">
+      <Filter>DuiLibEx</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlEx.h">
+      <Filter>DuiLibEx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DuiLib\ControlEx\UIBeautifulSwitch.h">
+      <Filter>DuiLibEx</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="skia_app（参考代码，不编译）">
+      <UniqueIdentifier>{4b85108c-1284-47c4-842d-bd8f1662df60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DuiLibEx">
+      <UniqueIdentifier>{40b234a0-6151-44ae-90f3-823239c8d2d4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="tools\sk_app\win\WindowContextFactory_win.h">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\Application.h">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\DisplayParams.h">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\win\main_win.cpp">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\MetalWindowContext.h">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="MISC\MyWindow.cpp">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\RasterWindowContext.h">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\win\RasterWindowContext_win.cpp">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\Window.cpp">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\Window.h">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\win\Window_win.cpp">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\win\Window_win.h">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\WindowContext.cpp">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\WindowContext.h">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\CommandSet.h">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+    <None Include="tools\sk_app\CommandSet.cpp">
+      <Filter>skia_app（参考代码，不编译）</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -34,6 +34,11 @@ namespace DuiLib
 		return CS_DBLCLKS;
 	}
 
+	bool WindowImplBase::IsWindowLess() const
+	{
+		return true;
+	}
+
 	CControlUI* WindowImplBase::CreateControl(LPCTSTR pstrClass)
 	{
 		return NULL;
@@ -62,7 +67,7 @@ namespace DuiLib
 
 	LRESULT WindowImplBase::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		bHandled = FALSE;
+		bHandled = TRUE;
 		return 0;
 	}
 
@@ -75,17 +80,19 @@ namespace DuiLib
 #if defined(WIN32) && !defined(UNDER_CE)
 	LRESULT WindowImplBase::OnNcActivate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if( ::IsIconic(*this) ) bHandled = FALSE;
+		if( ::IsIconic(*this)||!IsWindowLess() ) bHandled = FALSE;
 		return (wParam == 0) ? TRUE : FALSE;
 	}
 
 	LRESULT WindowImplBase::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
+		if(!IsWindowLess() ) bHandled = FALSE;
 		return 0;
 	}
 
-	LRESULT WindowImplBase::OnNcPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	LRESULT WindowImplBase::OnNcPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
+		if(!IsWindowLess() ) bHandled = FALSE;
 		return 0;
 	}
 
@@ -138,6 +145,10 @@ namespace DuiLib
 
 	LRESULT WindowImplBase::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
+		if(!IsWindowLess() ) {
+			bHandled = FALSE;
+			return false;
+		}
 		POINT pt; pt.x = GET_X_LPARAM(lParam); pt.y = GET_Y_LPARAM(lParam);
 		::ScreenToClient(*this, &pt);
 
@@ -222,18 +233,21 @@ namespace DuiLib
 
 	LRESULT WindowImplBase::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		SIZE szRoundCorner = m_pm.GetRoundCorner();
+		if (IsWindowLess())
+		{
+			SIZE szRoundCorner = m_pm.GetRoundCorner();
 #if defined(WIN32) && !defined(UNDER_CE)
-		if( !::IsIconic(*this) ) {
-			CDuiRect rcWnd;
-			::GetWindowRect(*this, &rcWnd);
-			rcWnd.Offset(-rcWnd.left, -rcWnd.top);
-			rcWnd.right++; rcWnd.bottom++;
-			HRGN hRgn = ::CreateRoundRectRgn(rcWnd.left, rcWnd.top, rcWnd.right, rcWnd.bottom, szRoundCorner.cx, szRoundCorner.cy);
-			::SetWindowRgn(*this, hRgn, TRUE);
-			::DeleteObject(hRgn);
-		}
+			if( !::IsIconic(*this) ) {
+				CDuiRect rcWnd;
+				::GetWindowRect(*this, &rcWnd);
+				rcWnd.Offset(-rcWnd.left, -rcWnd.top);
+				rcWnd.right++; rcWnd.bottom++;
+				HRGN hRgn = ::CreateRoundRectRgn(rcWnd.left, rcWnd.top, rcWnd.right, rcWnd.bottom, szRoundCorner.cx, szRoundCorner.cy);
+				::SetWindowRgn(*this, hRgn, TRUE);
+				::DeleteObject(hRgn);
+			}
 #endif
+		}
 		bHandled = FALSE;
 		return 0;
 	}
@@ -279,7 +293,7 @@ namespace DuiLib
 	{
 		// 调整窗口样式
 		LONG styleValue = ::GetWindowLong(*this, GWL_STYLE);
-		styleValue &= ~WS_CAPTION;
+		if(IsWindowLess()) styleValue &= ~WS_CAPTION;
 		::SetWindowLong(*this, GWL_STYLE, styleValue | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 
 		// 关联UI管理器
@@ -300,8 +314,13 @@ namespace DuiLib
 		}
 
 		if (pRoot == NULL) {
-			CDuiString sError = _T("加载资源文件失败：");
+			CDuiString sError = _T("加载皮肤失败：");
+			sError += sSkinType;
 			sError += GetSkinFile();
+			sError += "\n\n";
+			sError += builder.m_xml.m_szErrorMsg;
+			sError += "\n\n";
+			sError += builder.m_xml.m_szErrorXML;
 			MessageBox(NULL, sError, _T("Duilib") ,MB_OK|MB_ICONERROR);
 			ExitProcess(1);
 			return 0;

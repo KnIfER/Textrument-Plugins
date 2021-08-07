@@ -172,6 +172,7 @@
     <ClCompile Include="..\..\..\..\..\browsers\SunPlayer_DuiLib-master\SunPlayer_DuiLib\DuiLib\Control\UIIPAddressEx.cpp" />
     <ClCompile Include="..\..\..\..\..\browsers\SunPlayer_DuiLib-master\SunPlayer_DuiLib\DuiLib\Control\UIRing.cpp" />
     <ClCompile Include="Control\ListView.cpp" />
+    <ClCompile Include="Control\TestButton.cpp" />
     <ClCompile Include="Control\UIActiveX.cpp" />
     <ClCompile Include="Control\UIAnimation.cpp" />
     <ClCompile Include="Control\UIButton.cpp" />
@@ -232,6 +233,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\browsers\SunPlayer_DuiLib-master\SunPlayer_DuiLib\DuiLib\Control\UIRing.h" />
     <ClInclude Include="Control\ListView.h" />
+    <ClInclude Include="Control\TestButton.h" />
     <ClInclude Include="Control\UIActiveX.h" />
     <ClInclude Include="Control\UIAnimation.h" />
     <ClInclude Include="Control\UIButton.h" />

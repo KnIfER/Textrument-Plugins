@@ -37,6 +37,7 @@ namespace DuiLib
 
 	public:
 		virtual UINT GetClassStyle() const;
+		virtual bool IsWindowLess() const;
 		virtual CControlUI* CreateControl(LPCTSTR pstrClass);
 		virtual LPCTSTR QueryControlText(LPCTSTR lpstrId, LPCTSTR lpstrType);
 

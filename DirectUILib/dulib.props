@@ -19,6 +19,7 @@
     </Lib>
     <ClCompile>
       <PreprocessorDefinitions>UILIB_STATIC;_VC80_UPGRADE=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(DUPA);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

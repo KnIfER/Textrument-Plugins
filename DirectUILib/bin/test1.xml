@@ -1,172 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Window mininfo="200,360" size="450,600">
-
-	<Font shared="true" id="0" name="幼圆" size="22" default="true" />
-	<Font shared="true" id="1" name="微软雅黑" size="28" />
-	<Font shared="true" id="12" name="微软雅黑" size="16" />
-	
+<Window mininfo="200,360" size="360,600">
+	<Font shared="true" id="0" name="幼圆" size="12" default="true" />
+	<Font shared="true" id="1" name="微软雅黑" size="18" />
 	<Include source="scrollbar.xml" />
 	<Default shared="true" name="Slider" value="thumbsize=&quot;10,10&quot; bkimage=&quot;file='bg.bmp' corner='6,0,6,0' mask='#FFFF00FF'&quot; foreimage=&quot;file='fg.bmp' corner='6,0,6,0' mask='#FFFF00FF'&quot; thumbimage=&quot;file='thumb.bmp' source='30,0,40,10' mask='#FFDAEBF9'&quot; thumbhotimage=&quot;file='thumb.bmp' source='10,0,20,10' mask='#FFDAEBF9'&quot; " />
-	
-	<Default shared="true" name="Button" value="textcolor=&quot;#FFFFFF&quot; hottextcolor=&quot;#FFFFFF&quot; focusedtextcolor=&quot;#000000&quot; pushedtextcolor=&quot;#77a8de&quot; hotimage=&quot;file='Button/btn.png' corner='5,11,5,11' source='0,24,96,48'&quot; normalimage=&quot;file='Button/btn.png' corner='5,11,5,11' source='0,24,96,48'&quot; pushedimage=&quot;file='Button/btn.png' corner='5,11,5,11' source='0,48,96,72'&quot; " />
-	
+	<Default shared="true" name="Button" value="textcolor=&quot;#000000&quot; hottextcolor=&quot;#FFFFFF&quot; focusedtextcolor=&quot;#000000&quot; pushedtextcolor=&quot;#77a8de&quot; normalimage=&quot;file='Button/btn.png' corner='5,11,5,11' source='0,0,96,24'&quot; hotimage=&quot;file='Button/btn.png' corner='5,11,5,11' source='0,24,96,48'&quot; pushedimage=&quot;file='Button/btn.png' corner='5,11,5,11' source='0,48,96,72'&quot; disabledimage=&quot;file='Button/btn.png' corner='5,11,5,11' source='0,72,96,96'&quot;" />
 	<Default shared="true" name="Option" value="textcolor=&quot;#FFbac0c5&quot; hottextcolor=&quot;#FF386382&quot; selectedtextcolor=&quot;#FF386382&quot; disabledtextcolor=&quot;#FFbac0c5&quot; textpadding=&quot;18,2,0,0&quot; align=&quot;left&quot; selectedimage=&quot;file='Button/RadioBtnSel.png' source='0,0,13,13' dest='0,5,14,19'&quot; normalimage=&quot;file='Button/RadioBtnNon.png' source='0,0,13,13' dest='0,5,14,19'&quot;" />
 	<Default shared="true" name="CheckBox" value="textcolor=&quot;#FFbac0c5&quot; hottextcolor=&quot;#FF386382&quot; selectedtextcolor=&quot;#FF386382&quot; disabledtextcolor=&quot;#FFbac0c5&quot; textpadding=&quot;20,2,0,0&quot; align=&quot;left&quot; selectedimage=&quot;file='Icon/checked.png' dest='0,2,16,18'&quot; normalimage=&quot;file='Icon/unchecked.png' dest='0,2,16,18'&quot;" />
 	
-	
-	<VerticalLayout inset="10,6,10,6" bkcolor="#FFFFFFFF" colorhsl="true"
-					vscrollbar="true" autovscroll="true" valign="center" halign="center"	>
-					
-		
-       <RichEdit minheight="100" maxwidth="280" name="dwnHint" bkcolor="#0000FFFF" font="2" text="找不到 WebView2 运行时。请选择以下两者之一：" autovscroll="true" readonly="true" padding="2,2.8,0,0"/>
-
-		<Control height="4"/>
-		<HorizontalLayout minheight="35" maxheight="50" >
-			<Control/>
-			<Button name="tt" text="{b}下载 WebView2 Runtime{/b}" showhtml="true" width="360"  bkcolor="#0000E000" nativebkcolor="#0000E000"/>
-			<Control/>
-		</HorizontalLayout>
-		<Control height="4"/>
-		<HorizontalLayout minheight="35" maxheight="50" >
-			<Control/>
-				<Button  text="{b}下载 Edge Insider{/b}" showhtml="true" width="360" bkcolor="#0000E000" nativebkcolor="#0000E000"/>
-			<Control/>
-		</HorizontalLayout>
-		
-		
-		
-		
-		<Control height="4"/>
-		
-		<Edit name="te" text="{a www.baidu.com}ddd{/a}" showhtml="true" maxwidth="280" bkcolor="#0000E000" nativebkcolor="#0000E000"/>
-		
-		<RichEdit rich="true" name="te1" text="{a www.baidu.com}ddd{/a}" showhtml="true" maxwidth="280" bkcolor="#0000E000" nativebkcolor="#0000E000"/>
-		
-		<!-- <Edit name="testedit" text="{a www.baidu.com}ddd{/a}" showhtml="true" maxwidth="280" bkcolor="#0000E000" nativebkcolor="#0000E000"/> -->
-
-		
-		<Label text="哈哈哈" menu="true"/>
-		
-		
-		<Control height="4"/>
-			
-			
-			
-			
-		<!-- <HorizontalLayout bkcolor="#FF00FFFF" height="30"> -->
-		   <!-- <Label text="较长较长较长较长较长较长较长较长较长较长较长较长较长的选项开关:"   /> -->
-			<!-- <CircleProgress textcolor="#FF333333" valign="vcenter" height="30" width="60" bkcolor="#FF888888" forecolor="#FFFF0000" value="50" min="0" max="100"/> -->
-		<!-- </HorizontalLayout> -->
-		
-		
-		
-		<!-- <Control height="4"/> -->
-		<!-- <HorizontalLayout bkcolor="#FF00FFFF" height="30"> -->
-             <!-- <RichEdit name="wordedit" font="2" password="false" tipvalue="请输入文字" mutiline="false" rich="false" text="较长较长较长较长较长较长较长较长较长较长较长较长较长的选项开关:" vscrollbar="false" hscrollbar="true" autohscroll="true" readonly="true"/> -->
-			  
-		    <!-- <Control width="5" /> -->
-			<!-- <CircleProgress textcolor="#FF333333" valign="vcenter" height="30" width="60" bkcolor="#FF888888" forecolor="#FFFF0000" value="50" min="0" max="100"/> -->
-		<!-- </HorizontalLayout> -->
-		
-		
-		<Control height="4"/>
-		<HorizontalLayout minheight="30">
-            <RichEdit name="wordedit" bkcolor="#0000FFFF" font="2" password="false" mutiline="false" rich="false" text="启动编辑器时自动运行" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="true" padding="2,2.8,0,0"/>
-			<BSwitch textcolor="#FF333333" valign="vcenter" height="30" width="60" bkcolor="#FF888888" forecolor="#FFFF0000" value="50" min="0" max="100"/>
-		    <Control width="5" />
-		</HorizontalLayout>
-		
-		<Control height="12"/>
-		
-		<HorizontalLayout minheight="30">
-            <RichEdit name="wordedit" bkcolor="#0000FFFF" font="2" password="false" tipvalue="请输入文字" mutiline="false" rich="false" text="启动编辑器时保持关闭" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="true" padding="2,2.8,0,0"/>
-			<CircleProgress textcolor="#FF333333" valign="vcenter" height="30" width="60" bkcolor="#FF888888" forecolor="#FFFF0000" value="50" min="0" max="100"/>
-		    <Control width="5" />
-		</HorizontalLayout>
-		
-		<Control height="4"/>
-		
-		<HorizontalLayout minheight="30">
-            <RichEdit name="wordedit" bkcolor="#0000FFFF" font="2" password="false" tipvalue="请输入文字" mutiline="false" rich="false" text="启动编辑器时保持关闭" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="true" padding="2,2.8,0,0"/>
-			<!-- ComboEdit ComboBoxEx -->
-			<ComboEdit width="200" height="30" bkcolor="#FFEA679F" bordersize="1" bordercolor="0xFFFF0000">
-				<ListLabelElement text="1"/>
-				<ListLabelElement text="2"/>
-				<ListLabelElement text="3"/>
-				<ListLabelElement text="4"/>
-				<ListLabelElement text="5"/>
-			</ComboEdit>
-		</HorizontalLayout>
-		
-		<Control height="4"/>
-		
-		<HorizontalLayout  minheight="30" maxheight="38">
-			<RichEdit maxwidth="130" bkcolor="#0000FFFF" font="2" mutiline="false" rich="false" text="LibCef3目录：" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="true" padding="2,2.8,0,0"/>
-			
-			<Container bkcolor="#FF00FFFF" >
-				<Combo name="accountcombo"  itemmenu="true" normalimage="file='Combo_nor.bmp' corner='2,2,24,2'" hotimage="file='Combo_over.bmp' corner='2,2,24,2'" pushedimage="file='Combo_over.bmp' corner='2,2,24,2'" textpadding="1,1,1,1" font="12" textcolor="#00FFFFFF">
-					<ListLabelElement text="右键打开文件夹选择器" selected="true" />
-					<ListLabelElement text="右键打开文件夹选择器"   menu="true"/>
-				</Combo>
-				<HorizontalLayout   mouse="false">
-					<Edit name="accountedit"   bkcolor="#0000FFFF" font="12" multiline="false" rich="false"  padding="4,0,0,0"/>
-					<Label name="pad" bkcolor="#0000FFFF"  width="30" mouse="false" />
-				</HorizontalLayout>
-			</Container>
-		</HorizontalLayout>
-		
-		
-		<Control height="4"/>
-		
-		<HorizontalLayout minheight="30">
-            <RichEdit name="wordedit" bkcolor="#0000FFFF" font="2" password="false" tipvalue="请输入文字" mutiline="false" rich="false" text="启动编辑器时保持关闭" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="true" padding="2,2.8,0,0"/>
-			<!-- <ComboBox width="200" height="30" bkcolor="#FFEA679F" bordersize="1" bordercolor="0xFFFF0000"> -->
-				<!-- <ListLabelElement text="11111111111111"/> -->
-				<!-- <ListLabelElement text="22222222222222"/> -->
-				<!-- <ListLabelElement text="33333333333333" selected="true"/> -->
-				<!-- <ListLabelElement text="44444444444444"/> -->
-				<!-- <ListLabelElement text="55555555555555"/> -->
-				<!-- <ComboBox height="30" bkcolor="#FF00679F" > -->
-					<!-- <Edit text="{a www.baidu.com}ddd{/a}" /> -->
-					<!-- <ListLabelElement text="666666666666666"/> -->
-				<!-- </ComboBox> -->
-				<!-- <Edit text="{a www.baidu.com}ddd{/a}" /> -->
-			<!-- </ComboBox> -->
-		    <Control width="5" />
-		</HorizontalLayout>
-		
-		
-		<!-- 测试一下 -->
-		<Control height="50"/>
-		<HorizontalLayout bkcolor="#FF00FFFF" minheight="30">
-              <RichEdit name="wordedit" font="2" password="false" tipvalue="请输入文字" mutiline="false" rich="false" text="较长较长较长较长较长较长较长较长较长较长较长较长较长的选项开关:" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="true"/>
-			  
-		    <Control width="5" />
-			<CircleProgress textcolor="#FF333333" valign="vcenter" height="30" width="60" bkcolor="#FF888888" forecolor="#FFFF0000" value="50" min="0" max="100"/>
-		</HorizontalLayout>
-		<HorizontalLayout bkcolor="#FF00FFFF" minheight="30">
-              <RichEdit name="wordedit" font="2" password="false" tipvalue="请输入文字" mutiline="false" rich="false" text="较长较长较长较长较长较长较长较长较长较长较长较长较长的选项开关:" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="true"/>
-			  
-		    <Control width="5" />
-			<CircleProgress textcolor="#FF333333" valign="vcenter" height="30" width="60" bkcolor="#FF888888" forecolor="#FFFF0000" value="50" min="0" max="100"/>
-		</HorizontalLayout>
-		<!-- 一下测试 -->
-		
-		
-		<Control height="4"/>
-		
-		
-	<btnProgress name="btnProgress" progressColor="#FF00FA00" btnBkColor="#FF00FA00" outBtnBkColor="#FFFFFFFF" btnHotColor="#FFe2e2e2" btnPushColor="#FFFF0000" progressWidth="40" progressRadius="120" buttonRadius="45" buttonSpace="20" scoreValue="100" valueFont="12" valueAlign="center" btnText="开始检查" btnTextColor="#FFFFFFFF" btnTextFont="3" btnSpacePadding="6" />
-
-	<Control height="4"/>
-	<Control height="4"/>
-	
-		<CheckBox name="chkOption"  width="143" height="90" normalimage="file='switchbutton.png' source='0,0,143,91'" selectedimage="file='switchbutton.png' source='0,182,143,273'"/>
-	
-	<Control height="4"/>
-	<Control height="4"/>
-	 
-	 
+	<VerticalLayout inset="10,6,10,6" bkcolor="#FFEA679F" colorhsl="true" bkimage="file='voice_rect.png' xtiled='true' ytiled='true' dest='0,0,200,400'">
 		<Slider name="alpha_controlor" min="20" max="255" value="255"/>
 		<Control height="4"/>
 		<Slider name="h_controlor" max="360" value="180"/>
@@ -175,12 +17,10 @@
 		<Control height="4"/>
 		<Slider name="l_controlor" max="200" value="100"/>
 		<Button name="changeskinbtn" height="20" text="换肤" maxwidth="120" />
-		
 		<RichEdit name="testrichedit" bordercolor="#FF0000" bordersize="0" borderround="18,18" inset="4,2,4,2" bkcolor="#A0F2F5FA" bkcolor2="#A0FF0000" bkcolor3="#A0F2F5FA" font="1" multiline="true" vscrollbar="true" autovscroll="true" enabled="true" rich="true" readonly="false" text="1爱3">
 			<Control bkcolor="#FFF22E2E" float="true" pos="80,40,260,220" bkimage="winbk.bmp" />
 			<Button name="insertimagebtn" float="0.5,0.5,0.5,0.5" pos="-80,-10,80,10" text="删除自己" />
 		</RichEdit>
-		
 		<Control height="26"/>
 		<Edit name="testedit" text="{a www.baidu.com}ddd{/a}" showhtml="true" maxwidth="280" bkcolor="#0000E000" nativebkcolor="#0000E000"/>
 		<RichEdit name="testrichedit1" bordercolor="#FF0000" bordersize="2" borderround="8,8" inset="4,2,4,2" bkcolor="#FFE2E5EA" bkcolor2="#FF00F5DA" bkcolor3="#FFF2F5FA" font="1" multiline="false" rich="false" hscrollbar="true" autohscroll="true"/>
@@ -225,5 +65,4 @@
 			</TreeNode>
 		</TreeView>
 	</VerticalLayout>
-
 </Window>
