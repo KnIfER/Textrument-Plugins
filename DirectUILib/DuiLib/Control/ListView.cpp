@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+#include "core/InsituDebug.h"
+#include "math.h"
 
 
 namespace DuiLib {
@@ -37,17 +39,114 @@ namespace DuiLib {
         NeedUpdate();
     }
 
+    int m_ScrollSpeed=0;
+    int m_ScrollTarget=0;
+    bool bUseSmoothScroll=1;
+
+    bool m_SmoothScrolling=false;
+
     void ListView::SetScrollPos(SIZE szPos, bool bMsg)
     {
+        //int startPos = m_pVerticalScrollBar->GetScrollPos();
+        int startPos = m_ScrollY;
+
         __super::SetScrollPos(szPos, bMsg);
 
-        if(m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible()) 
-            m_ScrollX = m_pHorizontalScrollBar->GetScrollPos();
-        if(m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible()) 
-            m_ScrollY = m_pVerticalScrollBar->GetScrollPos();
+        if (bUseSmoothScroll)
+        {
+            m_SmoothScrolling = false;
+            m_ScrollTarget = m_pVerticalScrollBar->GetScrollPos();
+            //m_ScrollTarget = szPos.cy;
 
-        NeedUpdate();
+            int dist = m_ScrollTarget-startPos;
+
+            int sign = dist>0?1:-1;
+
+            dist = std::abs(dist);
+
+            m_ScrollSpeed = sign*dist*10*1.2/100;
+
+            //m_ScrollSpeed = sign*exp(dist);
+
+            LogIs("SetScrollPos %d %d", dist, m_ScrollSpeed);
+
+            if (dist>100)
+            {
+                m_ScrollSpeed*=2;
+            }
+
+            if (dist==0)
+            {
+                KillTimer(100);
+                return;
+            }
+            
+            if (m_ScrollSpeed==0)
+            {
+                m_ScrollSpeed = sign;
+            }
+
+            m_SmoothScrolling = true;
+            SetTimer(100,10);
+            NeedUpdate();
+        }
+        else 
+        {
+            if(m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible()) 
+                m_ScrollX = m_pHorizontalScrollBar->GetScrollPos();
+            if(m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible()) 
+                m_ScrollY = m_pVerticalScrollBar->GetScrollPos();
+
+            NeedUpdate();
+        }
     }
+
+    void ListView::NeedUpdate()
+    {
+
+        __super::NeedUpdate();
+    }
+
+    void ListView::DoEvent(TEventUI& event)
+    {
+        if (event.Type==UIEVENT_TIMER)
+        {
+            if (event.wParam==100)
+            {
+                if (m_SmoothScrolling)
+                {
+                    int target = m_ScrollY += m_ScrollSpeed;
+                    bool stopped = false;
+                    if (target<=0)
+                    {
+                        target=0;
+                        stopped=1;
+                    } 
+                    else if (target>m_pVerticalScrollBar->GetScrollRange())
+                    {
+                        target=m_pVerticalScrollBar->GetScrollRange();
+                        stopped=1;
+                    } 
+                    else if ((m_ScrollTarget-target>0) ^ (m_ScrollSpeed>0))
+                    {
+                        target = m_ScrollTarget;
+                        stopped=1;
+                    }
+                    if (stopped)
+                    {
+                        KillTimer(100);
+                    }
+                    m_ScrollY = target;
+
+                    SetPos(m_rcItem, true);
+                    //NeedUpdate();
+                }
+            }
+            return;
+        }
+        __super::DoEvent(event);
+    }
+
 
     void ListView::SetPos(RECT rc, bool bNeedInvalidate) {
         CControlUI::SetPos(rc);

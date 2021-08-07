@@ -35,7 +35,8 @@ namespace DuiLib {
         void SetReferenceItemView(CControlUI* view) {  
             m_HiddenItem = view;
         };
-
+        void DoEvent(TEventUI& event);
+        void NeedUpdate();
     private:
         ListViewAdapter* m_Delegate;
         CControlUI* m_HiddenItem;          // 用于计算每个列表项的尺寸
@@ -52,6 +53,7 @@ namespace DuiLib {
         int m_available_width;  // 列表的可见部分高度
         int m_ScrollY;                 // 列表自己维护的垂直方向的滚动
         int m_ScrollX;                 // 列表自己维护的垂直方向的滚动
+
     };
 
 }
