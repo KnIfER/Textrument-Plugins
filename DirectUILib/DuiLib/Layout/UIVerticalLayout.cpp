@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "UIVerticalLayout.h"
+#include "core/InsituDebug.h"
 
 namespace DuiLib
 {
@@ -42,6 +43,7 @@ namespace DuiLib
 		if( m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible() ) rc.right -= m_pVerticalScrollBar->GetFixedWidth();
 		if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible() ) rc.bottom -= m_pHorizontalScrollBar->GetFixedHeight();
 
+
 		if( m_items.GetSize() == 0) {
 			ProcessScrollBar(rc, 0, 0);
 			return;
@@ -49,10 +51,16 @@ namespace DuiLib
 
 		// Determine the minimum size
 		SIZE szAvailable = { rc.right - rc.left, rc.bottom - rc.top };
-		if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible() ) 
-			szAvailable.cx += m_pHorizontalScrollBar->GetScrollRange();
-		if( m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible() ) 
-			szAvailable.cy += m_pVerticalScrollBar->GetScrollRange();
+
+		// WTF???
+		/////////////////////////////////////////////////
+		//if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible() ) 
+		//	szAvailable.cx += m_pHorizontalScrollBar->GetScrollRange();
+		//if( m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible() ) 
+		//	szAvailable.cy += m_pVerticalScrollBar->GetScrollRange();
+		//
+		//LogIs("rc::%d %d %d", rc.bottom , rc.top, szAvailable.cy);
+		///////////////////////////////////////////////
 
 		int cxNeeded = 0;
 		int nAdjustables = 0;
