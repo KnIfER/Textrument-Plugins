@@ -479,6 +479,7 @@ namespace DuiLib
 				m_p3DTextures[m_nBuffers] = RefTex2.Detach();
 				m_p3DVertices[m_nBuffers] = RefVertex.Detach();
 				m_nBuffers++;
+				if( m_nBuffers>=MAX_BUFFERS ) return false; // 防止数组越界
 			}
 		}
 		pJob->iBufferEnd = m_nBuffers;
@@ -514,6 +515,7 @@ namespace DuiLib
 		DWORD clrAlpha = ((DWORD)(0xFF - (FLOAT) abs(pJob->data.plot.mFrom.alpha) * (pJob->data.plot.mFrom.alpha >= 0 ? scale1 : scale2)) << 24) | 0xffffff;
 		HRESULT Hr = 0;
 		for( int iBuffer = pJob->iBufferStart; iBuffer < pJob->iBufferEnd; iBuffer++ ) {
+			if( iBuffer>=MAX_BUFFERS ) return false; // 防止数组越界
 			// Lock the vertex buffer and apply transformation
 			LPDIRECT3DVERTEXBUFFER9 pVBuffer = m_p3DVertices[iBuffer];
 			LPVOID pVertices = NULL;

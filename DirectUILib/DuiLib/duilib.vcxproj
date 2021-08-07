@@ -202,6 +202,7 @@
     <ClCompile Include="Control\UITreeView.cpp" />
     <ClCompile Include="Control\UIWebBrowser.cpp" />
     <ClCompile Include="Core\ControlFactory.cpp" />
+    <ClCompile Include="Core\InsituDebug.cpp" />
     <ClCompile Include="Core\UIBase.cpp" />
     <ClCompile Include="Core\UIContainer.cpp" />
     <ClCompile Include="Core\UIControl.cpp" />
@@ -265,6 +266,7 @@
     <ClInclude Include="Control\UITreeView.h" />
     <ClInclude Include="Control\UIWebBrowser.h" />
     <ClInclude Include="Core\ControlFactory.h" />
+    <ClInclude Include="Core\InsituDebug.h" />
     <ClInclude Include="Core\UIBase.h" />
     <ClInclude Include="Core\UIContainer.h" />
     <ClInclude Include="Core\UIControl.h" />

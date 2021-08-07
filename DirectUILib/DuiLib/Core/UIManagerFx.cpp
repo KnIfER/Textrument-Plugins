@@ -24,6 +24,7 @@ namespace DuiLib {
         {
             CDxAnimationUI* pDxAnimationJob = new CDxAnimationUI(_DxAnimationUI);
             if( pDxAnimationJob == NULL ) return false;
+            //m_anim.CancelJobs();
             ::InvalidateRect(m_hWndPaint, NULL, FALSE);
             bool nRet = m_anim.AddJob(pDxAnimationJob);
             return nRet;

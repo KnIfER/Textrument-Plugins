@@ -212,6 +212,9 @@
     <ClInclude Include="Control\TestButton.h">
       <Filter>Control</Filter>
     </ClInclude>
+    <ClInclude Include="Core\InsituDebug.h">
+      <Filter>Control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils\DPI.cpp">
@@ -391,6 +394,9 @@
       <Filter>Control</Filter>
     </ClCompile>
     <ClCompile Include="Control\TestButton.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\InsituDebug.cpp">
       <Filter>Control</Filter>
     </ClCompile>
   </ItemGroup>

@@ -558,7 +558,7 @@ namespace DuiLib {
 		{
 			try
 			{
-				mEffectLock.Lock();
+				//mEffectLock.Lock();
 				TEffectAge* pcTEffect = pTEffectAge?pTEffectAge:&m_tCurEffects;
 
 				if(GetManager() && m_bEnabledEffect && pcTEffect->m_bEnableEffect)
@@ -566,7 +566,7 @@ namespace DuiLib {
 					//GetManager()->AddAnimationJob(CDxAnimationUI(UIANIMTYPE_FLAT,0,GetEffectsNeedTimer(),GetEffectsFillingBK(),GetEffectsFillingBK(),GetPos(),GetEffectsOffectX(),GetEffectsOffectY(),GetEffectsZoom(),GetEffectsAlpha(),GetEffectsRotation()));
 					GetManager()->AddAnimationJob(CDxAnimationUI(UIANIMTYPE_FLAT,0,pcTEffect->m_iNeedTimer,pcTEffect->m_dFillingBK,pcTEffect->m_dFillingBK,GetPos(),pcTEffect->m_iOffectX,pcTEffect->m_iOffectY,pcTEffect->m_iZoom,pcTEffect->m_iAlpha,(float)pcTEffect->m_fRotation));
 				}
-				mEffectLock.UnLock();
+				//mEffectLock.UnLock();
 			}
 			catch (...)
 			{

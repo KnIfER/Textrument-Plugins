@@ -5,6 +5,7 @@
 
 namespace DuiLib {
 
+	#define WM_EFFECTS	WM_USER+1680
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 	//
@@ -1117,8 +1118,39 @@ namespace DuiLib {
 				lRes = 1;
 			}
 			return true;
+		case WM_EFFECTS:
+		{
+			if( m_anim.IsAnimating() )
+			{
+				// 3D animation in progress
+				//   3D动画  
+				int ret = m_anim.Render();
+
+				// Do a minimum paint loop  做一个最小的绘制循环
+				// Keep the client area invalid so we generate lots of
+				// WM_PAINT messages. Cross fingers that Windows doesn't
+				// batch these somehow in the future.
+				PAINTSTRUCT ps = { 0 };
+				::BeginPaint(m_hWndPaint, &ps);
+				::EndPaint(m_hWndPaint, &ps);
+				::InvalidateRect(m_hWndPaint, NULL, FALSE);
+			}
+			else if( m_anim.IsJobScheduled() ) 
+			{
+				// Animation system needs to be initialized
+				//	动画系统需要初始化
+				m_anim.Init(m_hWndPaint);
+				// A 3D animation was scheduled; allow the render engine to
+				// capture the window content and repaint some other time
+				//翻译(by 金山词霸)一个3d动画被准备;允许渲染引擎捕获窗口内容，并且适时重画
+
+				if( !m_anim.PrepareAnimation(m_hWndPaint) ) m_anim.CancelJobs();
+				::InvalidateRect(m_hWndPaint, NULL, TRUE);
+			} 
+		}
 		case WM_PAINT:
 		{
+				if(::IsIconic(m_hWndPaint) ) return true;
 				if( m_pRoot == NULL ) 
 				{
 					PAINTSTRUCT ps = { 0 };
@@ -1257,12 +1289,21 @@ namespace DuiLib {
 				//
 				// Render screen // dx 动画
 				//
+//#define 调试DX特效数组越界
+#ifdef 调试DX特效数组越界 
+				// debug 模式下（可观察未优化掉的变量），用 PostMessage 用连续快速点击触发特效时
+				//	，导致 UIDxAnimation.cpp 中发生数组越界BUG。  m_p3DVertices[m_nBuffers]
+				//  release 不用 PostMessage 也会越界。
+				// PostMessage 是由 clrhcp 分支上第三个提交引进的，似乎是用于修复此BUG，但非正解。
+				if( m_anim.IsAnimating() || m_anim.IsJobScheduled())
+					::PostMessage(m_hWndPaint,WM_EFFECTS,NULL,NULL);
+#else
 				if( m_anim.IsAnimating() )
 				{
 					// 3D animation in progress
 					//   3D动画  
 					int ret = m_anim.Render();
-					
+
 					// Do a minimum paint loop  做一个最小的绘制循环
 					// Keep the client area invalid so we generate lots of
 					// WM_PAINT messages. Cross fingers that Windows doesn't
@@ -1284,6 +1325,7 @@ namespace DuiLib {
 					if( !m_anim.PrepareAnimation(m_hWndPaint) ) m_anim.CancelJobs();
 					::InvalidateRect(m_hWndPaint, NULL, TRUE);
 				} 
+#endif
 				else {
 				//
 				// Render screen //渲染屏幕
