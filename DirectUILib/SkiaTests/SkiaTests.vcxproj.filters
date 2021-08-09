@@ -12,6 +12,7 @@
       <Filter>DuiLibEx</Filter>
     </ClCompile>
     <ClCompile Include="_SkiaTests.cpp" />
+    <ClCompile Include="HelloSkImage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\DuiLib\ControlEx\ComboEdit.h">

@@ -6,6 +6,7 @@ using namespace DuiLib;
 
 extern int HelloWorld_RunMain(HINSTANCE hInstance, HWND hParent);
 extern int DuiLibTest_RunMain(HINSTANCE hInstance, HWND hParent);
+extern int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent);
 
 class SkiaTestBox : public WindowImplBase, public INotifyUI
 {
@@ -54,8 +55,18 @@ public:
                 DuiLibTest_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
                 return; 
             }
+            if( ud == L"T3" ) 
+            { 
+                HelloSKIMG_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
+                return; 
+            }
         }
         WindowImplBase::Notify(msg);
+    }
+
+    void InitWindow() override
+    {
+        HelloSKIMG_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
     }
 };
 

@@ -1,12 +1,20 @@
 /****** SKia Draw String Demo *********
-* Skia 绘制 Hello World 之展示程序。
+* 
+* Skia 展示程序之绘制 Hello World 字符串。
+* 
+* 参考资料  https://blog.csdn.net/weixin_33721427/article/details/88738231
+* 
 *   —— 由 KnIfER 整理。
 **************************************/
-
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkRandom.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkImage.h"
+#include "include/core/SKImageInfo.h"
+#include "include/core/SkImageGenerator.h"
+
+#include "include/codec/SkCodec.h"
 
 
 #include "include/core/SkString.h"
@@ -19,6 +27,12 @@
 
 #include "tools/sk_app/Window.h"
 
+
+#include "../DuiLib/Core/InsituDebug.h"
+
+
+namespace SK_HELLO {
+
 HWND _hWnd;
 
 int drawCnt = 0 ;
@@ -26,6 +40,12 @@ int drawCnt = 0 ;
 
 // |0|不绘制 |1|原生绘制 |2|Skia绘制
 int Paint_Type = 2;
+
+size_t bmpSize = 0;
+
+DWORD lastDrawTm;
+
+BITMAPINFO* bmpInfo = NULL;
 
 void Draw(SkCanvas* canvas,int w,int h) {
     SkPaint paint;
@@ -46,13 +66,12 @@ void Draw(SkCanvas* canvas,int w,int h) {
 
     string.appendS32(drawCnt++);
 
-    canvas->drawString(string, 1, 16, font, textpaint);
+    string.appendf(" bmpSize=%.2f", bmpSize*1.0/1024/1024);
 
+    canvas->drawString(string, 1, 16, font, textpaint);
 
     canvas->flush(); //这函数是用于GPU surface。这里其实不需要。例如使用OpenGL的上下文。
 }
-
-
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -62,6 +81,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_PAINT:
     {
+        //Paint_Type = 0;
         if (Paint_Type && !::IsIconic(_hWnd))
         {
             PAINTSTRUCT ps;
@@ -88,42 +108,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 GetClientRect(hWnd, &rt);
                 if (!::IsRectEmpty(&rt))
                 {
-                    int bmpw = rt.right - rt.left;
-                    int bmph = rt.bottom - rt.top;
+                    int drawWidth = rt.right - rt.left;
+                    int drawHeight = rt.bottom - rt.top;
 
-                    const size_t bmpSize = sizeof(BITMAPINFOHEADER) + bmpw * bmph * sizeof(uint32_t);
-                    BITMAPINFO* bmpInfo = (BITMAPINFO*)new BYTE[bmpSize]();
+                    size_t newSz = sizeof(BITMAPINFOHEADER) + drawWidth * drawHeight * sizeof(uint32_t);
+                    if (newSz>bmpSize)
+                    {
+                        if (bmpInfo)
+                        {
+                            delete[] bmpInfo;
+                        }
+                        bmpInfo = (BITMAPINFO*)new BYTE[bmpSize=newSz]();
+                    }
                     bmpInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-                    bmpInfo->bmiHeader.biWidth = bmpw;
-
-                    // biHeight为正时，bmpInfo->bmiColors像素是从图片的左下角开始。
-                    // biHeight为负时，bmpInfo->bmiColors像素是从图片的左上角开始。
-                    // 这是BMP的格式中指定。而skia绘制需要从上到下。
-                    bmpInfo->bmiHeader.biHeight = -bmph;
-
+                    bmpInfo->bmiHeader.biWidth = drawWidth;
+                    bmpInfo->bmiHeader.biHeight = -drawHeight;  // top-down image
                     bmpInfo->bmiHeader.biPlanes = 1;
-                    bmpInfo->bmiHeader.biBitCount = 32;  //图片每像素32位
+                    bmpInfo->bmiHeader.biBitCount = 32;   // 32位
                     bmpInfo->bmiHeader.biCompression = BI_RGB;
-                    void* pixels = bmpInfo->bmiColors;  //图片像素位置指针
 
-                                                        // kBGRA_8888_SkColorType，这参数决定SkCanvas绘图像素的格式
-                                                        // BGRA，ARGB，就好象cpu大端，小端之类的。
-                    SkImageInfo info = SkImageInfo::Make(bmpw, bmph,
-                        kBGRA_8888_SkColorType,kPremul_SkAlphaType);
+                    void* pixels = bmpInfo->bmiColors; 
 
-                    sk_sp<SkSurface> surface = SkSurface::MakeRasterDirect(info, pixels, bmpw * sizeof(uint32_t));
+                    // BGRA
+                    SkImageInfo info = SkImageInfo::Make(drawWidth, drawHeight, kBGRA_8888_SkColorType,kPremul_SkAlphaType); 
+
+                    sk_sp<SkSurface> surface = SkSurface::MakeRasterDirect(info
+                        , pixels
+                        , drawWidth * sizeof(uint32_t));
+
                     SkCanvas* canvas = surface->getCanvas();
 
-                    canvas->clear(SK_ColorWHITE); //填充白色背景
+                    canvas->clear(SK_ColorWHITE);
 
-                    Draw(canvas, bmpw, bmph); //这里调用函数，传入指针绘图。
+                    Draw(canvas, drawWidth, drawHeight);
 
-                    StretchDIBits(  hdc, 0, 0, bmpw, bmph,
-                        0, 0, bmpw, bmph,
+                    StretchDIBits(  hdc, 0, 0, drawWidth, drawHeight,
+                        0, 0, drawWidth, drawHeight,
                         pixels, bmpInfo,
                         DIB_RGB_COLORS, SRCCOPY );  //整张图绘制到DC
-
-                    delete[] bmpInfo;
                 }
             }
             EndPaint(hWnd, &ps);
@@ -140,7 +162,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
-
+}
 
 int HelloWorld_RunMain(HINSTANCE hInstance, HWND hParent)
 {
@@ -148,7 +170,7 @@ int HelloWorld_RunMain(HINSTANCE hInstance, HWND hParent)
     clazz.cbSize            = sizeof(WNDCLASSEX);
 
     clazz.style = CS_HREDRAW | CS_VREDRAW;
-    clazz.lpfnWndProc = WndProc;
+    clazz.lpfnWndProc = SK_HELLO::WndProc;
     clazz.cbClsExtra = 200;
     clazz.cbWndExtra = 200;
     clazz.hInstance = hInstance;
@@ -161,7 +183,7 @@ int HelloWorld_RunMain(HINSTANCE hInstance, HWND hParent)
     if( FAILED(RegisterClassEx(&clazz)) )
         return 1;
 
-    _hWnd = CreateWindow(clazz.lpszClassName,                          /* the '...if(FAILED(...' part will perform the 'return 2;' command if there was an error during the creation of the window.*/
+    SK_HELLO::_hWnd = CreateWindow(L"SkiaWin32",                          /* the '...if(FAILED(...' part will perform the 'return 2;' command if there was an error during the creation of the window.*/
         L"Skia Win32 Demo",                                   /* This is the actual name shown in the 'title bar' of the window. The L before the quotes, simplified, means its UNICODE.    */
         WS_OVERLAPPEDWINDOW|WS_VISIBLE,                        /* WS_OVERLAPPEDWINDOW gives the window a title bar, a window menu, a sizing border, and minimize and maximize buttons.        */
         0,                                                    /* Initial X position of the window.                                                                                        */
@@ -173,15 +195,10 @@ int HelloWorld_RunMain(HINSTANCE hInstance, HWND hParent)
         hInstance,                                               /* The 'handle' or 'unique id' of the instance of this program that will be associated with the to-be-created window(class).*/
         NULL);
 
-    if(FAILED(_hWnd))
-        return 2;
+    SetWindowLongPtr(SK_HELLO::_hWnd, GWLP_WNDPROC, (LONG_PTR)SK_HELLO::WndProc);
 
-    //MSG msg{0};
-    //
-    //while( GetMessage( &msg, NULL, 0, 0 ) )
-    //{
-    //    DispatchMessage( &msg );
-    //}
+    if(FAILED(SK_HELLO::_hWnd))
+        return 2;
 
     return 0;
 }

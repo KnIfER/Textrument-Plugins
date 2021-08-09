@@ -284,6 +284,7 @@
   <ItemGroup>
     <ClCompile Include="..\DuiLib\ControlEx\ComboEdit.cpp" />
     <ClCompile Include="..\DuiLib\ControlEx\UIBeautifulSwitch.cpp" />
+    <ClCompile Include="HelloSkImage.cpp" />
     <ClCompile Include="TestDuiLib.cpp" />
     <ClCompile Include="_SkiaTests.cpp" />
     <None Include="MISC\MyWindow.cpp" />

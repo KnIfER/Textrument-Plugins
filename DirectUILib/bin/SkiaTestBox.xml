@@ -10,11 +10,15 @@
 		
 		<control height="15"/>
 		
-		<Button text="· Hello World!" name="T1" textcolor="#FFFFFFFF" width="-1"  bkcolor="#0000E000" nativebkcolor="#0000E000"/>
+		<Button text="< Hello World >" name="T1" textcolor="#FFFFFFFF" width="-1"  bkcolor="#0000E000" nativebkcolor="#0000E000"/>
 		
 		<control height="15"/>
 		
-		<Button text="· DuiLib Test." name="T2" textcolor="#FFFFFFFF" width="-1"  bkcolor="#0000E000" nativebkcolor="#0000E000"/>
+		<Button text="< DuiLib Test >" name="T2" textcolor="#FFFFFFFF" width="-1"  bkcolor="#0000E000" nativebkcolor="#0000E000"/>
+		
+		<control height="15"/>
+		
+		<Button text="< Image Loading Test >" name="T3" textcolor="#FFFFFFFF" width="-1"  bkcolor="#0000E000" nativebkcolor="#0000E000"/>
 	
 		
 	
