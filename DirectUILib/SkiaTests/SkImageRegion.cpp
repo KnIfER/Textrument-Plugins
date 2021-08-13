@@ -1,10 +1,9 @@
-/****** SKia Draw PNG Picture Demo *********
+/****** SKia Decode PNG Region Test *********
 * 
-* Skia 展示程序之加载并绘制PNG图片。
+* Region Decode : Failed, It's "Unimplemeted". 
+*   https://groups.google.com/g/skia-discuss/c/yKbvJrdxmkY
 * 
-* 参考资料 https://idom.me/articles/850.html
-* 
-*   —— 由 KnIfER 整理。
+* Load Big Image : Success.
 * 
 **************************************/
 #include "include/utils/SkRandom.h"
@@ -36,7 +35,7 @@
 
 using namespace DuiLib;
 
-namespace SK_HIMG {
+namespace SK_IMG_RNG {
 
 HWND _hWnd;
 
@@ -50,14 +49,20 @@ BITMAPINFO* bmpInfo = NULL;
 
 SkBitmap* skBitmap;
 
+sk_sp<SkImage> skImage;
+
 void Draw(SkCanvas* canvas,int w,int h) {
-    //canvas->scale
-    //skBitmap->extractSubset();
-    canvas->drawImage(skBitmap->asImage(), 0, 0);
+    //canvas->scale(0.05f, 0.05f);
+    //canvas->scale(10, 10);
 
     SkPaint paint;
     paint.setStrokeWidth(1);
     paint.setARGB(0xff, 0xff, 0, 0);
+
+    SkRect rect{0,0,100,100};
+    SkSamplingOptions options(SkFilterMode::kNearest, SkMipmapMode::kNearest);
+   // canvas->drawImageRect(skImage, rect, options, 0);
+    canvas->drawImage(skImage, 0, 0);
 
     auto pFace = SkTypeface::MakeFromName("宋体", SkFontStyle::Normal());
     SkFont font;
@@ -141,7 +146,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     case WM_SIZE:
     {
-        // 如果这里不触发重绘，那么缩放时会有重影。
         ::InvalidateRect(_hWnd, NULL, FALSE);
         //::UpdateWindow(_hWnd);
         break;
@@ -152,11 +156,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 
-int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent)
+int SKIMG_RGN_RunMain(HINSTANCE hInstance, HWND hParent)
 {
     DWORD fileLength;
     char* memFile;
-//#define 从文件加载二进制数据
+#define 从文件加载二进制数据
 #ifdef 从文件加载二进制数据
     FILE *fp;
 
@@ -187,7 +191,7 @@ int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent)
     //LogIs(2, "st_size=%ld", fileLength);
 #else
     //CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath());
-    CPaintManagerUI::ExtractItem(TEXT("skin\\QQRes\\bg12.png"), &memFile, fileLength);
+    //CPaintManagerUI::ExtractItem(TEXT("skin\\QQRes\\bg12.png"), &memFile, fileLength);
     //CPaintManagerUI::ExtractItem(TEXT("skin\\QQRes\\bg0.png"), &memFile, fileLength);
     //CPaintManagerUI::ExtractItem(TEXT("skin\\QQRes\g0.png"), &memFile, fileLength);
     //CPaintManagerUI::ExtractItem(TEXT("winbk.bmp"), &memFile, fileLength);
@@ -195,7 +199,17 @@ int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent)
 
 
     sk_sp<SkData> data = SkData::MakeWithoutCopy(memFile, fileLength);
-    auto codec = SkCodec::MakeFromData(data);
+
+    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile("D:\\Large-Sample-Image-download-for-Testing.jpg");
+
+
+    //auto codec = SkCodec::MakeFromData(data);
+
+    auto codec = SkCodec::MakeFromStream(std::move(stream));
+
+
+   // codec->startScanlineDecode
+
     if (!codec) {
         LogIs(2, "FAILED DECODING FILE!");
     }
@@ -204,23 +218,42 @@ int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent)
     
     auto alphaType = codecInfo.isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
     
-    auto decodeInfo = SkImageInfo::Make(codecInfo.width()
+    auto outInfo = SkImageInfo::Make(codecInfo.width()
         , codecInfo.height()
         , kN32_SkColorType, alphaType);
 
-    SK_HIMG::skBitmap = new SkBitmap();
+    //outInfo = outInfo.makeWH(codecInfo.width()/2, codecInfo.height()/2);
 
-    char* pixels = new char[codecInfo.width()*codecInfo.height()*32];
-
-    SK_HIMG::skBitmap->setInfo(decodeInfo, codecInfo.width()*32);
+    outInfo = codecInfo.makeWH(codecInfo.width(), codecInfo.height());
 
 
-    SK_HIMG::skBitmap->setPixels(pixels);
+    SK_IMG_RNG::skBitmap = new SkBitmap();
+
+    char* pixels = new char[outInfo.width()*outInfo.height()*32];
 
 
-    auto decodeResult = codec->getPixels(decodeInfo
+    SK_IMG_RNG::skBitmap->setInfo(outInfo, outInfo.width()*32);
+
+
+    SK_IMG_RNG::skBitmap->setPixels(pixels);
+
+
+
+
+    auto rngOpt = new SkCodec::Options{};
+
+    
+
+    //rngOpt->fSubset = new SkIRect{0,0,100,100};
+
+
+    auto decodeResult = codec->getPixels(outInfo
         , pixels
-        , codecInfo.width()*32);
+        , outInfo.width()*32, rngOpt);
+
+    SK_IMG_RNG::skBitmap->setImmutable();
+
+    SK_IMG_RNG::skImage = SK_IMG_RNG::skBitmap->asImage();
 
     LogIs(2, "codecInfo=%dx%d, decodeResult=%ld", codecInfo.width(), codecInfo.height(), decodeResult);
 
@@ -228,7 +261,7 @@ int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent)
     clazz.cbSize            = sizeof(WNDCLASSEX);
 
     clazz.style = CS_HREDRAW | CS_VREDRAW;
-    clazz.lpfnWndProc = SK_HIMG::WndProc;
+    clazz.lpfnWndProc = SK_IMG_RNG::WndProc;
     clazz.cbClsExtra = 200;
     clazz.cbWndExtra = 200;
     clazz.hInstance = hInstance;
@@ -241,7 +274,7 @@ int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent)
     if( FAILED(RegisterClassEx(&clazz)) )
         return 1;
 
-    SK_HIMG::_hWnd = CreateWindow(clazz.lpszClassName,     
+    SK_IMG_RNG::_hWnd = CreateWindow(clazz.lpszClassName,     
         L"Skia Win32 Demo",                                
         WS_OVERLAPPEDWINDOW|WS_VISIBLE,                    
         0,                                                 
@@ -253,9 +286,9 @@ int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent)
         hInstance,                                         
         NULL);
 
-    SetWindowLongPtr(SK_HIMG::_hWnd, GWLP_WNDPROC, (LONG_PTR)SK_HIMG::WndProc);
+    SetWindowLongPtr(SK_IMG_RNG::_hWnd, GWLP_WNDPROC, (LONG_PTR)SK_IMG_RNG::WndProc);
 
-    if(FAILED(SK_HIMG::_hWnd))
+    if(FAILED(SK_IMG_RNG::_hWnd))
         return 2;
 
     return 0;

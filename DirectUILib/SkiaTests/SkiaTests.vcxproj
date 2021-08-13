@@ -283,8 +283,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\DuiLib\ControlEx\ComboEdit.cpp" />
+    <ClCompile Include="..\DuiLib\ControlEx\SkImageView.cpp" />
     <ClCompile Include="..\DuiLib\ControlEx\UIBeautifulSwitch.cpp" />
     <ClCompile Include="HelloSkImage.cpp" />
+    <ClCompile Include="SkImageRegion.cpp" />
+    <ClCompile Include="SkImageViewTest.cpp" />
     <ClCompile Include="TestDuiLib.cpp" />
     <ClCompile Include="_SkiaTests.cpp" />
     <None Include="MISC\MyWindow.cpp" />
@@ -298,6 +301,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\DuiLib\ControlEx\ComboEdit.h" />
+    <ClInclude Include="..\DuiLib\ControlEx\SkImageView.h" />
     <ClInclude Include="..\DuiLib\ControlEx\UIBeautifulSwitch.h" />
     <ClInclude Include="ControlEx.h" />
     <None Include="tools\sk_app\Application.h" />

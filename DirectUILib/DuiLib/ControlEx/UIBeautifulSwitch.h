@@ -1,7 +1,4 @@
 #pragma once
-#ifndef _UIBSWITCH_H_
-#define _UIBSWITCH_H_
-
 #include "../StdAfx.h"
 
 namespace DuiLib
@@ -21,5 +18,3 @@ namespace DuiLib
 		void PaintForeImage(HDC hDC) override;
 	};
 }
-
-#endif

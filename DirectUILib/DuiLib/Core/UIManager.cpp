@@ -1339,7 +1339,7 @@ namespace DuiLib {
 				}
 				// Begin Windows paint
 				PAINTSTRUCT ps = { 0 };
-				::BeginPaint(m_hWndPaint, &ps);
+				HDC hdc_ = ::BeginPaint(m_hWndPaint, &ps);
 				if( m_bOffscreenPaint )  {
 					HBITMAP hOldBitmap = (HBITMAP) ::SelectObject(m_hDcOffscreen, m_hbmpOffscreen);
 					int iSaveDC = ::SaveDC(m_hDcOffscreen);

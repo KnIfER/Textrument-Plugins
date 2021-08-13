@@ -1,5 +1,7 @@
 #include <windows.h>
 #include "..\DuiLib\UIlib.h"
+#include "..\DuiLib\ControlEx\UIBeautifulSwitch.h"
+#include "..\DuiLib\ControlEx\SkImageView.h"
 
 using namespace DuiLib;
 
@@ -7,6 +9,8 @@ using namespace DuiLib;
 extern int HelloWorld_RunMain(HINSTANCE hInstance, HWND hParent);
 extern int DuiLibTest_RunMain(HINSTANCE hInstance, HWND hParent);
 extern int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent);
+extern int SKIMG_RGN_RunMain(HINSTANCE hInstance, HWND hParent);
+extern int SKIMG_VIEW_RunMain(HINSTANCE hInstance, HWND hParent);
 
 class SkiaTestBox : public WindowImplBase, public INotifyUI
 {
@@ -60,13 +64,13 @@ public:
                 HelloSKIMG_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
                 return; 
             }
+            if( ud == L"T4" ) 
+            { 
+                SKIMG_VIEW_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
+                return; 
+            }
         }
         WindowImplBase::Notify(msg);
-    }
-
-    void InitWindow() override
-    {
-        HelloSKIMG_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
     }
 };
 
@@ -75,6 +79,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
     CPaintManagerUI::SetInstance(hInstance);
     CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath());
+
+    CControlFactory::GetInstance()->RegistControl(TEXT("SkImageView"), SkImageView::CreateControl);
+    CControlFactory::GetInstance()->RegistControl(TEXT("CBSwitchUI"), CBSwitchUI::CreateControl);
+
 
     SkiaTestBox* pFrame = new SkiaTestBox;
 
@@ -86,10 +94,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     pFrame->ShowWindow();
 
+
+    SKIMG_VIEW_RunMain(CPaintManagerUI::GetInstance(), pFrame->GetHWND());
+
+
     CPaintManagerUI::MessageLoop();
 
     return 0;
 }
-
 
 

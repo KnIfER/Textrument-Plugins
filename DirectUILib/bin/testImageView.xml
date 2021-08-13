@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window mininfo="200,360" size="600,360">
+	<Include source="scrollbar.xml" />
+	
+	<VerticalLayout inset="10,6,10,6" bkcolor="#FFFFFFFF" colorhsl="true" >
+		
+		<SkImageView  
+			name="ivTest"
+			width="-1"  
+			height="-1" 
+			bkcolor="#FF888888" 
+			forecolor="#FFFF0000"  
+			/>
+			
+
+	</VerticalLayout>
+	
+	
+</Window>
