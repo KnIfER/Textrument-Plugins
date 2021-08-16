@@ -518,7 +518,7 @@ namespace DuiLib {
 
 		bool SetNextTabControl(bool bForward = true);
 
-		bool SetTimer(CControlUI* pControl, UINT nTimerID, UINT uElapse);
+		bool SetTimer(CControlUI* pControl, UINT nTimerID, UINT uElapse, bool bRestart=false);
 		bool KillTimer(CControlUI* pControl, UINT nTimerID);
 		void KillTimer(CControlUI* pControl);
 		void RemoveAllTimers();
@@ -597,6 +597,7 @@ namespace DuiLib {
 		bool RemoveEffectStyle(LPCTSTR pStrStyleName);
 		void RemoveAllEffectStyle();
 
+		bool _SIZING;
 	private:
 		CStdPtrArray* GetFoundControls();
 		static CControlUI* CALLBACK __FindControlFromNameHash(CControlUI* pThis, LPVOID pData);

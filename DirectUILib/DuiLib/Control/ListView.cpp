@@ -77,7 +77,7 @@ namespace DuiLib {
 
             if (dist==0)
             {
-                KillTimer(100);
+                KillTimer(0x100);
                 return;
             }
             
@@ -87,7 +87,7 @@ namespace DuiLib {
             }
 
             m_SmoothScrolling = true;
-            SetTimer(100,10);
+            SetTimer(0x100, 10);
             NeedUpdate();
         }
         else 
@@ -111,7 +111,7 @@ namespace DuiLib {
     {
         if (event.Type==UIEVENT_TIMER)
         {
-            if (event.wParam==100)
+            if (event.wParam==0x100)
             {
                 if (m_SmoothScrolling)
                 {
@@ -134,7 +134,7 @@ namespace DuiLib {
                     }
                     if (stopped)
                     {
-                        KillTimer(100);
+                        KillTimer(0x100);
                     }
                     m_ScrollY = target;
 

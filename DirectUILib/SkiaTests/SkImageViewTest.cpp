@@ -1,14 +1,11 @@
 /****** SKia Decode PNG Region Test *********
 * 
-* Load Big Image : Success. But Slow On Resizing.
+* ImageView. Pro And Lite. 
 * 
 **************************************/
 #include "..\DuiLib\UIlib.h"
-
-#include "..\DuiLib\ControlEx\SkImageView.h"
-#include "..\DuiLib\Core\UIManager.h"
+#include "..\DuiLib\ControlPro\ImageViewPro.h"
 #include "../DuiLib/Core/InsituDebug.h"
-
 using namespace DuiLib;
 
 namespace SK_IMG_VIEW {
@@ -40,47 +37,21 @@ namespace SK_IMG_VIEW {
 
         LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled) override
         {
-            PostQuitMessage(0);
+            ::DestroyWindow(GetHWND());
             bHandled = TRUE;
             return 0;
         }
 
         void InitWindow() override
         {
-            ivTest = dynamic_cast<SkImageView*>(m_pm.FindControl(L"ivTest"));
+            ivTest = dynamic_cast<ImageView*>(m_pm.FindControl(L"ivTest"));
             if (ivTest)
             {
-                //ivTest->LoadImage("D:\\test.png");
-                ivTest->LoadImage("D:\\Large-Sample-Image-download-for-Testing.jpg");
+                 ivTest->LoadImageFile("D:\\test.png");
+               // ivTest->LoadImageFile("D:\\Large-Sample-Image-download-for-Testing.jpg");
+                //ivTest->LoadImageFile("C:\\Users\\TEST\\Pictures\\MTkzMDI1NDI2XzExNTk2Njg3MDIx_0.webp");
             }
         }
-
-        class ListViewBaseAdapter : public ListViewAdapter
-        {
-            size_t GetItemCount()
-            {
-                return 100;
-            }
-            CControlUI* CreateItemView()
-            {
-                CButtonUI* btn = new CButtonUI;
-                btn->SetText(L"Test");
-                btn->SetTextColor(0xff0000ff);
-                return btn;
-
-            }
-            void OnBindItemView(CControlUI* view, size_t index)
-            {
-                CButtonUI* btn = dynamic_cast<CButtonUI*>(view);
-
-                if (btn)
-                {
-                    CDuiString label;
-                    label.Format(L"#%d", index);
-                    btn->SetText(label);
-                }
-            }
-        };
 
         CDuiString GetSkinFile() override
         {
@@ -92,11 +63,11 @@ namespace SK_IMG_VIEW {
             if (msg.sType==L"click")
             {
             }
-            // WindowImplBase::Notify(msg);
+            WindowImplBase::Notify(msg);
         }
 
     private:
-        SkImageView* ivTest;
+        ImageView* ivTest;
     };
 }
 
@@ -106,6 +77,8 @@ int SKIMG_VIEW_RunMain(HINSTANCE hInstance, HWND hParent)
 {
     CPaintManagerUI::SetInstance(hInstance);
     CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath());
+
+    CControlFactory::GetInstance()->RegistControl(TEXT("ImageView"), ImageViewPro::CreateControl);
 
     HRESULT Hr = ::CoInitialize(NULL);
     if( FAILED(Hr) ) return 0;

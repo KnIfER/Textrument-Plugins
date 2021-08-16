@@ -2,6 +2,7 @@
 #include <zmouse.h>
 
 #include "UIDxAnimation.h"
+#include "InsituDebug.h"
 
 namespace DuiLib {
 
@@ -1150,7 +1151,7 @@ namespace DuiLib {
 		}
 		case WM_PAINT:
 		{
-				if(::IsIconic(m_hWndPaint) ) return true;
+				if(::IsIconic(m_hWndPaint) ) return false;
 				if( m_pRoot == NULL ) 
 				{
 					PAINTSTRUCT ps = { 0 };
@@ -2092,6 +2093,16 @@ namespace DuiLib {
 				if(lRes != 0) return true;
 			}
 			break;
+		case WM_SIZING:
+			{
+				if(!_SIZING) _SIZING = true;
+			}
+			break;
+		case WM_EXITSIZEMOVE:
+			{
+				_SIZING = false;
+			}
+			break;
 		case WM_CTLCOLOREDIT:
 		case WM_CTLCOLORSTATIC:
 			{
@@ -2491,7 +2502,7 @@ namespace DuiLib {
 		if( m_pRoot != NULL ) m_pRoot->NeedUpdate();
 	}
 
-	bool CPaintManagerUI::SetTimer(CControlUI* pControl, UINT nTimerID, UINT uElapse)
+	bool CPaintManagerUI::SetTimer(CControlUI* pControl, UINT nTimerID, UINT uElapse, bool bRestart)
 	{
 		ASSERT(pControl!=NULL);
 		ASSERT(uElapse>0);
@@ -2499,9 +2510,17 @@ namespace DuiLib {
 			TIMERINFO* pTimer = static_cast<TIMERINFO*>(m_aTimers[i]);
 			if( pTimer->pSender == pControl
 				&& pTimer->hWnd == m_hWndPaint
-				&& pTimer->nLocalID == nTimerID ) {
-					if( pTimer->bKilled == true ) {
-						if( ::SetTimer(m_hWndPaint, pTimer->uWinTimer, uElapse, NULL) ) {
+				&& pTimer->nLocalID == nTimerID ) 
+			{
+					if (bRestart && !pTimer->bKilled)
+					{
+						::KillTimer(m_hWndPaint, pTimer->uWinTimer);
+						pTimer->bKilled = true;
+					}
+					if( pTimer->bKilled) 
+					{
+						if( ::SetTimer(m_hWndPaint, pTimer->uWinTimer, uElapse, NULL) ) 
+						{
 							pTimer->bKilled = false;
 							return true;
 						}

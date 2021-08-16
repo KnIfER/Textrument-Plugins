@@ -14,10 +14,14 @@
     <ClCompile Include="_SkiaTests.cpp" />
     <ClCompile Include="HelloSkImage.cpp" />
     <ClCompile Include="SkImageRegion.cpp" />
-    <ClCompile Include="..\DuiLib\ControlEx\SkImageView.cpp">
+    <ClCompile Include="SkImageViewTest.cpp" />
+    <ClCompile Include="D2DTest.cpp" />
+    <ClCompile Include="..\DuiLib\ControlPro\ImageViewPro.cpp">
       <Filter>DuiLibEx</Filter>
     </ClCompile>
-    <ClCompile Include="SkImageViewTest.cpp" />
+    <ClCompile Include="..\DuiLib\ControlEx\ImageView.cpp">
+      <Filter>DuiLibEx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\DuiLib\ControlEx\ComboEdit.h">
@@ -29,7 +33,10 @@
     <ClInclude Include="..\DuiLib\ControlEx\UIBeautifulSwitch.h">
       <Filter>DuiLibEx</Filter>
     </ClInclude>
-    <ClInclude Include="..\DuiLib\ControlEx\SkImageView.h">
+    <ClInclude Include="..\DuiLib\ControlPro\ImageViewPro.h">
+      <Filter>DuiLibEx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DuiLib\ControlEx\ImageView.h">
       <Filter>DuiLibEx</Filter>
     </ClInclude>
   </ItemGroup>

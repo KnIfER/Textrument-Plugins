@@ -1,7 +1,6 @@
 #include <windows.h>
 #include "..\DuiLib\UIlib.h"
 #include "..\DuiLib\ControlEx\UIBeautifulSwitch.h"
-#include "..\DuiLib\ControlEx\SkImageView.h"
 
 using namespace DuiLib;
 
@@ -11,6 +10,7 @@ extern int DuiLibTest_RunMain(HINSTANCE hInstance, HWND hParent);
 extern int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent);
 extern int SKIMG_RGN_RunMain(HINSTANCE hInstance, HWND hParent);
 extern int SKIMG_VIEW_RunMain(HINSTANCE hInstance, HWND hParent);
+extern int D2DT_RunMain(HINSTANCE hInstance, HWND hParent);
 
 class SkiaTestBox : public WindowImplBase, public INotifyUI
 {
@@ -49,28 +49,38 @@ public:
         if (msg.sType==L"click" && msg.pSender)
         {
             auto & ud = msg.pSender->GetName();
-            if( ud == L"T1" ) 
-            { 
-                HelloWorld_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
-                return; 
-            }
-            if( ud == L"T2" ) 
-            { 
-                DuiLibTest_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
-                return; 
-            }
-            if( ud == L"T3" ) 
-            { 
-                HelloSKIMG_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
-                return; 
-            }
-            if( ud == L"T4" ) 
-            { 
-                SKIMG_VIEW_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
-                return; 
-            }
+            doTest((TCHAR*)ud.GetData());
         }
         WindowImplBase::Notify(msg);
+    }
+
+    void doTest(TCHAR* ud) 
+    {
+        if( ud == L"T1" ) 
+        { 
+            HelloWorld_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
+            return; 
+        }
+        if( ud == L"T2" ) 
+        { 
+            DuiLibTest_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
+            return; 
+        }
+        if( ud == L"T3" ) 
+        { 
+            HelloSKIMG_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
+            return; 
+        }
+        if( ud == L"T4" ) 
+        { 
+            SKIMG_VIEW_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
+            return; 
+        }
+        if( ud == L"T5" ) 
+        { 
+            D2DT_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
+            return; 
+        }
     }
 };
 
@@ -80,8 +90,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     CPaintManagerUI::SetInstance(hInstance);
     CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath());
 
-    CControlFactory::GetInstance()->RegistControl(TEXT("SkImageView"), SkImageView::CreateControl);
+    CControlFactory::GetInstance()->RegistControl(TEXT("ImageView"), ImageView::CreateControl);
     CControlFactory::GetInstance()->RegistControl(TEXT("CBSwitchUI"), CBSwitchUI::CreateControl);
+
 
 
     SkiaTestBox* pFrame = new SkiaTestBox;
@@ -94,8 +105,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     pFrame->ShowWindow();
 
-
-    SKIMG_VIEW_RunMain(CPaintManagerUI::GetInstance(), pFrame->GetHWND());
+    pFrame->doTest(L"T4");
 
 
     CPaintManagerUI::MessageLoop();

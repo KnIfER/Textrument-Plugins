@@ -57,6 +57,7 @@ namespace DuiLib
 		INNER_REGISTER_DUICONTROL(CCalendarUI);
 
 		INNER_REGISTER_DUICONTROL(ListView);
+		//INNER_REGISTER_DUICONTROL(ImageView);
 	}
 
 	CControlFactory::~CControlFactory()
@@ -84,7 +85,8 @@ namespace DuiLib
 			strClassName.SetAt(len-2, '\0');
 			strClassName = strClassName.GetData()+1;
 		}
-		m_mapControl.insert(MAP_DUI_CTRATECLASS::value_type(strClassName, pFunc));
+		//m_mapControl.insert(MAP_DUI_CTRATECLASS::value_type(strClassName, pFunc));
+		m_mapControl[strClassName] = pFunc;
 	}
 
 	CControlFactory* CControlFactory::GetInstance()  

@@ -13,7 +13,7 @@
       <AdditionalIncludeDirectories>$(SKPA);$(SKPA)\ext--;$(SKPA)\third_party\Skia;$(SKPA)\third_party;$(SKPA)\third_party\Skia\ext--;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SKLibs);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SKLibs);Opengl32.lib;Vfw32.lib;d3dcompiler.lib;D3D12.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

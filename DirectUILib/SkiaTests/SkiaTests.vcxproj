@@ -132,7 +132,7 @@
       <ProgramDatabaseFile>.\Release/SkiaTests.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Vfw32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DULib_STATIC_32);$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -152,7 +152,7 @@
     <ClCompile>
       <Optimization>MinSpace</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>OS_WIN;UILIB_STATIC;WIN32;NDEBUG;_WINDOWS;UILIB_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>OS_WIN;UILIB_STATIC;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -177,7 +177,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ProgramDatabaseFile>.\Release/SkiaTests.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Opengl32.lib;d3dcompiler.lib;D3D12.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Opengl32.lib;Vfw32.lib;d3dcompiler.lib;D3D12.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SKLib_STATIC_64);$(DULib_STATIC_64);$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -283,8 +283,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\DuiLib\ControlEx\ComboEdit.cpp" />
-    <ClCompile Include="..\DuiLib\ControlEx\SkImageView.cpp" />
+    <ClCompile Include="..\DuiLib\ControlEx\ImageView.cpp" />
     <ClCompile Include="..\DuiLib\ControlEx\UIBeautifulSwitch.cpp" />
+    <ClCompile Include="..\DuiLib\ControlPro\ImageViewPro.cpp" />
+    <ClCompile Include="D2DTest.cpp" />
     <ClCompile Include="HelloSkImage.cpp" />
     <ClCompile Include="SkImageRegion.cpp" />
     <ClCompile Include="SkImageViewTest.cpp" />
@@ -301,8 +303,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\DuiLib\ControlEx\ComboEdit.h" />
-    <ClInclude Include="..\DuiLib\ControlEx\SkImageView.h" />
+    <ClInclude Include="..\DuiLib\ControlEx\ImageView.h" />
     <ClInclude Include="..\DuiLib\ControlEx\UIBeautifulSwitch.h" />
+    <ClInclude Include="..\DuiLib\ControlPro\ImageViewPro.h" />
     <ClInclude Include="ControlEx.h" />
     <None Include="tools\sk_app\Application.h" />
     <None Include="tools\sk_app\CommandSet.h" />
