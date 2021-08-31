@@ -51,12 +51,13 @@ namespace DuiLib {
 	int size=0;
 	void addTab(HWND hWnd, const TCHAR *text, int image)
 	{
-		TCITEM data;
-		data.iImage = image;
-		data.mask = TCIF_TEXT;
-		data.pszText = (TCHAR *)text;
-		data.mask = TCIF_TEXT | TCIF_IMAGE;
-		SendMessage(hWnd, TCM_INSERTITEM, size++, reinterpret_cast<LPARAM>(&data));
+		TCITEM tab{};
+		tab.iImage = image;
+		tab.mask = TCIF_TEXT;
+		tab.pszText = (TCHAR *)text;
+		tab.mask = TCIF_TEXT | TCIF_IMAGE;
+		//tab.lParam;
+		TabCtrl_InsertItem(hWnd, size++, reinterpret_cast<LPARAM>(&tab));
 	}
 
 	void WinTabbar::Init()
@@ -66,13 +67,16 @@ namespace DuiLib {
 		TAB_Register();
 		//LogIs("_hParent::%d", _hParent);
 
-		int style = WS_CHILD | WS_VISIBLE 
+		DWORD style = WS_CHILD | WS_VISIBLE 
 			| TCS_MULTILINE
-			//| TCS_BUTTONS
+			| TCS_BUTTONS
+			//| TCS_FLATBUTTONS
 			| TCS_FOCUSNEVER
 			| WS_CLIPCHILDREN 
 
 			| TCS_FLICKERFREE 
+
+			| TCS_FIXEDBASELINE 
 
 			;
 
@@ -86,6 +90,25 @@ namespace DuiLib {
 			NULL,
 			CPaintManagerUI::GetInstance(),
 			0);
+
+
+		TabCtrl_SetPadding(_hWnd, 12, 3);
+
+
+		HIMAGELIST hImageList = ImageList_Create(24, 24, ILC_COLOR24 | ILC_MASK, 3, 1);
+		//auto bmp = m_pManager->GetImage(L"tab_def.bmp");
+		auto bmp = CRenderEngine::LoadImageStr(L"tab_def.bmp", NULL, 0xFFFFFFFF, NULL, 3);
+		if (bmp)
+		{
+			//HBITMAP hBitmap = LoadBitmap(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(IDB_TOOLBAR));
+			HBITMAP hBitmap = bmp->hBitmap;
+			ImageList_AddMasked(hImageList, hBitmap, RGB(255, 255, 255));
+			DeleteObject(hBitmap);
+			//SendMessage(hToolbar, TB_SETIMAGELIST, 0, (LPARAM)hImageList); // 正常显示时的图像列表
+			TabCtrl_SetImageList(_hWnd, hImageList);
+		}
+		LogIs("bmp::%d", bmp);
+
 		for (size_t i = 0; i < 15; i++)
 		{
 			DemoData & dd = demoData[i];
@@ -121,6 +144,9 @@ namespace DuiLib {
 		lstrcpy(logFont.lfFaceName, L"宋体"); 
 		hFont = CreateFontIndirect(&logFont);
 		SendMessage(_hWnd, WM_SETFONT, (WPARAM)hFont, TRUE);
+
+
+		
 
 		//::ShowWindow(_hWnd, TRUE);
 		//::SetWindowText(_hWnd, TEXT("TEST"));

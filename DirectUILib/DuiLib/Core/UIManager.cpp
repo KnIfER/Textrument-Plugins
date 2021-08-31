@@ -3481,11 +3481,11 @@ namespace DuiLib {
 			if( isdigit(*bitmap) ) {
 				LPTSTR pstr = NULL;
 				int iIndex = _tcstol(bitmap, &pstr, 10);
-				data = CRenderEngine::LoadImage(iIndex, type, mask, instance);
+				data = CRenderEngine::LoadImageStr(iIndex, type, mask, instance);
 			}
 		}
 		else {
-			data = CRenderEngine::LoadImage(bitmap, NULL, mask, instance);
+			data = CRenderEngine::LoadImageStr(bitmap, NULL, mask, instance);
 		}
 
 		if( data == NULL ) {
@@ -3670,11 +3670,11 @@ namespace DuiLib {
 						if( isdigit(*bitmap) ) {
 							LPTSTR pstr = NULL;
 							int iIndex = _tcstol(bitmap, &pstr, 10);
-							pNewData = CRenderEngine::LoadImage(iIndex, data->sResType.GetData(), data->dwMask);
+							pNewData = CRenderEngine::LoadImageStr(iIndex, data->sResType.GetData(), data->dwMask);
 						}
 					}
 					else {
-						pNewData = CRenderEngine::LoadImage(bitmap, NULL, data->dwMask);
+						pNewData = CRenderEngine::LoadImageStr(bitmap, NULL, data->dwMask);
 					}
 					if( pNewData == NULL ) continue;
 
@@ -3712,11 +3712,11 @@ namespace DuiLib {
 						if( isdigit(*bitmap) ) {
 							LPTSTR pstr = NULL;
 							int iIndex = _tcstol(bitmap, &pstr, 10);
-							pNewData = CRenderEngine::LoadImage(iIndex, data->sResType.GetData(), data->dwMask);
+							pNewData = CRenderEngine::LoadImageStr(iIndex, data->sResType.GetData(), data->dwMask);
 						}
 					}
 					else {
-						pNewData = CRenderEngine::LoadImage(bitmap, NULL, data->dwMask);
+						pNewData = CRenderEngine::LoadImageStr(bitmap, NULL, data->dwMask);
 					}
 
 					CRenderEngine::FreeImage(data, false);

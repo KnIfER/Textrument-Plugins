@@ -19,7 +19,7 @@
 *
 * You should have received a copy of the GNU Lesser General Public
 * License along with this library; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+* Foundation.
 *
 * NOTES (of Wine)
 *
@@ -52,9 +52,9 @@
 *   TabCtrl_AdjustRect
 *
 * New Features : ( MyTabControl )
-*	Vertical mode, totally "neck-harmless". Tabs are listed in a resizable side bar, better than that of Edge. 
+*	- Vertical mode, totally "neck-harmless". Tabs are layouted in a resizable side bar. 
 *		Style : TCS_VERTICAL
-*	Maximum rows capacity for multiline mode. Save Screen Space!
+*	- Maximum rows capacity for multiline mode. Save Screen Space!
 *		Macro : TabCtrl_SetMaxRows
 */
 
@@ -150,6 +150,10 @@ typedef struct
 	UINT		vModeWidthSt; /* Used for vertical mode */
 
 	HTHEME htheme; /* https://stackoverflow.com/questions/55319559/why-is-my-window-losing-its-htmeme-when-i-call-setwindowlongptrgwl-style-on-it */
+
+	USHORT		selIndicatorMode;
+	DWORD		selIndicatorColor;
+	UINT icon_width;
 } TAB_INFO;
 
 /******************************************************************************
@@ -992,6 +996,18 @@ static inline LRESULT _GetTopMostRow (TAB_INFO *infoPtr)
 	return infoPtr->topmostVisible;
 }
 
+static inline LRESULT _SetSelIndicatorMode (TAB_INFO *infoPtr, UINT val)
+{
+	infoPtr->selIndicatorMode = val;
+	return TRUE;
+}
+
+static inline LRESULT _SetSelIndicatorColor (TAB_INFO *infoPtr, UINT val)
+{
+	infoPtr->selIndicatorMode = val;
+	return TRUE;
+}
+
 static LRESULT _MouseMove (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
 {
 	int redrawLeave;
@@ -1368,6 +1384,8 @@ static void TAB_SetItemBounds (TAB_INFO *infoPtr)
 		INT cy;
 
 		ImageList_GetIconSize(infoPtr->himl, &icon_width, &cy);
+
+		infoPtr->icon_width = icon_width;
 
 		if (infoPtr->dwStyle & TCS_FIXEDWIDTH)
 			icon_width += 4;
@@ -1961,6 +1979,7 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 	}
 	else
 	{
+		/* If not owner draw, then do the drawing ourselves. */
 		TAB_ITEM *item = TAB_GetItem(infoPtr, iItem);
 		RECT rcTemp;
 		RECT rcImage;
@@ -1980,12 +1999,35 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 		{
 			DrawTextW(hdc, item->pszText, -1, &rcText, DT_CALCRECT);
 		}
-		/*
-		* If not owner draw, then do the drawing ourselves.
-		*
-		* Draw the icon.
-		*/
-		bool selected = iItem == infoPtr->iSelected;
+
+		bool selected = iItem==infoPtr->iSelected && (infoPtr->dwStyle&TCS_FIXEDBASELINE)==0;
+		bool selected_actual_not = iItem!=infoPtr->iSelected;
+		if (infoPtr->dwStyle&TCS_BUTTONS && infoPtr->dwStyle&TCS_FIXEDBASELINE)
+		{
+			selected_actual_not = true;
+		}
+
+		/*  绘制指示条 */
+		if (iItem==infoPtr->iSelected)
+		{
+			if (infoPtr->selIndicatorMode==0) // selection_view_mode_framed
+			{
+				::Rectangle(hdc, drawRect->left, drawRect->top, drawRect->right, drawRect->bottom);
+			}
+			else if (infoPtr->selIndicatorMode==1) // selection_view_mode_banner
+			{
+				//::SetBkMode(hdc, TRANSPARENT);
+				//::SetTextColor(hdc,RGB(0,255,0));  
+				//::FillRect(hdc, drawRect->left, drawRect->top, drawRect->right, drawRect->top+5);
+				RECT rc = *drawRect;
+				rc.bottom = rc.top+4;
+				rc.left += 2;
+				rc.right -= 2;
+				::FillRect(hdc, &rc, CreateSolidBrush(RGB(0xFA, 0xA7, 0x55)));
+			}
+		}
+
+		/*  绘制图标 Draw the icon. */
 		if (infoPtr->himl && item->iImage != -1)
 		{
 			INT cx;
@@ -1999,9 +2041,9 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 			}
 
 			/* if an item is selected, the icon is shifted up instead of down */
-			if (iItem == infoPtr->iSelected)
+			if (selected)
 				center_offset_v -= infoPtr->uVItemPadding / 2;
-			else
+			else if(selected_actual_not)
 				center_offset_v += infoPtr->uVItemPadding / 2;
 
 			if (infoPtr->dwStyle & TCS_FIXEDWIDTH && infoPtr->dwStyle & (TCS_FORCELABELLEFT | TCS_FORCEICONLEFT))
@@ -2016,6 +2058,8 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 			TRACE("for <%s>, c_o_h=%d, c_o_v=%d, draw=(%s), textlen=%d\n",
 				debugstr_w(item->pszText), center_offset_h, center_offset_v,
 				wine_dbgstr_rect(drawRect), (rcText.right-rcText.left));
+
+			center_offset_h = 0; // 111
 
 			/* normal style, whether TCS_BOTTOM or not */
 			{
@@ -2051,14 +2095,14 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 			center_offset_h = ((drawRect->right - drawRect->left) - (rcText.right - rcText.left)) / 2;
 
 		{
-			drawRect->left += center_offset_h;
+			//drawRect->left += center_offset_h;
 			center_offset_v = ((drawRect->bottom - drawRect->top) - (rcText.bottom - rcText.top)) / 2;
 		}
 
 		/* if an item is selected, the text is shifted up instead of down */
 		if (selected)
 			center_offset_v -= infoPtr->uVItemPadding / 2;
-		else
+		else if(selected_actual_not)
 			center_offset_v += infoPtr->uVItemPadding / 2;
 
 		if (center_offset_v < 0)
@@ -2072,13 +2116,13 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 			drawRect->top +=    center_offset_v;
 			drawRect->bottom += center_offset_v;
 		} 
-		else 
+		else if(selected_actual_not)
 		{
 			drawRect->top +=    1;
 			drawRect->bottom += 1;
 		}
 
-		/* Draw the text */
+		/* 绘制文本 Draw the text */
 		{
 			TRACE("for <%s>, c_o_h=%d, c_o_v=%d, draw=(%s), textlen=%d\n",
 				debugstr_w(item->pszText), center_offset_h, center_offset_v,
@@ -2096,6 +2140,68 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 				);
 			}
 		}
+
+
+		/*  绘制关闭图标 */
+		if (infoPtr->himl && item->iImage != -1)
+		{
+			INT cx;
+			INT cy;
+
+			ImageList_GetIconSize(infoPtr->himl, &cx, &cy);
+
+			{
+				center_offset_h = ((drawRect->right - drawRect->left) - (cx + infoPtr->uHItemPadding + (rcText.right  - rcText.left))) / 2;
+				center_offset_v = ((drawRect->bottom - drawRect->top) - cy) / 2;
+			}
+
+			/* if an item is selected, the icon is shifted up instead of down */
+			if (selected)
+				center_offset_v -= infoPtr->uVItemPadding / 2;
+			else if(selected_actual_not)
+				center_offset_v += infoPtr->uVItemPadding / 2;
+
+			if (infoPtr->dwStyle & TCS_FIXEDWIDTH && infoPtr->dwStyle & (TCS_FORCELABELLEFT | TCS_FORCEICONLEFT))
+				center_offset_h = infoPtr->uHItemPadding;
+
+			if (center_offset_h < 2)
+				center_offset_h = 2;
+
+			if (center_offset_v < 0)
+				center_offset_v = 0;
+
+			TRACE("for <%s>, c_o_h=%d, c_o_v=%d, draw=(%s), textlen=%d\n",
+				debugstr_w(item->pszText), center_offset_h, center_offset_v,
+				wine_dbgstr_rect(drawRect), (rcText.right-rcText.left));
+
+			/* normal style, whether TCS_BOTTOM or not */
+			{
+				rcImage.left = drawRect->right - infoPtr->icon_width;
+				if (selected) // selected
+				{
+					rcImage.top = drawRect->top + center_offset_v + 0;
+				} 
+				else 
+				{
+					rcImage.top = drawRect->top + center_offset_v + 1;
+				}
+				drawRect->left += cx + infoPtr->uHItemPadding;
+			}
+
+			TRACE("drawing image=%d, left=%d, top=%d\n",
+				item->iImage, rcImage.left, rcImage.top-1);
+			ImageList_Draw
+			(
+				infoPtr->himl,
+				item->iImage,
+				hdc,
+				rcImage.left,
+				rcImage.top,
+				ILD_NORMAL
+			);
+		}
+
+
 
 		*drawRect = rcTemp; /* restore drawRect */
 	}
@@ -2749,6 +2855,8 @@ static LRESULT _InsertItemT (TAB_INFO *infoPtr, INT iItem, const TCITEMW *pti, B
 		return FALSE;
 	}
 
+	item->dwState = pti->dwState;
+
 	if (infoPtr->uNumItem == 0)
 		infoPtr->iSelected = 0;
 	else if (iItem <= infoPtr->iSelected)
@@ -3226,6 +3334,9 @@ static LRESULT _Create (HWND hwnd, LPARAM lParam)
 
 	infoPtr->htheme = ::GetWindowTheme(infoPtr->hwnd);
 
+	infoPtr->selIndicatorMode = 1;
+	infoPtr->selIndicatorColor = 0xFFFAA755;
+
 	TRACE("tabH=%d, tabW=%d\n", infoPtr->tabHeight, infoPtr->tabWidth);
 
 	SelectObject (hdc, hOldFont);
@@ -3484,6 +3595,8 @@ static LRESULT WINAPI TAB_WindowProc (HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	case TCM_GETVERTICALMODEWIDTH: return _GetVerticalModeWidth(infoPtr);
 	case TCM_SETVERTICALMODEWIDTH: return _SetVerticalModeWidth(infoPtr, wParam);
 	case TCM_GETTOPMOSTROW: return _GetTopMostRow(infoPtr);
+	case TCM_SETSELINDICATORMODE: return _SetSelIndicatorMode(infoPtr, wParam);
+	case TCM_SETSELINDICATORCOLOR: return _SetSelIndicatorColor(infoPtr, wParam);
 
 	case WM_GETFONT: return _GetFont (infoPtr);
 	case WM_SETFONT: return _SetFont (infoPtr, (HFONT)wParam);

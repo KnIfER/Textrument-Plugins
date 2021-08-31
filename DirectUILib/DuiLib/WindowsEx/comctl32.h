@@ -115,7 +115,7 @@
 #define WM_SYSTIMER     0x0118
 
 #define TCS_FLICKERFREE          0x10000
-
+#define TCS_FIXEDBASELINE        0x20000
 #define TCN_SIZECHANGE         (TCN_FIRST - 6)
 
 typedef struct
@@ -170,6 +170,13 @@ __declspec(selectany) HBRUSH  COMCTL32_hPattern55AABrush;
 #define TabCtrl_GetTopMostRow(hwnd)\
         (int)SNDMSG((hwnd), TCM_GETTOPMOSTROW, 0, 0)
 
+#define TCM_SETSELINDICATORMODE        (TCM_FIRST + 73)
+#define TabCtrl_SetSelIndicatorMode(hwnd) \
+    (int)SNDMSG((hwnd), TCM_SETSELINDICATORMODE, 0, 0L)
+
+#define TCM_SETSELINDICATORCOLOR        (TCM_FIRST + 74)
+#define TabCtrl_SetSelIndicatorColor(hwnd) \
+    (int)SNDMSG((hwnd), TCM_SETSELINDICATORCOLOR, 0, 0L)
 
 void ReadColors();
 #endif  /* __WINE_COMCTL32_H */

@@ -284,7 +284,7 @@ namespace DuiLib {
 		return dwColor;
 	}
 
-	TImageInfo* CRenderEngine::LoadImage(STRINGorID bitmap, LPCTSTR type, DWORD mask, HINSTANCE instance)
+	TImageInfo* CRenderEngine::LoadImageStr(STRINGorID bitmap, LPCTSTR type, DWORD mask, HINSTANCE instance, int bytesPerPixel)
 	{
 		LPBYTE pData = NULL;
 		DWORD dwSize = 0;
@@ -408,40 +408,43 @@ namespace DuiLib {
 		bmi.bmiHeader.biWidth = x;
 		bmi.bmiHeader.biHeight = -y;
 		bmi.bmiHeader.biPlanes = 1;
-		bmi.bmiHeader.biBitCount = 32;
 		bmi.bmiHeader.biCompression = BI_RGB;
-		bmi.bmiHeader.biSizeImage = x * y * 4;
+		bmi.bmiHeader.biBitCount = bytesPerPixel*8;
+		bmi.bmiHeader.biSizeImage = x * y * bytesPerPixel;
 
 		bool bAlphaChannel = false;
 		LPBYTE pDest = NULL;
 		HBITMAP hBitmap = ::CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, (void**)&pDest, NULL, 0);
+		//hBitmap = ::CreateDIBitmap(NULL, &bmi.bmiHeader, DIB_RGB_COLORS, (void**)&pDest, NULL, 0);
 		if( !hBitmap ) {
 			return NULL;
 		}
-
+		byte alphaByte;
+		float alpha;
 		for( int i = 0; i < x * y; i++ ) 
 		{
-			pDest[i*4 + 3] = pImage[i*4 + 3];
-			if( pDest[i*4 + 3] < 255 )
+			pDest[i*bytesPerPixel] = pImage[i*4 + 2];
+			pDest[i*bytesPerPixel + 1] = pImage[i*4 + 1];
+			pDest[i*bytesPerPixel + 2] = pImage[i*4]; 
+			if (bytesPerPixel>3)
 			{
-				pDest[i*4] = (BYTE)(DWORD(pImage[i*4 + 2])*pImage[i*4 + 3]/255);
-				pDest[i*4 + 1] = (BYTE)(DWORD(pImage[i*4 + 1])*pImage[i*4 + 3]/255);
-				pDest[i*4 + 2] = (BYTE)(DWORD(pImage[i*4])*pImage[i*4 + 3]/255); 
-				bAlphaChannel = true;
-			}
-			else
-			{
-				pDest[i*4] = pImage[i*4 + 2];
-				pDest[i*4 + 1] = pImage[i*4 + 1];
-				pDest[i*4 + 2] = pImage[i*4]; 
-			}
-
-			if( *(DWORD*)(&pDest[i*4]) == mask ) {
-				pDest[i*4] = (BYTE)0;
-				pDest[i*4 + 1] = (BYTE)0;
-				pDest[i*4 + 2] = (BYTE)0; 
-				pDest[i*4 + 3] = (BYTE)0;
-				bAlphaChannel = true;
+				pDest[i*bytesPerPixel + 3] = alphaByte = pImage[i*4 + 3];
+				if (alphaByte<255)
+				{
+					alpha = alphaByte*1.f/255;
+					pDest[i*bytesPerPixel] *= alpha;
+					pDest[i*bytesPerPixel + 1] *= alpha;
+					pDest[i*bytesPerPixel + 2] *= alpha; 
+					bAlphaChannel = true;
+				}
+				else if((*(DWORD*)(&pDest[i*bytesPerPixel])) == mask ) 
+				{
+					pDest[i*bytesPerPixel] = (BYTE)255;
+					pDest[i*bytesPerPixel + 1] = (BYTE)255;
+					pDest[i*bytesPerPixel + 2] = (BYTE)255; 
+					pDest[i*bytesPerPixel + 3] = (BYTE)0;
+					bAlphaChannel = true;
+				}
 			}
 		}
 
@@ -691,6 +694,30 @@ namespace DuiLib {
 		return pImage;
 	}
 
+	TImageInfo* CRenderEngine::LoadImageStr(LPCTSTR pStrImage, LPCTSTR type, DWORD mask, HINSTANCE instance)
+	{	
+		if(pStrImage == NULL) return NULL;
+
+		CDuiString sStrPath = pStrImage;
+		if( type == NULL )  {
+			sStrPath = CResourceManager::GetInstance()->GetImagePath(pStrImage);
+			if (sStrPath.IsEmpty()) sStrPath = pStrImage;
+			else {
+				/*if (CResourceManager::GetInstance()->GetScale() != 100) {
+				CDuiString sScale;
+				sScale.Format(_T("@%d."), CResourceManager::GetInstance()->GetScale());
+				sStrPath.Replace(_T("."), sScale);
+				}*/
+			}
+		}
+		return LoadImageStr(STRINGorID(sStrPath.GetData()), type, mask, instance);
+	}
+
+	TImageInfo* CRenderEngine::LoadImageStr(UINT nID, LPCTSTR type, DWORD mask, HINSTANCE instance)
+	{
+		return LoadImageStr(STRINGorID(nID), type, mask, instance);
+	}
+
 	Gdiplus::Image* CRenderEngine::GdiplusLoadImage( LPVOID pBuf,size_t dwSize )
 	{
 		HGLOBAL hMem = ::GlobalAlloc(GMEM_FIXED, dwSize);
@@ -773,30 +800,6 @@ namespace DuiLib {
 			rcDest.bottom = rcControl.bottom;
 
 		return true;
-	}
-
-	TImageInfo* CRenderEngine::LoadImage(LPCTSTR pStrImage, LPCTSTR type, DWORD mask, HINSTANCE instance)
-	{	
-		if(pStrImage == NULL) return NULL;
-
-		CDuiString sStrPath = pStrImage;
-		if( type == NULL )  {
-			sStrPath = CResourceManager::GetInstance()->GetImagePath(pStrImage);
-			if (sStrPath.IsEmpty()) sStrPath = pStrImage;
-			else {
-				/*if (CResourceManager::GetInstance()->GetScale() != 100) {
-				CDuiString sScale;
-				sScale.Format(_T("@%d."), CResourceManager::GetInstance()->GetScale());
-				sStrPath.Replace(_T("."), sScale);
-				}*/
-			}
-		}
-		return LoadImage(STRINGorID(sStrPath.GetData()), type, mask, instance);
-	}
-
-	TImageInfo* CRenderEngine::LoadImage(UINT nID, LPCTSTR type, DWORD mask, HINSTANCE instance)
-	{
-		return LoadImage(STRINGorID(nID), type, mask, instance);
 	}
 
 	void CRenderEngine::DrawText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText,DWORD dwTextColor, \
