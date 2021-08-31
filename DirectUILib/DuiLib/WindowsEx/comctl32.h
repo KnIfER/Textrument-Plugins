@@ -143,8 +143,8 @@ __declspec(selectany) COMCTL32_SysColor  comctl32_color;
 __declspec(selectany) HBRUSH  COMCTL32_hPattern55AABrush;
 
 #define TCM_SETMAXROWS        (TCM_FIRST + 66)
-#define TabCtrl_SetMaxRows(hwnd, maxLn) \
-    (HIMAGELIST)SNDMSG((hwnd), TCM_SETMAXROWS, maxLn, 0)
+#define TabCtrl_SetMaxRows(hwnd, val) \
+    (HIMAGELIST)SNDMSG((hwnd), TCM_SETMAXROWS, val, 0)
 
 #define TCM_GETISVERTICALRESIZEAREA    (TCM_FIRST + 67)
 #define TabCtrl_GetIsVerticalResizeArea(hwnd, x, y)\
@@ -163,20 +163,24 @@ __declspec(selectany) HBRUSH  COMCTL32_hPattern55AABrush;
         (int)SNDMSG((hwnd), TCM_GETVERTICALMODEWIDTH, 0, 0)
 
 #define TCM_SETVERTICALMODEWIDTH    (TCM_FIRST + 71)
-#define TabCtrl_SetVerticalModeWidth(hwnd)\
-        (int)SNDMSG((hwnd), TCM_GETVERTICALMODEWIDTH, 0, 0)
+#define TabCtrl_SetVerticalModeWidth(hwnd, val)\
+        (int)SNDMSG((hwnd), TCM_GETVERTICALMODEWIDTH, val, 0)
 
 #define TCM_GETTOPMOSTROW    (TCM_FIRST + 72)
 #define TabCtrl_GetTopMostRow(hwnd)\
         (int)SNDMSG((hwnd), TCM_GETTOPMOSTROW, 0, 0)
 
 #define TCM_SETSELINDICATORMODE        (TCM_FIRST + 73)
-#define TabCtrl_SetSelIndicatorMode(hwnd) \
-    (int)SNDMSG((hwnd), TCM_SETSELINDICATORMODE, 0, 0L)
+#define TabCtrl_SetSelIndicatorMode(hwnd, val) \
+    (int)SNDMSG((hwnd), TCM_SETSELINDICATORMODE, val, 0L)
 
 #define TCM_SETSELINDICATORCOLOR        (TCM_FIRST + 74)
-#define TabCtrl_SetSelIndicatorColor(hwnd) \
-    (int)SNDMSG((hwnd), TCM_SETSELINDICATORCOLOR, 0, 0L)
+#define TabCtrl_SetSelIndicatorColor(hwnd, val) \
+    (int)SNDMSG((hwnd), TCM_SETSELINDICATORCOLOR, val, 0L)
+
+#define TCM_SETCLOSEIMAGE        (TCM_FIRST + 75)
+#define TabCtrl_SetCloseImage(hwnd, val) \
+    (int)SNDMSG((hwnd), TCM_SETCLOSEIMAGE, val, 0L)
 
 void ReadColors();
 #endif  /* __WINE_COMCTL32_H */

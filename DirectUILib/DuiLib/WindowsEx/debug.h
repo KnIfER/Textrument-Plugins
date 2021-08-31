@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/InsituDebug.h"
+#include <string>
 
 /***********************************************************************
 * COMCTL32_IsReflectedMessage [internal]
@@ -74,11 +75,23 @@ int Free(void* ptr) {
 
 static CHAR buffer[512];
 
-const CHAR* wine_dbgstr_rect(RECT* rect) {
+const std::string wine_dbgstr_rect(RECT* rect) {
+    //CHAR buffer[512];
     if (rect)
     {
         //CHAR* buffer = malloc(512);
         sprintf_s(buffer, 255, "%ld %ld %ld %ld", rect->left, rect->top, rect->right, rect->bottom);
+        return std::string(buffer);
+    }
+    return "[/]";
+};
+
+const CHAR* wine_dbgstr_point(POINT* pt) {
+    //CHAR buffer[512];
+    if (pt)
+    {
+        //CHAR* buffer = malloc(512);
+        sprintf_s(buffer, 255, "%ld %ld", pt->x, pt->y);
         return buffer;
     }
     return "[/]";

@@ -71,8 +71,11 @@ namespace DuiLib {
 			| TCS_MULTILINE
 			| TCS_BUTTONS
 			//| TCS_FLATBUTTONS
+			//| TCS_BOTTOM
+			//| TCS_VERTICAL
 			| TCS_FOCUSNEVER
 			| WS_CLIPCHILDREN 
+			//| TCS_FIXEDWIDTH 
 
 			| TCS_FLICKERFREE 
 
@@ -93,7 +96,7 @@ namespace DuiLib {
 
 
 		TabCtrl_SetPadding(_hWnd, 12, 3);
-
+		TabCtrl_SetCloseImage(_hWnd, 6);
 
 		HIMAGELIST hImageList = ImageList_Create(24, 24, ILC_COLOR24 | ILC_MASK, 3, 1);
 		//auto bmp = m_pManager->GetImage(L"tab_def.bmp");
@@ -117,7 +120,7 @@ namespace DuiLib {
 		TCHAR buffer[64];
 		for (size_t i = 0; i < 80; i++)
 		{
-			swprintf_s(buffer, L"happy#%d", i);
+			swprintf_s(buffer, L"happy#%d", i+15);
 			addTab(_hWnd, buffer, 0);
 		}
 
