@@ -13,6 +13,9 @@
     <Filter Include="Control">
       <UniqueIdentifier>{9ee45b32-9fa8-4d0a-9a8f-0a3f173fc205}</UniqueIdentifier>
     </Filter>
+    <Filter Include="WindowsEx">
+      <UniqueIdentifier>{94a35dfb-f168-412e-a8f0-34553d90167d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils\downloadmgr.h">
@@ -215,6 +218,21 @@
     <ClInclude Include="Core\InsituDebug.h">
       <Filter>Control</Filter>
     </ClInclude>
+    <ClInclude Include="Control\WinButton.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\WinFrame.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsEx\comctl32.h">
+      <Filter>WindowsEx</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsEx\debug.h">
+      <Filter>WindowsEx</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\WinTabbar.h">
+      <Filter>Control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils\DPI.cpp">
@@ -397,6 +415,21 @@
       <Filter>Control</Filter>
     </ClCompile>
     <ClCompile Include="Core\InsituDebug.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\WinButton.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\WinFrame.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsEx\tab.cpp">
+      <Filter>WindowsEx</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsEx\comctl32.cpp">
+      <Filter>WindowsEx</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\WinTabbar.cpp">
       <Filter>Control</Filter>
     </ClCompile>
   </ItemGroup>

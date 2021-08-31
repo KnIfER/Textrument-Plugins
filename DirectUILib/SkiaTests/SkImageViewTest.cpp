@@ -12,7 +12,9 @@ namespace SK_IMG_VIEW {
     class ImageViewMainForm : public WindowImplBase, public INotifyUI
     {
     public:
-        ImageViewMainForm() { };     
+        ImageViewMainForm() {
+            _isWindowLess = false;
+        };     
 
         LPCTSTR GetWindowClassName() const override
         { 
@@ -28,11 +30,6 @@ namespace SK_IMG_VIEW {
         { 
             __super::OnFinalMessage(hWnd);
             delete this;
-        }
-
-        bool IsWindowLess() const override
-        {
-            return false;
         }
 
         LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled) override

@@ -58,6 +58,11 @@ namespace DuiLib
 
 		INNER_REGISTER_DUICONTROL(ListView);
 		//INNER_REGISTER_DUICONTROL(ImageView);
+
+		INNER_REGISTER_DUICONTROL(WinFrame);
+		INNER_REGISTER_DUICONTROL(WinButton);
+		INNER_REGISTER_DUICONTROL(WinTabbar);
+
 	}
 
 	CControlFactory::~CControlFactory()

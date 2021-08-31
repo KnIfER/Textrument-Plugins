@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window caption="0,0,0,30" roundcorner="5,5,5,5" sizebox="4,4,4,4" mininfo="600,320" showdirty="false" layered="false">
+ <Font id="0" name="宋体" size="13" bold="false"/>
+ <Font id="1" name="宋体" size="12"/>
+
+<WinFrame>
+
+	<VerticalLayout>
+		<WinButton height="23" text="此控件的主要代码来自简书《Duilib性能优化——列表控件》by 丑角的晨歌" bkcolor="#FF313C00" name="input" />
+		<WinButton height="23" text="此控件的主要代码来自简书《Duilib性能优化——列表控件》by 丑角的晨歌" bkcolor="#FF313C00" name="input" />
+		<WinTabbar height="-1" text="此控件的主要代码来自简书《Duilib性能优化——列表控件》by 丑角的晨歌" bkcolor="#FF313C00" name="input" />
+	</VerticalLayout>
+		
+	<HorizontalLayout bkcolor="#FF313C00" height="35" inset="0,4,0,8"/>
+	
+</WinFrame>
+</Window>

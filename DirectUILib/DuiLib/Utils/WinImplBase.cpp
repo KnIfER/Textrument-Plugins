@@ -34,11 +34,6 @@ namespace DuiLib
 		return CS_DBLCLKS;
 	}
 
-	bool WindowImplBase::IsWindowLess() const
-	{
-		return true;
-	}
-
 	CControlUI* WindowImplBase::CreateControl(LPCTSTR pstrClass)
 	{
 		return NULL;
@@ -233,21 +228,6 @@ namespace DuiLib
 
 	LRESULT WindowImplBase::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if (IsWindowLess())
-		{
-			SIZE szRoundCorner = m_pm.GetRoundCorner();
-#if defined(WIN32) && !defined(UNDER_CE)
-			if( !::IsIconic(*this) ) {
-				CDuiRect rcWnd;
-				::GetWindowRect(*this, &rcWnd);
-				rcWnd.Offset(-rcWnd.left, -rcWnd.top);
-				rcWnd.right++; rcWnd.bottom++;
-				HRGN hRgn = ::CreateRoundRectRgn(rcWnd.left, rcWnd.top, rcWnd.right, rcWnd.bottom, szRoundCorner.cx, szRoundCorner.cy);
-				::SetWindowRgn(*this, hRgn, TRUE);
-				::DeleteObject(hRgn);
-			}
-#endif
-		}
 		bHandled = FALSE;
 		return 0;
 	}
@@ -403,8 +383,22 @@ namespace DuiLib
 		lRes = HandleCustomMessage(uMsg, wParam, lParam, bHandled);
 		if (bHandled) return lRes;
 
-		if (m_pm.MessageHandler(uMsg, wParam, lParam, lRes))
+		if (m_pm.MessageHandler(uMsg, wParam, lParam, lRes)) {
+#if defined(WIN32) && !defined(UNDER_CE)
+			if (uMsg==WM_PAINT && _isRoundedRgn && _isWindowLess && !::IsIconic(*this))
+			{
+				SIZE szRoundCorner = m_pm.GetRoundCorner();
+				CDuiRect rcWnd;
+				::GetWindowRect(*this, &rcWnd);
+				rcWnd.Offset(-rcWnd.left, -rcWnd.top);
+				//rcWnd.right++; rcWnd.bottom++;
+				HRGN hRgn = ::CreateRoundRectRgn(rcWnd.left, rcWnd.top, rcWnd.right, rcWnd.bottom, szRoundCorner.cx, szRoundCorner.cy);
+				::SetWindowRgn(*this, hRgn, FALSE);
+				::DeleteObject(hRgn);
+			}
+#endif
 			return lRes;
+		}
 		return CWindowWnd::HandleMessage(uMsg, wParam, lParam);
 	}
 

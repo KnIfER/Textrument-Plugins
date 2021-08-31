@@ -116,6 +116,7 @@ namespace DuiLib {
 		virtual CScrollBarUI* GetHorizontalScrollBar() const;
 
 		std::list<CControlUI*> _UpdateList;
+		std::list<CControlUI*> _WNDList;
 	protected:
 		virtual void SetFloatPos(int iIndex);
 		virtual void ProcessScrollBar(RECT rc, int cxRequired, int cyRequired);

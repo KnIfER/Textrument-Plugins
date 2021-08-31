@@ -35,9 +35,11 @@ namespace DuiLib
 		virtual LRESULT ResponseDefaultKeyEvent(WPARAM wParam);
 		CPaintManagerUI m_pm;
 
+		bool _isWindowLess = true;
+		bool _isRoundedRgn = true;
 	public:
 		virtual UINT GetClassStyle() const;
-		virtual bool IsWindowLess() const;
+		bool IsWindowLess() const { return _isWindowLess; };
 		virtual CControlUI* CreateControl(LPCTSTR pstrClass);
 		virtual LPCTSTR QueryControlText(LPCTSTR lpstrId, LPCTSTR lpstrType);
 

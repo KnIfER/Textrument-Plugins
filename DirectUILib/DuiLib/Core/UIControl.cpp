@@ -113,6 +113,10 @@ namespace DuiLib {
 	{
 		m_pManager = pManager;
 		m_pParent = pParent;
+		if (pManager)
+		{
+			_hWnd = pManager->GetPaintWindow();
+		}
 		if( bInit && m_pParent ) Init();
 	}
 
@@ -684,12 +688,6 @@ namespace DuiLib {
 		m_pTag = pTag;
 	}
 
-	bool CControlUI::IsVisible() const
-	{
-
-		return m_bVisible && m_bInternVisible;
-	}
-
 	void CControlUI::SetVisible(bool bVisible)
 	{
 		if( m_bVisible == bVisible ) return;
@@ -803,6 +801,15 @@ namespace DuiLib {
 		return m_bUpdateNeeded;
 	}
 
+	CContainerUI* CControlUI::GetRoot()
+	{
+		CControlUI* vp = this;
+		while(vp->m_pParent) {
+			vp = vp->m_pParent;
+		}
+		return dynamic_cast<CContainerUI*>(vp);
+	}
+
 	void CControlUI::NeedUpdate()
 	{
 		if( !IsVisible() ) return;
@@ -810,11 +817,7 @@ namespace DuiLib {
 		Invalidate();
 		// requestParentNeedUpd
 		if( m_pManager != NULL ) m_pManager->NeedUpdate();
-		CControlUI* vp = this;
-		while(vp->m_pParent) {
-			vp = vp->m_pParent;
-		}
-		CContainerUI* root = dynamic_cast<CContainerUI*>(vp);
+		CContainerUI* root = GetRoot();
 		if (root)
 		{
 			root->_UpdateList.push_back(this);
@@ -1279,6 +1282,10 @@ namespace DuiLib {
 
 	bool CControlUI::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
 	{
+		if (!_isDirectUI)
+		{
+			return true;
+		}
 		// 绘制循序：背景颜色->背景图->状态图->文本->边框
 		SIZE cxyBorderRound;
 		RECT rcBorderSize;

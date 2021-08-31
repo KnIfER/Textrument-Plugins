@@ -1165,7 +1165,9 @@ namespace DuiLib {
 				RECT rcPaint = { 0 };
 				if( !::GetUpdateRect(m_hWndPaint, &rcPaint, FALSE) ) return true;
 
-				//m_bLayered = false; // 设置 Layered 后导致 dx 动画无法显示。
+
+				m_bLayered = false; // 设置 Layered 后导致 dx 动画无法显示。
+				m_bOffscreenPaint = false;
 
 				// Set focus to first control?
 				if( m_bFocusNeeded) {
@@ -1176,8 +1178,13 @@ namespace DuiLib {
 
 				RECT rcClient = { 0 };
 				::GetClientRect(m_hWndPaint, &rcClient);
-				DWORD dwWidth = rcClient.right - rcClient.left;
-				DWORD dwHeight = rcClient.bottom - rcClient.top;
+
+				//rcPaint.right/=2;
+				//rcClient.right/=2;
+
+				DWORD dwWidth = rcClient.right;
+				DWORD dwHeight = rcClient.bottom;
+
 
 				SetPainting(true);
 
@@ -1299,7 +1306,8 @@ namespace DuiLib {
 				if( m_anim.IsAnimating() || m_anim.IsJobScheduled())
 					::PostMessage(m_hWndPaint,WM_EFFECTS,NULL,NULL);
 #else
-				if( m_anim.IsAnimating() )
+				if(false) { SetPainting(false); return false; } 
+				else if( m_anim.IsAnimating() )
 				{
 					// 3D animation in progress
 					//   3D动画  
@@ -1554,6 +1562,17 @@ namespace DuiLib {
 				if( m_anim.IsAnimating() ) m_anim.CancelJobs();
 				//m_bUpdateNeeded = true;
 				if( m_pRoot != NULL ) m_pRoot->NeedUpdate();
+
+				//CContainerUI* root = dynamic_cast<CContainerUI*>(m_pRoot);
+				//
+				//if (root)
+				//{
+				//	for(list<CControlUI*>::iterator it=root->_WNDList.begin();it!=root->_WNDList.end();it++)
+				//	{
+				//		LogIs("GetBkColor::%d", (*it)->GetBkColor());
+				//		//(*it)->resize();
+				//	}
+				//}
 			}
 			return true;
 		case WM_TIMER:

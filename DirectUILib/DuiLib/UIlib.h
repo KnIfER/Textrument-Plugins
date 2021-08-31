@@ -117,6 +117,10 @@
 #include "Control/UIRing.h"
 #include "Control/UICalendar.h"
 
+#include "core/WinFrame.h"
+#include "Control/WinButton.h"
+#include "Control/WinTabbar.h"
+
 #include "Control/ListView.h"
 #include "ControlEx/ImageView.h"
 

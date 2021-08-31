@@ -446,6 +446,7 @@ namespace DuiLib {
 		return m_xml.GetLastErrorLocation(pstrSource, cchMax);
 	}
 
+	// 递归分析xml建立控件树
 	CControlUI* CDialogBuilder::_Parse(XMarkupNode* pRoot, CControlUI* pParent, CPaintManagerUI* pManager)
 	{
 		IContainerUI* pContainer = NULL;

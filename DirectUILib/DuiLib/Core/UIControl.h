@@ -9,6 +9,8 @@ namespace DuiLib {
 
 	typedef CControlUI* (CALLBACK* FINDCONTROLPROC)(CControlUI*, LPVOID);
 
+	class CContainerUI;
+
 	class UILIB_API CControlUI
 	{
 		DECLARE_DUICONTROL(CControlUI)
@@ -146,7 +148,12 @@ namespace DuiLib {
 		virtual void SetTag(UINT_PTR pTag); // 辅助函数，供用户使用
 
 		// 一些重要的属性
-		virtual bool IsVisible() const;
+		virtual bool IsVisible() const {
+			return m_bVisible && m_bInternVisible;
+		};
+		virtual bool IsDirectUI() const {
+			return _isDirectUI;
+		};
 		virtual void SetVisible(bool bVisible = true);
 		virtual void SetInternVisible(bool bVisible = true); // 仅供内部调用，有些UI拥有窗口句柄，需要重写此函数
 		virtual bool IsEnabled() const;
@@ -161,6 +168,10 @@ namespace DuiLib {
 		virtual void SetFloat(bool bFloat = true);
 
 		virtual CControlUI* FindControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags);
+
+		virtual void resize(){};
+
+		CContainerUI* GetRoot();
 
 		void Invalidate();
 		bool IsUpdateNeeded() const;
@@ -251,13 +262,21 @@ namespace DuiLib {
 		char* m_sUserDataTally;
 		int _marked;
 
+		HWND GetHWND() {
+			return _hWnd;
+		}
 	protected:
 		CPaintManagerUI* m_pManager;
 		CControlUI* m_pParent;
 		CDuiString m_sVirtualWnd;
 		CDuiString m_sName;
+
+		HWND _hWnd = 0;
+		HWND _hParent = 0;
+
 		bool m_bUpdateNeeded;
 		bool m_bMenuUsed;
+		bool _isDirectUI = true;
 		RECT m_rcItem;
 		RECT m_rcPadding;
 		SIZE m_cXY;

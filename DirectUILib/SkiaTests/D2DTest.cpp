@@ -125,31 +125,31 @@ namespace D2DT
 
 		// Draw Ellipse  
 		D2D1_SIZE_F size = g_render_target->GetSize();  
-		D2D1_RECT_F r = {0, 0, size.width, size.height};
-		//g_render_target->FillRectangle(&r, g_linear_gradient_brush); 
-		//g_render_target->FillRectangle(&ellipse, g_linear_gradient_brush); 
-
-
-		// Draw Image
-		int drawWidth = size.width;
-		int drawHeight = size.height;
-
-		float left=0;
-		float top=0;
-		
-		float calcW=drawWidth;
-		float calcH=drawWidth*_srcHeight*1.0/_srcWidth;
-
-		if (calcH>drawHeight)
-		{
-			calcW=drawHeight*_srcWidth*1.0/_srcHeight;
-			calcH=drawHeight;
-			left = (drawWidth-calcW)/2;
-		}
-		else 
-		{
-			top = (drawHeight-calcH)/2;
-		}
+		//D2D1_RECT_F r = {0, 0, size.width, size.height};
+		////g_render_target->FillRectangle(&r, g_linear_gradient_brush); 
+		////g_render_target->FillRectangle(&ellipse, g_linear_gradient_brush); 
+		//
+		//
+		//// Draw Image
+		//int drawWidth = size.width;
+		//int drawHeight = size.height;
+		//
+		//float left=0;
+		//float top=0;
+		//
+		//float calcW=drawWidth;
+		//float calcH=drawWidth*_srcHeight*1.0/_srcWidth;
+		//
+		//if (calcH>drawHeight)
+		//{
+		//	calcW=drawHeight*_srcWidth*1.0/_srcHeight;
+		//	calcH=drawHeight;
+		//	left = (drawWidth-calcW)/2;
+		//}
+		//else 
+		//{
+		//	top = (drawHeight-calcH)/2;
+		//}
 
 
 
@@ -157,14 +157,14 @@ namespace D2DT
 
 
 
-		g_render_target->DrawBitmap(g_bitmap, {left, top, left+calcW, top+calcH});
+		//g_render_target->DrawBitmap(g_bitmap, {left, top, left+calcW, top+calcH});
 
 		// Draw Text 
-		//const wchar_t * text = L"Direct2D Draw Image";
-		//g_render_target->DrawText(text, wcslen(text),
-		//	g_text_format,
-		//	D2D1::RectF(100, 190, size.width, size.height),
-		//	g_brush);
+		const wchar_t * text = L"Direct2D Draw Image";
+		g_render_target->DrawText(text, wcslen(text),
+			g_text_format,
+			D2D1::RectF(100, 190, size.width, size.height),
+			g_brush);
 
 		g_render_target->EndDraw();
 	}

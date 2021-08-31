@@ -15,7 +15,9 @@ extern int D2DT_RunMain(HINSTANCE hInstance, HWND hParent);
 class SkiaTestBox : public WindowImplBase, public INotifyUI
 {
 public:
-    SkiaTestBox() { };     
+    SkiaTestBox() { 
+        _isWindowLess = false;
+    };     
 
     LPCTSTR GetWindowClassName() const override
     { 
@@ -25,11 +27,6 @@ public:
     UINT GetClassStyle() const override
     { 
         return CS_HREDRAW | CS_VREDRAW; 
-    }
-
-    bool IsWindowLess() const override
-    {
-        return false;
     }
 
     CDuiString GetSkinFile() override
@@ -105,7 +102,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     pFrame->ShowWindow();
 
-    pFrame->doTest(L"T4");
+    pFrame->doTest(L"T1");
 
 
     CPaintManagerUI::MessageLoop();

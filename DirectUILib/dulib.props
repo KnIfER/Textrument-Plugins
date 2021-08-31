@@ -12,7 +12,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>DuiLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DuiLib.lib;UxTheme.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(DU_Lib_s64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

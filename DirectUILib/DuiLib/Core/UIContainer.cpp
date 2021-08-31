@@ -761,6 +761,7 @@ namespace DuiLib
 
 	void CContainerUI::SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit)
 	{
+		m_pManager = pManager;
 		for( int it = 0; it < m_items.GetSize(); it++ ) {
 			static_cast<CControlUI*>(m_items[it])->SetManager(pManager, this, bInit);
 		}
@@ -833,6 +834,10 @@ namespace DuiLib
 
 	bool CContainerUI::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
 	{
+		if (!_isDirectUI)
+		{
+			return true;
+		}
 		RECT rcTemp = { 0 };
 		if( !::IntersectRect(&rcTemp, &rcPaint, &m_rcItem) ) return true;
 

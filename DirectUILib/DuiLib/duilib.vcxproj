@@ -59,22 +59,18 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\dulib.props" />
-    <Import Project="..\Skia.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\dulib.props" />
-    <Import Project="..\Skia.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\dulib.props" />
-    <Import Project="..\Skia.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\dulib.props" />
-    <Import Project="..\Skia.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -205,6 +201,8 @@
     <ClCompile Include="Control\UIText.cpp" />
     <ClCompile Include="Control\UITreeView.cpp" />
     <ClCompile Include="Control\UIWebBrowser.cpp" />
+    <ClCompile Include="Control\WinButton.cpp" />
+    <ClCompile Include="Control\WinTabbar.cpp" />
     <ClCompile Include="Core\ControlFactory.cpp" />
     <ClCompile Include="Core\InsituDebug.cpp" />
     <ClCompile Include="Core\UIBase.cpp" />
@@ -215,6 +213,7 @@
     <ClCompile Include="Core\UIDxAnimation.cpp" />
     <ClCompile Include="Core\UIManager.cpp" />
     <ClCompile Include="Core\UIManagerFx.cpp" />
+    <ClCompile Include="Core\WinFrame.cpp" />
     <ClCompile Include="Core\XMLMarkup.cpp" />
     <ClCompile Include="Core\UIRender.cpp" />
     <ClCompile Include="Core\UIResourceManager.cpp" />
@@ -234,6 +233,8 @@
     <ClCompile Include="Utils\unzip.cpp" />
     <ClCompile Include="Utils\Utils.cpp" />
     <ClCompile Include="Utils\WinImplBase.cpp" />
+    <ClCompile Include="WindowsEx\comctl32.cpp" />
+    <ClCompile Include="WindowsEx\tab.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\browsers\SunPlayer_DuiLib-master\SunPlayer_DuiLib\DuiLib\Control\UIRing.h" />
@@ -269,6 +270,8 @@
     <ClInclude Include="Control\UIText.h" />
     <ClInclude Include="Control\UITreeView.h" />
     <ClInclude Include="Control\UIWebBrowser.h" />
+    <ClInclude Include="Control\WinButton.h" />
+    <ClInclude Include="Control\WinTabbar.h" />
     <ClInclude Include="Core\ControlFactory.h" />
     <ClInclude Include="Core\InsituDebug.h" />
     <ClInclude Include="Core\UIBase.h" />
@@ -278,6 +281,7 @@
     <ClInclude Include="Core\UIDlgBuilder.h" />
     <ClInclude Include="Core\UIDxAnimation.h" />
     <ClInclude Include="Core\UIManager.h" />
+    <ClInclude Include="Core\WinFrame.h" />
     <ClInclude Include="Core\XMLMarkup.h" />
     <ClInclude Include="Core\UIRender.h" />
     <ClInclude Include="Core\UIResourceManager.h" />
@@ -304,6 +308,8 @@
     <ClInclude Include="Utils\VersionHelpers.h" />
     <ClInclude Include="Utils\WebBrowserEventHandler.h" />
     <ClInclude Include="Utils\WinImplBase.h" />
+    <ClInclude Include="WindowsEx\comctl32.h" />
+    <ClInclude Include="WindowsEx\debug.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
