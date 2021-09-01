@@ -20,4 +20,9 @@ void ReadColors()
 	comctl32_color.clrActiveCaption    =  GetSysColor(COLOR_ACTIVECAPTION);
 	comctl32_color.clrInfoBk           =  GetSysColor(COLOR_INFOBK);
 	comctl32_color.clrInfoText         =  GetSysColor(COLOR_INFOTEXT);
+
+	if (true)
+	{
+		comctl32_color.hBrushBtnFace=GetSysColorBrush(COLOR_BTNFACE);
+	}
 }

@@ -116,6 +116,7 @@
 
 #define TCS_FLICKERFREE          0x10000
 #define TCS_FIXEDBASELINE        0x20000
+#define TCS_HOTTRACKDRAW        0x40000
 #define TCN_SIZECHANGE         (TCN_FIRST - 6)
 
 typedef struct
@@ -137,6 +138,7 @@ typedef struct
     COLORREF clrActiveCaption;      /* COLOR_ACTIVECAPTION                 */
     COLORREF clrInfoBk;             /* COLOR_INFOBK                        */
     COLORREF clrInfoText;           /* COLOR_INFOTEXT                      */
+    HBRUSH hBrushBtnFace;
 } COMCTL32_SysColor;
 
 __declspec(selectany) COMCTL32_SysColor  comctl32_color;
@@ -179,8 +181,8 @@ __declspec(selectany) HBRUSH  COMCTL32_hPattern55AABrush;
     (int)SNDMSG((hwnd), TCM_SETSELINDICATORCOLOR, val, 0L)
 
 #define TCM_SETCLOSEIMAGE        (TCM_FIRST + 75)
-#define TabCtrl_SetCloseImage(hwnd, val) \
-    (int)SNDMSG((hwnd), TCM_SETCLOSEIMAGE, val, 0L)
+#define TabCtrl_SetCloseImage(hwnd, inactive_selected, hovered_pushed) \
+    (int)SNDMSG((hwnd), TCM_SETCLOSEIMAGE, inactive_selected, hovered_pushed)
 
 void ReadColors();
 #endif  /* __WINE_COMCTL32_H */
