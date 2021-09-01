@@ -2,27 +2,36 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <DUPA>D:\Code\FigureOut\Textrument\plugins\DirectUILib\DuiLib</DUPA>
     <DULib_STATIC_32D>$(DUPA)\Build\Bin\Win32\Debug</DULib_STATIC_32D>
     <DULib_STATIC_32>$(DUPA)\Build\Bin\Win32\Release</DULib_STATIC_32>
     <DULib_STATIC_64D>$(DUPA)\Build\Bin\Win64\Debug</DULib_STATIC_64D>
+    <ROOT>D:\Code\FigureOut\Textrument\plugins\DirectUILib</ROOT>
+    <DUPA>$(ROOT)\DuiLib</DUPA>
     <DU_Lib_s64>$(DUPA)\Build\Bin\Win64\Release</DU_Lib_s64>
     <DULib_STATIC_64>$(DUPA)\Build\Bin\Win64\Release</DULib_STATIC_64>
+    <SCITE_INC>$(ROOT)\Scintilla\lexilla\include;$(ROOT)\Scintilla\lexilla\access;$(ROOT)\Scintilla\lexilla\lexlib;$(ROOT)\Scintilla\scintilla\include;$(ROOT)\Scintilla\scintilla\src;</SCITE_INC>
+    <RTO_x64>$(ROOT)\x64\Release</RTO_x64>
+    <DU_Lib_s64D>$(DUPA)\Build\Bin\Win64\Debug</DU_Lib_s64D>
+    <RTO_x64D>$(ROOT)\x64\Debug</RTO_x64D>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>DuiLib.lib;UxTheme.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>LibScintilla.lib;LibLexilla.lib;DuiLib.lib;Msimg32.lib;UxTheme.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(RTO_x64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(DU_Lib_s64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ClCompile>
       <PreprocessorDefinitions>UILIB_STATIC;_VC80_UPGRADE=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(DUPA);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DUPA);$(SCITE_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <BuildMacro Include="ROOT">
+      <Value>$(ROOT)</Value>
+    </BuildMacro>
     <BuildMacro Include="DUPA">
       <Value>$(DUPA)</Value>
     </BuildMacro>
@@ -31,6 +40,18 @@
     </BuildMacro>
     <BuildMacro Include="DULib_STATIC_64">
       <Value>$(DULib_STATIC_64)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SCITE_INC">
+      <Value>$(SCITE_INC)</Value>
+    </BuildMacro>
+    <BuildMacro Include="RTO_x64">
+      <Value>$(RTO_x64)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DU_Lib_s64D">
+      <Value>$(DU_Lib_s64D)</Value>
+    </BuildMacro>
+    <BuildMacro Include="RTO_x64D">
+      <Value>$(RTO_x64D)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

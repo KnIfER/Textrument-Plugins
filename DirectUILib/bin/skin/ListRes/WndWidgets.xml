@@ -8,7 +8,10 @@
 	<WinFrame inset="0,0,0,0">
 		<!-- <WinButton height="23" text="此控件的主要代码来自简书《Duilib性能优化——列表控件》by 丑角的晨歌" bkcolor="#FF313C00" name="input" /> -->
 		<!-- <WinButton height="23" text="此控件的主要代码来自简书《Duilib性能优化——列表控件》by 丑角的晨歌" bkcolor="#FF313C00" name="input" /> -->
-		<WinTabbar height="-1" text="此控件的主要代码来自简书《Duilib性能优化——列表控件》by 丑角的晨歌" bkcolor="#FF313C00" name="input" />
+		<WinTabbar height="-1" bkcolor="#FF313C00" name="input" >
+			<SciEditText height="-1" bkcolor="#FF313C00" name="input" />
+		</WinTabbar>
+
 	</WinFrame>
 		
 	<HorizontalLayout bkcolor="#FF313C00" height="35" inset="0,4,0,8"/>

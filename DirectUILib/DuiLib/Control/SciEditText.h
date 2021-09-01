@@ -1,14 +1,26 @@
 #pragma once
 
+#include <string>
+#include "ILoader.h"
+#include "ILexer.h"
+
+#include "ScintillaTypes.h"
+#include "ScintillaMessages.h"
+#include "ScintillaCall.h"
+
+#include "Scintilla.h"
+#include "Lexilla.h"
+#include "LexillaAccess.h"
+
 namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 
-	class UILIB_API WinTabbar : public CContainerUI
+	class UILIB_API SciEditText : public CControlUI
 	{
-		DECLARE_DUICONTROL(WinTabbar)
+		DECLARE_DUICONTROL(SciEditText)
 	public:
-		WinTabbar();
+		SciEditText();
 
 		LPCTSTR GetClass() const;
 		LPVOID GetInterface(LPCTSTR pstrName);

@@ -419,7 +419,7 @@ namespace DuiLib {
 		if( !hBitmap ) {
 			return NULL;
 		}
-		byte alphaByte;
+		BYTE alphaByte;
 		float alpha;
 		for( int i = 0; i < x * y; i++ ) 
 		{

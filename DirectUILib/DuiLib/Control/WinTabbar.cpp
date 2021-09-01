@@ -8,7 +8,7 @@ namespace DuiLib {
 	IMPLEMENT_DUICONTROL(WinTabbar)
 
 	WinTabbar::WinTabbar()
-		: CControlUI()
+		: CContainerUI()
 	{
 		m_dwBackColor = RGB(0, 0, 255);
 		_isDirectUI = true;
@@ -150,8 +150,6 @@ namespace DuiLib {
 		SendMessage(_hWnd, WM_SETFONT, (WPARAM)hFont, TRUE);
 
 
-		
-
 		//::ShowWindow(_hWnd, TRUE);
 		//::SetWindowText(_hWnd, TEXT("TEST"));
 		//if (!dynamic_cast<WinFrame*>(m_pParent))
@@ -176,6 +174,19 @@ namespace DuiLib {
 			
 			::MoveWindow(_hWnd, rcPos.left, rcPos.top, rcPos.right - rcPos.left, rcPos.bottom - rcPos.top, TRUE);
 
+			TabCtrl_AdjustRect(_hWnd, false, &rcPos);
+
+			for( int it = 0; it < m_items.GetSize(); it++ ) {
+				CControlUI* pControl = static_cast<CControlUI*>(m_items[it]);
+				if( pControl->IsVisible() ) { // && !pControl->IsDirectUI()
+					if( pControl->IsFloat() ) {
+						SetFloatPos(it);
+					}
+					else { 
+						pControl->SetPos(rcPos, false);
+					}
+				}
+			}
 		}
 	}
 	

@@ -16,7 +16,7 @@ public:
 
     LPCTSTR GetWindowClassName() const override
     { 
-        return _T("ListMainForm"); 
+        return _T("不要问白天星辰的颜色"); 
     }
 
     UINT GetClassStyle() const override
@@ -98,7 +98,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 
     if( pFrame == NULL ) return 0;
    
-    pFrame->Create(NULL, _T("ListDemo"), UI_WNDSTYLE_FRAME, WS_EX_STATICEDGE | WS_EX_APPWINDOW , 0, 0, 800, 600);
+    pFrame->Create(NULL, _T("测试原生窗口控件"), UI_WNDSTYLE_FRAME, WS_EX_STATICEDGE | WS_EX_APPWINDOW , 0, 0, 800, 600);
     
     pFrame->CenterWindow();
 

@@ -120,6 +120,7 @@
 #include "core/WinFrame.h"
 #include "Control/WinButton.h"
 #include "Control/WinTabbar.h"
+#include "Control/SciEditText.h"
 
 #include "Control/ListView.h"
 #include "ControlEx/ImageView.h"

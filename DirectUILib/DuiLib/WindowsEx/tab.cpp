@@ -50,12 +50,19 @@
 *
 *  Macros:
 *   TabCtrl_AdjustRect
-*
+* 
+* ================================================
 * New Features : ( MyTabControl )
 *	- Vertical mode, totally "neck-harmless". Tabs are layouted in a resizable side bar. 
 *		Style : TCS_VERTICAL
+* 
 *	- Maximum rows capacity for multiline mode. Save Screen Space!
 *		Macro : TabCtrl_SetMaxRows
+* 
+*	- Additional close icons
+*		Macro : TabCtrl_SetCloseImage
+* 
+* ================================================
 */
 
 #include <assert.h>
