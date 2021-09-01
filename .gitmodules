@@ -1,0 +1,3 @@
+[submodule "DirectUILib\\Scintilla"]
+	path = DirectUILib\\Scintilla
+	url = https://github.com/KnIfER/Scintilla.git
