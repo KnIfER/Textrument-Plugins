@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Core\InsituDebug.h"
+#include "Core\ControlFactory.h"
 #include "WindowsEx\comctl32.h"
 
 

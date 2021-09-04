@@ -48,9 +48,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unloaded", "Unloaded", "{38B684E5-710D-4915-97BD-1816FF32007D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SkiaTests", "SkiaTests\SkiaTests.vcxproj", "{41B017E7-7805-40D5-9D96-AABF572F57D1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{E106ACD7-4E53-4AEE-942B-D0DD426DB34E} = {E106ACD7-4E53-4AEE-942B-D0DD426DB34E}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WndWidgets", "demoWndWidgets\WndWidgets.vcxproj", "{8A4F4CB6-1D76-487E-B583-F1DC16C97F3B}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -68,6 +65,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SciTeByLibs", "Scintilla\sc
 		{19CCA8B8-46B9-4609-B7CE-198DA19F07BD} = {19CCA8B8-46B9-4609-B7CE-198DA19F07BD}
 		{E541C9BE-13BC-4CE6-A0A4-31145F51A2C1} = {E541C9BE-13BC-4CE6-A0A4-31145F51A2C1}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SciEdit", "DuiLib\SciEdit.vcxproj", "{BEFCEC24-DCE0-4272-BCDA-CE5FECA7A30A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -273,6 +272,16 @@ Global
 		{5641EA06-A73C-4297-B287-48B40850C708}.Release|Win32.Build.0 = Release|Win32
 		{5641EA06-A73C-4297-B287-48B40850C708}.Release|x64.ActiveCfg = Release|x64
 		{5641EA06-A73C-4297-B287-48B40850C708}.Release|x64.Build.0 = Release|x64
+		{BEFCEC24-DCE0-4272-BCDA-CE5FECA7A30A}.Debug|ARM64.ActiveCfg = Debug|Win32
+		{BEFCEC24-DCE0-4272-BCDA-CE5FECA7A30A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BEFCEC24-DCE0-4272-BCDA-CE5FECA7A30A}.Debug|Win32.Build.0 = Debug|Win32
+		{BEFCEC24-DCE0-4272-BCDA-CE5FECA7A30A}.Debug|x64.ActiveCfg = Debug|x64
+		{BEFCEC24-DCE0-4272-BCDA-CE5FECA7A30A}.Debug|x64.Build.0 = Debug|x64
+		{BEFCEC24-DCE0-4272-BCDA-CE5FECA7A30A}.Release|ARM64.ActiveCfg = Release|Win32
+		{BEFCEC24-DCE0-4272-BCDA-CE5FECA7A30A}.Release|Win32.ActiveCfg = Release|Win32
+		{BEFCEC24-DCE0-4272-BCDA-CE5FECA7A30A}.Release|Win32.Build.0 = Release|Win32
+		{BEFCEC24-DCE0-4272-BCDA-CE5FECA7A30A}.Release|x64.ActiveCfg = Release|x64
+		{BEFCEC24-DCE0-4272-BCDA-CE5FECA7A30A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -344,6 +344,12 @@ namespace DuiLib {
 		//m_ResInfo.m_DrawInfoHash = {};
 	}
 
+	// 释放缓存，准备更新预览
+	void CPaintManagerUI::reInit(CPaintManagerUI* as)
+	{
+		m_ResInfo = as->m_ResInfo;
+	}
+
 	CPaintManagerUI::~CPaintManagerUI()
 	{
 		// Delete the control-tree structures

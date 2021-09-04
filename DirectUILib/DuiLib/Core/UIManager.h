@@ -357,6 +357,8 @@ namespace DuiLib {
 
 		void reInit();
 
+		void reInit(CPaintManagerUI* as);
+
 	public:
 		void Init(HWND hWnd, LPCTSTR pstrName = NULL);
 		bool IsUpdateNeeded() const;

@@ -233,12 +233,6 @@
     <ClInclude Include="Control\WinTabbar.h">
       <Filter>Control</Filter>
     </ClInclude>
-    <ClInclude Include="Control\SciEditText.h">
-      <Filter>Control</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Scintilla\lexilla\access\LexillaAccess.h">
-      <Filter>Control</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils\DPI.cpp">
@@ -436,12 +430,6 @@
       <Filter>WindowsEx</Filter>
     </ClCompile>
     <ClCompile Include="Control\WinTabbar.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
-    <ClCompile Include="Control\SciEditText.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Scintilla\lexilla\access\LexillaAccess.cxx">
       <Filter>Control</Filter>
     </ClCompile>
   </ItemGroup>

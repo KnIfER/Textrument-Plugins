@@ -1284,7 +1284,7 @@ namespace DuiLib {
 	{
 		if (!_isDirectUI)
 		{
-			return true;
+			//return true;
 		}
 		// 绘制循序：背景颜色->背景图->状态图->文本->边框
 		SIZE cxyBorderRound;

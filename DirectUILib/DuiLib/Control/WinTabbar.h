@@ -17,6 +17,8 @@ namespace DuiLib {
 		void SetPos(RECT rc, bool bNeedInvalidate = true) override;
 
 		void resize();
+
+		bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl) override;
 	};
 
 } // namespace DuiLib

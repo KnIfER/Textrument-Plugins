@@ -18,6 +18,9 @@ namespace DuiLib {
 
 		void resize();
 
+		bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl) override;
+
+		bool Add(CControlUI* pControl) override;
 	protected:
 		CWindowWnd* _WND;
 	};

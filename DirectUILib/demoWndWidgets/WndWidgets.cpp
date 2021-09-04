@@ -6,10 +6,10 @@
 
 using namespace DuiLib;
 
-class ListMainForm : public WindowImplBase, public INotifyUI
+class EditorDemo : public WindowImplBase, public INotifyUI
 {
 public:
-    ListMainForm() { 
+    EditorDemo() { 
        _isRoundedRgn = false;
        _isWindowLess = false;
     };     
@@ -88,13 +88,15 @@ private:
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)
 {
+    REGIST_DUICONTROL(SciEditText);
+
     CPaintManagerUI::SetInstance(hInstance);
    // CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin"));
     //CPaintManagerUI::SetResourceZip(_T("ListRes.zip"));
 
     CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin//ListRes"));
 
-    ListMainForm* pFrame = new ListMainForm;
+    EditorDemo* pFrame = new EditorDemo;
 
     if( pFrame == NULL ) return 0;
    

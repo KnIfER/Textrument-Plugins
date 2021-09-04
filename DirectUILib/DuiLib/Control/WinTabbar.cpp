@@ -190,5 +190,62 @@ namespace DuiLib {
 		}
 	}
 	
-
+	bool WinTabbar::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
+	{
+		//RECT rcTemp = { 0 };
+		//if( !::IntersectRect(&rcTemp, &rcPaint, &m_rcItem) ) return true;
+		//
+		//PAINTSTRUCT ps;
+		//hDC = BeginPaint(_hWnd, &ps);
+		//
+		//CRenderClip clip;
+		//CRenderClip::GenerateClip(hDC, rcTemp, clip);
+		////CControlUI::DoPaint(hDC, rcPaint, pStopControl);
+		//
+		//if( m_items.GetSize() > 0 ) {
+		//	RECT rcInset = GetInset();
+		//	RECT rc = m_rcItem;
+		//	rc.left += rcInset.left;
+		//	rc.top += rcInset.top;
+		//	rc.right -= rcInset.right;
+		//	rc.bottom -= rcInset.bottom;
+		//
+		//	if( !::IntersectRect(&rcTemp, &rcPaint, &rc) ) {
+		//		for( int it = 0; it < m_items.GetSize(); it++ ) {
+		//			CControlUI* pControl = static_cast<CControlUI*>(m_items[it]);
+		//			if( pControl == pStopControl ) return false;
+		//			if( !pControl->IsVisible() ) continue;
+		//			if( !::IntersectRect(&rcTemp, &rcPaint, &pControl->GetPos()) ) continue;
+		//			if( pControl ->IsFloat() ) {
+		//				if( !::IntersectRect(&rcTemp, &m_rcItem, &pControl->GetPos()) ) continue;
+		//				if( !pControl->Paint(hDC, m_rcItem, pStopControl) ) return false;
+		//			}
+		//		}
+		//	}
+		//	else {
+		//		CRenderClip childClip;
+		//		CRenderClip::GenerateClip(hDC, rcTemp, childClip);
+		//		for( int it = 0; it < m_items.GetSize(); it++ ) {
+		//			CControlUI* pControl = static_cast<CControlUI*>(m_items[it]);
+		//			if( pControl == pStopControl ) return false;
+		//			if( !pControl->IsVisible() ) continue;
+		//			if( !::IntersectRect(&rcTemp, &rcPaint, &pControl->GetPos()) ) continue;
+		//			if( pControl->IsFloat() ) {
+		//				if( !::IntersectRect(&rcTemp, &m_rcItem, &pControl->GetPos()) ) continue;
+		//				CRenderClip::UseOldClipBegin(hDC, childClip);
+		//				if( !pControl->Paint(hDC, m_rcItem, pStopControl) ) return false;
+		//				CRenderClip::UseOldClipEnd(hDC, childClip);
+		//			}
+		//			else {
+		//				if( !::IntersectRect(&rcTemp, &rc, &pControl->GetPos()) ) continue;
+		//				if( !pControl->Paint(hDC, m_rcItem, pStopControl) ) return false;
+		//			}
+		//		}
+		//	}
+		//}
+		// 
+		//
+		//::EndPaint(_hWnd, &ps);
+		return true;
+	}
 } // namespace DuiLib
