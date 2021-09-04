@@ -11,6 +11,8 @@ extern int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent);
 extern int SKIMG_RGN_RunMain(HINSTANCE hInstance, HWND hParent);
 extern int SKIMG_VIEW_RunMain(HINSTANCE hInstance, HWND hParent);
 extern int D2DT_RunMain(HINSTANCE hInstance, HWND hParent);
+extern int GLDEMO_RunMain(HINSTANCE hInstance, HWND hParent);
+extern int GLSkiaHello_RunMain(HINSTANCE hInstance, HWND hParent);
 
 class SkiaTestBox : public WindowImplBase, public INotifyUI
 {
@@ -78,6 +80,16 @@ public:
             D2DT_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
             return; 
         }
+        if( ud == L"T6" ) 
+        { 
+            GLDEMO_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
+            return; 
+        }
+        if( ud == L"T7" ) 
+        { 
+            GLSkiaHello_RunMain(CPaintManagerUI::GetInstance(), GetHWND());
+            return; 
+        }
     }
 };
 
@@ -102,7 +114,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     pFrame->ShowWindow();
 
-    pFrame->doTest(L"T1");
+    pFrame->doTest(L"T7");
 
 
     CPaintManagerUI::MessageLoop();

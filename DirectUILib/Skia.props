@@ -2,15 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <SKPA>$(SolutionDir)\Skia</SKPA>
-    <SKLib_STATIC_64>$(SKPA)\third_party\Skia\out\Release-x64</SKLib_STATIC_64>
+    <SKPA>$(SolutionDir)\Skia\third_party\skia</SKPA>
+    <SKLib_STATIC_64>$(SKPA)\out\Release-x64</SKLib_STATIC_64>
     <SKLibs>d3d12allocator.lib;expat.lib;freetype2.lib;harfbuzz.lib;icu.lib;libjpeg.lib;libpng.lib;libwebp.lib;libwebp_sse41.lib;particles.lib;skia.lib;skottie.lib;skparagraph.lib;skresources.lib;sksg.lib;skshaper.lib;spirv_cross.lib;svg.lib;zlib.lib</SKLibs>
-    <SKLib_STATIC_64D>$(SKPA)\third_party\Skia\out\Debug-x64</SKLib_STATIC_64D>
+    <SKLib_STATIC_64D>$(SKPA)\out\Debug-x64</SKLib_STATIC_64D>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SKPA);$(SKPA)\ext--;$(SKPA)\third_party\Skia;$(SKPA)\third_party;$(SKPA)\third_party\Skia\ext--;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SKPA);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(SKLibs);Opengl32.lib;Vfw32.lib;d3dcompiler.lib;D3D12.lib;%(AdditionalDependencies)</AdditionalDependencies>
