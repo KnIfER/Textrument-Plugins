@@ -1,23 +1,12 @@
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++}
-{						OPENGL APP DEMO VERSION 1.0					        }   
-{       Writen by Leon de Boer, Perth, Western Australia, 2016.				}
-{	  	contact: ldeboer@gateway.net.au										}
-{																			}
-{       Copyright released on Code Project Open License (CPOL) and use      }
-{       and/or abuse is freely given :-)									}
-{																			}
-{        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND		}
-{++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-
-/*==========================================================================
-
-https://www.codeproject.com/Articles/1093919/Native-Win-API-OpenGL-Tutorial-Part-1
-
-==========================================================================*/
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+* Skia OpenGl Hello World
+* 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkRandom.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkImage.h"
 #include "include/core/SKImageInfo.h"
 #include "include/core/SkImageGenerator.h"
@@ -41,22 +30,19 @@ https://www.codeproject.com/Articles/1093919/Native-Win-API-OpenGL-Tutorial-Part
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 
-#include <windows.h>		// Standard windows headers
-#include <tchar.h>			// Unicode support	.. we will use TCHAR rather than char	
-#include <commctrl.h>		// Common controls dialogs unit
-#include <gl\gl.h>			// Header File For The OpenGL32 Library
-#include <gl\glu.h>			// Header File For The GLu32 Library
+#include <windows.h>
+#include <tchar.h>	
+#include <commctrl.h>
+
+//#include <gl\gl.h>
+#include <glad/glad.h>
+#include <gl\glu.h>	
 
 
 namespace GLSkiaHello{
 	HWND Wnd;
-	/***************************************************************************
-	APP SPECIFIC INTERNAL CONSTANTS
-	***************************************************************************/
+	int drawCnt=0;
 
-	/*--------------------------------------------------------------------------}
-	;{                   MAIN MENU COMMAND VALUE CONSTANTS			            }
-	;{-------------------------------------------------------------------------*/
 #define IDC_BMPLOAD 101									// App menu to load bitmap
 #define IDC_EXIT 105									// App menu command to exit application
 #define IDC_TIMERSTART 201								// App menu to start timer
@@ -119,40 +105,50 @@ namespace GLSkiaHello{
 			return OpenFN.nFilterIndex;									// Return filter type
 		} else return 0;												// Dialog cancelled
 	};
-
-
-	/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	OPENGL ROUTINES
-	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-
-
-	/*-[ InitGL ]---------------------------------------------------------------
-
-	Initializes the OpenGL system for the provided window handle, this is a one
-	time call made for the window and the function returns the created Render
-	context for the window. The responsibility to delete the render context when
-	completed is placed on the caller. In this demo initialization will be called
-	from WM_CREATE from the application window. Failure of initialization will
-	return a render context handle equal to zero.
-
-	16Apr16 LdB
-	--------------------------------------------------------------------------*/
-
+	 
 	sk_sp<GrDirectContext> context = nullptr;
-	//sk_sp<SkSurface> gpuSurface = nullptr;
 	sk_sp<const GrGLInterface> glface;
-	SkCanvas* gpuCanvas;
 	sk_sp<SkSurface> gpuSurface;
 
-	void SkiaDraw(SkCanvas* canvas,int w,int h) {
-		canvas->clear(SkColor(0xff0000ff));
+	void Skia_c_example_draw(SkCanvas* canvas) {
+		SkPaint* fill = new SkPaint();
+		fill->setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));
+		//canvas->drawPaint(*fill);
 
+		fill->setColor(SkColorSetARGB(0xFF, 0x00, 0xFF, 0xFF));
+		SkRect rect{100.0f, 100.0f, 540.0f, 380.0f};
+		canvas->drawRect(rect, *fill);
+
+		SkPaint* stroke = new SkPaint();
+		stroke->setColor(SkColorSetARGB(0xFF, 0xFF, 0x00, 0x00));
+		stroke->setAntiAlias(true);
+		stroke->setStroke(true);
+		stroke->setStrokeWidth(5.0f);
+
+		SkPathBuilder* path_builder = new SkPathBuilder();
+		path_builder->moveTo (50.0f, 50.0f);
+		path_builder->lineTo (590.0f, 50.0f);
+		path_builder->cubicTo(-490.0f, 50.0f, 1130.0f, 430.0f, 50.0f, 430.0f);
+		path_builder->lineTo (590.0f, 430.0f);
+		SkPath path = path_builder->detach();
+		canvas->drawPath(path, *stroke);
+
+		fill->setColor(SkColorSetARGB(0x80, 0x00, 0xFF, 0x00));
+		SkRect rect2{120.0f, 120.0f, 520.0f, 360.0f};
+		canvas->drawOval(rect2, *fill);
+
+		delete path_builder;
+		delete stroke;
+		delete fill;
+	}
+
+	void SkiaDraw(SkCanvas* canvas,int w,int h) {
+		//canvas->clear(SkColor(0xff0000ff));
 		SkPaint paint;
 		paint.setStrokeWidth(1);
 		paint.setARGB(0xff, 0xff, 0, 0);
 		for (int i = 0; i < h; i++) canvas->drawPoint(0, i, paint);
 		for (int i = w; i > 0 ; i--) canvas->drawPoint(i-1, h-1, paint);
-
 
 		SkFont font;
 		font.setSize(16);
@@ -164,17 +160,16 @@ namespace GLSkiaHello{
 
 		SkString string("Hello Skia World #");
 
-		//string.appendS32(drawCnt++);
+		string.appendS32(drawCnt++);
 		string.appendf(" bmpSize=%.2f", 1);
 		canvas->drawString(string, 1, 16, font, textpaint);
-		canvas->flush();
-		context->flush();
+
+		Skia_c_example_draw(canvas);
 	}
 
 
 	static HGLRC InitGL (HWND Wnd) {
-		HGLRC ourOpenGLRC = 0;											// Preset render context to zero
-
+		HGLRC hglrc = 0;											// Preset render context to zero
 																		//  We need to make sure the window create in a suitable DC format
 		PIXELFORMATDESCRIPTOR pfd = {
 			sizeof(PIXELFORMATDESCRIPTOR),
@@ -195,12 +190,22 @@ namespace GLSkiaHello{
 			0, 0, 0
 		};
 
-		HDC ourWindowHandleToDeviceContext = GetDC(Wnd);				// Get a DC for our window
-		int letWindowsChooseThisPixelFormat = ChoosePixelFormat(ourWindowHandleToDeviceContext, &pfd); // Let windows select an appropriate pixel format
-		if (SetPixelFormat(ourWindowHandleToDeviceContext, letWindowsChooseThisPixelFormat, &pfd)) { // Try to set that pixel format
-			ourOpenGLRC = wglCreateContext(ourWindowHandleToDeviceContext);
-			if (ourOpenGLRC != 0) {
-				wglMakeCurrent(ourWindowHandleToDeviceContext, ourOpenGLRC); // Make our render context current
+		HDC hdc = GetDC(Wnd);
+		int pixelFormat = ChoosePixelFormat(hdc, &pfd); // Let windows select an appropriate pixel format
+		if (SetPixelFormat(hdc, pixelFormat, &pfd)) { // Try to set that pixel format
+			hglrc = wglCreateContext(hdc);
+			if (hglrc != 0) {
+				wglMakeCurrent(hdc, hglrc);				// Make our render context current
+				
+
+#ifdef GLAPIENTRY
+				if (!gladLoadGL())
+					//if(!gladLoadGLLoader((GLADloadproc)wglGetProcAddress)) 
+				{
+					throw std::runtime_error("Failed to initialize GLAD");
+				}
+#endif
+				
 				glEnable(GL_TEXTURE_2D);								// Enable Texture Mapping
 				glShadeModel(GL_SMOOTH);								// Enable Smooth Shading
 				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);					// Black Background
@@ -211,27 +216,13 @@ namespace GLSkiaHello{
 			}
 			glface = GrGLMakeNativeInterface();
 		}
-		ReleaseDC(Wnd, ourWindowHandleToDeviceContext);					// Release the window device context we are done
+		ReleaseDC(Wnd, hdc);					// Release the window device context we are done
 		
+		SetTimer(Wnd, 1, 100, 0);	
 		
-																		// You've already created your OpenGL context and bound it.
-
-		
-		
-		
-		return (ourOpenGLRC);											// Return the render context
+		return (hglrc);											// Return the render context
 	}
 
-
-	/*-[ ReSizeGLScene ]--------------------------------------------------------
-
-	Rescales the OpenGL system for a given size of screen, called at anytime
-	the Application resizes the window . It will call once after InitGL and
-	in this demo it is called from WM_WINDOWPOSCHANGED from the application 
-	main window.
-
-	15Apr16 LdB
-	--------------------------------------------------------------------------*/
 	static void ReSizeGLScene (HWND Wnd) {
 		GLDATABASE* db = (GLDATABASE*) GetProp(Wnd, DATABASE_PROPERTY); // Fetch the data base
 		if (db == 0) return;											// Cant resize .. no render context
@@ -251,39 +242,39 @@ namespace GLSkiaHello{
 		glMatrixMode(GL_MODELVIEW);										// Select The Modelview Matrix
 		glLoadIdentity();												// Reset The Modelview Matrix
 		ReleaseDC(Wnd, Dc);												// Release the window DC
+		
 	}
 
 	int buffer_width  = 0;
 	int buffer_height = 0;
 
 	sk_sp<SkSurface> getBackbufferSurface(int width, int height) {
-		if (nullptr == gpuSurface || buffer_width!=width || buffer_height!=height) {
+		if (nullptr == gpuSurface || buffer_width!=width || buffer_height!=height)
+		{
 			if (context) {
 				GrGLint buffer;
-				GR_GL_CALL(glface.get(), GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
+				//GR_GL_CALL(glface.get(), GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
 
 				GrGLFramebufferInfo fbInfo;
 				fbInfo.fFBOID = buffer;
 				fbInfo.fFormat = GR_GL_RGBA8;
 
-				GrBackendRenderTarget backendRT(width,
-					height,
-					1,
-					8,
-					fbInfo);
 
-				gpuSurface = SkSurface::MakeFromBackendRenderTarget(context.get(), backendRT,
-					kBottomLeft_GrSurfaceOrigin,
-					kRGBA_8888_SkColorType,
-					0,
-					0);
+				GrBackendRenderTarget backendRT(width
+					, height
+					, 1
+					, 8
+					, fbInfo);
+
+				gpuSurface = SkSurface::MakeFromBackendRenderTarget(context.get()
+					, backendRT
+					, kBottomLeft_GrSurfaceOrigin
+					, kRGBA_8888_SkColorType
+					, 0
+					, 0);
 				
-
-				//SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-				//gpuSurface = SkSurface::MakeRenderTarget(context.get(), SkBudgeted::kNo, info);
-
-				buffer_width==width;
-				buffer_height==height;
+				buffer_width=width;
+				buffer_height=height;
 			}
 		}
 
@@ -291,84 +282,101 @@ namespace GLSkiaHello{
 	}
 
 	void DrawGLScene(GLDATABASE* db, HDC Dc, int width, int height) {
-		//if (db == 0) return;
-		//wglMakeCurrent(Dc, db->Rc);
-		//ReSizeGLScene(Wnd);
-
+		if ((db == 0) || (db->glTexture == 0)) return;
+		wglMakeCurrent(Dc, db->Rc);
 		if (!context)
 		{
 			GrContextOptions defaultOptions;
+			//defaultOptions.fUseDrawInsteadOfClear = GrContextOptions::Enable::kYes;
 			context = GrDirectContext::MakeGL(glface, defaultOptions);
 		}
 
-		if (!context)
+
+
+		//glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+		//
+		//// Reset 
+		//glDisable(GL_BLEND);
+		//glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+		////glBindVertexArray(vertexArrayObject); // Restore default VAO 
+		//glFrontFace(GL_CCW);
+		//glEnable(GL_FRAMEBUFFER_SRGB);
+		//glActiveTexture(0);
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glUseProgram(0);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		//glBindBuffer(GL_ARRAY_BUFFER, 0);
+		//glDrawBuffer(GL_BACK);
+		//glEnable(GL_DITHER);
+		//glDepthMask(true);
+		//glEnable(GL_MULTISAMPLE);
+		//glDisable(GL_SCISSOR_TEST);
+
+
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
+		glLoadIdentity();									
+		glTranslatef(0.0f, 0.0f, -5.0f);
+
+		glRotatef(db->xrot, 1.0f, 0.0f, 0.0f);
+		glRotatef(db->yrot, 0.0f, 1.0f, 0.0f);
+
+		glBindTexture(GL_TEXTURE_2D, db->glTexture);
+
+
+		// Draw our texture cube to screen :-)
+		glBegin(GL_QUADS);
+		// Front Face
+		glNormal3f(0.0f, 0.0f, 1.0f);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
+		// Back Face
+		glNormal3f(0.0f, 0.0f, -1.0f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+		// Top Face
+		glNormal3f(0.0f, 1.0f, 0.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, 1.0f, 1.0f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+		// Bottom Face
+		glNormal3f(0.0f, -1.0f, 0.0f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+		// Right face
+		glNormal3f(1.0f, 0.0f, 0.0f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+		// Left Face
+		glNormal3f(-1.0f, 0.0f, 0.0f);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+		glEnd();
+
+
+		context->resetContext(GrGLBackendState::kALL_GrGLBackendState);
+		sk_sp<SkSurface> glSurf = getBackbufferSurface(width, height);
+		if (glSurf) 
 		{
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);				// Clear The Screen And The Depth Buffer
-			glLoadIdentity();												// Reset The View
-			glTranslatef(0.0f, 0.0f, -5.0f);
-
-			glRotatef(db->xrot, 1.0f, 0.0f, 0.0f);
-			glRotatef(db->yrot, 0.0f, 1.0f, 0.0f);
-
-			glBindTexture(GL_TEXTURE_2D, db->glTexture);
-
-			// Draw our texture cube to screen :-)
-			glBegin(GL_QUADS);
-			// Front Face
-			glNormal3f(0.0f, 0.0f, 1.0f);
-			glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
-			glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-			glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-			glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
-			// Back Face
-			glNormal3f(0.0f, 0.0f, -1.0f);
-			glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-			glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-			glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-			glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-			// Top Face
-			glNormal3f(0.0f, 1.0f, 0.0f);
-			glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-			glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
-			glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-			glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-			// Bottom Face
-			glNormal3f(0.0f, -1.0f, 0.0f);
-			glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-			glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-			glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-			glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
-			// Right face
-			glNormal3f(1.0f, 0.0f, 0.0f);
-			glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-			glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-			glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-			glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-			// Left Face
-			glNormal3f(-1.0f, 0.0f, 0.0f);
-			glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-			glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
-			glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
-			glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-			glEnd();
+			//glSurf->getCanvas()->clear(SkColor(0xff0000ff));
+			SkiaDraw(glSurf->getCanvas(), width, height);
+			//glSurf->flushAndSubmit();
+			glSurf->getCanvas()->flush();
 		}
-		else {
-			//SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-			//sk_sp<SkSurface> gpuSurface(SkSurface::MakeRenderTarget(context.get(), SkBudgeted::kNo, info));
-			sk_sp<SkSurface> gpuSurface_ = getBackbufferSurface(width, height);
-			if (gpuSurface_) 
-			{
-				gpuCanvas = gpuSurface_->getCanvas();
-				SkiaDraw(gpuCanvas, width, height);
-				//context->flush();
-				gpuSurface_->flushAndSubmit();
 
-				 //TCHAR buffer[100]={0};
-				 //wsprintf(buffer,TEXT("position=%d"), glface.get());
-				 //::MessageBox(NULL, buffer, TEXT(""), MB_OK);
-			}
-
-		}
 
 	}
 
@@ -423,7 +431,8 @@ namespace GLSkiaHello{
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, 3, BMP.bmWidth, BMP.bmHeight, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, lpPixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, BMP.bmWidth, BMP.bmHeight, 0, 0x80E0, GL_UNSIGNED_BYTE, lpPixels);
+		//glTexImage2D(GL_TEXTURE_2D, 0, 3, BMP.bmWidth, BMP.bmHeight, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, lpPixels);
 
 		free(lpPixels);													// Free allocated pixel memory
 		ReleaseDC(Wnd, Dc);												// Release the window DC
@@ -443,17 +452,18 @@ namespace GLSkiaHello{
 				RECT rc;
 				::GetClientRect(Wnd, &rc);
 
-				//GLDATABASE* db = (GLDATABASE*) GetProp(Wnd, DATABASE_PROPERTY);// Fetch the data base
-				//BeginPaint(Wnd, &ps);								// Begin paint
-				//DrawGLScene(db, ps.hdc, rc.right, rc.bottom);							// Draw the OpenGL scene
-				//SwapBuffers(ps.hdc);								// Swap buffers
-				//
-				//EndPaint(Wnd, &ps);									// End paint
+
+				GLDATABASE* db = (GLDATABASE*) GetProp(Wnd, DATABASE_PROPERTY);// Fetch the data base
+				
+				//BeginPaint(Wnd, &ps);						
+				//DrawGLScene(db, ps.hdc, rc.right, rc.bottom);
+				//SwapBuffers(ps.hdc);
+				//EndPaint(Wnd, &ps);							
 
 
 				HDC hdc = BeginPaint(Wnd, &ps);
 				
-					DrawGLScene(0, hdc, rc.right, rc.bottom);
+					DrawGLScene(db, hdc, rc.right, rc.bottom);
 				
 					HDC dc = GetDC(Wnd);
 					SwapBuffers(dc);
@@ -463,6 +473,16 @@ namespace GLSkiaHello{
 
 				return 0;
 			} break;
+			case WM_WINDOWPOSCHANGED:	
+				if (drawCnt>100)
+				{
+					break;
+				}
+				if ((lParam == 0) || ((((PWINDOWPOS) lParam)->flags & SWP_NOSIZE) == 0)){
+					ReSizeGLScene(Wnd);									// Rescale the GL window							
+					InvalidateRect(Wnd, 0, TRUE);						// We need a redraw now so invalidate us
+				}
+			break;
 			case WM_CREATE:	{			//  First manually build a menu for a window
 				HMENU SubMenu, Menu;
 				Menu = CreateMenu();								// Create a menu and populate it
@@ -485,11 +505,17 @@ namespace GLSkiaHello{
 				db->glTexture = 0;									// Zero the texture
 				db->xrot = 0.0f;									// Zero x rotation
 				db->yrot = 0.0f;									// Zero y rotation
+
+				db->glTexture = BMP2GLTexture(L"D:\\Code\\Skija\\opengl\\OpenGLAppDemo\\Dragons.bmp", Wnd, db);
+
+				
 				SetProp(Wnd, DATABASE_PROPERTY, (HANDLE) db);		// Set the database structure to a property on window
 				ReSizeGLScene(Wnd);									// Rescale the OpenGL window
-			}
-						  break;
+			} break;
 			case WM_DESTROY: {
+				context = nullptr;
+				glface = nullptr;
+				gpuSurface = nullptr;
 				// We need to do some cleanups as program is going to exit	
 				wglMakeCurrent(NULL, NULL);							// Make the rendering context not current 
 				GLDATABASE* db = (GLDATABASE*) GetProp(Wnd, DATABASE_PROPERTY); // Fetch the data base
@@ -499,9 +525,7 @@ namespace GLSkiaHello{
 						glDeleteTextures(1, &db->glTexture);		// If valid gltexture delete it
 					free(db);										// Release the data structure memory itself
 				}
-				PostQuitMessage(0);									// Post quit message
-			}
-						   break;
+			} break;
 			case WM_COMMAND:
 				switch (LOWORD(wParam)){
 					case IDC_BMPLOAD: {                                 // LOAD BITMAP COMMAND
@@ -523,17 +547,17 @@ namespace GLSkiaHello{
 							}
 						}
 					} break;
-					case IDC_EXIT:										// EXIT COMMAND
-						PostMessage(Wnd, WM_CLOSE, 0, 0);				// Post close message 
+					case IDC_EXIT:								
+						PostMessage(Wnd, WM_CLOSE, 0, 0);		
 						break;
-					case IDC_TIMERSTART: {								// Menu item: Timer-->Start timer
-						SetTimer(Wnd,								// handle to main window 
-							1,										// timer identifier 
-							100,									// 100 ms interval 
-							0);										// timer callback null
+					case IDC_TIMERSTART: {						
+						SetTimer(Wnd,							
+							1,									
+							100,								
+							0);									
 					}  break;
-					case IDC_TIMERSTOP: {								// Menu item: Timer-->Stop timer
-						KillTimer(Wnd, 1);							// Kill the timer
+					case IDC_TIMERSTOP: {						
+						KillTimer(Wnd, 1);						
 					} break;
 				};
 				break;
@@ -543,12 +567,6 @@ namespace GLSkiaHello{
 				db->yrot += 1.0f;									// Inc y rotation
 				InvalidateRect(Wnd, 0, TRUE);						// We need a redraw now so invalidate us			
 			} break;
-			case WM_WINDOWPOSCHANGED:	
-				if ((lParam == 0) || ((((PWINDOWPOS) lParam)->flags & SWP_NOSIZE) == 0)){
-					ReSizeGLScene(Wnd);									// Rescale the GL window							
-					InvalidateRect(Wnd, 0, TRUE);						// We need a redraw now so invalidate us
-				}
-				break;
 			case WM_ERASEBKGND:											// WM_ERASEBKGND MESSAGE
 				return (FALSE);
 			default: return DefWindowProc(Wnd, Msg, wParam, lParam);	// Default handler
@@ -579,8 +597,8 @@ int GLSkiaHello_RunMain(HINSTANCE hInstance, HWND hParent)
 	RegisterClassEx(&WndClass);										// Register the class
 	GetClientRect(GetDesktopWindow(), &R);							// Get desktop area					
 	Wnd = CreateWindowEx(0, AppClassName, _T("OpenGL Demo Program"), 
-		WS_VISIBLE | WS_OVERLAPPEDWINDOW, R.left+50, R.top+50, 
-		R.right-R.left-100, R.bottom-R.top-100,
+		WS_VISIBLE | WS_OVERLAPPEDWINDOW, R.left+300, R.top+300, 
+		R.right-R.left-400, R.bottom-R.top-400,
 		0, 0, 0, NULL);
 	return (0);
 }

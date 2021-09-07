@@ -24,6 +24,7 @@
     </ClCompile>
     <ClCompile Include="GLAppDemo.cpp" />
     <ClCompile Include="GLSkiaHelloWorld.cpp" />
+    <ClCompile Include="..\SkiaPlotLib\glad\src\glad.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\DuiLib\ControlEx\ComboEdit.h">

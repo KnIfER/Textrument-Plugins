@@ -11,6 +11,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SKPA);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SK_GL;SK_DIRECT3D;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(SKLibs);Opengl32.lib;Vfw32.lib;d3dcompiler.lib;D3D12.lib;%(AdditionalDependencies)</AdditionalDependencies>
