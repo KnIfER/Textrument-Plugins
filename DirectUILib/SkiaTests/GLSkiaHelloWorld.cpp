@@ -117,7 +117,7 @@ namespace GLSkiaHello{
 
 		fill->setColor(SkColorSetARGB(0xFF, 0x00, 0xFF, 0xFF));
 		SkRect rect{100.0f, 100.0f, 540.0f, 380.0f};
-		canvas->drawRect(rect, *fill);
+		//canvas->drawRect(rect, *fill);
 
 		SkPaint* stroke = new SkPaint();
 		stroke->setColor(SkColorSetARGB(0xFF, 0xFF, 0x00, 0x00));
@@ -134,6 +134,7 @@ namespace GLSkiaHello{
 		canvas->drawPath(path, *stroke);
 
 		fill->setColor(SkColorSetARGB(0x80, 0x00, 0xFF, 0x00));
+		fill->setColor(SkColorSetARGB(0x80, 0x00, 0xFF, 0xFF));
 		SkRect rect2{120.0f, 120.0f, 520.0f, 360.0f};
 		canvas->drawOval(rect2, *fill);
 
@@ -150,21 +151,23 @@ namespace GLSkiaHello{
 		for (int i = 0; i < h; i++) canvas->drawPoint(0, i, paint);
 		for (int i = w; i > 0 ; i--) canvas->drawPoint(i-1, h-1, paint);
 
+		auto pFace = SkTypeface::MakeFromName("宋体", SkFontStyle::Normal());
 		SkFont font;
-		font.setSize(16);
+		font.setSize(28);
+		font.setTypeface(pFace);
+		font.setEmbolden(true);
 		SkPaint textpaint;
 		textpaint.reset();
-		font.setSize(16);
 		textpaint.setColor(SkColor(0xffff0000));
 		textpaint.setAntiAlias(true);
-
-		SkString string("Hello Skia World #");
-
+		
+		SkString string("  SKia/Opengl混合绘制 #");
+		
 		string.appendS32(drawCnt++);
-		string.appendf(" bmpSize=%.2f", 1);
-		canvas->drawString(string, 1, 16, font, textpaint);
-
+		canvas->drawString(string, 1, 30, font, textpaint);
+		
 		Skia_c_example_draw(canvas);
+		 
 	}
 
 
@@ -208,7 +211,7 @@ namespace GLSkiaHello{
 				
 				glEnable(GL_TEXTURE_2D);								// Enable Texture Mapping
 				glShadeModel(GL_SMOOTH);								// Enable Smooth Shading
-				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);					// Black Background
+				glClearColor(0.0f, 0.0f, 120.0f, 0.0f);					// Black Background
 				glClearDepth(1.0f);										// Depth Buffer Setup
 				glEnable(GL_DEPTH_TEST);								// Enables Depth Testing
 				glDepthFunc(GL_LEQUAL);									// The Type Of Depth Testing To Do
@@ -217,20 +220,23 @@ namespace GLSkiaHello{
 			glface = GrGLMakeNativeInterface();
 		}
 		ReleaseDC(Wnd, hdc);					// Release the window device context we are done
-		
-		SetTimer(Wnd, 1, 100, 0);	
+
+		SetTimer(Wnd, 1, 20, 0);	
 		
 		return (hglrc);											// Return the render context
 	}
+
+	int Width;
+	int Height;
 
 	static void ReSizeGLScene (HWND Wnd) {
 		GLDATABASE* db = (GLDATABASE*) GetProp(Wnd, DATABASE_PROPERTY); // Fetch the data base
 		if (db == 0) return;											// Cant resize .. no render context
 		HDC Dc = GetWindowDC(Wnd);										// Get the window DC
 		RECT r;
-		GetWindowRect(Wnd, &r);											// Fetch the window size
-		int Width = r.right - r.left;									// Window width
-		int Height = r.bottom - r.top;									// Window height
+		GetClientRect(Wnd, &r);											// Fetch the window size
+		Width = r.right - r.left;									// Window width
+		Height = r.bottom - r.top;									// Window height
 		if (Height == 0) Height = 1;									// Stop divid by zero
 		wglMakeCurrent(Dc, db->Rc);										// Make our render context current
 		glViewport(0, 0, Width, Height);								// Reset The Current Viewport
@@ -283,23 +289,29 @@ namespace GLSkiaHello{
 
 	void DrawGLScene(GLDATABASE* db, HDC Dc, int width, int height) {
 		if ((db == 0) || (db->glTexture == 0)) return;
+
+		//if (Width!=width||Height!=height)
+		//{
+		//	ReSizeGLScene(Wnd);
+		//	gpuSurface = NULL;
+		//}
+
 		wglMakeCurrent(Dc, db->Rc);
 		if (!context)
 		{
 			GrContextOptions defaultOptions;
-			//defaultOptions.fUseDrawInsteadOfClear = GrContextOptions::Enable::kYes;
+			defaultOptions.fUseDrawInsteadOfClear = GrContextOptions::Enable::kYes;
 			context = GrDirectContext::MakeGL(glface, defaultOptions);
 		}
 
 
-
 		//glCullFace(GL_BACK);
 		glEnable(GL_CULL_FACE);
-		//
-		//// Reset 
+		
+		// Reset 
 		//glDisable(GL_BLEND);
 		//glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
-		////glBindVertexArray(vertexArrayObject); // Restore default VAO 
+		//glBindVertexArray(vertexArrayObject); // Restore default VAO 
 		//glFrontFace(GL_CCW);
 		//glEnable(GL_FRAMEBUFFER_SRGB);
 		//glActiveTexture(0);
@@ -315,8 +327,11 @@ namespace GLSkiaHello{
 		//glDisable(GL_SCISSOR_TEST);
 
 
+		// start draw...
+		 
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
+
 		glLoadIdentity();									
 		glTranslatef(0.0f, 0.0f, -5.0f);
 
@@ -368,13 +383,14 @@ namespace GLSkiaHello{
 
 
 		context->resetContext(GrGLBackendState::kALL_GrGLBackendState);
+		 
+		// Reset Viewport Size
 		sk_sp<SkSurface> glSurf = getBackbufferSurface(width, height);
 		if (glSurf) 
 		{
 			//glSurf->getCanvas()->clear(SkColor(0xff0000ff));
 			SkiaDraw(glSurf->getCanvas(), width, height);
-			//glSurf->flushAndSubmit();
-			glSurf->getCanvas()->flush();
+			glSurf->flushAndSubmit();
 		}
 
 
@@ -473,14 +489,12 @@ namespace GLSkiaHello{
 
 				return 0;
 			} break;
-			case WM_WINDOWPOSCHANGED:	
-				if (drawCnt>100)
-				{
-					break;
-				}
+			case WM_WINDOWPOSCHANGED:
 				if ((lParam == 0) || ((((PWINDOWPOS) lParam)->flags & SWP_NOSIZE) == 0)){
-					ReSizeGLScene(Wnd);									// Rescale the GL window							
-					InvalidateRect(Wnd, 0, TRUE);						// We need a redraw now so invalidate us
+					ReSizeGLScene(Wnd);			
+					gpuSurface = 0;
+					::InvalidateRect(Wnd, 0, FALSE);
+					//::UpdateWindow(Wnd);
 				}
 			break;
 			case WM_CREATE:	{			//  First manually build a menu for a window
