@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{52AD14B0-0E96-43A0-BE6C-94593853A1FB}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>NOMINMAX;MATPLOT_BUILD_HIGH_RESOLUTION_WORLD_MAP;cimg_display=2;CMAKE_INTDIR="Debug";WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../;../3rd_party/nodesoup/include;../3rd_party/cimg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;NOMINMAX;MATPLOT_BUILD_HIGH_RESOLUTION_WORLD_MAP;cimg_display=2;CMAKE_INTDIR="Release";WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>../;../3rd_party/nodesoup/include;../3rd_party/cimg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../;../3rd_party/nodesoup/include;../3rd_party/cimg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>NDEBUG;NOMINMAX;MATPLOT_BUILD_HIGH_RESOLUTION_WORLD_MAP;cimg_display=2;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../;../3rd_party/nodesoup/include;../3rd_party/cimg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>NOMINMAX;MATPLOT_BUILD_HIGH_RESOLUTION_WORLD_MAP;cimg_display=2;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="axes_objects\bars.cpp" />
+    <ClCompile Include="axes_objects\box_chart.cpp" />
+    <ClCompile Include="axes_objects\circles.cpp" />
+    <ClCompile Include="axes_objects\contours.cpp" />
+    <ClCompile Include="axes_objects\error_bar.cpp" />
+    <ClCompile Include="axes_objects\filled_area.cpp" />
+    <ClCompile Include="axes_objects\function_line.cpp" />
+    <ClCompile Include="axes_objects\histogram.cpp" />
+    <ClCompile Include="axes_objects\labels.cpp" />
+    <ClCompile Include="axes_objects\line.cpp" />
+    <ClCompile Include="axes_objects\matrix.cpp" />
+    <ClCompile Include="axes_objects\network.cpp" />
+    <ClCompile Include="axes_objects\parallel_lines.cpp" />
+    <ClCompile Include="axes_objects\stair.cpp" />
+    <ClCompile Include="axes_objects\string_function.cpp" />
+    <ClCompile Include="axes_objects\surface.cpp" />
+    <ClCompile Include="axes_objects\vectors.cpp" />
+    <ClCompile Include="backend\backend_interface.cpp" />
+    <ClCompile Include="backend\backend_registry.cpp" />
+    <ClCompile Include="backend\gnuplot.cpp" />
+    <ClCompile Include="core\axes_object.cpp" />
+    <ClCompile Include="core\axes_type.cpp" />
+    <ClCompile Include="core\axis_type.cpp" />
+    <ClCompile Include="core\figure_registry.cpp" />
+    <ClCompile Include="core\figure_type.cpp" />
+    <ClCompile Include="core\legend.cpp" />
+    <ClCompile Include="core\line_spec.cpp" />
+    <ClCompile Include="freestanding\axes_functions.cpp" />
+    <ClCompile Include="freestanding\histcounts.cpp" />
+    <ClCompile Include="util\colors.cpp" />
+    <ClCompile Include="util\common.cpp" />
+    <ClCompile Include="util\contourc.cpp" />
+    <ClCompile Include="util\world_cities.cpp" />
+    <ClCompile Include="util\world_map_10m.cpp" />
+    <ClCompile Include="util\world_map_110m.cpp" />
+    <ClCompile Include="util\world_map_50m.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="axes_objects\bars.h" />
+    <ClInclude Include="axes_objects\box_chart.h" />
+    <ClInclude Include="axes_objects\circles.h" />
+    <ClInclude Include="axes_objects\contours.h" />
+    <ClInclude Include="axes_objects\error_bar.h" />
+    <ClInclude Include="axes_objects\filled_area.h" />
+    <ClInclude Include="axes_objects\function_line.h" />
+    <ClInclude Include="axes_objects\histogram.h" />
+    <ClInclude Include="axes_objects\labels.h" />
+    <ClInclude Include="axes_objects\line.h" />
+    <ClInclude Include="axes_objects\matrix.h" />
+    <ClInclude Include="axes_objects\network.h" />
+    <ClInclude Include="axes_objects\parallel_lines.h" />
+    <ClInclude Include="axes_objects\stair.h" />
+    <ClInclude Include="axes_objects\string_function.h" />
+    <ClInclude Include="axes_objects\surface.h" />
+    <ClInclude Include="axes_objects\vectors.h" />
+    <ClInclude Include="backend\backend_interface.h" />
+    <ClInclude Include="backend\backend_registry.h" />
+    <ClInclude Include="backend\gnuplot.h" />
+    <ClInclude Include="core\axes_object.h" />
+    <ClInclude Include="core\axes_type.h" />
+    <ClInclude Include="core\axis_type.h" />
+    <ClInclude Include="core\figure_registry.h" />
+    <ClInclude Include="core\figure_type.h" />
+    <ClInclude Include="core\legend.h" />
+    <ClInclude Include="core\line_spec.h" />
+    <ClInclude Include="freestanding\axes_functions.h" />
+    <ClInclude Include="freestanding\axes_lim.h" />
+    <ClInclude Include="freestanding\figure_functions.h" />
+    <ClInclude Include="freestanding\histcounts.h" />
+    <ClInclude Include="freestanding\plot.h" />
+    <ClInclude Include="matplot.h" />
+    <ClInclude Include="util\colors.h" />
+    <ClInclude Include="util\common.h" />
+    <ClInclude Include="util\concepts.h" />
+    <ClInclude Include="util\contourc.h" />
+    <ClInclude Include="util\geodata.h" />
+    <ClInclude Include="util\handle_types.h" />
+    <ClInclude Include="util\keywords.h" />
+    <ClInclude Include="util\popen.h" />
+    <ClInclude Include="util\type_traits.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

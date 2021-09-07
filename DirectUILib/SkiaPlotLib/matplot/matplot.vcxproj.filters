@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="axes_objects\bars.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\box_chart.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\circles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\contours.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\error_bar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\filled_area.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\function_line.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\histogram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\labels.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\line.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\matrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\network.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\parallel_lines.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\stair.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\string_function.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\surface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="axes_objects\vectors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\backend_interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\backend_registry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\gnuplot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\axes_object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\axes_type.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\axis_type.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\figure_registry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\figure_type.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\legend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\line_spec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="freestanding\axes_functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="freestanding\histcounts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\colors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\contourc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\world_map_110m.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\world_map_10m.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\world_map_50m.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\world_cities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="axes_objects\vectors.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="freestanding\axes_functions.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="freestanding\axes_lim.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\axes_object.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\axes_type.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\axis_type.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="backend\backend_interface.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="backend\backend_registry.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\bars.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\box_chart.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\circles.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\colors.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\common.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\concepts.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\contourc.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\contours.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\error_bar.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="freestanding\figure_functions.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\figure_registry.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\figure_type.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\filled_area.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\function_line.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\geodata.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="backend\gnuplot.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\handle_types.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="freestanding\histcounts.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\histogram.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\keywords.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\labels.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\legend.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\line.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\line_spec.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="matplot.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\matrix.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\network.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\parallel_lines.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="freestanding\plot.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\popen.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\stair.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\string_function.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="axes_objects\surface.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\type_traits.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
