@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <ANGLE>$(SolutionDir)\GL\ANGLE</ANGLE>
+    <ANGLE_STATIC_64>$(ANGLE)\out\Release-x64</ANGLE_STATIC_64>
+    <ANGLE_Libs>libGLESv2.dll.lib;libEGL.dll.lib;libGLESv1_CM.dll.lib</ANGLE_Libs>
+    <ANGLE_STATIC_64D>$(ANGLE)\out\Debug-x64</ANGLE_STATIC_64D>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ANGLE)\include.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(ANGLE_Libs);Opengl32.lib;Vfw32.lib;d3dcompiler.lib;D3D12.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="ANGLE">
+      <Value>$(ANGLE)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ANGLE_STATIC_64">
+      <Value>$(ANGLE_STATIC_64)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ANGLE_Libs">
+      <Value>$(ANGLE_Libs)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ANGLE_STATIC_64D">
+      <Value>$(ANGLE_STATIC_64D)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

@@ -597,62 +597,84 @@ using namespace GLAPPDemo;
 /* ------------------------------------------------------------------------
 The application entry point
 -----------------------------------------------------------------------*/
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+//int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int main()
 {
-	MSG msg;
-	RECT rect;
-	HWND Wnd;
-	WNDCLASSEX WndClass;
+	if (false)
+	{
+		MSG msg;
+		RECT rect;
+		HWND Wnd;
+		WNDCLASSEX WndClass;
 
-	memset(&WndClass, 0, sizeof(WNDCLASSEX));						
-	WndClass.cbSize = sizeof(WNDCLASSEX);							
-	WndClass.style = CS_HREDRAW | CS_VREDRAW;										
-	WndClass.lpfnWndProc = GLPlotProc;						
-	WndClass.cbClsExtra = 200;										
-	WndClass.cbWndExtra = 200;										
-	WndClass.hInstance = hInstance;						
-	WndClass.hIcon = LoadIcon(0, IDI_APPLICATION);					
-	WndClass.hCursor = LoadCursor(0, IDC_ARROW);					
-	WndClass.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);	
-	WndClass.lpszMenuName = NULL;									
-	WndClass.lpszClassName = AppClassName;							
-	RegisterClassEx(&WndClass);			
+		memset(&WndClass, 0, sizeof(WNDCLASSEX));						
+		WndClass.cbSize = sizeof(WNDCLASSEX);							
+		WndClass.style = CS_HREDRAW | CS_VREDRAW;										
+		WndClass.lpfnWndProc = GLPlotProc;						
+		WndClass.cbClsExtra = 200;										
+		WndClass.cbWndExtra = 200;										
+		WndClass.hInstance = 0;						
+		WndClass.hIcon = LoadIcon(0, IDI_APPLICATION);					
+		WndClass.hCursor = LoadCursor(0, IDC_ARROW);					
+		WndClass.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);	
+		WndClass.lpszMenuName = NULL;									
+		WndClass.lpszClassName = AppClassName;							
+		RegisterClassEx(&WndClass);			
 
-	GetClientRect(GetDesktopWindow(), &rect);
+		GetClientRect(GetDesktopWindow(), &rect);
 
-	Wnd = CreateWindowEx(0
-		, AppClassName
-		, _T("OpenGL Demo Program"), 
-		WS_VISIBLE | WS_OVERLAPPEDWINDOW
-		, rect.left+50, rect.top+50 
-		,rect.right-rect.left-100, rect.bottom-rect.top-100
-		, 0
-		, 0
-		, hInstance
-		, NULL);					
+		Wnd = CreateWindowEx(0
+			, AppClassName
+			, _T("OpenGL Demo Program"), 
+			WS_VISIBLE | WS_OVERLAPPEDWINDOW
+			, rect.left+50, rect.top+50 
+			,rect.right-rect.left-100, rect.bottom-rect.top-100
+			, 0
+			, 0
+			, 0
+			, NULL);					
 
-	while(GetMessage(&msg, 0, 0, 0)){	
-		TranslateMessage(&msg);			
-		DispatchMessage(&msg);			
-	};
+		while(GetMessage(&msg, 0, 0, 0)){	
+			TranslateMessage(&msg);			
+			DispatchMessage(&msg);			
+		};
+	}
+	else
+	{
+		//auto f = figure<backend::gnuplot>(true);
+		//auto ax = f->current_axes();
+		//figure(f);
+		//auto x = transform(iota(1, 10), [](double x) { return pow(x, 2); });
+		//plot(x);
+		////ylabel("Y Axis");
+		//show();
+
+
+		_figure = figure<backend::gnuplot>(true);
+
+		_ax = _figure->current_axes();
+		_ax->xlim({0.,2. * pi});
+		_ax->ylim({-1.5,1.5});
+		_ax->yticks(iota(-1.5,0.5,+1.5));
+		_ax->xticks(iota(0.,1.,2. * pi));
+
+		// Create plots
+		float timeValue = GetTickCount();
+		timeValue = timeValue/1000;
+		//timeValue = 0;
+		std::vector<double> x = linspace(0., 2. * pi);
+		std::vector<double> y = transform(x, [&](auto x) { return sin(x + timeValue); });
+		_ax->hold(off);
+		_ax->plot(x, y); // , "-o"
+		_ax->hold(on);
+		_ax->plot(x, transform(y, [](auto y) { return -y; }), "--xr");
+		//_ax->plot(x, transform(x, [](auto x) { return x / pi - 1.; }), "-:gs");
+		// _ax->plot({1.0, 0.7, 0.4, 0.0, -0.4, -0.7, -1}, "k");
+
+		ylabel("Y Axis");
+
+		// Draw the figure
+		_figure->draw();
+	}
 	return (0);
 }
-
-//int main() {
-//
-//
-//    //auto f = figure<Plotter>(true);
-//    //auto ax = f->current_axes();
-//    //
-//    //figure(f);
-//    //
-//    //auto x = transform(iota(1, 10), [](double x) { return pow(x, 2); });
-//    //
-//    //plot(x);
-//    //
-//    ////ylabel("Y Axis");
-//    //
-//    //show();
-//
-//    return 0;
-//}
