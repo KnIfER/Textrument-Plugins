@@ -1,0 +1,12 @@
+
+fix clipping for drawRect. 
+
+fix windows' z-order not working. (broken)
+
+impl. other draw types. (fold  & close btn, scrollbar, circle...)
+
+
+fix text input. (ime)
+
+fix……
+
