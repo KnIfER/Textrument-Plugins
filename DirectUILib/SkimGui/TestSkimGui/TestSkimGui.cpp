@@ -32,8 +32,6 @@
 #include "include/core/SkSurface.h"
 
 #include "imgui_draw_plus.h"
-
-#include "imgui.h"
 #include "imgui_internal.h";
 
 #include <windows.h>
@@ -52,28 +50,29 @@
 #pragma comment(lib,"OpenGl32.lib")
 #pragma comment(lib,"GLU32.lib")
 
-SkCanvas* _canvas;
-SkPaint _textpaint;
-SkFont _font;
-
-// 0=on demand; 1=timer
-int invalidate_model = 0;
-// current invalidate_model
-int invalidate_mode = invalidate_model;
 
 namespace GLSkiaHello{
+	SkCanvas* _canvas;
+	SkPaint _textpaint;
+	SkFont _font;
+
+	// invalidate : 0=on demand; 1=on timer.
+	int invalidate_model = 1;
+	// invalidation interval in millisec.
+	int timer_swap_interal = 15;
+	// current invalidation model.
+	int invalidate_mode = invalidate_model;
+
+	// true=limit 60FPS; false=unlimited framerate.
+	bool vsync_on = false;
+	// use another thread to loop-invalidate the window.
+	bool benchmark = true;
+	// is running or not.
+	bool bAPPRunning = true;
+
 	HWND Wnd;
 	int drawCnt=0;
-
-	/*--------------------------------------------------------------------------}
-	;{                      APPLICATION STRING CONSTANTS			            }
-	;{-------------------------------------------------------------------------*/
-	const TCHAR* AppClassName = _T("OPENGL_DEMO_APP");
-	static const TCHAR* DATABASE_PROPERTY = _T("OurDataStructure");
-
-	/*---------------------------------------------------------------------------
-	OUR OPENGL DATA RECORD DEFINITION
-	---------------------------------------------------------------------------*/
+	static const TCHAR* DATABASE_PROPERTY = _T("GLData");
 	typedef struct OpenGLData {
 		HGLRC Rc;			
 		GLuint glTexture;	
@@ -114,7 +113,6 @@ namespace GLSkiaHello{
 		SkPath path = path_builder.detach();
 		canvas->drawPath(path, stroke);
 
-		fill.setColor(SkColorSetARGB(0x80, 0x00, 0xFF, 0x00));
 		fill.setColor(SkColorSetARGB(0x80, 0x00, 0xFF, 0xFF));
 		SkRect rect2{120.0f, 120.0f, 520.0f, 360.0f};
 		canvas->drawOval(rect2, fill);
@@ -127,9 +125,9 @@ namespace GLSkiaHello{
 		//for (int i = w; i > 0 ; i--) canvas->drawPoint(i-1, h-1, paint);
 
 		
-		sktring.resize(15);
-		sktring.appendS32(drawCnt++);
-		canvas->drawString(sktring, 1, 500, _font, _textpaint);
+		//sktring.resize(15);
+		//sktring.appendS32(drawCnt++);
+		//canvas->drawString(sktring, 1, 500, _font, _textpaint);
 		
 		Skia_c_example_draw(canvas);
 		 
@@ -150,6 +148,17 @@ namespace GLSkiaHello{
 		return ImGui::GetCurrentContext() ? (ImGui_ImplOpenGL2_Data*)ImGui::GetIO().BackendRendererUserData : NULL;
 	}
 
+	DWORD WINAPI BenchmarkTest(LPVOID p)
+	{	
+		while(bAPPRunning) 
+		{
+			//PostMessage(Wnd, WM_COMMAND, 12323283, 0);
+			InvalidateRect(Wnd, NULL, FALSE);
+			//Sleep(8);
+		}
+		return 0;
+	}
+
 	static bool ImGui_ImplOpenGL2_CreateFontsTexture()
 	{
 		// Build texture atlas
@@ -158,7 +167,7 @@ namespace GLSkiaHello{
 		unsigned char* pixels;
 		int width, height;
 		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bit (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
-
+		
 																  // Upload texture to graphics system
 		GLint last_texture;
 		glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
@@ -168,15 +177,24 @@ namespace GLSkiaHello{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
+		
 		// Store our identifier
 		io.Fonts->SetTexID((ImTextureID)(intptr_t)bd->FontTexture);
-
+		
 		// Restore state
 		glBindTexture(GL_TEXTURE_2D, last_texture);
 
 		return true;
 	}
+
+	INT64 TicksLastDraw, TicksPerSecond;
+
+
+	typedef void (APIENTRY *PFNWGLEXTSWAPCONTROLPROC) (int);
+	typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
+	PFNWGLEXTSWAPCONTROLPROC wglSwapIntervalEXT = NULL;
+	PFNWGLEXTGETSWAPINTERVALPROC wglGetSwapIntervalEXT = NULL;
+
 
 	static HGLRC InitGL (HWND Wnd) {
 		HGLRC hglrc = 0;											// Preset render context to zero
@@ -220,6 +238,19 @@ namespace GLSkiaHello{
 				glEnable(GL_DEPTH_TEST);								// Enables Depth Testing
 				glDepthFunc(GL_LEQUAL);									// The Type Of Depth Testing To Do
 				glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);		// Really Nice Perspective Calculations
+
+				{
+					char* extensions = (char*)glGetString(GL_EXTENSIONS);
+					if (strstr(extensions,"WGL_EXT_swap_control")) {
+						wglSwapIntervalEXT = (PFNWGLEXTSWAPCONTROLPROC)wglGetProcAddress("wglSwapIntervalEXT");
+						wglGetSwapIntervalEXT = (PFNWGLEXTGETSWAPINTERVALPROC)wglGetProcAddress("wglGetSwapIntervalEXT");
+					}
+					if (wglSwapIntervalEXT)
+					{
+						wglSwapIntervalEXT(vsync_on);
+					}
+				}
+
 			}
 			glface = GrGLMakeNativeInterface();
 		}
@@ -245,7 +276,8 @@ namespace GLSkiaHello{
 		ImGui::StyleColorsDark();
 		io.Fonts->AddFontDefault();
 		ImGui_ImplOpenGL2_CreateFontsTexture();
-
+		::QueryPerformanceFrequency((LARGE_INTEGER*)&TicksPerSecond);
+		::QueryPerformanceCounter((LARGE_INTEGER*)&TicksLastDraw);
 
 		paint.setStrokeWidth(1);
 		paint.setARGB(0xff, 0xff, 0, 0);
@@ -254,9 +286,17 @@ namespace GLSkiaHello{
 		stroke.setStroke(true);
 		stroke.setStrokeWidth(5.0f);
 
-		if (invalidate_mode==1)
+
+		if (benchmark)
 		{
-			SetTimer(Wnd, timer_tick_1, 20, 0);
+			invalidate_model = invalidate_mode = 1;
+			HANDLE hThread;
+			DWORD  threadId;
+			hThread = CreateThread(NULL, 0,	BenchmarkTest, 0, 0, &threadId);
+		}
+		else if (invalidate_model==1)
+		{
+			SetTimer(Wnd, timer_tick_1, timer_swap_interal, 0);
 		}
 
 		return (hglrc);											// Return the render context
@@ -324,13 +364,26 @@ namespace GLSkiaHello{
 		return gpuSurface;
 	}
 
-	bool show_demo_window = true;
-
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	void DrawGLScene(GLDATABASE* db, HDC Dc, int width, int height) {
 		if (db == 0) return;
 		//if (!db->Rc) db->Rc = InitGL(db->hwnd);
-		//wglMakeCurrent(Dc, db->Rc);
+		wglMakeCurrent(Dc, db->Rc);
+
+		//glViewport(0, 0, width, height);
+		//glEnable(GL_BLEND);
+		//glBlendEquation(GL_FUNC_ADD);
+		//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		//glDisable(GL_CULL_FACE);
+		//glDisable(GL_DEPTH_TEST);
+		//glDisable(GL_STENCIL_TEST);
+		////glEnable(GL_SCISSOR_TEST);
+		////if (bd->GlVersion >= 310)
+		//glDisable(GL_PRIMITIVE_RESTART);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glEnable(GL_CULL_FACE);
+
 		if (!context)
 		{
 			GrContextOptions defaultOptions;
@@ -343,58 +396,88 @@ namespace GLSkiaHello{
 			sk_sp<SkSurface> glSurf = getBackbufferSurface(width, height);
 			if (glSurf) 
 			{
+				glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+				glClear(GL_COLOR_BUFFER_BIT);
 				_canvas = glSurf->getCanvas();
-				_canvas->clear(SkColor(0xffffffff));
+				//_canvas->clear(SkColor(0xffffffff));
 
-				SkiaDraw(_canvas, width, height);
+				//SkiaDraw(_canvas, width, height);
 
-				if (true)
+				//if (false)
 				{
+					static bool show_demo_window = true;
+					static bool show_another_window = false;
+					static float f = 0.0f;
+					static int counter = 0;
+
+					ImGuiIO& io = ImGui::GetIO();
+					INT64 now = 0;
+					::QueryPerformanceCounter((LARGE_INTEGER*)&now);
+					io.DeltaTime = (float)(now - TicksLastDraw) / TicksPerSecond;
+					TicksLastDraw = now;
+
 					ImGui::NewFrame();
-					if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
-					ImGui::Begin("Hello, Skia For IMGUI！");
-					
-					ImGui::Button("Chinese《 你好 》");
-					ImGui::Button("English《 Hello 》");
-					ImGui::Button("Russian《 Привет 》");
-					ImGui::Button("Portuguese《 Olá 》");
-					ImGui::Button("French《 Allô 》");
-					ImGui::Button("Arabic《 أهلا 》");
-					ImGui::Button("Greek《 γεια σας 》");
-					ImGui::Button("Serbian《 Здраво 》");
-					ImGui::Button("Mongolian《 Сайн уу 》");
-					ImGui::Button("Korean《 안녕하십니까 》");
-					ImGui::Button("Japanese《 こんにちは 》");
-					
-					ImGui::Button("FONT = 宋体");
-					
+
+					ImGui::Begin("Hello, world!");                          
+					ImGui::Text("This is some useful text.");               
+					ImGui::Checkbox("Demo Window", &show_demo_window);      
+					ImGui::Checkbox("Another Window", &show_another_window);
+					ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            
+					ImGui::ColorEdit3("clear color", (float*)&clear_color); 
+					if (ImGui::Button("Button"))                            
+						counter++;
+					ImGui::SameLine();
+					ImGui::Text("counter = %d", counter);
+					ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 					ImGui::End();
+
+					if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+					if (show_another_window)
+					{
+						ImGui::Begin("Hello, Skia For IMGUI！");
+						ImGui::Button("Chinese《 你好 》");
+						ImGui::Button("English《 Hello 》");
+						ImGui::Button("Russian《 Привет 》");
+						ImGui::Button("Portuguese《 Olá 》");
+						ImGui::Button("French《 Allô 》");
+						ImGui::Button("Arabic《 أهلا 》");
+						ImGui::Button("Greek《 γεια σας 》");
+						ImGui::Button("Serbian《 Здраво 》");
+						ImGui::Button("Mongolian《 Сайн уу 》");
+						ImGui::Button("Korean《 안녕하십니까 》");
+						ImGui::Button("Japanese《 こんにちは 》");
+						
+						ImGui::Button("FONT = 宋体");
+						ImGui::End();
+					}
+
 					ImGui::EndFrame();
 					
 					ImGui::Render();
 				}
-				glSurf->flushAndSubmit();
+				_canvas->flush();
+				//glSurf->flushAndSubmit();
 			}
 		}
 	}
 
 	int invalid_cnt=0;
 	DWORD last_inval_tm=0;
-	int inval_interval=10;
+	int post_invalidate_interval=10;
 
 
 	void postInvalidate(HWND hwnd) 
 	{
 		::KillTimer(hwnd, timer_tick_2);
 		DWORD now = ::GetTickCount();
-		if (now-last_inval_tm>inval_interval)
+		if (now-last_inval_tm>post_invalidate_interval)
 		{
 			::InvalidateRect(hwnd, NULL, FALSE);
 			last_inval_tm = now;
 		}
 		else
 		{
-			//::SetTimer(hwnd, timer_tick_2, inval_interval, nullptr);
+			//::SetTimer(hwnd, timer_tick_2, post_invalidate_interval, nullptr);
 		}
 	}
 
@@ -457,22 +540,19 @@ namespace GLSkiaHello{
 				RECT rc;
 				::GetClientRect(hwnd, &rc);
 				GLDATABASE* db = (GLDATABASE*) GetProp(hwnd, DATABASE_PROPERTY);
-				
-				//HDC hdc = BeginPaint(hwnd, &ps);
-				//
-				//DrawGLScene(db, hdc, rc.right, rc.bottom);
-				//
-				//	HDC dc = GetDC(hwnd);
-				//	SwapBuffers(dc);
-				//	ReleaseDC(hwnd, dc);
-				//
-				//EndPaint(hwnd, &ps);
+				HDC hdc = BeginPaint(hwnd, &ps);
+				DrawGLScene(db, hdc, rc.right, rc.bottom);
+					HDC dc = GetDC(hwnd);
+					SwapBuffers(dc);
+					ReleaseDC(hwnd, dc);
+				EndPaint(hwnd, &ps);
 
-				::BeginPaint(Wnd, &ps);	
-				DrawGLScene(db, ps.hdc, rc.right, rc.bottom);
-				::SwapBuffers(ps.hdc);	
-				::EndPaint(Wnd, &ps);
+				//::BeginPaint(Wnd, &ps);	
+				//DrawGLScene(db, ps.hdc, rc.right, rc.bottom);
+				//::SwapBuffers(ps.hdc);	
+				//::EndPaint(Wnd, &ps);
 
+				//return TRUE;
 				return DefWindowProc(hwnd, msg, wParam, lParam);
 			} 
 			else if(invalidate_mode==0)
@@ -529,6 +609,7 @@ namespace GLSkiaHello{
 				SetProp(hwnd, DATABASE_PROPERTY, (HANDLE) db);		// Set the database structure to a property on window
 				ReSizeGLScene(hwnd);									// Rescale the OpenGL window
 			} break;
+			case WM_CLOSE:
 			case WM_DESTROY: {
 				context = nullptr;
 				glface = nullptr;
@@ -543,6 +624,7 @@ namespace GLSkiaHello{
 					free(db);										// Release the data structure memory itself
 				}
 				::PostQuitMessage(0);
+				bAPPRunning = false;
 			} break;
 			case WM_TIMER: {											// WM_TIMER MESSAGE
 				if (wParam==timer_tick_2)
@@ -552,10 +634,8 @@ namespace GLSkiaHello{
 					InvalidateRect(hwnd, NULL, FALSE);
 				} 
 				else if(wParam==timer_tick_1){
-					GLDATABASE* db = (GLDATABASE*) GetProp(hwnd, DATABASE_PROPERTY);// Fetch the data base
-					db->xrot += 1.0f;									// Inc x rotation
-					db->yrot += 1.0f;									// Inc y rotation
-					InvalidateRect(hwnd, 0, TRUE);						// We need a redraw now so invalidate us			
+					InvalidateRect(hwnd, NULL, FALSE);
+					//PostMessage(hwnd, WM_COMMAND, 12323283, 0);
 				}
 			} break;
 			case WM_ERASEBKGND:											// WM_ERASEBKGND MESSAGE
@@ -602,88 +682,96 @@ namespace GLSkiaHello{
 			{
 				ImGuiIO& io = ImGui::GetIO();
 				io.AddFocusEvent(msg == WM_SETFOCUS);
-			}
 				return 0;
+			}
+			case WM_COMMAND:
+			{
+				if (wParam==12323283)
+				{
+					InvalidateRect(hwnd, NULL, FALSE);
+				}
+				return TRUE;
+			}
 		};
 		return DefWindowProc(hwnd, msg, wParam, lParam);
 	};
+
+	float  _space_width;
+	CHAR tmpchar[16];
+	TCHAR tmptext[4];
+	size_t tmplen;
+	unsigned tmpc_;
+
+	void drawWithClipping(const ImVec4& clip_rect)
+	{
+		_canvas->save();
+		_canvas->clipRect({clip_rect.x, clip_rect.y, clip_rect.z, clip_rect.w});
+	}
+
+	void drawWithoutClipping()
+	{
+		_canvas->restore();
+	}
+
+	float Skia_Measure_Char(unsigned int c_) 
+	{
+		//if (true) return 1.4*_space_width;
+		if (c_==' ')
+		{
+			return _space_width;
+		}
+		if (tmpc_!=c_)
+		{
+			if (c_>0x80)
+			{
+				tmptext[0]=c_;
+				tmplen = WideCharToMultiByte(CP_ACP, 0, tmptext, 1, tmpchar, 15, 0, 0);
+			}
+			else
+			{
+				tmpchar[0]=c_;
+				tmplen=1;
+			}
+			tmpc_ = c_;
+		}
+		SkRect rect;
+		_font.measureText(tmpchar, tmplen, SkTextEncoding::kUTF8, &rect);
+
+		return rect.right();
+	}
+
+	void drawText(unsigned int c_, float x, float y) 
+	{
+		if (tmpc_!=c_)
+		{
+			if (c_>0x80)
+			{
+				tmptext[0]=c_;
+				tmplen = WideCharToMultiByte(CP_ACP, 0, tmptext, 1, tmpchar, 15, 0, 0);
+			}
+			else
+			{
+				tmpchar[0]=c_;
+				tmplen=1;
+			}
+			tmpc_ = c_;
+		}
+		_canvas->drawSimpleText(tmpchar, tmplen, SkTextEncoding::kUTF8, x, y+_font_spacing, _font, _textpaint);
+	}
+
+	void drawRect(const ImVec2& p_min, const ImVec2& p_max, ImU32 col) 
+	{
+		fill.setColor(SkColorSetARGB((col>>IM_COL32_A_SHIFT)&0xFF
+			, (col>>IM_COL32_R_SHIFT)&0xFF
+			, (col>>IM_COL32_G_SHIFT)&0xFF
+			, (col>>IM_COL32_B_SHIFT)&0xFF));
+
+		SkRect rect{p_min.x, p_min.y, p_max.x, p_max.y};
+		_canvas->drawRect(rect, fill);
+	}
 }
 using namespace GLSkiaHello;
 
-float  _space_width;
-float  _font_spacing;
-CHAR tmpchar[16];
-TCHAR tmptext[4];
-size_t tmplen;
-unsigned tmpc_;
-
-void drawWithClipping(const ImVec4& clip_rect)
-{
-	_canvas->save();
-	_canvas->clipRect({clip_rect.x, clip_rect.y, clip_rect.z, clip_rect.w});
-}
-
-void drawWithoutClipping()
-{
-	_canvas->restore();
-}
-
-float Skia_Measure_Char(unsigned int c_) 
-{
-	//if (true) return 1.4*_space_width;
-	if (c_==' ')
-	{
-		return _space_width;
-	}
-	if (tmpc_!=c_)
-	{
-		if (c_>0x80)
-		{
-			tmptext[0]=c_;
-			tmplen = WideCharToMultiByte(CP_ACP, 0, tmptext, 1, tmpchar, 15, 0, 0);
-		}
-		else
-		{
-			tmpchar[0]=c_;
-			tmplen=1;
-		}
-		tmpc_ = c_;
-	}
-	SkRect rect;
-	_font.measureText(tmpchar, tmplen, SkTextEncoding::kUTF8, &rect);
-
-	return rect.right();
-}
-
-void drawText(unsigned int c_, float x, float y) 
-{
-	if (tmpc_!=c_)
-	{
-		if (c_>0x80)
-		{
-			tmptext[0]=c_;
-			tmplen = WideCharToMultiByte(CP_ACP, 0, tmptext, 1, tmpchar, 15, 0, 0);
-		}
-		else
-		{
-			tmpchar[0]=c_;
-			tmplen=1;
-		}
-		tmpc_ = c_;
-	}
-	_canvas->drawSimpleText(tmpchar, tmplen, SkTextEncoding::kUTF8, x, y+_font_spacing, _font, _textpaint);
-}
-
-void drawRect(const ImVec2& p_min, const ImVec2& p_max, ImU32 col) 
-{
-	fill.setColor(SkColorSetARGB((col>>IM_COL32_A_SHIFT)&0xFF
-		, (col>>IM_COL32_R_SHIFT)&0xFF
-		, (col>>IM_COL32_G_SHIFT)&0xFF
-		, (col>>IM_COL32_B_SHIFT)&0xFF));
-
-	SkRect rect{p_min.x, p_min.y, p_max.x, p_max.y};
-	_canvas->drawRect(rect, fill);
-}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) /* The 'entry' point of the program. Console programs use the simple main(...)        */
 {
@@ -715,28 +803,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RECT R;
 	WNDCLASSEX WndClass;
 
-	memset(&WndClass, 0, sizeof(WNDCLASSEX));						// Clear the class record
-	WndClass.cbSize = sizeof(WNDCLASSEX);							// Size of this record
-	WndClass.style = CS_OWNDC;										// Class styles
-	WndClass.lpfnWndProc = OpenGLDemoHandler;						// Handler for this class
-	WndClass.cbClsExtra = 0;										// No extra class data
-	WndClass.cbWndExtra = 0;										// No extra window data
-	WndClass.hInstance = GetModuleHandle(NULL);						// This instance
-	WndClass.hIcon = LoadIcon(0, IDI_APPLICATION);					// Set icon
-	WndClass.hCursor = LoadCursor(0, IDC_ARROW);					// Set cursor
-	WndClass.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);	// Set background brush
-	WndClass.lpszMenuName = NULL;									// No menu yet
-	WndClass.lpszClassName = AppClassName;							// Set class name
-	RegisterClassEx(&WndClass);										// Register the class
-	GetClientRect(GetDesktopWindow(), &R);							// Get desktop area					
-	Wnd = CreateWindowEx(0, AppClassName, _T("OpenGL Demo Program"), 
+	memset(&WndClass, 0, sizeof(WNDCLASSEX));						
+	WndClass.cbSize = sizeof(WNDCLASSEX);							
+	WndClass.style = CS_OWNDC;										
+	WndClass.lpfnWndProc = OpenGLDemoHandler;						
+	WndClass.cbClsExtra = 0;										
+	WndClass.cbWndExtra = 0;										
+	WndClass.hInstance = GetModuleHandle(NULL);						
+	WndClass.hIcon = LoadIcon(0, IDI_APPLICATION);					
+	WndClass.hCursor = LoadCursor(0, IDC_ARROW);					
+	WndClass.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);	
+	WndClass.lpszMenuName = NULL;									
+	WndClass.lpszClassName = L"win32_wnd";					
+	RegisterClassEx(&WndClass);										
+	GetClientRect(GetDesktopWindow(), &R);									
+	Wnd = CreateWindowEx(0, L"win32_wnd", L"SkimGui Test", 
 		WS_VISIBLE | WS_OVERLAPPEDWINDOW, R.left+300, R.top+300, 
 		R.right-R.left-400, R.bottom-R.top-400,
 		0, 0, 0, NULL);
 
-	while (GetMessage(&Msg, 0, 0, 0)){
+	while (GetMessage(&Msg, 0, 0, 0))
+	{
 		TranslateMessage(&Msg);			
-		DispatchMessage(&Msg);			
+		DispatchMessage(&Msg);
 	};
 
 

@@ -3734,7 +3734,11 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
         }
         x += char_width;
     }
-    if (!bUseCustomDraw)
+    if (bUseCustomDraw)
+    {
+        Func_Clip_Reset();
+    }
+    else
     {
     // Give back unused vertices (clipped ones, blanks) ~ this is essentially a PrimUnreserve() action.
     draw_list->VtxBuffer.Size = (int)(vtx_write - draw_list->VtxBuffer.Data); // Same as calling shrink()
@@ -3744,7 +3748,6 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
     draw_list->_IdxWritePtr = idx_write;
     draw_list->_VtxCurrentIdx = vtx_current_idx;
     }
-    Func_Clip_Reset();
 }
 
 //-----------------------------------------------------------------------------

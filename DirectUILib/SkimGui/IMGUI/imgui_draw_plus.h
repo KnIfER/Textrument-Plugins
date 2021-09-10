@@ -21,6 +21,6 @@ typedef void(*FUNC_DRAW_RC)(const ImVec2& p_min, const ImVec2& p_max, ImU32 col)
 __declspec(selectany) FUNC_DRAW_RC Func_Draw_Rect = nullptr;
 
 
-extern float _font_spacing;
+__declspec(selectany) float _font_spacing;
 
 //static float Measure_Char(unsigned int c_){ return 0; }
