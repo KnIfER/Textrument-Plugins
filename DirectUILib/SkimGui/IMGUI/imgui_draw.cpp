@@ -2121,7 +2121,7 @@ static void         Decode85(const unsigned char* src, unsigned char* dst)
 }
 
 // Load embedded ProggyClean.ttf at size 13, disable oversampling
-ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
+ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template, float size_pixels)
 {
     ImFontConfig font_cfg = font_cfg_template ? *font_cfg_template : ImFontConfig();
     if (!font_cfg_template)
@@ -2130,7 +2130,7 @@ ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
         font_cfg.PixelSnapH = true;
     }
     if (font_cfg.SizePixels <= 0.0f)
-        font_cfg.SizePixels = 20.0f * 1.0f;
+        font_cfg.SizePixels = size_pixels * 1.0f;
     if (font_cfg.Name[0] == '\0')
         ImFormatString(font_cfg.Name, IM_ARRAYSIZE(font_cfg.Name), "ProggyClean.ttf, %dpx", (int)font_cfg.SizePixels);
     font_cfg.EllipsisChar = (ImWchar)0x0085;
@@ -2139,6 +2139,47 @@ ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
     const char* ttf_compressed_base85 = GetDefaultCompressedFontDataTTFBase85();
     const ImWchar* glyph_ranges = font_cfg.GlyphRanges != NULL ? font_cfg.GlyphRanges : GetGlyphRangesDefault();
     ImFont* font = AddFontFromMemoryCompressedBase85TTF(ttf_compressed_base85, font_cfg.SizePixels, &font_cfg, glyph_ranges);
+    return font;
+}
+
+ImFont* ImFontAtlas::AddFontDummy(float line_height, float char_width)
+{
+    ImFont* font;
+    if (!Fonts.size())
+    {
+        ImFontConfig* font_config = new ImFontConfig();
+        ImFontConfig & font_cfg = *font_config;
+        font_cfg.OversampleH = font_cfg.OversampleV = 1;
+        font_cfg.PixelSnapH = true;
+        font_cfg.SizePixels = line_height;
+        if (font_cfg.Name[0] == '\0')
+            ImFormatString(font_cfg.Name, IM_ARRAYSIZE(font_cfg.Name), "ProggyDummy.ttf, %dpx", (int)font_cfg.SizePixels);
+        font_cfg.EllipsisChar = (ImWchar)0x0085;
+        font_cfg.GlyphOffset.y = 1.0f * IM_FLOOR(font_cfg.SizePixels / 13.0f);  // Add +1 offset per 13 units
+        static const ImWchar ranges[] =
+        {
+            0x003F, 0x003F,
+            0,
+        };
+        const ImWchar* glyph_ranges = ranges;
+        font = font_cfg.DstFont = IM_NEW(ImFont);
+        font_cfg.DstFont->EllipsisChar = '...';
+        TexReady = true;
+        Fonts.push_back(font);
+        static unsigned char data[]{0, 0, 0, 0};
+        TexPixelsAlpha8 = data;
+        TexWidth = 2;
+        TexHeight = 2;
+        font->ContainerAtlas = this;
+        ImFontConfig** fc = (ImFontConfig**)&font->ConfigData;
+        *fc = font_config;
+    }
+    else
+    {
+        font = Fonts[0];
+    }
+    font->FontSize = line_height;
+    font->FallbackAdvanceX = char_width;
     return font;
 }
 
@@ -3605,6 +3646,8 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
 
     const ImU32 col_untinted = col | ~IM_COL32_A_MASK;
 
+    const char* line_begin = text_begin;
+
     while (s < text_end)
     {
         if (word_wrap_enabled)
@@ -3620,6 +3663,11 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
             if (s >= word_wrap_eol)
             {
                 x = pos.x;
+                if (bUseCustomDraw)
+                {
+                    Func_Draw_Text(line_begin, s-line_begin, x, y, col);
+                    line_begin = s;
+                }
                 y += line_height;
                 word_wrap_eol = NULL;
 
@@ -3635,13 +3683,14 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
 
         // Decode and advance source
         unsigned int c = (unsigned int)*s;
+        int char_len = 1;
         if (c < 0x80)
         {
             s += 1;
         }
         else
         {
-            s += ImTextCharFromUtf8(&c, s, text_end);
+            s += char_len=ImTextCharFromUtf8(&c, s, text_end);
             if (c == 0) // Malformed UTF-8?
                 break;
         }
@@ -3651,6 +3700,11 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
             if (c == '\n')
             {
                 x = pos.x;
+                if (bUseCustomDraw)
+                {
+                    Func_Draw_Text(line_begin, s-line_begin, x, y, col);
+                    line_begin = s;
+                }
                 y += line_height;
                 if (y > clip_rect.w)
                     break; // break out of main loop
@@ -3664,7 +3718,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
         if (glyph == NULL)
             continue;
 
-        float char_width = bUseCustomDraw?Func_Measure_Char(c):(glyph->AdvanceX*scale);
+        float char_width = bUseCustomDraw?Func_Measure_Text(s-char_len, char_len):(glyph->AdvanceX*scale);
         if (glyph->Visible)
         {
             // We don't do a second finer clipping test on the Y axis as we've already skipped anything before clip_rect.y and exit once we pass clip_rect.w
@@ -3716,7 +3770,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
                 // We are NOT calling PrimRectUV() here because non-inlined causes too much overhead in a debug builds. Inlined here:
                 if (bUseCustomDraw)
                 {
-                    Func_Draw_Char(c, x, y);
+                    //Func_Draw_Char(c, x, y);
                 }
                 else
                 {
@@ -3736,6 +3790,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
     }
     if (bUseCustomDraw)
     {
+        Func_Draw_Text(line_begin, s-line_begin, pos.x, y, col);
         Func_Clip_Reset();
     }
     else

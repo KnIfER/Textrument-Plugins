@@ -7,8 +7,14 @@ __declspec(selectany) bool bUseCustomDraw = false;
 typedef float(*FUNC_MEASURE_CHAR)(unsigned int);
 __declspec(selectany) FUNC_MEASURE_CHAR Func_Measure_Char = nullptr;
 
-typedef void(*FUNC_DRAW_CHAR)(unsigned int c_, float x, float y);
+typedef float(*FUNC_MEASURE_TEXT)(const char* utf8_c_, size_t length);
+__declspec(selectany) FUNC_MEASURE_TEXT Func_Measure_Text = nullptr;
+
+typedef void(*FUNC_DRAW_CHAR)(unsigned int c_, float x, float y, unsigned int col);
 __declspec(selectany) FUNC_DRAW_CHAR Func_Draw_Char = nullptr;
+
+typedef void(*FUNC_DRAW_TEXT)(const char* utf8_c_, size_t length, float x, float y, unsigned int col);
+__declspec(selectany) FUNC_DRAW_TEXT Func_Draw_Text = nullptr;
 
 typedef void(*FUNC_CLIP_RC)(const ImVec4& clip_rect);
 __declspec(selectany) FUNC_CLIP_RC Func_Clip_Rect = nullptr;
