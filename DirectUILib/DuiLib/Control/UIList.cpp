@@ -1503,7 +1503,7 @@ namespace DuiLib {
 		return CHorizontalLayoutUI::GetInterface(pstrName);
 	}
 
-	SIZE CListHeaderUI::EstimateSize(SIZE szAvailable)
+	SIZE CListHeaderUI::EstimateSize(const SIZE & szAvailable)
 	{
 		SIZE cXY = { 0, m_cxyFixed.cy };
 		if (cXY.cy == 0 && m_pManager != NULL) {
@@ -1983,7 +1983,7 @@ namespace DuiLib {
 		CContainerUI::DoEvent(event);
 	}
 
-	SIZE CListHeaderItemUI::EstimateSize(SIZE szAvailable)
+	SIZE CListHeaderItemUI::EstimateSize(const SIZE & szAvailable)
 	{
 		if (m_cxyFixed.cy == 0) return CDuiSize(m_cxyFixed.cx, m_pManager->GetDefaultFontInfo()->tm.tmHeight + 14);
 		return CContainerUI::EstimateSize(szAvailable);
@@ -2048,7 +2048,7 @@ namespace DuiLib {
 			CRenderEngine::DrawHtmlText(hDC, m_pManager, rcText, sText, m_dwTextColor, \
 			NULL, NULL, nLinks, m_iFont, m_uTextStyle);
 		else
-			CRenderEngine::DrawText(hDC, m_pManager, rcText, sText, m_dwTextColor, \
+			CRenderEngine::DrawPlainText(hDC, m_pManager, rcText, sText, m_dwTextColor, \
 			m_iFont, m_uTextStyle);
 	}
 
@@ -2409,7 +2409,7 @@ namespace DuiLib {
 	}
 
 
-	SIZE CListLabelElementUI::EstimateSize(SIZE szAvailable)
+	SIZE CListLabelElementUI::EstimateSize(const SIZE & szAvailable)
 	{
 		if (m_pOwner == NULL) return CDuiSize(0, 0);
 		CDuiString sText = GetText();
@@ -2464,7 +2464,7 @@ namespace DuiLib {
 			CRenderEngine::DrawHtmlText(hDC, m_pManager, rcText, sText, iTextColor, \
 			NULL, NULL, nLinks, pInfo->nFont, pInfo->uTextStyle);
 		else
-			CRenderEngine::DrawText(hDC, m_pManager, rcText, sText, iTextColor, \
+			CRenderEngine::DrawPlainText(hDC, m_pManager, rcText, sText, iTextColor, \
 			pInfo->nFont, pInfo->uTextStyle);
 	}
 
@@ -2614,7 +2614,7 @@ namespace DuiLib {
 		CListLabelElementUI::DoEvent(event);
 	}
 
-	SIZE CListTextElementUI::EstimateSize(SIZE szAvailable)
+	SIZE CListTextElementUI::EstimateSize(const SIZE & szAvailable)
 	{
 		TListInfoUI* pInfo = NULL;
 		if (m_pOwner) pInfo = m_pOwner->GetListInfo();
@@ -2679,7 +2679,7 @@ namespace DuiLib {
 				CRenderEngine::DrawHtmlText(hDC, m_pManager, rcItem, strText.GetData(), iTextColor, \
 				&m_rcLinks[m_nLinks], &m_sLinks[m_nLinks], nLinks, pInfo->nFont, pInfo->uTextStyle);
 			else
-				CRenderEngine::DrawText(hDC, m_pManager, rcItem, strText.GetData(), iTextColor, \
+				CRenderEngine::DrawPlainText(hDC, m_pManager, rcItem, strText.GetData(), iTextColor, \
 				pInfo->nFont, pInfo->uTextStyle);
 
 			m_nLinks += nLinks;

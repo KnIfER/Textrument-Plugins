@@ -260,7 +260,7 @@ public:
 	virtual bool SetItemIndex(CControlUI* pControl, int iIndex);
 	virtual bool Remove(CControlUI* pControl);
 
-	SIZE EstimateSize(SIZE szAvailable);
+	SIZE EstimateSize(const SIZE & szAvailable);
 
 	void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue) ;
 };
@@ -345,7 +345,7 @@ public:
 	LPVOID GetInterface(LPCTSTR pstrName);
 	bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
 	void DrawItemText(HDC hDC, const RECT& rcItem);
-	SIZE EstimateSize(SIZE szAvailable);
+	SIZE EstimateSize(const SIZE & szAvailable);
 
 	void DoEvent(TEventUI& event);
 

@@ -110,7 +110,7 @@ namespace DuiLib {
 		void SetSepImage(LPCTSTR pStrImage);
 
 		void DoEvent(TEventUI& event);
-		SIZE EstimateSize(SIZE szAvailable);
+		SIZE EstimateSize(const SIZE & szAvailable);
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 		RECT GetThumbRect() const;
 
@@ -226,7 +226,7 @@ namespace DuiLib {
 		CDuiString* GetLinkContent(int iIndex);
 
 		void DoEvent(TEventUI& event);
-		SIZE EstimateSize(SIZE szAvailable);
+		SIZE EstimateSize(const SIZE & szAvailable);
 
 		void DrawItemText(HDC hDC, const RECT& rcItem);
 

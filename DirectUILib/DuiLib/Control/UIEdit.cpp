@@ -613,7 +613,7 @@ namespace DuiLib
 		if( !IsVisible() && m_pWindow != NULL ) m_pManager->SetFocus(NULL);
 	}
 
-	SIZE CEditUI::EstimateSize(SIZE szAvailable)
+	SIZE CEditUI::EstimateSize(const SIZE & szAvailable)
 	{
 		if( m_cxyFixed.cy == 0 ) return CDuiSize(m_cxyFixed.cx, m_pManager->GetFontInfo(GetFont())->tm.tmHeight + 6);
 		return CControlUI::EstimateSize(szAvailable);
@@ -706,11 +706,11 @@ namespace DuiLib
 		rc.top += m_rcTextPadding.top;
 		rc.bottom -= m_rcTextPadding.bottom;
 		if( IsEnabled() ) {
-			CRenderEngine::DrawText(hDC, m_pManager, rc, sDrawText, mCurTextColor, \
+			CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sDrawText, mCurTextColor, \
 				m_iFont, DT_SINGLELINE | m_uTextStyle);
 		}
 		else {
-			CRenderEngine::DrawText(hDC, m_pManager, rc, sDrawText, m_dwDisabledTextColor, \
+			CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sDrawText, m_dwDisabledTextColor, \
 				m_iFont, DT_SINGLELINE | m_uTextStyle);
 		}
 	}

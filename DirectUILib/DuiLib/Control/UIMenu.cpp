@@ -100,7 +100,7 @@ namespace DuiLib {
 		return __super::Remove(pControl);
 	}
 
-	SIZE CMenuUI::EstimateSize(SIZE szAvailable)
+	SIZE CMenuUI::EstimateSize(const SIZE & szAvailable)
 	{
 		int cxFixed = 0;
 		int cyFixed = 0;
@@ -820,12 +820,12 @@ namespace DuiLib {
 			CRenderEngine::DrawHtmlText(hDC, m_pManager, rcText, sText, iTextColor, \
 			NULL, NULL, nLinks, pInfo->nFont, DT_SINGLELINE | pInfo->uTextStyle);
 		else
-			CRenderEngine::DrawText(hDC, m_pManager, rcText, sText, iTextColor, \
+			CRenderEngine::DrawPlainText(hDC, m_pManager, rcText, sText, iTextColor, \
 			pInfo->nFont, DT_SINGLELINE | pInfo->uTextStyle);
 	}
 
 
-	SIZE CMenuElementUI::EstimateSize(SIZE szAvailable)
+	SIZE CMenuElementUI::EstimateSize(const SIZE & szAvailable)
 	{
 		SIZE cxyFixed = GetManager()->GetDPIObj()->Scale(m_cxyFixed);
 		SIZE cXY = {0};
@@ -849,7 +849,7 @@ namespace DuiLib {
 				CRenderEngine::DrawHtmlText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, iTextColor, NULL, NULL, nLinks, pInfo->nFont, DT_CALCRECT | pInfo->uTextStyle);
 			}
 			else {
-				CRenderEngine::DrawText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, iTextColor, pInfo->nFont, DT_CALCRECT | pInfo->uTextStyle);
+				CRenderEngine::DrawPlainText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, iTextColor, pInfo->nFont, DT_CALCRECT | pInfo->uTextStyle);
 			}
 			cXY.cx = rcText.right - rcText.left + rcTextPadding.left + rcTextPadding.right ;
 			cXY.cy = rcText.bottom - rcText.top + rcTextPadding.top + rcTextPadding.bottom;

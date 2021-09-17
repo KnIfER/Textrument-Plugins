@@ -287,7 +287,7 @@ namespace DuiLib {
 		LPCTSTR GetClass() const;
 		LPVOID GetInterface(LPCTSTR pstrName);
 
-		SIZE EstimateSize(SIZE szAvailable);
+		SIZE EstimateSize(const SIZE & szAvailable);
 		void SetPos(RECT rc, bool bNeedInvalidate = true);
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
@@ -344,7 +344,7 @@ namespace DuiLib {
 		int GetScale() const;
 
 		void DoEvent(TEventUI& event);
-		SIZE EstimateSize(SIZE szAvailable);
+		SIZE EstimateSize(const SIZE & szAvailable);
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 		RECT GetThumbRect() const;
 
@@ -427,7 +427,7 @@ namespace DuiLib {
 		LPVOID GetInterface(LPCTSTR pstrName);
 
 		void DoEvent(TEventUI& event);
-		SIZE EstimateSize(SIZE szAvailable);
+		SIZE EstimateSize(const SIZE & szAvailable);
 		bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
 
 		void DrawItemText(HDC hDC, const RECT& rcItem);
@@ -458,7 +458,7 @@ namespace DuiLib {
 		CDuiString* GetLinkContent(int iIndex);
 
 		void DoEvent(TEventUI& event);
-		SIZE EstimateSize(SIZE szAvailable);
+		SIZE EstimateSize(const SIZE & szAvailable);
 
 		void DrawItemText(HDC hDC, const RECT& rcItem);
 

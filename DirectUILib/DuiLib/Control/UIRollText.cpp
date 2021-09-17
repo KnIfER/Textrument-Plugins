@@ -143,7 +143,7 @@ namespace DuiLib
 			CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, dwTextColor, NULL, NULL, nLinks, m_iFont, uTextStyle);
 		}
 		else {
-			CRenderEngine::DrawText(hDC, m_pManager, rc, sText, dwTextColor, m_iFont, uTextStyle);
+			CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, dwTextColor, m_iFont, uTextStyle);
 		}
 
 		if(m_nText_W_H == 0) {

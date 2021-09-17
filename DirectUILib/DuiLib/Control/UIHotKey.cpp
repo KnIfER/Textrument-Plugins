@@ -427,7 +427,7 @@ namespace DuiLib{
 		if( !IsVisible() && m_pWindow != NULL ) m_pManager->SetFocus(NULL);
 	}
 
-	SIZE CHotKeyUI::EstimateSize(SIZE szAvailable)
+	SIZE CHotKeyUI::EstimateSize(const SIZE & szAvailable)
 	{
 		if( m_cxyFixed.cy == 0 ) return CDuiSize(m_cxyFixed.cx, m_pManager->GetFontInfo(GetFont())->tm.tmHeight + 6);
 		return CControlUI::EstimateSize(szAvailable);
@@ -494,7 +494,7 @@ namespace DuiLib{
 		DWORD dwTextColor = m_dwTextColor;
 		if(!IsEnabled())dwTextColor = m_dwDisabledTextColor;
 
-		CRenderEngine::DrawText(hDC, m_pManager, rc, sText, dwTextColor, m_iFont, DT_SINGLELINE | m_uTextStyle);
+		CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, dwTextColor, m_iFont, DT_SINGLELINE | m_uTextStyle);
 	}
 
 	DWORD CHotKeyUI::GetHotKey() const

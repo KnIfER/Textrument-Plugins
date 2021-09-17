@@ -765,7 +765,7 @@ namespace DuiLib {
 		CContainerUI::DoEvent(event);
 	}
 
-	SIZE CListContainerHeaderItemUI::EstimateSize(SIZE szAvailable)
+	SIZE CListContainerHeaderItemUI::EstimateSize(const SIZE & szAvailable)
 	{
 		if( m_cxyFixed.cy == 0 ) return CDuiSize(m_cxyFixed.cx, m_pManager->GetDefaultFontInfo()->tm.tmHeight + 14);
 		return CContainerUI::EstimateSize(szAvailable);
@@ -889,7 +889,7 @@ Label_ForeImage:
 			CRenderEngine::DrawHtmlText(hDC, m_pManager, rcText, sText, m_dwTextColor, \
 			NULL, NULL, nLinks, m_iFont, DT_SINGLELINE | m_uTextStyle);
 		else
-			CRenderEngine::DrawText(hDC, m_pManager, rcText, sText, m_dwTextColor, \
+			CRenderEngine::DrawPlainText(hDC, m_pManager, rcText, sText, m_dwTextColor, \
 			m_iFont, DT_SINGLELINE | m_uTextStyle);
 	}
 
@@ -1247,7 +1247,7 @@ Label_ForeImage:
 		CListLabelElementUI::DoEvent(event);
 	}
 
-	SIZE CListTextExtElementUI::EstimateSize(SIZE szAvailable)
+	SIZE CListTextExtElementUI::EstimateSize(const SIZE & szAvailable)
 	{
 		TListInfoUI* pInfo = NULL;
 		if( m_pOwner ) pInfo = m_pOwner->GetListInfo();
@@ -1313,7 +1313,7 @@ Label_ForeImage:
 				CRenderEngine::DrawHtmlText(hDC, m_pManager, rcItem, strText.GetData(), iTextColor, \
 				&m_rcLinks[m_nLinks], &m_sLinks[m_nLinks], nLinks, pInfo->nFont, DT_SINGLELINE | pInfo->uTextStyle);
 			else
-				CRenderEngine::DrawText(hDC, m_pManager, rcItem, strText.GetData(), iTextColor, \
+				CRenderEngine::DrawPlainText(hDC, m_pManager, rcItem, strText.GetData(), iTextColor, \
 				pInfo->nFont, DT_SINGLELINE | pInfo->uTextStyle);
 
 			m_nLinks += nLinks;

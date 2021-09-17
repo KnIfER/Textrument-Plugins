@@ -477,7 +477,7 @@ namespace DuiLib
 			CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, clrColor, \
 			NULL, NULL, nLinks, iFont, m_uTextStyle);
 		else
-			CRenderEngine::DrawText(hDC, m_pManager, rc, sText, clrColor, \
+			CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, clrColor, \
 			iFont, m_uTextStyle);
 	}
 

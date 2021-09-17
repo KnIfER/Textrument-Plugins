@@ -352,7 +352,7 @@ namespace DuiLib
 				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, IsEnabled()?m_dwTextColor:m_dwDisabledTextColor, \
 				NULL, NULL, nLinks, iFont, m_uTextStyle);
 			else
-				CRenderEngine::DrawText(hDC, m_pManager, rc, sText, IsEnabled()?m_dwTextColor:m_dwDisabledTextColor, \
+				CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, IsEnabled()?m_dwTextColor:m_dwDisabledTextColor, \
 				iFont, m_uTextStyle);
 
 			m_dwTextColor = oldTextColor;

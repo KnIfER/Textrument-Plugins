@@ -62,7 +62,7 @@ namespace DuiLib
 		void Move(SIZE szOffset, bool bNeedInvalidate = true);
 		void SetVisible(bool bVisible = true);
 		void SetInternVisible(bool bVisible = true);
-		SIZE EstimateSize(SIZE szAvailable);
+		SIZE EstimateSize(const SIZE & szAvailable);
 		void DoEvent(TEventUI& event);
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 

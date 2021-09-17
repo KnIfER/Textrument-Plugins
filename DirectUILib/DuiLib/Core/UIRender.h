@@ -47,7 +47,7 @@ namespace DuiLib {
 
 		static bool MakeImageDest(const RECT& rcControl, const CDuiSize& szImage, const CDuiString& sAlign, const RECT& rcPadding, RECT& rcDest);
 
-		static void DrawText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText,DWORD dwTextColor, \
+		static void DrawPlainText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText,DWORD dwTextColor, \
 			int iFont, UINT uStyle, DWORD dwTextBKColor);
 
 		static void DrawImage(HDC hDC, HBITMAP hBitmap, const RECT& rc, const RECT& rcPaint, \
@@ -64,7 +64,7 @@ namespace DuiLib {
 		static void DrawLine(HDC hDC, const RECT& rc, int nSize, DWORD dwPenColor,int nStyle = PS_SOLID);
 		static void DrawRect(HDC hDC, const RECT& rc, int nSize, DWORD dwPenColor,int nStyle = PS_SOLID);
 		static void DrawRoundRect(HDC hDC, const RECT& rc, int width, int height, int nSize, DWORD dwPenColor,int nStyle = PS_SOLID);
-		static void DrawText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText, \
+		static void DrawPlainText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText, \
 			DWORD dwTextColor, int iFont, UINT uStyle);
 		static void DrawHtmlText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText, 
 			DWORD dwTextColor, RECT* pLinks, CDuiString* sLinks, int& nLinkRects, int iFont, UINT uStyle);

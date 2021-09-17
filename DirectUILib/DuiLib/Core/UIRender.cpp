@@ -802,13 +802,13 @@ namespace DuiLib {
 		return true;
 	}
 
-	void CRenderEngine::DrawText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText,DWORD dwTextColor, \
+	void CRenderEngine::DrawPlainText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText,DWORD dwTextColor, \
 		int iFont, UINT uStyle, DWORD dwTextBKColor)
 	{
 		ASSERT(::GetObjectType(hDC)==OBJ_DC || ::GetObjectType(hDC)==OBJ_MEMDC);
 		if( pstrText == NULL || pManager == NULL ) return;
 		DrawColor(hDC, rc, dwTextBKColor);
-		DrawText(hDC, pManager, rc, pstrText, dwTextColor, iFont, uStyle);
+		DrawPlainText(hDC, pManager, rc, pstrText, dwTextColor, iFont, uStyle);
 	}
 
 	void CRenderEngine::DrawImage(HDC hDC, HBITMAP hBitmap, const RECT& rc, const RECT& rcPaint,
@@ -1478,7 +1478,7 @@ namespace DuiLib {
 #endif
 	}
 
-	void CRenderEngine::DrawText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText, DWORD dwTextColor, int iFont, UINT uStyle)
+	void CRenderEngine::DrawPlainText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText, DWORD dwTextColor, int iFont, UINT uStyle)
 	{
 		ASSERT(::GetObjectType(hDC)==OBJ_DC || ::GetObjectType(hDC)==OBJ_MEMDC);
 		if( pstrText == NULL || pManager == NULL ) return;
