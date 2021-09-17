@@ -36,7 +36,7 @@ namespace DuiLib {
 		void KillTimer(UINT nTimerID);
 
 		// 文本相关
-		virtual CDuiString GetText() const;
+		virtual CDuiString & GetText();
 		virtual void SetText(LPCTSTR pstrText);
 
 		virtual bool IsResourceText() const;
@@ -194,7 +194,7 @@ namespace DuiLib {
 		virtual void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 		CControlUI* ApplyAttributeList(LPCTSTR pstrList);
 
-		virtual SIZE EstimateSize(SIZE szAvailable);
+		virtual SIZE EstimateSize(const SIZE & szAvailable);
 		virtual bool Paint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl = NULL); // 返回要不要继续绘制
 		virtual bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
 		virtual void PaintBkColor(HDC hDC);

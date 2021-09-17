@@ -587,7 +587,7 @@ namespace DuiLib {
 		CControlUI::DoEvent(event);
 	}
 
-	SIZE CComboUI::EstimateSize(SIZE szAvailable)
+	SIZE CComboUI::EstimateSize(const SIZE & szAvailable)
 	{
 		if( m_cxyFixed.cy == 0 ) return CDuiSize(m_cxyFixed.cx, m_pManager->GetDefaultFontInfo()->tm.tmHeight + 12);
 		return CControlUI::EstimateSize(szAvailable);
@@ -606,9 +606,9 @@ namespace DuiLib {
 		return true;
 	}
 
-	CDuiString CComboUI::GetText() const
+	CDuiString & CComboUI::GetText()
 	{
-		if( m_iCurSel < 0 ) return _T("");
+		if( m_iCurSel < 0 ) return CDuiString(_T(""));
 		CControlUI* pControl = static_cast<CControlUI*>(m_items[m_iCurSel]);
 		return pControl->GetText();
 	}
@@ -1245,13 +1245,13 @@ namespace DuiLib {
 			if( m_bShowHtml )
 				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, m_dwTextColor, NULL, NULL, nLinks, m_iFont, m_uTextStyle);
 			else
-				CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwTextColor, m_iFont, m_uTextStyle);
+				CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, m_dwTextColor, m_iFont, m_uTextStyle);
 		}
 		else {
 			if( m_bShowHtml )
 				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, NULL, NULL, nLinks, m_iFont, m_uTextStyle);
 			else
-				CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, m_iFont, m_uTextStyle);
+				CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, m_iFont, m_uTextStyle);
 		}
 	}
 

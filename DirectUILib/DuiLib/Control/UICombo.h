@@ -22,7 +22,7 @@ namespace DuiLib {
 		void DoInit();
 		UINT GetControlFlags() const;
 
-		CDuiString GetText() const;
+		CDuiString & GetText();
 		void SetEnabled(bool bEnable = true);
 
 		void SetTextStyle(UINT uStyle);
@@ -112,7 +112,7 @@ namespace DuiLib {
 		bool IsItemShowHtml();
 		void SetItemShowHtml(bool bShowHtml = true);
 
-		SIZE EstimateSize(SIZE szAvailable);
+		SIZE EstimateSize(const SIZE & szAvailable);
 		void SetPos(RECT rc, bool bNeedInvalidate = true);
 		void Move(SIZE szOffset, bool bNeedInvalidate = true);
 		void DoEvent(TEventUI& event);

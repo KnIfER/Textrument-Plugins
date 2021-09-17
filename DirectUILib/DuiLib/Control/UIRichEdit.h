@@ -45,7 +45,7 @@ namespace DuiLib {
 		int GetLimitText();
 		void SetLimitText(int iChars);
 		long GetTextLength(DWORD dwFlags = GTL_DEFAULT) const;
-		CDuiString GetText() const;
+		CDuiString & GetText();
 		void SetText(LPCTSTR pstrText);
 		bool IsModify() const;
 		void SetModify(bool bModified = true) const;
@@ -145,7 +145,7 @@ namespace DuiLib {
 		void HomeLeft();
 		void EndRight();
 
-		SIZE EstimateSize(SIZE szAvailable);
+		SIZE EstimateSize(const SIZE & szAvailable);
 		void SetPos(RECT rc, bool bNeedInvalidate = true);
 		void Move(SIZE szOffset, bool bNeedInvalidate = true);
 		void DoEvent(TEventUI& event);

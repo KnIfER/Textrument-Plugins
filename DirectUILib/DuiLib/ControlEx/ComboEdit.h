@@ -18,7 +18,7 @@ namespace DuiLib
 		LPCTSTR GetClass() const;
 		LPVOID GetInterface(LPCTSTR pstrName);
 
-		CDuiString GetText() const;
+		CDuiString & GetText();
 
 
 		void DoEvent(TEventUI& event);

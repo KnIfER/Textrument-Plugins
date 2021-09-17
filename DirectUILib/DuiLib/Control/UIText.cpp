@@ -105,31 +105,31 @@ namespace DuiLib
 		CLabelUI::DoEvent(event);
 	}
 
-	SIZE CTextUI::EstimateSize(SIZE szAvailable)
+	SIZE CTextUI::EstimateSize(const SIZE & szAvailable)
 	{
-		CDuiString sText = GetText();
-		RECT m_rcTextPadding = GetTextPadding();
+		//CDuiString sText = GetText();
+		//RECT m_rcTextPadding = GetTextPadding();
+		//
+		//RECT rcText = { 0, 0, m_bAutoCalcWidth ? 9999 : GetManager()->GetDPIObj()->Scale(m_cxyFixed.cx), 9999 };
+		//rcText.left += m_rcTextPadding.left;
+		//rcText.right -= m_rcTextPadding.right;
+		//
+		//if( m_bShowHtml ) {   
+		//	int nLinks = 0;
+		//	CRenderEngine::DrawHtmlText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, m_dwTextColor, NULL, NULL, nLinks, m_iFont, DT_CALCRECT | m_uTextStyle);
+		//}
+		//else {
+		//	CRenderEngine::DrawPlainText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, m_dwTextColor, m_iFont, DT_CALCRECT | m_uTextStyle);
+		//}
+		//SIZE cXY = {rcText.right - rcText.left + m_rcTextPadding.left + m_rcTextPadding.right,
+		//	rcText.bottom - rcText.top + m_rcTextPadding.top + m_rcTextPadding.bottom};
+		//
+		//if (m_bAutoCalcWidth)
+		//{
+		//	m_cxyFixed.cx = MulDiv(cXY.cx, 100.0, GetManager()->GetDPIObj()->GetScale());
+		//}
 
-		RECT rcText = { 0, 0, m_bAutoCalcWidth ? 9999 : GetManager()->GetDPIObj()->Scale(m_cxyFixed.cx), 9999 };
-		rcText.left += m_rcTextPadding.left;
-		rcText.right -= m_rcTextPadding.right;
-
-		if( m_bShowHtml ) {   
-			int nLinks = 0;
-			CRenderEngine::DrawHtmlText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, m_dwTextColor, NULL, NULL, nLinks, m_iFont, DT_CALCRECT | m_uTextStyle);
-		}
-		else {
-			CRenderEngine::DrawText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, m_dwTextColor, m_iFont, DT_CALCRECT | m_uTextStyle);
-		}
-		SIZE cXY = {rcText.right - rcText.left + m_rcTextPadding.left + m_rcTextPadding.right,
-			rcText.bottom - rcText.top + m_rcTextPadding.top + m_rcTextPadding.bottom};
-		
-		if (m_bAutoCalcWidth)
-		{
-			m_cxyFixed.cx = MulDiv(cXY.cx, 100.0, GetManager()->GetDPIObj()->GetScale());
-		}
-
-		return CControlUI::EstimateSize(szAvailable);
+		return __super::EstimateSize(szAvailable);
 	}
 
 	void CTextUI::PaintText(HDC hDC)
@@ -154,15 +154,17 @@ namespace DuiLib
 				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, m_dwTextColor, \
 				m_rcLinks, m_sLinks, m_nLinks, m_iFont, m_uTextStyle);
 			else
-				CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwTextColor, \
+				CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, m_dwTextColor, \
 				m_iFont, m_uTextStyle);
+
+				//m_cxyFixed.cy = rc.bottom;
 		}
 		else {
 			if( m_bShowHtml )
 				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
 				m_rcLinks, m_sLinks, m_nLinks, m_iFont, m_uTextStyle);
 			else
-				CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
+				CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
 				m_iFont, m_uTextStyle);
 		}
 	}

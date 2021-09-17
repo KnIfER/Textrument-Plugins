@@ -29,7 +29,8 @@ namespace DuiLib
 		bool IsShowHtml();
 		void SetShowHtml(bool bShowHtml = true);
 
-		SIZE EstimateSize(SIZE szAvailable);
+		void NeedRecalcAutoSize();
+		SIZE EstimateSize(const SIZE & szAvailable);
 		void DoEvent(TEventUI& event);
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
@@ -40,6 +41,7 @@ namespace DuiLib
 		virtual bool GetAutoCalcHeight() const;
 		virtual void SetAutoCalcHeight(bool bAutoCalcHeight);
 		virtual void SetText(LPCTSTR pstrText);
+		//virtual void SetPos(RECT rc, bool bNeedInvalidate = true);
 		
 	protected:
 		DWORD	m_dwTextColor;
@@ -50,6 +52,8 @@ namespace DuiLib
 		bool	m_bShowHtml;
 		bool	m_bAutoCalcWidth;
 		bool	m_bAutoCalcHeight;
+
+		//SIZE    _AutoMeasureTextSz;
 
 		SIZE    m_szAvailableLast;
 		SIZE    m_cxyFixedLast;

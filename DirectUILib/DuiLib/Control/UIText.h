@@ -19,7 +19,7 @@ namespace DuiLib
 		CDuiString* GetLinkContent(int iIndex);
 
 		void DoEvent(TEventUI& event);
-		SIZE EstimateSize(SIZE szAvailable);
+		SIZE EstimateSize(const SIZE & szAvailable);
 
 		void PaintText(HDC hDC);
 

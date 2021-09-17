@@ -297,7 +297,7 @@ namespace DuiLib
 	}
 
 
-	DuiLib::CDuiString CComboEditUI::GetText() const
+	DuiLib::CDuiString & CComboEditUI::GetText()
 	{
 		return m_sText;
 	}
@@ -500,11 +500,11 @@ namespace DuiLib
 
 
 		if (IsEnabled()) {
-			CRenderEngine::DrawText(hDC, m_pManager, rcText, m_sText, m_dwTextColor, \
+			CRenderEngine::DrawPlainText(hDC, m_pManager, rcText, m_sText, m_dwTextColor, \
 				m_iFont, DT_SINGLELINE | m_uTextStyle);
 		}
 		else {
-			CRenderEngine::DrawText(hDC, m_pManager, rcText, m_sText, m_dwDisabledTextColor, \
+			CRenderEngine::DrawPlainText(hDC, m_pManager, rcText, m_sText, m_dwDisabledTextColor, \
 				m_iFont, DT_SINGLELINE | m_uTextStyle);
 
 		}

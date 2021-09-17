@@ -1299,7 +1299,7 @@ err:
 		return (long)lResult;
 	}
 
-	CDuiString CRichEditUI::GetText() const
+	CDuiString & CRichEditUI::GetText()
 	{
 		long lLen = GetTextLength(GTL_DEFAULT);
 		LPTSTR lpText = NULL;
@@ -2053,7 +2053,7 @@ err:
 		CContainerUI::DoEvent(event);
 	}
 
-	SIZE CRichEditUI::EstimateSize(SIZE szAvailable)
+	SIZE CRichEditUI::EstimateSize(const SIZE & szAvailable)
 	{
 		return CContainerUI::EstimateSize(szAvailable);
 	}
@@ -2314,7 +2314,7 @@ err:
 			UINT uTextAlign = GetTipValueAlign();
 			if(IsMultiLine()) uTextAlign |= DT_TOP;
 			else uTextAlign |= DT_VCENTER;
-			CRenderEngine::DrawText(hDC, m_pManager, rc, sTipValue, dwTextColor, m_iFont, uTextAlign);
+			CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sTipValue, dwTextColor, m_iFont, uTextAlign);
 		}
 		return true;
 	}

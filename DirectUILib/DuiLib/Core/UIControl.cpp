@@ -113,7 +113,11 @@ namespace DuiLib {
 	{
 		m_pManager = pManager;
 		m_pParent = pParent;
-		if (pManager)
+		if (pParent)
+		{
+			_hParent = m_pParent->GetHWND();
+		}
+		if (pManager && _isDirectUI)
 		{
 			_hWnd = pManager->GetPaintWindow();
 		}
@@ -139,7 +143,7 @@ namespace DuiLib {
 		m_pManager->KillTimer(this, nTimerID);
 	}
 
-	CDuiString CControlUI::GetText() const
+	CDuiString & CControlUI::GetText()
 	{
 		if (!IsResourceText()) return m_sText;
 		return CResourceManager::GetInstance()->GetText(m_sText);
@@ -409,17 +413,7 @@ namespace DuiLib {
 		m_bUpdateNeeded = false;
 
 		if( bNeedInvalidate && IsVisible() ) {
-			invalidateRc.Join(m_rcItem);
-			CControlUI* pParent = this;
-			RECT rcTemp;
-			RECT rcParent;
-			while( pParent = pParent->GetParent() ) {
-				if( !pParent->IsVisible() ) return;
-				rcTemp = invalidateRc;
-				rcParent = pParent->GetPos();
-				if( !::IntersectRect(&invalidateRc, &rcTemp, &rcParent) ) return;
-			}
-			m_pManager->Invalidate(invalidateRc);
+			m_pManager->Invalidate();
 		}
 	}
 
@@ -1265,7 +1259,7 @@ namespace DuiLib {
 		return this;
 	}
 
-	SIZE CControlUI::EstimateSize(SIZE szAvailable)
+	SIZE CControlUI::EstimateSize(const SIZE & szAvailable)
 	{
 		if(m_pManager != NULL)
 			return m_pManager->GetDPIObj()->Scale(m_cxyFixed);

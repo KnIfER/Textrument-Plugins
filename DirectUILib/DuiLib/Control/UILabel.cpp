@@ -2,6 +2,7 @@
 #include "UILabel.h"
 
 #include <atlconv.h>
+#include "../Core/InsituDebug.h"
 namespace DuiLib
 {
 	IMPLEMENT_DUICONTROL(CLabelUI)
@@ -109,7 +110,13 @@ namespace DuiLib
 		Invalidate();
 	}
 
-	SIZE CLabelUI::EstimateSize(SIZE szAvailable)
+	void CLabelUI::NeedRecalcAutoSize()
+	{
+		m_szAvailableLast.cx=0;
+		m_szAvailableLast.cy=0;
+	}
+
+	SIZE CLabelUI::EstimateSize(const SIZE & szAvailable)
 	{
 		RECT rcTextPadding = GetTextPadding();
 		if (m_cxyFixed.cx > 0 && m_cxyFixed.cy > 0) {
@@ -121,48 +128,57 @@ namespace DuiLib
 		}
 
 		if (m_bNeedEstimateSize) {
+			// 自适应文本高度、宽度
+			// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-drawtext
 			CDuiString sText = GetText();
 			m_bNeedEstimateSize = false;
 			m_szAvailableLast = szAvailable;
 			m_cxyFixedLast = GetFixedSize();
-			// 自动计算宽度
-			if ((m_uTextStyle & DT_SINGLELINE) != 0) {
-				// 高度
-				if (m_cxyFixedLast.cy == 0) {
+			if (m_uTextStyle & DT_SINGLELINE) 
+			{
+				//if (m_cxyFixedLast.cy == 0) 
+				{
 					m_cxyFixedLast.cy = m_pManager->GetFontInfo(m_iFont)->tm.tmHeight + 8;
 					m_cxyFixedLast.cy += rcTextPadding.top + rcTextPadding.bottom;
 				}
-				// 宽度
-				if (m_cxyFixedLast.cx == 0) {
+				//if (m_cxyFixedLast.cx == 0) 
+				{
 					if(m_bAutoCalcWidth) {
-						RECT rcText = { 0, 0, 9999, m_cxyFixedLast.cy };
+						RECT rcText = { 0, 0, 125, m_cxyFixedLast.cy };
 						if( m_bShowHtml ) {
 							int nLinks = 0;
-							CRenderEngine::DrawHtmlText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, 0, NULL, NULL, nLinks, m_iFont, DT_CALCRECT | m_uTextStyle & ~DT_RIGHT & ~DT_CENTER);
+							CRenderEngine::DrawHtmlText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, 0, NULL, NULL, nLinks, m_iFont, DT_CALCRECT | m_uTextStyle & ~DT_RIGHT & ~DT_CENTER & ~DT_TABSTOP);
 						}
 						else {
-							CRenderEngine::DrawText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, 0, m_iFont, DT_CALCRECT | m_uTextStyle & ~DT_RIGHT & ~DT_CENTER);
+							CRenderEngine::DrawPlainText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, 0, m_iFont, DT_CALCRECT | m_uTextStyle & ~DT_RIGHT & ~DT_CENTER & ~DT_TABSTOP);
 						}
-						m_cxyFixedLast.cx = rcText.right - rcText.left + GetManager()->GetDPIObj()->Scale(m_rcTextPadding.left + m_rcTextPadding.right);
+						m_cxyFixedLast.cx = rcText.right + GetManager()->GetDPIObj()->Scale(m_rcTextPadding.left + m_rcTextPadding.right);
 					}
 				}
 			}
-			// 自动计算高度
-			else if(m_cxyFixedLast.cy == 0) {
-				if(m_bAutoCalcHeight) {
-					RECT rcText = { 0, 0, m_cxyFixedLast.cx, 9999 };
+			else if(m_bAutoCalcHeight) 
+			{
+				int fixedWidth = (m_cxyFixedLast.cx>0?m_cxyFixedLast:szAvailable).cx;
+				if (fixedWidth!=0)
+				{
+					RECT rcText = { 0, 0, fixedWidth, 125 };
 					rcText.left += rcTextPadding.left;
 					rcText.right -= rcTextPadding.right;
 					if( m_bShowHtml ) {
 						int nLinks = 0;
-						CRenderEngine::DrawHtmlText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, 0, NULL, NULL, nLinks, m_iFont, DT_CALCRECT | m_uTextStyle & ~DT_RIGHT & ~DT_CENTER);
+						CRenderEngine::DrawHtmlText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, 0, NULL, NULL, nLinks, m_iFont, DT_CALCRECT | m_uTextStyle & ~DT_RIGHT & ~DT_CENTER & ~DT_TABSTOP );
 					}
 					else {
-						CRenderEngine::DrawText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, 0, m_iFont, DT_CALCRECT | m_uTextStyle & ~DT_RIGHT & ~DT_CENTER);
+						CRenderEngine::DrawPlainText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, 0, m_iFont, DT_CALCRECT | m_uTextStyle & ~DT_RIGHT & ~DT_CENTER & ~DT_TABSTOP);
 					}
-					m_cxyFixedLast.cy = rcText.bottom - rcText.top + rcTextPadding.top + rcTextPadding.bottom;
+					m_cxyFixedLast.cy = rcText.bottom + rcTextPadding.top + rcTextPadding.bottom;
+					if (m_bAutoCalcWidth)
+					{
+						m_cxyFixedLast.cx = rcText.right + GetManager()->GetDPIObj()->Scale(m_rcTextPadding.left + m_rcTextPadding.right);
+					}
 				}
 			}
+			// accoring to the doc, no way to handle the case !m_bAutoCalcHeight && m_bAutoCalcWidth
 
 		}
 		return m_cxyFixedLast;
@@ -290,7 +306,7 @@ namespace DuiLib
 				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, m_dwTextColor, \
 				NULL, NULL, nLinks, m_iFont, m_uTextStyle);
 			else
-				CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwTextColor, \
+				CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, m_dwTextColor, \
 				m_iFont, m_uTextStyle);
 		}
 		else {
@@ -298,7 +314,7 @@ namespace DuiLib
 				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
 				NULL, NULL, nLinks, m_iFont, m_uTextStyle);
 			else
-				CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
+				CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
 				m_iFont, m_uTextStyle);
 		}
 	}
