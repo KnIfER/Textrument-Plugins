@@ -210,7 +210,7 @@ class StripDefinition;
 class UserStrip : public Strip {
 	std::unique_ptr<StripDefinition> psd;
 	Extension *extender;
-	SciTEWin *pSciTEWin;
+	DuiLib::SciEditText *pSciTEWin;
 public:
 	UserStrip() noexcept : extender(nullptr), pSciTEWin(nullptr) {
 		lineHeight = 26;
@@ -228,7 +228,7 @@ public:
 	int Lines() const noexcept override;
 	void SetDescription(const char *description);
 	void SetExtender(Extension *extender_) noexcept;
-	void SetSciTE(SciTEWin *pSciTEWin_) noexcept;
+	void SetSciEdit(SciEditText *pSciTEWin_) noexcept;
 	UserControl *FindControl(int control);
 	void Set(int control, const char *value);
 	void SetList(int control, const char *value);

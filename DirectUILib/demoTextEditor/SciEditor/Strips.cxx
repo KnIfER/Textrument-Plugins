@@ -5,7 +5,7 @@
 // Copyright 2013 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include "SciTEWin.h"
+#include "WinSciTE.h"
 
 void *PointerFromWindow(HWND hWnd) noexcept {
 	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, 0));
@@ -164,12 +164,12 @@ static const char *textReplaceAll = "Replace &All";
 static const char *textInSelection = "In &Selection";
 
 static SearchOption toggles[] = {
-	{"Match &whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
-	{"Case sensiti&ve", IDM_MATCHCASE, IDMATCHCASE},
-	{"Regular &expression", IDM_REGEXP, IDREGEXP},
-	{"Transform &backslash expressions", IDM_UNSLASH, IDUNSLASH},
-	{"Wrap ar&ound", IDM_WRAPAROUND, IDWRAP},
-	{"&Up", IDM_DIRECTIONUP, IDDIRECTIONUP},
+	//{"Match &whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
+	//{"Case sensiti&ve", IDM_MATCHCASE, IDMATCHCASE},
+	//{"Regular &expression", IDM_REGEXP, IDREGEXP},
+	//{"Transform &backslash expressions", IDM_UNSLASH, IDUNSLASH},
+	//{"Wrap ar&ound", IDM_WRAPAROUND, IDWRAP},
+	//{"&Up", IDM_DIRECTIONUP, IDDIRECTIONUP},
 	{nullptr, 0, 0},
 };
 
@@ -247,27 +247,28 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 				 2, 2, width, height,
 				 Hwnd(), HmenuID(ident), ::ApplicationInstance(), nullptr));
 	if (check) {
-		int resNum = IDBM_WORD;
-		switch (ident) {
-		case IDWHOLEWORD:
-			resNum = IDBM_WORD;
-			break;
-		case IDMATCHCASE:
-			resNum = IDBM_CASE;
-			break;
-		case IDREGEXP:
-			resNum = IDBM_REGEX;
-			break;
-		case IDUNSLASH:
-			resNum = IDBM_BACKSLASH;
-			break;
-		case IDWRAP:
-			resNum = IDBM_AROUND;
-			break;
-		case IDDIRECTIONUP:
-			resNum = IDBM_UP;
-			break;
-		}
+		int resNum = 0;
+		//int resNum = IDBM_WORD;
+		//switch (ident) {
+		//case IDWHOLEWORD:
+		//	resNum = IDBM_WORD;
+		//	break;
+		//case IDMATCHCASE:
+		//	resNum = IDBM_CASE;
+		//	break;
+		//case IDREGEXP:
+		//	resNum = IDBM_REGEX;
+		//	break;
+		//case IDUNSLASH:
+		//	resNum = IDBM_BACKSLASH;
+		//	break;
+		//case IDWRAP:
+		//	resNum = IDBM_AROUND;
+		//	break;
+		//case IDDIRECTIONUP:
+		//	resNum = IDBM_UP;
+		//	break;
+		//}
 
 		const UINT flags = (GetVersion(TEXT("COMCTL32")) >= PACKVERSION(6, 0)) ?
 				   (LR_DEFAULTSIZE) : (LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS);
@@ -861,12 +862,12 @@ void SearchStrip::Creation() {
 	wText = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), TEXT(""),
 			       WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | ES_AUTOHSCROLL,
 			       50, 2, 300, 21,
-			       Hwnd(), HmenuID(IDC_INCFINDTEXT), ::ApplicationInstance(), nullptr);
+			       Hwnd(), 0, ::ApplicationInstance(), nullptr); // HmenuID(IDC_INCFINDTEXT)
 	wText.Show();
 
 	SetFontHandle(wText, fontText);
 
-	wButton = CreateButton(textFindNext, IDC_INCFINDBTNOK);
+	wButton = CreateButton(textFindNext, 0); //IDC_INCFINDBTNOK
 
 	const GUI::Rectangle rcButton = wButton.GetPosition();
 	lineHeight = rcButton.Height() + space + 1;
@@ -954,20 +955,20 @@ bool SearchStrip::Command(WPARAM wParam) {
 		return false;
 	const int control = ControlIDOfWParam(wParam);
 	const int subCommand = static_cast<int>(wParam >> 16);
-	if (((control == IDC_INCFINDTEXT) && (subCommand == EN_CHANGE)) ||
-			(control == IDC_INCFINDBTNOK)) {
-		Next(control != IDC_INCFINDBTNOK);
-		return true;
-	}
+	//if (((control == IDC_INCFINDTEXT) && (subCommand == EN_CHANGE)) ||
+	//		(control == IDC_INCFINDBTNOK)) {
+	//	Next(control != IDC_INCFINDBTNOK);
+	//	return true;
+	//}
 	return false;
 }
 
 LRESULT SearchStrip::EditColour(HWND hwnd, HDC hdc) noexcept {
-	if (GetDlgItem(static_cast<HWND>(GetID()), IDC_INCFINDTEXT) == hwnd) {
-		if (pSearcher->FindHasText() && pSearcher->failedfind) {
-			return NoMatchColour(hdc);
-		}
-	}
+	//if (GetDlgItem(static_cast<HWND>(GetID()), IDC_INCFINDTEXT) == hwnd) {
+	//	if (pSearcher->FindHasText() && pSearcher->failedfind) {
+	//		return NoMatchColour(hdc);
+	//	}
+	//}
 	return Strip::EditColour(hwnd, hdc);
 }
 
@@ -980,13 +981,13 @@ LRESULT SearchStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 }
 
 LRESULT FindReplaceStrip::EditColour(HWND hwnd, HDC hdc) noexcept {
-	if (GetDlgItem(static_cast<HWND>(GetID()), IDFINDWHAT) == ::GetParent(hwnd)) {
-		if (pSearcher->FindHasText() &&
-				(incrementalBehaviour != simple) &&
-				pSearcher->failedfind) {
-			return NoMatchColour(hdc);
-		}
-	}
+	//if (GetDlgItem(static_cast<HWND>(GetID()), IDFINDWHAT) == ::GetParent(hwnd)) {
+	//	if (pSearcher->FindHasText() &&
+	//			(incrementalBehaviour != simple) &&
+	//			pSearcher->failedfind) {
+	//		return NoMatchColour(hdc);
+	//	}
+	//}
 	return Strip::EditColour(hwnd, hdc);
 }
 
@@ -1037,7 +1038,7 @@ void FindStrip::Creation() {
 	wText = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
 			       WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
 			       50, 2, 300, 80,
-			       Hwnd(), HmenuID(IDFINDWHAT), ::ApplicationInstance(), nullptr);
+			       Hwnd(), 0, ::ApplicationInstance(), nullptr); // HmenuID(IDFINDWHAT)
 	SetFontHandle(wText, fontText);
 	wText.Show();
 
@@ -1045,7 +1046,7 @@ void FindStrip::Creation() {
 	lineHeight = rcCombo.Height() + space + 1;
 
 	wButton = CreateButton(textFindNext, IDOK);
-	wButtonMarkAll = CreateButton(textMarkAll, IDMARKALL);
+	wButtonMarkAll = CreateButton(textMarkAll, 0); // IDMARKALL
 
 	wCheckWord = CreateButton(toggles[SearchOption::tWord].label, toggles[SearchOption::tWord].id, true);
 	wCheckCase = CreateButton(toggles[SearchOption::tCase].label, toggles[SearchOption::tCase].id, true);
@@ -1189,10 +1190,10 @@ bool FindStrip::Command(WPARAM wParam) {
 			}
 		}
 		return true;
-	} else if (control == IDMARKALL) {
+	} else if (control == 0) { // IDMARKALL
 		Next(true, false);
 		return true;
-	} else if (control == IDFINDWHAT) {
+	} else if (control == 0) { // IDFINDWHAT
 		if (subCommand == CBN_EDITCHANGE) {
 			NextIncremental(changingEdit);
 			return true;
@@ -1240,7 +1241,7 @@ void ReplaceStrip::Creation() {
 	wText = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
 			       WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
 			       50, 2, 300, 80,
-			       Hwnd(), HmenuID(IDFINDWHAT), ::ApplicationInstance(), nullptr);
+			       Hwnd(), 0, ::ApplicationInstance(), nullptr); // HmenuID(IDFINDWHAT)
 	SetFontHandle(wText, fontText);
 	wText.Show();
 
@@ -1252,15 +1253,15 @@ void ReplaceStrip::Creation() {
 	wReplace = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
 				  WS_CHILD | WS_TABSTOP | CBS_DROPDOWN | CBS_AUTOHSCROLL,
 				  50, 2, 300, 80,
-				  Hwnd(), HmenuID(IDREPLACEWITH), ::ApplicationInstance(), nullptr);
+				  Hwnd(), 0, ::ApplicationInstance(), nullptr); // HmenuID(IDREPLACEWITH)
 	SetFontHandle(wReplace, fontText);
 	wReplace.Show();
 
 	wButtonFind = CreateButton(textFindNext, IDOK);
-	wButtonReplace = CreateButton(textReplace, IDREPLACE);
+	wButtonReplace = CreateButton(textReplace, 0); // IDREPLACE
 
-	wButtonReplaceAll = CreateButton(textReplaceAll, IDREPLACEALL);
-	wButtonReplaceInSelection = CreateButton(textInSelection, IDREPLACEINSEL);
+	wButtonReplaceAll = CreateButton(textReplaceAll, 0); // IDREPLACEALL
+	wButtonReplaceInSelection = CreateButton(textInSelection, 0); // IDREPLACEINSEL
 
 	wCheckWord = CreateButton(toggles[SearchOption::tWord].label, toggles[SearchOption::tWord].id, true);
 	wCheckRE = CreateButton(toggles[SearchOption::tRegExp].label, toggles[SearchOption::tRegExp].id, true);
@@ -1284,12 +1285,12 @@ void ReplaceStrip::Size() {
 		return;
 	Strip::Size();
 
-	const int widthCaption = std::max(WidthControl(wStaticFind), WidthControl(wStaticReplace));
+	const int widthCaption = (std::max)(WidthControl(wStaticFind), WidthControl(wStaticReplace));
 
 	GUI::Rectangle rcLine = LineArea(0);
 
-	const int widthButtons = std::max(WidthControl(wButtonFind), WidthControl(wButtonReplace));
-	const int widthLastButtons = std::max(WidthControl(wButtonReplaceAll), WidthControl(wButtonReplaceInSelection));
+	const int widthButtons = (std::max)(WidthControl(wButtonFind), WidthControl(wButtonReplace));
+	const int widthLastButtons = (std::max)(WidthControl(wButtonReplaceAll), WidthControl(wButtonReplaceInSelection));
 
 	GUI::Rectangle rcButton = rcLine;
 	rcButton.top -= 1;
@@ -1390,12 +1391,12 @@ bool ReplaceStrip::KeyDown(WPARAM key) {
 				HandleReplaceCommand(IDOK, IsKeyDown(VK_SHIFT));
 			else if (IsSameOrChild(wReplace, ::GetFocus()))
 				HandleReplaceCommand(IDOK, IsKeyDown(VK_SHIFT));
-			else if (IsSameOrChild(wButtonReplace, ::GetFocus()))
-				HandleReplaceCommand(IDREPLACE);
-			else if (IsSameOrChild(wButtonReplaceAll, ::GetFocus()))
-				HandleReplaceCommand(IDREPLACEALL);
-			else if (IsSameOrChild(wButtonReplaceInSelection, ::GetFocus()))
-				HandleReplaceCommand(IDREPLACEINSEL);
+			//else if (IsSameOrChild(wButtonReplace, ::GetFocus()))
+			//	HandleReplaceCommand(IDREPLACE);
+			//else if (IsSameOrChild(wButtonReplaceAll, ::GetFocus()))
+			//	HandleReplaceCommand(IDREPLACEALL);
+			//else if (IsSameOrChild(wButtonReplaceInSelection, ::GetFocus()))
+			//	HandleReplaceCommand(IDREPLACEINSEL);
 			else
 				HandleReplaceCommand(IDOK, IsKeyDown(VK_SHIFT));
 			return true;
@@ -1429,13 +1430,13 @@ void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
 		if (pSearcher->FindHasText()) {
 			pSearcher->FindNext(reverseFind);
 		}
-	} else if (cmd == IDREPLACE) {
-		pSearcher->ReplaceOnce(incrementalBehaviour == simple);
-		NextIncremental(changingEdit);	// Show not found colour if no more matches.
-	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
-		//~ replacements = pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);
-		pSearcher->ReplaceAll(cmd == IDREPLACEINSEL);
-		NextIncremental(changingEdit);	// Show not found colour if no more matches.
+	////} else if (cmd == IDREPLACE) {
+	////	pSearcher->ReplaceOnce(incrementalBehaviour == simple);
+	////	NextIncremental(changingEdit);	// Show not found colour if no more matches.
+	////} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
+	////	//~ replacements = pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);
+	////	pSearcher->ReplaceAll(cmd == IDREPLACEINSEL);
+	////	NextIncremental(changingEdit);	// Show not found colour if no more matches.
 	}
 	//GUI::gui_string replDone = GUI::StringFromInteger(replacements);
 	//dlg.SetItemText(IDREPLDONE, replDone.c_str());
@@ -1447,42 +1448,42 @@ bool ReplaceStrip::Command(WPARAM wParam) {
 	const int control = ControlIDOfWParam(wParam);
 	switch (control) {
 
-	case IDFINDWHAT:
-		switch (HIWORD(wParam)) {
-		case CBN_SETFOCUS:
-		case CBN_KILLFOCUS:
-		case CBN_SELENDCANCEL:
-			return false;
-		case CBN_EDITCHANGE:
-			NextIncremental(changingEdit);
-			return true;
-		case CBN_SELCHANGE:
-			NextIncremental(changingCombo);
-			return true;
-		default:
-			return false;
-		}
-
-	case IDOK:
-	case IDREPLACEALL:
-	case IDREPLACE:
-	case IDREPLACEINSEL:
-		HandleReplaceCommand(control);
-		return true;
-
-	case IDWHOLEWORD:
-	case IDMATCHCASE:
-	case IDREGEXP:
-	case IDUNSLASH:
-	case IDWRAP:
-	case IDM_WHOLEWORD:
-	case IDM_MATCHCASE:
-	case IDM_REGEXP:
-	case IDM_WRAPAROUND:
-	case IDM_UNSLASH:
-		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
-		NextIncremental(changingEdit);
-		break;
+	//case IDFINDWHAT:
+	//	switch (HIWORD(wParam)) {
+	//	case CBN_SETFOCUS:
+	//	case CBN_KILLFOCUS:
+	//	case CBN_SELENDCANCEL:
+	//		return false;
+	//	case CBN_EDITCHANGE:
+	//		NextIncremental(changingEdit);
+	//		return true;
+	//	case CBN_SELCHANGE:
+	//		NextIncremental(changingCombo);
+	//		return true;
+	//	default:
+	//		return false;
+	//	}
+	//
+	//case IDOK:
+	//case IDREPLACEALL:
+	//case IDREPLACE:
+	//case IDREPLACEINSEL:
+	//	HandleReplaceCommand(control);
+	//	return true;
+	//
+	//case IDWHOLEWORD:
+	//case IDMATCHCASE:
+	//case IDREGEXP:
+	//case IDUNSLASH:
+	//case IDWRAP:
+	//case IDM_WHOLEWORD:
+	//case IDM_MATCHCASE:
+	//case IDM_REGEXP:
+	//case IDM_WRAPAROUND:
+	//case IDM_UNSLASH:
+	//	pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
+	//	NextIncremental(changingEdit);
+	//	break;
 
 	default:
 		return false;
@@ -1540,8 +1541,8 @@ void UserStrip::Destruction() noexcept {
 
 void UserStrip::Close() {
 	Strip::Close();
-	if (pSciTEWin)
-		pSciTEWin->UserStripClosed();
+	//if (pSciTEWin)
+	//	pSciTEWin->UserStripClosed();
 }
 
 void UserStrip::Size() {
@@ -1761,7 +1762,7 @@ void UserStrip::SetExtender(Extension *extender_) noexcept {
 	extender = extender_;
 }
 
-void UserStrip::SetSciTE(SciTEWin *pSciTEWin_) noexcept {
+void UserStrip::SetSciEdit(SciEditText *pSciTEWin_) noexcept {
 	pSciTEWin = pSciTEWin_;
 }
 
