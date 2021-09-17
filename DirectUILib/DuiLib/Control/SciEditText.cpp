@@ -3,12 +3,14 @@
 #include "Core\ControlFactory.h"
 #include "WindowsEx\comctl32.h"
 
+using namespace Scintilla;
 
 namespace DuiLib {
 	IMPLEMENT_DUICONTROL(SciEditText)
 
 	SciEditText::SciEditText()
 		: CControlUI()
+		, ScintillaCall()
 	{
 		m_dwBackColor = RGB(0, 0, 255);
 		_isDirectUI = true;
@@ -35,9 +37,7 @@ namespace DuiLib {
 	void SciEditText::Init()
 	{
 		_hParent = m_pParent->GetHWND();
-
 		// see SciTEWin.cxx
-
 		//Lexilla::SetDefaultDirectory(GetSciTEPath(FilePath()).AsUTF8());
 
 		Scintilla_RegisterClasses(CPaintManagerUI::GetInstance());
@@ -49,7 +49,7 @@ namespace DuiLib {
 		_hWnd = ::CreateWindowEx(
 			0,
 			TEXT("Scintilla"),
-			TEXT("Source"),
+			TEXT("EditText"),
 			WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 			0, 0,
 			100, 100,
@@ -66,6 +66,12 @@ namespace DuiLib {
 		//{
 		//	GetRoot()->_WNDList.push_back(this);
 		//}
+
+		SciFnDirectStatus fn_ = reinterpret_cast<SciFnDirectStatus>(
+			::SendMessage(_hWnd, (UINT)Message::GetDirectStatusFunction, 0, 0));
+		const sptr_t ptr_ = ::SendMessage(_hWnd, (UINT)Message::GetDirectPointer, 0, 0);
+		SetFnPtr(fn_, ptr_);
+
 	}
 
 	void SciEditText::SetPos(RECT rc, bool bNeedInvalidate) 
@@ -82,7 +88,9 @@ namespace DuiLib {
 
 			//::SetWindowPos(_hWnd, NULL, rcPos.left, rcPos.top, rcPos.right - rcPos.left, rcPos.bottom - rcPos.top, SWP_NOZORDER | SWP_NOACTIVATE);
 			
-			::MoveWindow(_hWnd, rcPos.left, rcPos.top, rcPos.right - rcPos.left, rcPos.bottom - rcPos.top, TRUE);
+			::MoveWindow(_hWnd, rcPos.left, rcPos.top
+				, rcPos.right - rcPos.left, rcPos.bottom - rcPos.top
+				, TRUE);
 
 		}
 	}
