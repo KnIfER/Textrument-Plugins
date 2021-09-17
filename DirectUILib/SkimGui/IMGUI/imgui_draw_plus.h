@@ -23,7 +23,7 @@ __declspec(selectany) FUNC_CLIP_RC Func_Clip_Rect = nullptr;
 typedef void(*FUNC_UNCLIP_RC)(void);
 __declspec(selectany) FUNC_UNCLIP_RC Func_Clip_Reset = nullptr;
 
-typedef void(*FUNC_DRAW_RC)(const ImVec2& p_min, const ImVec2& p_max, ImU32 col);
+typedef void(*FUNC_DRAW_RC)(const ImVec2& p_min, const ImVec2& p_max, ImU32 col, float rounding);
 __declspec(selectany) FUNC_DRAW_RC Func_Draw_Rect = nullptr;
 
 

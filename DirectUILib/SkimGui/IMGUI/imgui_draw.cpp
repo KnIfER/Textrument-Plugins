@@ -1400,17 +1400,14 @@ void ImDrawList::AddRectFilled(const ImVec2& p_min, const ImVec2& p_max, ImU32 c
 {
     if ((col & IM_COL32_A_MASK) == 0)
         return;
-    if (rounding <= 0.0f || (flags & ImDrawFlags_RoundCornersMask_) == ImDrawFlags_RoundCornersNone)
+    if (bUseCustomDraw)
     {
-        if (bUseCustomDraw)
-        {
-            Func_Draw_Rect(p_min, p_max, col);
-        }
-        else 
-        {
-            PrimReserve(6, 4);
-            PrimRect(p_min, p_max, col);
-        }
+        Func_Draw_Rect(p_min, p_max, col, rounding>0&&(flags & ImDrawFlags_RoundCornersMask_)?rounding:0);
+    }
+    else if (rounding <= 0.0f || (flags & ImDrawFlags_RoundCornersMask_) == ImDrawFlags_RoundCornersNone)
+    {
+        PrimReserve(6, 4);
+        PrimRect(p_min, p_max, col);
     }
     else
     {

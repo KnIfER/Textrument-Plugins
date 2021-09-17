@@ -299,7 +299,7 @@ namespace SkimGuiHello{
 		setFont("宋体", 20);
 		//ImGui::StyleColorsLight();
 		//_font.setEmbolden(false);
-		//ImGui_ImplOpenGL2_CreateFontsTexture();
+		ImGui_ImplOpenGL2_CreateFontsTexture();
 		::QueryPerformanceFrequency((LARGE_INTEGER*)&TicksPerSecond);
 		::QueryPerformanceCounter((LARGE_INTEGER*)&TicksLastDraw);
 
@@ -454,7 +454,10 @@ namespace SkimGuiHello{
 					ImGui::Text("Frame Render Time %.1f ms/frame", frame_render_tm/1000.f);
 					ImGui::End();
 
-					if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+					if (show_demo_window) 
+					{
+						ImGui::ShowDemoWindow(&show_demo_window);
+					}
 					if (show_another_window)
 					{
 						ImGui::Begin("Hello, Skia For IMGUI！");
@@ -476,7 +479,7 @@ namespace SkimGuiHello{
 
 					ImGui::EndFrame();
 					
-					ImGui::Render();
+					//ImGui::Render();
 				}
 				_canvas->flush();
 				//glSurf->flushAndSubmit();
@@ -805,14 +808,21 @@ namespace SkimGuiHello{
 		}
 	}
 
-	void drawRect(const ImVec2& p_min, const ImVec2& p_max, ImU32 col) 
+	void drawRect(const ImVec2& p_min, const ImVec2& p_max, ImU32 col, float rounding) 
 	{
 		fill.setColor(SkColorSetARGB((col>>IM_COL32_A_SHIFT)&0xFF
 			, (col>>IM_COL32_R_SHIFT)&0xFF
 			, (col>>IM_COL32_G_SHIFT)&0xFF
 			, (col>>IM_COL32_B_SHIFT)&0xFF));
 		SkRect rect{p_min.x, p_min.y, p_max.x, p_max.y};
-		_canvas->drawRect(rect, fill);
+		if (rounding<=0)
+		{
+			_canvas->drawRoundRect(rect, rounding, rounding, fill);
+		}
+		else
+		{
+			_canvas->drawRect(rect, fill);
+		}
 	}
 }
 using namespace SkimGuiHello;
