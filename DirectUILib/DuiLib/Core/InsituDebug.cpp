@@ -21,8 +21,9 @@ void LogIs(int show, HWND hWnd, const TCHAR* msg, va_list & args)
 		}
 
 		TCHAR buffer[512]={};
+		// https://docs.microsoft.com/en-us/windows/win32/api/strsafe/nf-strsafe-stringcchvprintfw
 		int ret = StringCchVPrintfW(buffer, 512, msg, args);
-		if (ret>0)
+		if (SUCCEEDED(ret))
 		{
 			bool bNeedLF=buffer[ret-1]!='\n';
 			if (show==1)
@@ -84,6 +85,10 @@ void LogIs(int show, HWND hWnd, const CHAR* msg, va_list & args)
 		}
 
 		CHAR buffer[512]={};
+		// https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/vsprintf-s-vsprintf-s-l-vswprintf-s-vswprintf-s-l?view=msvc-160
+		// vsprintf_s and vswprintf_s return the number of characters written, 
+		//  not including the terminating null character, 
+		//  or a negative value if an output error occurs. If
 		int ret=vsprintf_s(buffer, msg, args);
 		if (ret>0)
 		{

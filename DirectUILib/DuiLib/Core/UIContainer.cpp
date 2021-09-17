@@ -90,7 +90,12 @@ namespace DuiLib
 		if( m_pManager != NULL ) m_pManager->InitControls(pControl, this);
 		if( IsVisible() ) NeedUpdate();
 		else pControl->SetInternVisible(false);
-		return m_items.Add(pControl);   
+		bool ret = m_items.Add(pControl);
+		if (m_pManager && ret && m_pManager->_bIsLayoutOnly)
+		{
+			SetPos(m_rcItem);
+		}
+		return ret;   
 	}
 
 	bool CContainerUI::AddAt(CControlUI* pControl, int iIndex)
@@ -134,7 +139,7 @@ namespace DuiLib
 	{
 		for( int it = 0; m_bAutoDestroy && it < m_items.GetSize(); it++ ) {
 			CControlUI* pItem = static_cast<CControlUI*>(m_items[it]);
-			if( m_bDelayedDestroy && m_pManager ) {
+			if( m_bDelayedDestroy && m_pManager && !m_pManager->_bIsLayoutOnly ) {
 				m_pManager->AddDelayedCleanup(pItem);             
 			}
 			else {

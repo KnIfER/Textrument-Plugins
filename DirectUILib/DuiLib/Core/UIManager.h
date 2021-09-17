@@ -600,6 +600,7 @@ namespace DuiLib {
 		void RemoveAllEffectStyle();
 
 		bool _SIZING;
+		bool _bIsLayoutOnly = false;
 	private:
 		CStdPtrArray* GetFoundControls();
 		static CControlUI* CALLBACK __FindControlFromNameHash(CControlUI* pThis, LPVOID pData);

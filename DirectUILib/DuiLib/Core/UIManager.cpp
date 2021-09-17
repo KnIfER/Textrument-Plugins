@@ -1171,9 +1171,9 @@ namespace DuiLib {
 				RECT rcPaint = { 0 };
 				if( !::GetUpdateRect(m_hWndPaint, &rcPaint, FALSE) ) return true;
 
-
-				m_bLayered = false; // 设置 Layered 后导致 dx 动画无法显示。
-				m_bOffscreenPaint = false;
+				// todo why layered?
+				//m_bLayered = false; // 设置 Layered 后导致 dx 动画无法显示。
+				//m_bOffscreenPaint = false;
 
 				// Set focus to first control?
 				if( m_bFocusNeeded) {
@@ -1568,17 +1568,6 @@ namespace DuiLib {
 				if( m_anim.IsAnimating() ) m_anim.CancelJobs();
 				//m_bUpdateNeeded = true;
 				if( m_pRoot != NULL ) m_pRoot->NeedUpdate();
-
-				//CContainerUI* root = dynamic_cast<CContainerUI*>(m_pRoot);
-				//
-				//if (root)
-				//{
-				//	for(list<CControlUI*>::iterator it=root->_WNDList.begin();it!=root->_WNDList.end();it++)
-				//	{
-				//		LogIs("GetBkColor::%d", (*it)->GetBkColor());
-				//		//(*it)->resize();
-				//	}
-				//}
 			}
 			return true;
 		case WM_TIMER:

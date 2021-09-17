@@ -114,6 +114,10 @@ namespace DuiLib {
 		virtual void EnableScrollBar(bool bEnableVertical = true, bool bEnableHorizontal = false);
 		virtual CScrollBarUI* GetVerticalScrollBar() const;
 		virtual CScrollBarUI* GetHorizontalScrollBar() const;
+		
+		CScrollBarUI* GetScrollbar(boolean vertical=true) {
+			return vertical?m_pVerticalScrollBar:m_pHorizontalScrollBar;
+		}
 
 		std::list<CControlUI*> _UpdateList;
 		std::list<CControlUI*> _WNDList;

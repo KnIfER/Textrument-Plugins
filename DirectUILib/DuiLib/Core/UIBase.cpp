@@ -400,8 +400,8 @@ bool CWindowWnd::RegisterWindowClass()
 {
 	WNDCLASS wc = { 0 };
 	wc.style = GetClassStyle();
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
+	wc.cbClsExtra = 200;
+	wc.cbWndExtra = 200;
 	wc.hIcon = NULL;
 	wc.lpfnWndProc = CWindowWnd::__WndProc;
 	wc.hInstance = CPaintManagerUI::GetInstance();
