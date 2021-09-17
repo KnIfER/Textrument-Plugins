@@ -9,7 +9,7 @@
     <DUPA>$(ROOT)\DuiLib</DUPA>
     <DU_Lib_s64>$(DUPA)\Build\Bin\Win64\Release</DU_Lib_s64>
     <DULib_STATIC_64>$(DUPA)\Build\Bin\Win64\Release</DULib_STATIC_64>
-    <SCITE_INC>$(ROOT)\Scintilla\lexilla\include;$(ROOT)\Scintilla\lexilla\access;$(ROOT)\Scintilla\lexilla\lexlib;$(ROOT)\Scintilla\scintilla\include;$(ROOT)\Scintilla\scintilla\src;</SCITE_INC>
+    <SCITE_INC>$(ROOT)\Scintilla\lexilla\include;$(ROOT)\Scintilla\lexilla\access;$(ROOT)\Scintilla\lexilla\lexlib;$(ROOT)\Scintilla\scintilla\include;$(ROOT)\Scintilla\scintilla\src;$(ROOT)\Scintilla\scite\lua\src;</SCITE_INC>
     <RTO_x64>$(ROOT)\x64\Release</RTO_x64>
     <DU_Lib_s64D>$(DUPA)\Build\Bin\Win64\Debug</DU_Lib_s64D>
     <RTO_x64D>$(ROOT)\x64\Debug</RTO_x64D>

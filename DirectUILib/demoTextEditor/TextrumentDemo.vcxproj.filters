@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{835a4270-af43-4902-b7d8-950a553752e0}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Source Files\SciEditor">
+      <UniqueIdentifier>{4e9ec1b8-f2c5-41f9-b55f-f9d802098b49}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TextrumentDemo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\IFaceTable.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\JobQueue.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\LuaExtension.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\MultiplexExtension.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\PropSetFile.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\SciTEBase.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\StringHelpers.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\StringList.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\Strips.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\StyleDefinition.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\StyleWriter.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\Utf8_16.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\WinGUI.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\WinSciTE.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\Cookie.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\FilePath.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="SciEditor\FileWorker.cxx">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SciEditor\GUI.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\IFaceTable.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\JobQueue.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\LuaExtension.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\MultiplexExtension.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\PropSetFile.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\SciTE.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\SciTEBase.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\SciTEKeys.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\StringHelpers.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\StringList.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\StripDefinition.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\Strips.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\StyleDefinition.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\StyleWriter.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\Utf8_16.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\WinSciTE.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\Worker.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\Cookie.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\DLLFunction.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\Extender.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\FilePath.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="SciEditor\FileWorker.h">
+      <Filter>Source Files\SciEditor</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

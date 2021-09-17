@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window caption="0,0,0,30" roundcorner="5,5,5,5"  inset="0,0,0,0" sizebox="4,4,4,4" mininfo="600,320" showdirty="false" layered="false">
+ <Font id="0" name="宋体" size="13" bold="false"/>
+ <Font id="1" name="宋体" size="22"/>
+
+<VerticalLayout inset="0,0,0,0">
+
+	<!-- <VerticalLayout height="100" bkcolor="#ff0000ff"> -->
+		<!-- <Text text="  ListView Demo - DuiLib 基础控件展示" textcolor="#FF000000" font="1"></Text> -->
+	<!-- </VerticalLayout> -->
+	
+	<!-- <VerticalLayout bkcolor="#ff0000ff"> -->
+		<!-- <Text text="  ListView Demo - DuiLib 基础控件展示 -->
+		<!-- 123" textcolor="#FF000000" font="1"></Text> -->
+	<!-- </VerticalLayout> -->
+
+		<Container  height="-1">
+			<WinTabbar height="-1" bkcolor="#FF313C00" name="tabbar" >
+				<SciEditText height="-1" bkcolor="#FF313C00" name="edittext" />
+				<!-- <WinFrame inset="0,0,0,0"  bkcolor="#ff0000ff"> -->
+					<!-- <VerticalLayout bkcolor="#ff0000ff"> -->
+						<!-- <Text text="  ListView Demo - DuiLib 基础控件展示 -->
+						<!-- 基础控件展示 我是DUILIB控件 -->
+						<!-- 基础控件展示" textcolor="#FF000000" font="1"/> -->
+					<!-- </VerticalLayout> -->
+				<!-- </WinFrame> -->
+			</WinTabbar>
+		</Container>
+		
+		
+		<Container height="100" name="op">
+			<WinFrame inset="0,0,0,0">
+					<HorizontalLayout bkcolor="#ff00ffff">
+						 <Text  name="demo_1" text="这一行是直接绘制的" textcolor="#FF000000" font="1"/>
+						 <RichEdit bkcolor="#0000FFFF" font="2" password="false"  textcolor="#FF000000"
+							mutiline="true" rich="false" text="这一行是RichEdit控件" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="false" padding="2,2.8,0,0"/>
+					</HorizontalLayout>
+			</WinFrame>
+		</Container>
+		
+	
+	
+	<!--List name="domainlist" height="100" bkcolor="#FFFFFFFF" inset="0,0,0,0" itemshowhtml="true" vscrollbar="true" hscrollbar="true" headerbkimage="file='list_header_bg.png'" itemalign="center" itembkcolor="#FFE2DDDF" itemaltbk="true" hscrollbar="false" menu="true">
+		<ListHeader height="24" menu="true">
+			<ListHeaderItem text="直接绘制" font="1" hotimage="file='list_header_hot.png'" pushedimage="file='list_header_pushed.png'" sepimage="file='list_header_sep.png'" sepwidth="1"/>
+			<ListHeaderItem text="嵌套窗口" font="1" hotimage="file='list_header_hot.png'" pushedimage="file='list_header_pushed.png'" sepimage="file='list_header_sep.png'" sepwidth="1"/>
+		</ListHeader>
+		
+		 <ListContainerElement height="100">
+			<HorizontalLayout bkcolor="#ff00ffff" width="200">
+				 <Text  name="demo_1" text="这一行是直接绘制的" textcolor="#FF000000" font="1"/>
+				 <RichEdit bkcolor="#0000FFFF" font="2" password="false"  textcolor="#FF000000"
+					mutiline="true" rich="false" text="这一行是RichEdit控件" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="false" padding="2,2.8,0,0"/>		
+			</HorizontalLayout>
+			
+			<Container>
+				<WinFrame inset="0,0,0,0" height="100"> 
+				</WinFrame>
+			</Container>
+		 </ListContainerElement>
+	</List-->
+		
+	<WinFrame inset="0,0,0,0" height="100"> 
+		<VerticalLayout height="100" vscrollbar="true" bkcolor="#ff00003f">
+			<Text name="output" minheight="100" text="输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...
+			输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出.输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出.
+			输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出...输出.
+			输出...
+			输出...
+			输出...
+			输出...
+			输出...
+			输出...Eb
+			输出...Ed
+			" textcolor="#FFFFFFFF" font="1"/>
+		</VerticalLayout>
+	</WinFrame>
+</VerticalLayout>
+</Window>
