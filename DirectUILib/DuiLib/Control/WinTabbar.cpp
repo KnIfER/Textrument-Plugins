@@ -25,48 +25,58 @@ namespace DuiLib {
 		return __super::GetInterface(pstrName);
 	}
 
-	struct DemoData
+	void WinTabbar::SetEventListener(Listener & _listener)
 	{
-		const TCHAR* title;
-		int image;
-	};
+		WND_SetListener(_hWnd, &_listener);
+	}
 
-	DemoData demoData[]{
-		{L"happy", 0}
-		,{L"happy for what", 1}
-		,{L"sad", 0}
-		,{L"sad for what", 1}
-		,{L"Values，何为价值观", 2}
-		,{L"成功秘诀.pdf", 3}
-		,{L"happy", 0}
-		,{L"happy", 0}
-		,{L"SecretToHappiness.pdf", 4}
-		,{L"MasterCPP.pdf", 4}
-		,{L"happy", 0}
-		,{L"happy", 0}
-		,{L"Your photo.png", 5}
-		,{L"happy", 0}
-		,{L"happy", 0}
-	};
-	int size=0;
-	void addTab(HWND hWnd, const TCHAR *text, int image)
+	void WinTabbar::DoEvent(TEventUI& event)
 	{
-		TCITEM tab{};
-		tab.iImage = image;
-		tab.mask = TCIF_TEXT;
-		tab.pszText = (TCHAR *)text;
-		tab.mask = TCIF_TEXT | TCIF_IMAGE;
-		//tab.lParam;
-		TabCtrl_InsertItem(hWnd, size++, reinterpret_cast<LPARAM>(&tab));
+		if( event.Type == UIEVENT_BUTTONDOWN || event.Type == UIEVENT_DBLCLICK)
+		{
+			if( ::PtInRect(&m_rcItem, event.ptMouse) && IsEnabled() ) {
+				m_uWndState |= UISTATE_PUSHED | UISTATE_CAPTURED;
+				Invalidate();
+				if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_BUTTONDOWN);
+			}
+			return;
+		}	
+		if( event.Type == UIEVENT_BUTTONUP )
+		{ // 不可达
+			//if( (m_uWndState & UISTATE_CAPTURED) != 0 ) 
+			{
+				m_uWndState &= ~(UISTATE_PUSHED | UISTATE_CAPTURED);
+				Invalidate();
+				//if( ::PtInRect(&m_rcItem, event.ptMouse) ) 
+				{
+					m_pManager->SendNotify(this, DUI_MSGTYPE_CLICK);
+				}			
+			}
+			return;
+		}
+
+	}
+
+	LRESULT CALLBACK WinTabbar::TabWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+	{
+		WinTabbar* tabbar = (WinTabbar*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+		switch(message)
+		{
+			case WM_LBUTTONUP:
+			{
+				//tabbar->m_pManager->SendNotify(tabbar, L"click");
+
+				break;
+			}
+		}
+		return CallWindowProc(tabbar->_defaultProc, tabbar->_hWnd, message, wParam, lParam);
 	}
 
 	void WinTabbar::Init()
 	{
 		_hParent = m_pParent->GetHWND();
-
-		TAB_Register();
 		//LogIs("_hParent::%d", _hParent);
-
+		TAB_Register();
 		DWORD style = WS_CHILD | WS_VISIBLE 
 			//| TCS_MULTILINE
 			//| TCS_BUTTONS
@@ -81,9 +91,7 @@ namespace DuiLib {
 			| TCS_FLICKERFREE 
 
 			| TCS_FIXEDBASELINE 
-
 			;
-
 		_hWnd = ::CreateWindowEx(
 			0,
 			L"MyTabControl32",
@@ -94,43 +102,86 @@ namespace DuiLib {
 			NULL,
 			CPaintManagerUI::GetInstance(),
 			0);
+		SetWindowLongPtr(_hWnd, GWLP_USERDATA, (LONG_PTR)this);
+		_defaultProc = (WNDPROC)SetWindowLongPtr(_hWnd, GWLP_WNDPROC, (LONG_PTR)TabWndProc);
+	}
 
+	void WinTabbar::setTabPadding(int paddingX, int paddingY)
+	{
+		TabCtrl_SetPadding(_hWnd, paddingX, paddingY);
+	}
 
-		TabCtrl_SetPadding(_hWnd, 12, 3);
-		TabCtrl_SetCloseImage(_hWnd, MAKELONG(6, 7), MAKELONG(8, 7));
+	void WinTabbar::setTabCloseImages(int inactive, int selected, int hovered, int pushed)
+	{
+		TabCtrl_SetCloseImage(_hWnd, MAKELONG(inactive, selected), MAKELONG(hovered, pushed));
+	}
 
-		HIMAGELIST hImageList = ImageList_Create(24, 24, ILC_COLOR24 | ILC_MASK, 3, 1);
-		//auto bmp = m_pManager->GetImage(L"tab_def.bmp");
-		auto bmp = CRenderEngine::LoadImageStr(L"tab_def.bmp", NULL, 0xFFFFFFFF, NULL, 3);
-		if (bmp)
+	HIMAGELIST WinTabbar::setImageList(int capacity, int bytesPerPixel, int iconWidth, int iconHeight)
+	{
+		UINT flags = ILC_MASK;
+		if (bytesPerPixel==3)
 		{
-			//HBITMAP hBitmap = LoadBitmap(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(IDB_TOOLBAR));
-			HBITMAP hBitmap = bmp->hBitmap;
-			ImageList_AddMasked(hImageList, hBitmap, RGB(255, 255, 255));
-			DeleteObject(hBitmap);
-			//SendMessage(hToolbar, TB_SETIMAGELIST, 0, (LPARAM)hImageList); // 正常显示时的图像列表
-			TabCtrl_SetImageList(_hWnd, hImageList);
+			flags |= ILC_COLOR24;
 		}
-		LogIs("bmp::%d", bmp);
-
-		for (size_t i = 0; i < 15; i++)
+		else if (bytesPerPixel==4)
 		{
-			DemoData & dd = demoData[i];
-			addTab(_hWnd, dd.title, dd.image);
+			flags |= ILC_COLOR32;
 		}
-		TCHAR buffer[64];
-		for (size_t i = 0; i < 80; i++)
+		else if (bytesPerPixel==2)
 		{
-			swprintf_s(buffer, L"happy#%d", i+15);
-			addTab(_hWnd, buffer, 0);
+			flags |= ILC_COLOR16;
 		}
+		else if (bytesPerPixel==1)
+		{
+			flags |= ILC_COLOR8;
+		}
+		_hImageList = ImageList_Create(iconWidth, iconHeight, flags, capacity, 1);
+		return TabCtrl_SetImageList(_hWnd, _hImageList);
+	}
 
+	int WinTabbar::addImageToList(HBITMAP hBitmap, COLORREF maskColor)
+	{
+		if (_hImageList)
+		{
+			return ImageList_AddMasked(_hImageList, hBitmap, RGB(255, 255, 255));
+		}
+		return -1;
+	}
+
+	void WinTabbar::addTab(int position, const TCHAR *text, LPARAM lParam, int image)
+	{
+		TCITEM tab{};
+		tab.iImage = image;
+		tab.mask = TCIF_TEXT;
+		tab.pszText = (TCHAR *)text;
+		tab.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_PARAM;
+		tab.lParam = lParam;
+		TabCtrl_InsertItem(_hWnd, position, reinterpret_cast<LPARAM>(&tab));
+	}
+	
+	bool WinTabbar::closeTabAt(int position)
+	{
+		if (TabCtrl_DeleteItem(_hWnd, position))
+		{
+			//TabCtrl_SetCurSel();
+			return true;
+		}
+		return false;
+	}
+	
+	LPARAM WinTabbar::GetTabDataAt(int position)
+	{
+		return TabCtrl_GetItemExtra(_hWnd, position);
+	}
+
+	bool WinTabbar::setTabFont(int fontSize, TCHAR* fontName)
+	{
 		//设置字体
 		LOGFONT logFont;
 		HFONT hFont;
 		HDC hdc;
 		hdc = GetDC(_hWnd);
-		logFont.lfHeight = MulDiv(13, GetDeviceCaps(hdc, LOGPIXELSY), 72);//13是字号大小
+		logFont.lfHeight = MulDiv(fontSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
 		ReleaseDC(_hWnd, hdc);
 		logFont.lfWidth = 0;
 		logFont.lfEscapement = 0;
@@ -144,18 +195,17 @@ namespace DuiLib {
 		logFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 		logFont.lfQuality = PROOF_QUALITY;
 		logFont.lfPitchAndFamily = VARIABLE_PITCH  | FF_ROMAN;
-		lstrcpy(logFont.lfFaceName, L"华文细黑"); 
-		lstrcpy(logFont.lfFaceName, L"宋体"); 
+		if (fontName)
+		{
+			lstrcpy(logFont.lfFaceName, fontName); 
+		}
 		hFont = CreateFontIndirect(&logFont);
-		SendMessage(_hWnd, WM_SETFONT, (WPARAM)hFont, TRUE);
-
-
-		//::ShowWindow(_hWnd, TRUE);
-		//::SetWindowText(_hWnd, TEXT("TEST"));
-		//if (!dynamic_cast<WinFrame*>(m_pParent))
-		//{
-		//	GetRoot()->_WNDList.push_back(this);
-		//}
+		if (hFont)
+		{
+			SendMessage(_hWnd, WM_SETFONT, (WPARAM)hFont, TRUE);
+			return true;
+		}
+		return false;
 	}
 
 	void WinTabbar::SetPos(RECT rc, bool bNeedInvalidate) 

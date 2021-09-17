@@ -1,3 +1,4 @@
+#pragma once
 #ifdef UILIB_STATIC
 #define UILIB_API 
 #else
@@ -44,6 +45,10 @@
 #include <malloc.h>
 #include <comdef.h>
 #include <gdiplus.h>
+
+#include <functional>
+
+typedef std::function<int(void*, UINT, WPARAM, LPARAM)> Listener;
 
 #include "Utils/Utils.h"
 #include "Utils/unzip.h"
