@@ -87,9 +87,10 @@
 #include <windowsx.h>
 
 #include <vector>
+#include <functional>
 
 //WINE_DEFAULT_DEBUG_CHANNEL(tab);
-
+namespace WineTab{
 typedef struct
 {
 	DWORD  dwState;
@@ -156,6 +157,8 @@ typedef struct
 	UINT		vModeDragSt; /* Used for vertical mode */
 	UINT		vModeWidthSt; /* Used for vertical mode */
 
+	BOOL MouseTracking;
+
 	HTHEME htheme; /* https://stackoverflow.com/questions/55319559/why-is-my-window-losing-its-htmeme-when-i-call-setwindowlongptrgwl-style-on-it */
 
 	INT hoverItem;
@@ -169,6 +172,9 @@ typedef struct
 	UINT closeImg_hovered;
 	UINT closeImg_pushed;
 	BOOL lastHoverInCloseBtn;
+	INT lastPushedItem = -1;
+	INT lastPushedClosingItem = -1;
+	BOOL changeSelOnDwn=false;
 
 	POINT hitPt;
 	RECT rcTabbar;
@@ -177,6 +183,7 @@ typedef struct
 	LONG win_width;
 	LONG win_height;
 	std::vector<LONG> rowWidSepMap;
+	Listener _listener;
 } TAB_INFO;
 
 /******************************************************************************
@@ -199,12 +206,6 @@ typedef struct
 
 #define GET_DEFAULT_MIN_TAB_WIDTH(infoPtr) (DEFAULT_MIN_TAB_WIDTH - (DEFAULT_PADDING_X - (infoPtr)->uHItemPadding) * 2)
 
-/******************************************************************************
-* Hot-tracking timer constants
-*/
-#define TAB_HOTTRACK_TIMER            1
-#define TAB_HOTTRACK_TIMER_INTERVAL   100   /* milliseconds */
-
 static const WCHAR themeClass[] = L"Tab";
 
 static inline TAB_ITEM* TAB_GetItem(const TAB_INFO *infoPtr, INT i)
@@ -216,15 +217,15 @@ static inline TAB_ITEM* TAB_GetItem(const TAB_INFO *infoPtr, INT i)
 /******************************************************************************
 * Prototypes
 */
-static void TAB_InvalidateTabArea(const TAB_INFO *);
+static void TAB_InvalidateTabArea(TAB_INFO *);
 static void TAB_EnsureSelectionVisible(TAB_INFO *);
 static void TAB_DrawItemInterior(const TAB_INFO *, HDC, INT, RECT*);
 static LRESULT _DeselectAll(TAB_INFO *, BOOL);
 static BOOL TAB_InternalGetItemRect(const TAB_INFO *, INT, RECT*, RECT*);
 static void TAB_SetItemBounds (TAB_INFO *infoPtr);
 static BOOL _GetIsVerticalResizeArea (TAB_INFO *infoPtr, int x, int y);
-static void Tab_TrackMouseStart (TAB_INFO *infoPtr, UINT start);
-static inline void Tab_TrackMouseEnd (TAB_INFO *infoPtr);
+static void Tab_TrackDragVerticalStart (TAB_INFO *infoPtr, UINT start);
+static inline void Tab_TrackDragVerticalEnd (TAB_INFO *infoPtr);
 
 bool Rect_Contains(const RECT & rc1, const RECT & rc2) {
 	return rc1.left<=rc2.left && rc1.top<=rc2.top && rc1.right>=rc2.right && rc1.bottom>=rc2.bottom;
@@ -619,7 +620,7 @@ static INT TAB_InternalHitTest (TAB_INFO *infoPtr, POINT pt, UINT *flags, BOOL a
 	INT position;
 	if (::PtInRect(&infoPtr->rcTabbar, pt))
 	{
-		if (::PtInRect(&infoPtr->hoverItemRect, pt))
+		if (infoPtr->hoverItem>=0 && ::PtInRect(&infoPtr->hoverItemRect, pt))
 		{
 			*flags = TCHT_ONITEM;
 			return infoPtr->hoverItem;
@@ -692,6 +693,12 @@ static INT TAB_InternalHitTest (TAB_INFO *infoPtr, POINT pt, UINT *flags, BOOL a
 	//		return iCount;
 	//	}
 	//}
+
+	if (alterHover && infoPtr->hoverItem>=0)
+	{
+		infoPtr->hoverItem = -1;
+		infoPtr->hoverItemRect = {0,0,0,0};
+	}
 
 	*flags = TCHT_NOWHERE;
 	return -1;
@@ -773,13 +780,15 @@ static LRESULT _LButtonDown (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
 	if (infoPtr->dwStyle & TCS_VERTICAL
 		&&(_GetIsVerticalResizeArea(infoPtr, pt.x, pt.y)))
 	{
-		Tab_TrackMouseStart(infoPtr, pt.x);
+		Tab_TrackDragVerticalStart(infoPtr, pt.x);
 		return 0;
 	}
 
-	newItem = TAB_InternalHitTest (infoPtr, pt, &dummy);
+	newItem = TAB_InternalHitTest (infoPtr, pt, &dummy, true);
 
 	TRACE("On Tab, item %d!=%d\n", newItem, infoPtr->iSelected);
+
+	infoPtr->lastPushedItem = newItem;
 
 	if ((newItem != -1) && (infoPtr->iSelected != newItem))
 	{
@@ -795,22 +804,37 @@ static LRESULT _LButtonDown (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
 		}
 		else
 		{
-			INT i;
+			if (infoPtr->lastHoverInCloseBtn)
+			{
+				infoPtr->lastPushedClosingItem = newItem;
+			}
+			else
+			{
+				if (infoPtr->lastPushedClosingItem>=0)
+				{
+					infoPtr->lastPushedClosingItem = -1;
+				}
 
-			if (TAB_SendSimpleNotify(infoPtr, TCN_SELCHANGING))
-				return 0;
+				if (!infoPtr->changeSelOnDwn || TAB_SendSimpleNotify(infoPtr, TCN_SELCHANGING))
+					return 0;
 
-			_SetCurSel(infoPtr, newItem);
+				_SetCurSel(infoPtr, newItem);
 
-			TAB_SendSimpleNotify(infoPtr, TCN_SELCHANGE);
+				TAB_SendSimpleNotify(infoPtr, TCN_SELCHANGE);
+			}
+
 		}
+	}
+	else
+	{
+		infoPtr->lastPushedClosingItem = infoPtr->lastHoverInCloseBtn?newItem:-1;
 	}
 
 	// ||pt.y>infoPtr->tabHeight*infoPtr->uNumRows
 	if (newItem==-1
 		&&(infoPtr->dwStyle & TCS_VERTICAL) && pt.y>infoPtr->tabHeight*infoPtr->uNumRows+20)
 	{
-		Tab_TrackMouseStart(infoPtr, pt.x);
+		Tab_TrackDragVerticalStart(infoPtr, pt.x);
 	}
 
 	return 0;
@@ -818,9 +842,24 @@ static LRESULT _LButtonDown (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
 
 static inline LRESULT _LButtonUp (TAB_INFO *infoPtr)
 {
-	TAB_SendSimpleNotify(infoPtr, NM_CLICK);
+	INT closing_item = infoPtr->lastPushedClosingItem;
+	if (closing_item>=0 || closing_item<-1) infoPtr->lastPushedClosingItem = -1;
+	if (infoPtr->lastPushedItem>=0 && infoPtr->lastPushedItem==infoPtr->hoverItem)
+	{
+		if (infoPtr->_listener)
+		{
+			if (closing_item==-1 || closing_item>=0 && closing_item==infoPtr->hoverItem && infoPtr->lastHoverInCloseBtn)
+			{
+				(infoPtr->_listener)(infoPtr->hwnd, NM_CLICK, infoPtr->lastPushedItem, closing_item);
+			}
+		}
+		else
+		{
+			TAB_SendSimpleNotify(infoPtr, NM_CLICK);
+		}
+	}
 
-	Tab_TrackMouseEnd(infoPtr);
+	Tab_TrackDragVerticalEnd(infoPtr);
 
 	return 0;
 }
@@ -868,52 +907,6 @@ static inline void hottrack_refresh(const TAB_INFO *infoPtr, int tabIndex)
 	}
 	else
 		TAB_DrawLoneItemInterior(infoPtr, tabIndex);
-}
-
-/******************************************************************************
-* TAB_HotTrackTimerProc
-*
-* When a mouse-move event causes a tab to be highlighted (hot-tracking), a
-* timer is setup so we can check if the mouse is moved out of our window.
-* (We don't get an event when the mouse leaves, the mouse-move events just
-* stop being delivered to our window and just start being delivered to
-* another window.)  This function is called when the timer triggers so
-* we can check if the mouse has left our window.  If so, we un-highlight
-* the hot-tracked tab.
-*/
-static void CALLBACK TAB_HotTrackTimerProc
-(
-	HWND hwnd,    /* handle of window for timer messages */
-	UINT uMsg,    /* WM_TIMER message */
-	UINT_PTR idEvent, /* timer identifier */
-	DWORD dwTime  /* current system time */
-)
-{
-	TAB_INFO* infoPtr = TAB_GetInfoPtr(hwnd);
-
-	if (infoPtr != NULL && infoPtr->iHotTracked >= 0)
-	{
-		POINT pt;
-
-		/*
-		** If we can't get the cursor position, or if the cursor is outside our
-		** window, we un-highlight the hot-tracked tab.  Note that the cursor is
-		** "outside" even if it is within our bounding rect if another window
-		** overlaps.  Note also that the case where the cursor stayed within our
-		** window but has moved off the hot-tracked tab will be handled by the
-		** WM_MOUSEMOVE event.
-		*/
-		if (!GetCursorPos(&pt) || WindowFromPoint(pt) != hwnd)
-		{
-			/* Redraw iHotTracked to look normal */
-			INT iRedraw = infoPtr->iHotTracked;
-			infoPtr->iHotTracked = -1;
-			hottrack_refresh (infoPtr, iRedraw);
-
-			/* Kill this timer */
-			KillTimer(hwnd, TAB_HOTTRACK_TIMER);
-		}
-	}
 }
 
 /******************************************************************************
@@ -972,26 +965,6 @@ static void TAB_RecalcHotTrack
 			/* Mark currently hot-tracked to be redrawn to look normal */
 			if (out_redrawLeave != NULL)
 				*out_redrawLeave = infoPtr->iHotTracked;
-
-			if (item < 0)
-			{
-				/* Kill timer which forces recheck of mouse pos */
-				KillTimer(infoPtr->hwnd, TAB_HOTTRACK_TIMER);
-			}
-		}
-		else
-		{
-			/* Start timer so we recheck mouse pos */
-			UINT timerID = SetTimer
-			(
-				infoPtr->hwnd,
-				TAB_HOTTRACK_TIMER,
-				TAB_HOTTRACK_TIMER_INTERVAL,
-				TAB_HotTrackTimerProc
-			);
-			
-			if (timerID == 0)
-				return; /* Hot tracking not available */
 		}
 
 		infoPtr->iHotTracked = item;
@@ -1052,7 +1025,7 @@ static void TAB_RecalcHotTrack
 * Handles the mouse-move event.  Updates tooltips.  Updates hot-tracking.
 */
 
-static void Tab_TrackMouseStart (TAB_INFO *infoPtr, UINT start)
+static void Tab_TrackDragVerticalStart (TAB_INFO *infoPtr, UINT start)
 {
 	if (!infoPtr->vModeDragging)
 	{
@@ -1065,7 +1038,7 @@ static void Tab_TrackMouseStart (TAB_INFO *infoPtr, UINT start)
 	}
 }
 
-static void Tab_TrackMouseMove (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
+static void Tab_TrackDragVerticalMove (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
 {
 	int clientX = GET_X_LPARAM(lParam) - infoPtr->vModeDragSt + infoPtr->vModeWidthSt;
 	int minMax = infoPtr->tabHeight + 4;
@@ -1089,12 +1062,12 @@ static void Tab_TrackMouseMove (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
 
 static LRESULT _TrackVerticalTabs (TAB_INFO *infoPtr, int x, int y)
 {
-	Tab_TrackMouseStart(infoPtr, x);
-	Tab_TrackMouseMove(infoPtr, x, y);
+	Tab_TrackDragVerticalStart(infoPtr, x);
+	Tab_TrackDragVerticalMove(infoPtr, x, y);
 	return 0;
 }
 
-static inline void Tab_TrackMouseEnd (TAB_INFO *infoPtr)
+static inline void Tab_TrackDragVerticalEnd (TAB_INFO *infoPtr)
 {
 	if (infoPtr->vModeDragging)
 	{
@@ -1153,6 +1126,18 @@ static inline LRESULT _SetCloseImage (TAB_INFO *infoPtr, WPARAM wParam, LPARAM l
 	return TRUE;
 }
 
+static inline LRESULT _MouseLeave (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
+{
+	infoPtr->MouseTracking = false;
+	if (infoPtr->hoverItem>=0)
+	{
+		//infoPtr->hoverItem = -1;
+		infoPtr->iHotTracked = -1;
+		::InvalidateRect(infoPtr->hwnd, &infoPtr->hoverItemRect, FALSE);
+	}
+	return 0;
+}
+
 static LRESULT _MouseMove (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
 {
 	int redrawLeave;
@@ -1161,6 +1146,14 @@ static LRESULT _MouseMove (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
 	if (infoPtr->hwndToolTip)
 		TAB_RelayEvent (infoPtr->hwndToolTip, infoPtr->hwnd,
 			WM_MOUSEMOVE, wParam, lParam);
+
+	// We need to call TrackMouseEvent in order to receive WM_MOUSELEAVE events
+	if (!infoPtr->MouseTracking)
+	{
+		TRACKMOUSEEVENT tme = { sizeof(tme), TME_LEAVE, infoPtr->hwnd, 0 };
+		::TrackMouseEvent(&tme);
+		infoPtr->MouseTracking = true;
+	}
 
 	/* 
 	* Determine which tab to highlight.  Redraw tabs which change highlight status. 
@@ -1186,7 +1179,7 @@ static LRESULT _MouseMove (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
 			::SetCursor(hcur);
 			if (infoPtr->vModeDragging)
 			{
-				Tab_TrackMouseMove(infoPtr, wParam, lParam);
+				Tab_TrackDragVerticalMove(infoPtr, wParam, lParam);
 			}
 		}
 	}
@@ -2144,8 +2137,10 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 	oldBkMode = SetBkMode(hdc, TRANSPARENT);
 	if (!infoPtr->htheme || (infoPtr->dwStyle & TCS_BUTTONS))
 	{
-		if ((infoPtr->dwStyle & TCS_HOTTRACK) && (iItem == infoPtr->iHotTracked) &&
-			!(infoPtr->dwStyle & TCS_FLATBUTTONS))
+		if ((infoPtr->dwStyle & TCS_HOTTRACK) && (iItem == infoPtr->iHotTracked)
+			&&!(infoPtr->dwStyle & TCS_FLATBUTTONS)
+			&&infoPtr->MouseTracking
+			)
 			SetTextColor(hdc, comctl32_color.clrHighlight);
 		else if (TAB_GetItem(infoPtr, iItem)->dwState & TCIS_HIGHLIGHTED)
 			SetTextColor(hdc, comctl32_color.clrHighlightText);
@@ -2376,7 +2371,7 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 			{
 				close_image = infoPtr->closeImg_selected;
 			}
-			if (iItem==infoPtr->hoverItem)
+			if (iItem==infoPtr->hoverItem && infoPtr->MouseTracking)
 			{
 				::OffsetRect(&rcImage, infoPtr->rcPaint.left, infoPtr->rcPaint.top);
 				if (((TAB_INFO*)infoPtr)->lastHoverInCloseBtn=::PtInRect(&rcImage, infoPtr->hitPt))
@@ -2920,8 +2915,11 @@ static void TAB_EnsureSelectionVisible(TAB_INFO* infoPtr)
 		}
 	}
 
-	if (*acroVisible != iOrigAcroVisible)
+	if (*acroVisible != iOrigAcroVisible) 
+	{
+		infoPtr->hoverItem = -1;
 		TAB_RecalcHotTrack(infoPtr, NULL, NULL, NULL);
+	}
 
 	SendMessageW(infoPtr->hwndUpDown, UDM_SETPOS, 0
 		, MAKELONG(*acroVisible, 0));
@@ -2935,11 +2933,21 @@ static void TAB_EnsureSelectionVisible(TAB_INFO* infoPtr)
 * tabs. It is called when the state of the control changes and needs
 * to be redisplayed
 */
-static void TAB_InvalidateTabArea(const TAB_INFO *infoPtr)
+static void TAB_InvalidateTabArea(TAB_INFO *infoPtr)
 {
 	RECT clientRect, rInvalidate, rAdjClient;
 	INT lastRow = infoPtr->uNumRows - 1;
 	RECT rect;
+
+	if (infoPtr->hoverItem>=0)
+	{
+		infoPtr->hoverItem = -1;
+	}
+	
+	if (infoPtr->iHotTracked>=0)
+	{
+		infoPtr->iHotTracked = -1;
+	}
 
 	if (lastRow < 0) return;
 
@@ -3006,7 +3014,7 @@ static inline LRESULT _Paint (TAB_INFO *infoPtr, HDC hdcPaint)
 	{
 		hdc = BeginPaint (infoPtr->hwnd, &ps);
 		TRACE("_Paint_erase %d, rect=(%s), hover=(%s)\n", ps.fErase, wine_dbgstr_rect(&ps.rcPaint), wine_dbgstr_rect(&infoPtr->hoverItemRect));
-		if (Rect_Contains(infoPtr->hoverItemRect, ps.rcPaint))
+		if (infoPtr->hoverItem>=0 && Rect_Contains(infoPtr->hoverItemRect, ps.rcPaint))
 		{
 			//TRACE("erase EqualRect !!!   %d, rect=(%s)\n", ps.fErase, wine_dbgstr_rect(&ps.rcPaint));
 			itemPos = infoPtr->hoverItem;
@@ -3060,7 +3068,8 @@ static LRESULT _InsertItemT (TAB_INFO *infoPtr, INT iItem, const TCITEMW *pti, B
 	GetClientRect (infoPtr->hwnd, &rect);
 	TRACE("Rect: %p %s\n", infoPtr->hwnd, wine_dbgstr_rect(&rect));
 
-	if (iItem < 0) return -1;
+	if (iItem < 0) 
+		iItem = infoPtr->uNumItem;
 	if (iItem > infoPtr->uNumItem)
 		iItem = infoPtr->uNumItem;
 
@@ -3241,6 +3250,18 @@ static inline LRESULT _GetItemCount (const TAB_INFO *infoPtr)
 }
 
 
+static LRESULT _GetItemExtra (TAB_INFO *infoPtr, INT iItem)
+{
+	TAB_ITEM *wineItem;
+
+	if (iItem < 0 || iItem >= infoPtr->uNumItem)
+		return NULL;
+
+	wineItem = TAB_GetItem(infoPtr, iItem);
+
+	return *(LPARAM*)wineItem->extra;
+}
+
 static LRESULT _GetItemT (TAB_INFO *infoPtr, INT iItem, LPTCITEMW tabItem, BOOL bUnicode)
 {
 	TAB_ITEM *wineItem;
@@ -3301,30 +3322,12 @@ static LRESULT _DeleteItem (TAB_INFO *infoPtr, INT iItem)
 	infoPtr->uNumItem--;
 	DPA_DeletePtr(infoPtr->items, iItem);
 
-	if (infoPtr->uNumItem == 0)
-	{
-		if (infoPtr->iHotTracked >= 0)
-		{
-			KillTimer(infoPtr->hwnd, TAB_HOTTRACK_TIMER);
-			infoPtr->iHotTracked = -1;
-		}
-
-		infoPtr->iSelected = -1;
-	}
-	else
-	{
-		if (iItem <= infoPtr->iHotTracked)
-		{
-			/* When tabs move left/up, the hot track item may change */
-			FIXME("Recalc hot track\n");
-		}
-	}
-
 	/* adjust the selected index */
-	if (iItem == infoPtr->iSelected)
+	if (infoPtr->uNumItem==0)
 		infoPtr->iSelected = -1;
-	else if (iItem < infoPtr->iSelected)
-		infoPtr->iSelected--;
+	else if (iItem < infoPtr->iSelected || iItem == infoPtr->uNumItem)
+		if (--infoPtr->iSelected < 0)
+			infoPtr->iSelected = 0;
 
 	/* reposition and repaint tabs */
 	TAB_SetItemBounds(infoPtr);
@@ -3589,9 +3592,6 @@ static LRESULT _Destroy (TAB_INFO *infoPtr)
 	if (infoPtr->hwndUpDown)
 		DestroyWindow(infoPtr->hwndUpDown);
 
-	if (infoPtr->iHotTracked >= 0)
-		KillTimer(infoPtr->hwnd, TAB_HOTTRACK_TIMER);
-
 	CloseThemeData (infoPtr->htheme);
 
 	Free (infoPtr);
@@ -3612,6 +3612,16 @@ static LRESULT TAB_NCCalcSize(WPARAM wParam)
 	if (!wParam)
 		return 0;
 	return WVR_ALIGNTOP;
+}
+
+static inline LRESULT _SetListener (TAB_INFO *infoPtr, WPARAM listener)
+{
+	infoPtr->_listener = 0;
+	if (listener)
+	{
+		infoPtr->_listener = *(Listener*)listener;
+	}
+	return TRUE;
 }
 
 static inline LRESULT _SetItemExtra (TAB_INFO *infoPtr, INT cbInfo)
@@ -3790,6 +3800,7 @@ static LRESULT WINAPI TAB_WindowProc (HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	case TCM_INSERTITEMW: return _InsertItemT (infoPtr, (INT)wParam, (TCITEMW*)lParam, uMsg == TCM_INSERTITEMW);
 
 	case TCM_SETITEMEXTRA: return _SetItemExtra (infoPtr, (INT)wParam);
+	case TCM_GETITEMEXTRA: return _GetItemExtra (infoPtr, (INT)wParam);
 	case TCM_ADJUSTRECT: return _AdjustRect (infoPtr, (BOOL)wParam, (LPRECT)lParam);
 	case TCM_SETITEMSIZE: return _SetItemSize (infoPtr, (INT)LOWORD(lParam), (INT)HIWORD(lParam));
 	case TCM_REMOVEIMAGE: return _RemoveImage (infoPtr, (INT)wParam);
@@ -3830,6 +3841,7 @@ static LRESULT WINAPI TAB_WindowProc (HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	case WM_RBUTTONUP:        _RButtonUp (infoPtr);
 		return DefWindowProcW (hwnd, uMsg, wParam, lParam);
 	case WM_MOUSEMOVE: return _MouseMove (infoPtr, wParam, lParam);
+	case WM_MOUSELEAVE: return _MouseLeave (infoPtr, wParam, lParam);
 	case WM_PRINTCLIENT:
 	case WM_PAINT: return _Paint (infoPtr, (HDC)wParam);
 	case WM_ERASEBKGND: 
@@ -3853,6 +3865,8 @@ static LRESULT WINAPI TAB_WindowProc (HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	case WM_NCHITTEST: return _NCHitTest(infoPtr, lParam);
 	case WM_NCCALCSIZE: return TAB_NCCalcSize(wParam);
 
+	case WND_SETLISTENER: return _SetListener(infoPtr, wParam);
+
 	default:
 		if (uMsg >= WM_USER && uMsg < WM_APP && !COMCTL32_IsReflectedMessage(uMsg))
 			WARN("unknown msg %04x wp=%08lx lp=%08lx\n", uMsg, wParam, lParam);
@@ -3860,8 +3874,8 @@ static LRESULT WINAPI TAB_WindowProc (HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	}
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
-
-
+}
+using namespace WineTab;
 #define WC_TABCONTROLM          L"MyTabControl32"
 
 void TAB_Register()

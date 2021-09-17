@@ -36,6 +36,10 @@
 #include "winnls.h"
 #include "commctrl.h"
 
+#include <functional>
+
+typedef std::function<int(void*, UINT, WPARAM, LPARAM)> Listener;
+
 /* Property sheet / Wizard */
 #define IDD_PROPSHEET 1006
 #define IDD_WIZARD    1020
@@ -183,6 +187,14 @@ __declspec(selectany) HBRUSH  COMCTL32_hPattern55AABrush;
 #define TCM_SETCLOSEIMAGE        (TCM_FIRST + 75)
 #define TabCtrl_SetCloseImage(hwnd, inactive_selected, hovered_pushed) \
     (int)SNDMSG((hwnd), TCM_SETCLOSEIMAGE, inactive_selected, hovered_pushed)
+
+#define WND_SETLISTENER        (TCM_FIRST + 76)
+#define WND_SetListener(hwnd, lst) \
+    (int)SNDMSG((hwnd), WND_SETLISTENER, (LPARAM)lst, 0)
+
+#define TCM_GETITEMEXTRA        (TCM_FIRST + 78)
+#define TabCtrl_GetItemExtra(hwnd, position) \
+    (LPARAM)SNDMSG((hwnd), TCM_GETITEMEXTRA, (LPARAM)position, 0)
 
 void ReadColors();
 #endif  /* __WINE_COMCTL32_H */
