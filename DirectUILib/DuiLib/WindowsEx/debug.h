@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/InsituDebug.h"
+#include "../Core/InsituDebug.h"
 #include <string>
 
 /***********************************************************************
@@ -22,13 +22,13 @@
 
 static int tab = 1;
 
-int TRACE_ON(int type)
+inline int TRACE_ON(int type)
 {
     return 1;
 }
 
 
-BOOL COMCTL32_IsReflectedMessage(UINT uMsg)
+inline BOOL COMCTL32_IsReflectedMessage(UINT uMsg)
 {
     switch (uMsg)
     {
@@ -59,34 +59,34 @@ BOOL COMCTL32_IsReflectedMessage(UINT uMsg)
 #define debugstr_w  
 #define debugstr_a  
 
-void nothing(const CHAR* msg, ...){}
+inline void nothing(const CHAR* msg, ...){}
 
 #define TRACE(MSG,...) LogIs(3,MSG,__VA_ARGS__) 
 //#define TRACE nothing
-#define TRACE(MSG,...) /##/## MSG
+//#define TRACE(MSG,...) /##/## MSG
 
 #define FIXME TRACE
 #define WARN TRACE
 
-int Free(void* ptr) {
+inline int Free(void* ptr) {
   //  free(ptr);
     return 0;
 };
 
 static CHAR buffer[512];
 
-const std::string wine_dbgstr_rect(RECT* rect) {
+inline const CHAR* wine_dbgstr_rect(RECT* rect) {
     //CHAR buffer[512];
     if (rect)
     {
         //CHAR* buffer = malloc(512);
-        sprintf_s(buffer, 255, "%ld %ld %ld %ld", rect->left, rect->top, rect->right, rect->bottom);
-        return std::string(buffer);
+        int ret=sprintf_s(buffer, 255, "%ld %ld %ld %ld", rect->left, rect->top, rect->right, rect->bottom);
+        return buffer;
     }
     return "[/]";
 };
 
-const CHAR* wine_dbgstr_point(POINT* pt) {
+inline const CHAR* wine_dbgstr_point(POINT* pt) {
     //CHAR buffer[512];
     if (pt)
     {
@@ -97,6 +97,6 @@ const CHAR* wine_dbgstr_point(POINT* pt) {
     return "[/]";
 };
 
-void* Alloc(size_t sz) {
+inline void* Alloc(size_t sz) {
     return malloc(sz);
 };

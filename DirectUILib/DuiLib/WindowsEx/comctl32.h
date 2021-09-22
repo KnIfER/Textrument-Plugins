@@ -118,9 +118,10 @@ typedef std::function<int(void*, UINT, WPARAM, LPARAM)> Listener;
 
 #define WM_SYSTIMER     0x0118
 
-#define TCS_FLICKERFREE          0x10000
-#define TCS_FIXEDBASELINE        0x20000
-#define TCS_HOTTRACKDRAW        0x40000
+#define TCS_EX_FLICKERFREE         0x00000004
+#define TCS_EX_FIXEDBASELINE       0x00000008
+#define TCS_EX_HOTTRACKDRAW        0x00000010
+#define TCS_EX_PLAINBUTTONS        0x00000020
 #define TCN_SIZECHANGE         (TCN_FIRST - 6)
 
 typedef struct
@@ -147,6 +148,7 @@ typedef struct
 
 __declspec(selectany) COMCTL32_SysColor  comctl32_color;
 __declspec(selectany) HBRUSH  COMCTL32_hPattern55AABrush;
+__declspec(selectany) HINSTANCE  COMCTL32_hModule = 0;
 
 #define TCM_SETMAXROWS        (TCM_FIRST + 66)
 #define TabCtrl_SetMaxRows(hwnd, val) \

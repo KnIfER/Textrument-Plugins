@@ -64,7 +64,6 @@
 * 
 * ================================================
 */
-
 #include <assert.h>
 #include <stdarg.h>
 #include <string.h>
@@ -178,6 +177,7 @@ typedef struct
 
 	POINT hitPt;
 	RECT rcTabbar;
+	RECT rcTabView;
 	RECT rcPaint;
 
 	LONG win_width;
@@ -883,12 +883,12 @@ static void TAB_DrawLoneItemInterior(const TAB_INFO* infoPtr, int iItem)
 	RECT r, rC;
 
 	/* Clip UpDown control to not draw over it */
-	if (infoPtr->needsScrolling)
-	{
-		GetWindowRect(infoPtr->hwnd, &rC);
-		GetWindowRect(infoPtr->hwndUpDown, &r);
-		ExcludeClipRect(hdc, r.left - rC.left, r.top - rC.top, r.right - rC.left, r.bottom - rC.top);
-	}
+	//if (infoPtr->needsScrolling)
+	//{
+	//	GetWindowRect(infoPtr->hwnd, &rC);
+	//	GetWindowRect(infoPtr->hwndUpDown, &r);
+	//	ExcludeClipRect(hdc, r.left - rC.left, r.top - rC.top, r.right - rC.left, r.bottom - rC.top);
+	//}
 	TAB_DrawItemInterior(infoPtr, hdc, iItem, NULL);
 	ReleaseDC(infoPtr->hwnd, hdc);
 }
@@ -975,7 +975,7 @@ static void TAB_RecalcHotTrack
 			if (out_redrawEnter != NULL)
 				*out_redrawEnter = item;
 		}
-		if (!(infoPtr->dwStyle&TCS_HOTTRACKDRAW) && infoPtr->lastHoverInCloseBtn)
+		if (!(infoPtr->exStyle&TCS_EX_HOTTRACKDRAW) && infoPtr->lastHoverInCloseBtn)
 		{
 			if (out_redrawLeave != NULL) {
 				RECT rcImage;
@@ -1163,7 +1163,7 @@ static LRESULT _MouseMove (TAB_INFO *infoPtr, WPARAM wParam, LPARAM lParam)
 	{
 		TAB_RecalcHotTrack(infoPtr, &lParam, &redrawLeave, &redrawEnter);
 
-		if (infoPtr->dwStyle&TCS_HOTTRACKDRAW)
+		if (infoPtr->exStyle&TCS_EX_HOTTRACKDRAW)
 		{
 			hottrack_refresh (infoPtr, redrawLeave);
 			hottrack_refresh (infoPtr, redrawEnter);
@@ -1297,7 +1297,7 @@ static LRESULT _AdjustRect(const TAB_INFO *infoPtr, WPARAM fLarger, LPRECT prc)
 		InflateRect(prc, -CONTROL_BORDER_SIZEX, -CONTROL_BORDER_SIZEY);
 
 		/* Deflate the rectangle for the padding */
-		InflateRect(prc, -DISPLAY_AREA_PADDINGX, -DISPLAY_AREA_PADDINGY);
+		//InflateRect(prc, -DISPLAY_AREA_PADDINGX, -DISPLAY_AREA_PADDINGY);
 
 		if(infoPtr->dwStyle & TCS_VERTICAL)
 		{
@@ -1306,11 +1306,13 @@ static LRESULT _AdjustRect(const TAB_INFO *infoPtr, WPARAM fLarger, LPRECT prc)
 		else
 		{
 			/* Remove the height of the tabs. */
-			if (infoPtr->dwStyle & TCS_BOTTOM)
+			if (infoPtr->dwStyle & TCS_BOTTOM) {
 				*iRightBottom -= infoPtr->tabHeight * rows;
-			else
+			}
+			else {
 				*iLeftTop += (infoPtr->tabHeight) * rows +
-				((infoPtr->dwStyle & TCS_BUTTONS)? 3 * (rows - 1) : 0);
+					((infoPtr->dwStyle & TCS_BUTTONS)? 3 * (rows - 1) : 0);
+			}
 		}
 	}
 
@@ -1440,12 +1442,19 @@ static void TAB_SetupScrolling(TAB_INFO*   infoPtr, const RECT* clientRect)
 		}
 		else
 		{
-			SetWindowPos(infoPtr->hwndUpDown,
-				NULL,
-				controlPos.left, controlPos.top,
-				controlPos.right - controlPos.left,
-				controlPos.bottom - controlPos.top,
-				SWP_SHOWWINDOW | SWP_NOZORDER);
+			//SetWindowPos(infoPtr->hwndUpDown,
+			//	NULL,
+			//	controlPos.left, controlPos.top,
+			//	controlPos.right - controlPos.left,
+			//	controlPos.bottom - controlPos.top,
+			//	SWP_SHOWWINDOW | SWP_NOZORDER);
+			MoveWindow(
+				infoPtr->hwndUpDown
+				,controlPos.left, controlPos.top
+				,controlPos.right - controlPos.left
+				,controlPos.bottom - controlPos.top
+				,FALSE);
+			::UpdateWindow(infoPtr->hwndUpDown);
 		}
 
 		/* Now calculate upper limit of the updown control range.
@@ -1510,7 +1519,6 @@ static void TAB_SetItemBounds (TAB_INFO *infoPtr)
 	INT         curItemRowCount;
 	HFONT       hFont, hOldFont;
 	HDC         hdc;
-	RECT        clientRect;
 	INT         iTemp;
 	RECT*       rcItem;
 	INT         iIndex;
@@ -1529,6 +1537,7 @@ static void TAB_SetItemBounds (TAB_INFO *infoPtr)
 	* We will base the rectangle calculations on the client rectangle
 	* of the control.
 	*/
+	RECT & clientRect = infoPtr->rcTabView;
 	GetClientRect(infoPtr->hwnd, &clientRect);
 
 	infoPtr->rcTabbar = clientRect;
@@ -1938,7 +1947,7 @@ static void TAB_EraseTabInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, co
 
 	if (infoPtr->dwStyle & TCS_BUTTONS)
 	{
-		if (iItem == infoPtr->iSelected)
+		if (iItem == infoPtr->iSelected && !(infoPtr->exStyle&TCS_EX_PLAINBUTTONS))
 		{
 			/* Background color */
 			if (!(infoPtr->dwStyle & TCS_OWNERDRAWFIXED))
@@ -2014,12 +2023,13 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 	HFONT  hOldFont;
 
 
-	bool selected = iItem==infoPtr->iSelected && (infoPtr->dwStyle&TCS_FIXEDBASELINE)==0;
+	bool selected = iItem==infoPtr->iSelected && (infoPtr->exStyle&TCS_EX_FIXEDBASELINE)==0;
 	bool selected_actual_not = iItem!=infoPtr->iSelected;
-	if (infoPtr->dwStyle&TCS_BUTTONS && infoPtr->dwStyle&TCS_FIXEDBASELINE)
+	if (infoPtr->dwStyle&TCS_BUTTONS && infoPtr->exStyle&TCS_EX_FIXEDBASELINE)
 	{
 		selected_actual_not = true;
 	}
+	bool drawLone = drawRect==NULL;
 	/*  if (drawRect == NULL) */
 	{
 		BOOL isVisible;
@@ -2102,7 +2112,10 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 	/*  
 	* 偏移画布 
 	*/
-	::OffsetRect(drawRect, -infoPtr->rcPaint.left, -infoPtr->rcPaint.top);
+	if (!drawLone)
+	{
+		::OffsetRect(drawRect, -infoPtr->rcPaint.left, -infoPtr->rcPaint.top);
+	}
 	TRACE("drawRect=(%s)\n", wine_dbgstr_rect(drawRect));
 
 	/* Clear interior */
@@ -2230,8 +2243,11 @@ static void TAB_DrawItemInterior(const TAB_INFO *infoPtr, HDC hdc, INT iItem, RE
 				//::FillRect(hdc, drawRect->left, drawRect->top, drawRect->right, drawRect->top+5);
 				RECT rc = *drawRect;
 				rc.bottom = rc.top+4;
-				rc.left += 2;
-				rc.right -= 2;
+				if (!(infoPtr->dwStyle&TCS_BUTTONS))
+				{
+					rc.left += 1;
+					rc.right -= 1;
+				}
 				::FillRect(hdc, &rc, CreateSolidBrush(RGB(0xFA, 0xA7, 0x55)));
 			}
 		}
@@ -2444,12 +2460,12 @@ static void TAB_DrawItem(const TAB_INFO *infoPtr, HDC  hdc, INT  iItem)
 		RECT rUD, rC;
 
 		/* Clip UpDown control to not draw over it */
-		if (infoPtr->needsScrolling)
-		{
-			GetWindowRect(infoPtr->hwnd, &rC);
-			GetWindowRect(infoPtr->hwndUpDown, &rUD);
-			ExcludeClipRect(hdc, rUD.left - rC.left, rUD.top - rC.top, rUD.right - rC.left, rUD.bottom - rC.top);
-		}
+		//if (infoPtr->needsScrolling)
+		//{
+		//	GetWindowRect(infoPtr->hwnd, &rC);
+		//	GetWindowRect(infoPtr->hwndUpDown, &rUD);
+		//	ExcludeClipRect(hdc, rUD.left - rC.left, rUD.top - rC.top, rUD.right - rC.left, rUD.bottom - rC.top);
+		//}
 
 		/* If you need to see what the control is doing,
 		* then override these variables. They will change what
@@ -2554,7 +2570,7 @@ static void TAB_DrawItem(const TAB_INFO *infoPtr, HDC  hdc, INT  iItem)
 
 				if (iItem == infoPtr->iSelected)
 					stateId = TIS_SELECTED;
-				else if (iItem == infoPtr->iHotTracked && infoPtr->dwStyle&TCS_HOTTRACKDRAW) // 控制是否绘制HotTracked
+				else if (iItem == infoPtr->iHotTracked && infoPtr->exStyle&TCS_EX_HOTTRACKDRAW) // 控制是否绘制HotTracked
 					stateId = TIS_HOT;
 				else if (iItem == infoPtr->uFocus)
 					stateId = TIS_FOCUSED;
@@ -2738,10 +2754,11 @@ static void TAB_Refresh (const TAB_INFO *infoPtr, HDC hdc, int item=-1)
 		return;
 
 	// clear the background manually
-	if (infoPtr->dwStyle&TCS_FLICKERFREE)
+	if (infoPtr->exStyle&TCS_EX_FLICKERFREE)
 	{
-		//FillRect(hdc, &infoPtr->rcPaint, comctl32_color.hBrushBtnFace);
-		FillRect(hdc, &infoPtr->rcTabbar, comctl32_color.hBrushBtnFace);
+		RECT rc = infoPtr->rcTabView;
+		//IntersectRect(&rc, &infoPtr->rcTabView, &infoPtr->rcPaint);
+		FillRect(hdc, &rc, comctl32_color.hBrushBtnFace);
 	}
 
 	hOldFont = (HFONT)SelectObject (hdc, infoPtr->hFont);
@@ -2988,7 +3005,7 @@ static void TAB_InvalidateTabArea(TAB_INFO *infoPtr)
 
 	TRACE("invalidate (%s)\n", wine_dbgstr_rect(&rInvalidate));
 
-	InvalidateRect(infoPtr->hwnd, &rInvalidate, (infoPtr->dwStyle&TCS_FLICKERFREE)==0);
+	InvalidateRect(infoPtr->hwnd, &rInvalidate, (infoPtr->exStyle&TCS_EX_FLICKERFREE)==0);
 }
 
 HDC         hdcMem = nullptr;
@@ -3019,12 +3036,13 @@ static inline LRESULT _Paint (TAB_INFO *infoPtr, HDC hdcPaint)
 			//TRACE("erase EqualRect !!!   %d, rect=(%s)\n", ps.fErase, wine_dbgstr_rect(&ps.rcPaint));
 			itemPos = infoPtr->hoverItem;
 		}
-		rcPaint = (infoPtr->dwStyle&TCS_FLICKERFREE)?ps.rcPaint:infoPtr->rcTabbar;
+		rcPaint = (infoPtr->exStyle&TCS_EX_FLICKERFREE)?ps.rcPaint:infoPtr->rcTabbar;
 	}
 
+	//infoPtr->dwStyle &= ~TCS_FLICKERFREE;
 	infoPtr->rcPaint = rcPaint;
 
-	if (infoPtr->dwStyle&TCS_FLICKERFREE)
+	if (infoPtr->exStyle&TCS_EX_FLICKERFREE)
 	{
 		rcPaint.right = rcPaint.right - rcPaint.left;
 		rcPaint.bottom = rcPaint.bottom - rcPaint.top;
@@ -3038,9 +3056,10 @@ static inline LRESULT _Paint (TAB_INFO *infoPtr, HDC hdcPaint)
 			}
 			hdcMem = CreateCompatibleDC(hdc);
 			hbmMem = CreateCompatibleBitmap(hdc, rcPaint.right, rcPaint.bottom);
+			SelectObject(hdcMem, hbmMem);
+
 			win_width = rcPaint.right;
 			win_height = rcPaint.bottom;
-			SelectObject(hdcMem, hbmMem);
 		}
 		_hdc = hdc;
 		hdc = hdcMem;
@@ -3051,7 +3070,7 @@ static inline LRESULT _Paint (TAB_INFO *infoPtr, HDC hdcPaint)
 	if (hdcMem)
 	{	
 		BitBlt(_hdc, rcPaint.left, rcPaint.top, rcPaint.right, rcPaint.bottom, hdcMem, 0, 0, SRCCOPY);
-		DeleteObject(hbmMem); DeleteDC (hdcMem); hdcMem = NULL;
+		//DeleteObject(hbmMem); DeleteDC (hdcMem); hdcMem = NULL;
 	}
 
 	if (!hdcPaint)
@@ -3476,17 +3495,15 @@ static LRESULT _Create (HWND hwnd, LPARAM lParam)
 
 	TRACE("Created tab control, hwnd [%p]\n", hwnd);
 
-	/* The tab control always has the WS_CLIPSIBLINGS style. Even
-	if you don't specify it in CreateWindow. This is necessary in
-	order for paint to work correctly. This follows windows behaviour. */
-	style = GetWindowLongW(hwnd, GWL_STYLE);
-	if (style & TCS_VERTICAL) style |= TCS_MULTILINE;
-	style |= WS_CLIPSIBLINGS;
-	SetWindowLongW(hwnd, GWL_STYLE, style);
+	infoPtr->dwStyle = GetWindowLongW(hwnd, GWL_STYLE);
+	infoPtr->exStyle = GetWindowLongW(hwnd, GWL_EXSTYLE);
 
-	infoPtr->dwStyle = style;
-	infoPtr->exStyle = (style & TCS_FLATBUTTONS) ? TCS_EX_FLATSEPARATORS : 0;
-
+	if (!(infoPtr->dwStyle&WS_CLIPSIBLINGS)) {
+		/* The tab control always has the WS_CLIPSIBLINGS style. Even
+		if you don't specify it in CreateWindow. This is necessary in
+		order for paint to work correctly. This follows windows behaviour. */
+		SetWindowLongW(hwnd, GWL_STYLE, infoPtr->dwStyle|=WS_CLIPSIBLINGS);
+	}
 	if (infoPtr->dwStyle & TCS_TOOLTIPS) {
 		/* Create tooltip control */
 		infoPtr->hwndToolTip =
@@ -3845,7 +3862,7 @@ static LRESULT WINAPI TAB_WindowProc (HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	case WM_PRINTCLIENT:
 	case WM_PAINT: return _Paint (infoPtr, (HDC)wParam);
 	case WM_ERASEBKGND: 
-		if(infoPtr->dwStyle&TCS_FLICKERFREE) 
+		if(infoPtr->exStyle&TCS_EX_FLICKERFREE) 
 			return 1;
 		else
 			break;
