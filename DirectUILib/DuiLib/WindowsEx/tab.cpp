@@ -172,9 +172,9 @@ typedef struct
 	UINT closeImg_hovered;
 	UINT closeImg_pushed;
 	BOOL lastHoverInCloseBtn;
-	INT lastPushedItem = -1;
-	INT lastPushedClosingItem = -1;
-	BOOL changeSelOnDwn=false;
+	INT lastPushedItem;
+	INT lastPushedClosingItem;
+	BOOL changeSelOnDwn;
 
 	POINT hitPt;
 	RECT rcTabbar;
@@ -474,7 +474,7 @@ static BOOL TAB_InternalGetItemRect(
 	* "scroll" it to make sure the item at the very left of the
 	* tab control is the leftmost visible tab.
 	*/
-	if(infoPtr->dwStyle & TCS_MULTILINE || infoPtr->dwStyle & TCS_VERTICAL)
+	if(infoPtr->dwStyle & (TCS_MULTILINE|TCS_VERTICAL))
 	{
 		OffsetRect(itemRect,
 			0,
@@ -625,7 +625,26 @@ static INT TAB_InternalHitTest (TAB_INFO *infoPtr, POINT pt, UINT *flags, BOOL a
 		{
 			*flags = TCHT_ONITEM;
 			return infoPtr->hoverItem;
-		} 
+		}
+		if (infoPtr->dwStyle & TCS_VERTICAL)
+		{
+			for (iCount = infoPtr->topmostVisible, length=iCount+infoPtr->tabMaxRows; iCount < length; iCount++)
+			{
+				if (!TAB_InternalGetItemRect(infoPtr, iCount, &rect, NULL))
+					break;
+				if (PtInRect(&rect, pt))
+				{
+					if (alterHover)
+					{
+						infoPtr->hoverItem = iCount;
+						infoPtr->hoverItemRect = rect;
+					}
+					*flags = TCHT_ONITEM;
+					return iCount;
+				}
+			}
+		}
+		else 
 		if (infoPtr->dwStyle&(TCS_VERTICAL|TCS_MULTILINE))
 		{
 			INT rowLength;
@@ -884,15 +903,6 @@ static inline void _RButtonUp (const TAB_INFO *infoPtr)
 static void TAB_DrawLoneItemInterior(const TAB_INFO* infoPtr, int iItem)
 {
 	HDC hdc = GetDC(infoPtr->hwnd);
-	RECT r, rC;
-
-	/* Clip UpDown control to not draw over it */
-	//if (infoPtr->needsScrolling)
-	//{
-	//	GetWindowRect(infoPtr->hwnd, &rC);
-	//	GetWindowRect(infoPtr->hwndUpDown, &r);
-	//	ExcludeClipRect(hdc, r.left - rC.left, r.top - rC.top, r.right - rC.left, r.bottom - rC.top);
-	//}
 	TAB_DrawItemInterior(infoPtr, hdc, iItem, NULL);
 	ReleaseDC(infoPtr->hwnd, hdc);
 }
@@ -1456,7 +1466,7 @@ static void TAB_SetupScrolling(TAB_INFO*   infoPtr, const RECT* clientRect)
 				, controlPos.top
 				,controlPos.right - controlPos.left
 				,controlPos.bottom - controlPos.top
-				,FALSE);
+				,TRUE);
 			::UpdateWindow(infoPtr->hwndUpDown);
 		}
 
@@ -1674,9 +1684,8 @@ static void TAB_SetItemBounds (TAB_INFO *infoPtr)
 			curItemRowCount++;
 			continue;
 		}
-		else if (((infoPtr->dwStyle & TCS_MULTILINE) || (infoPtr->dwStyle & TCS_VERTICAL)) &&
-			(curr->rect.right > 
-				(clientRect.right - CONTROL_BORDER_SIZEX - DISPLAY_AREA_PADDINGX)))
+		else if ((infoPtr->dwStyle & (TCS_MULTILINE|TCS_VERTICAL)) &&
+			(curr->rect.right > (clientRect.right - CONTROL_BORDER_SIZEX - DISPLAY_AREA_PADDINGX)))
 		{
 			curr->rect.right -= curr->rect.left;
 
@@ -2443,7 +2452,6 @@ static void TAB_DrawItem(const TAB_INFO *infoPtr, HDC  hdc, INT  iItem)
 	INT       clRight = 0;
 	INT       clBottom = 0;
 	COLORREF  bkgnd, corner;
-	HTHEME    theme;
 
 	/*
 	* Get the rectangle for the item.
@@ -2460,16 +2468,6 @@ static void TAB_DrawItem(const TAB_INFO *infoPtr, HDC  hdc, INT  iItem)
 
 	if (isVisible)
 	{
-		RECT rUD, rC;
-
-		/* Clip UpDown control to not draw over it */
-		//if (infoPtr->needsScrolling)
-		//{
-		//	GetWindowRect(infoPtr->hwnd, &rC);
-		//	GetWindowRect(infoPtr->hwndUpDown, &rUD);
-		//	ExcludeClipRect(hdc, rUD.left - rC.left, rUD.top - rC.top, rUD.right - rC.left, rUD.bottom - rC.top);
-		//}
-
 		/* If you need to see what the control is doing,
 		* then override these variables. They will change what
 		* fill colors are used for filling the tabs, and the
@@ -2532,17 +2530,14 @@ static void TAB_DrawItem(const TAB_INFO *infoPtr, HDC  hdc, INT  iItem)
 			*/
 			fillRect = r;
 
-			/* Draw themed tabs - but only if they are at the top.
-			* Windows draws even side or bottom tabs themed, with wacky results.
-			* However, since in Wine apps may get themed that did not opt in via
-			* a manifest avoid theming when we know the result will be wrong */
+			/* Draw themed tabs */
 
 			//LogIs(2, "GetWindowTheme (infoPtr->hwnd) %d %d", infoPtr->hwnd, ::GetWindowTheme(infoPtr->hwnd));
 
 			// todo separate the draw theme branch
-			if (((infoPtr->dwStyle & TCS_OWNERDRAWFIXED)==0) && 
-				(theme = infoPtr->htheme ) 
-				&& ((infoPtr->dwStyle & (TCS_VERTICAL | TCS_BOTTOM)) == 0)
+			if (infoPtr->htheme
+				&& (infoPtr->dwStyle & TCS_OWNERDRAWFIXED)==0
+				//&& (infoPtr->dwStyle & (TCS_VERTICAL | TCS_BOTTOM)) == 0
 				)
 			{
 				static const int partIds[8] = {
@@ -2582,8 +2577,8 @@ static void TAB_DrawItem(const TAB_INFO *infoPtr, HDC  hdc, INT  iItem)
 				if (TAB_GetItem(infoPtr, iItem)->rect.top == infoPtr->uNumRows-1)
 					r.bottom += 3;
 
-				DrawThemeBackground (theme, hdc, partIds[partIndex], stateId, &r, NULL);
-				GetThemeBackgroundContentRect (theme, hdc, partIds[partIndex], stateId, &r, &r);
+				DrawThemeBackground (infoPtr->htheme, hdc, partIds[partIndex], stateId, &r, NULL);
+				GetThemeBackgroundContentRect (infoPtr->htheme, hdc, partIds[partIndex], stateId, &r, &r);
 			}
 			// vert...
 			else  /* ! TCS_VERTICAL */
@@ -2988,21 +2983,12 @@ static void TAB_InvalidateTabArea(TAB_INFO *infoPtr)
 			rInvalidate.right = clientRect.left + rect.right + 2 * SELECTED_TAB_OFFSET;
 	}
 
-	/* Punch out the updown control */
-	if (infoPtr->needsScrolling && (rInvalidate.right > 0)) {
-		RECT r;
-		GetClientRect(infoPtr->hwndUpDown, &r);
-		if (rInvalidate.right > clientRect.right - r.left)
-			rInvalidate.right = rInvalidate.right - (r.right - r.left);
-		else
-			rInvalidate.right = clientRect.right - r.left;
-	}
-
 	TRACE("invalidate (%s)\n", wine_dbgstr_rect(&rInvalidate));
 
 	InvalidateRect(infoPtr->hwnd, &rInvalidate, (infoPtr->exStyle&TCS_EX_FLICKERFREE)==0);
 }
 
+// doubled draw buffer for all instances
 HDC         hdcMem = nullptr;
 HBITMAP     hbmMem = nullptr;
 HANDLE      hOld;
@@ -3475,6 +3461,8 @@ static LRESULT _Create (HWND hwnd, LPARAM lParam)
 	infoPtr->iSelected       = -1;
 	infoPtr->iHotTracked     = -1;
 	infoPtr->uFocus          = -1;
+	infoPtr->lastPushedItem				= -1;
+	infoPtr->lastPushedClosingItem		= -1;
 	infoPtr->hwndToolTip     = 0;
 	infoPtr->DoRedraw        = TRUE;
 	infoPtr->needsScrolling  = FALSE;
