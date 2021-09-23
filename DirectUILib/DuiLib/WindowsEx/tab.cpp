@@ -129,6 +129,7 @@ typedef struct
 	INT        leftmostVisible; /* Used for scrolling, this member contains
 								* the index of the first visible item */
 	INT        iSelected;       /* the currently selected item */
+	//INT        iSelectedRow;       /* the currently selected item */
 	INT        iHotTracked;     /* the highlighted item under the mouse */
 	INT        uFocus;          /* item which has the focus */
 	BOOL       DoRedraw;        /* flag for redrawing when tab contents is changed*/
@@ -148,7 +149,7 @@ typedef struct
 	INT        tabMaxRows;
 	INT        tabMaxRowSet;
 	BOOL multilineScrolling;
-	INT        topmostVisible; /* Used for scrolling, this member contains  the index of the first visible row */
+	INT        topmostVisible; /* Used for scrolling, this member contains the row index of the first visible row */
 	INT        maxRange; /* Used for scrolling */
 
 	UINT		vModeWidth; /* Used for vertical mode */
@@ -420,13 +421,14 @@ static BOOL TAB_InternalGetItemRect(
 	RECT*       itemRect,
 	RECT*       selectedRect)
 {
-	RECT tmpItemRect,clientRect;
+	RECT tmpItemRect;
+	const RECT & clientRect = infoPtr->rcTabView;
 
 	/* Perform a sanity check and a trivial visibility check. */
 	if ( (infoPtr->uNumItem <= 0) ||
 		(itemIndex >= infoPtr->uNumItem) ||
-		(!(((infoPtr->dwStyle & TCS_MULTILINE) || (infoPtr->dwStyle & TCS_VERTICAL))) &&
-			(itemIndex < infoPtr->leftmostVisible)))
+		(infoPtr->dwStyle & (TCS_MULTILINE|TCS_VERTICAL))==0
+			&& itemIndex < infoPtr->leftmostVisible)
 	{
 		//TRACE("Not Visible\n");
 		SetRect(itemRect, 0, 0, 0, infoPtr->tabHeight);
@@ -455,8 +457,6 @@ static BOOL TAB_InternalGetItemRect(
 		return FALSE;
 	}
 	/* calculate the times bottom and top based on the row */
-	GetClientRect(infoPtr->hwnd, &clientRect);
-
 	if (infoPtr->dwStyle & TCS_BOTTOM)
 	{
 		itemRect->bottom = clientRect.bottom - itemRect->top * infoPtr->tabHeight -
@@ -478,7 +478,7 @@ static BOOL TAB_InternalGetItemRect(
 	{
 		OffsetRect(itemRect,
 			0,
-			-infoPtr->topmostVisible * infoPtr->tabHeight);
+			infoPtr->topmostVisible * infoPtr->tabHeight * (infoPtr->dwStyle&TCS_BOTTOM?1:-1));
 
 		/*
 		* Move the rectangle so the first item is slightly offset from
@@ -618,52 +618,30 @@ static INT TAB_InternalHitTest (TAB_INFO *infoPtr, POINT pt, UINT *flags, BOOL a
 	INT iCount;
 	INT length;
 	INT position;
+#if TRUE
 	if (::PtInRect(&infoPtr->rcTabbar, pt))
 	{
 		if (infoPtr->hoverItem>=0 && ::PtInRect(&infoPtr->hoverItemRect, pt))
 		{
 			*flags = TCHT_ONITEM;
 			return infoPtr->hoverItem;
-		}
-		if (infoPtr->dwStyle & TCS_VERTICAL)
+		} 
+		if (infoPtr->dwStyle&(TCS_VERTICAL|TCS_MULTILINE))
 		{
-			for (iCount = infoPtr->topmostVisible, length=iCount+infoPtr->tabMaxRows; iCount < length; iCount++)
+			INT rowLength;
+			for(iCount = infoPtr->topmostVisible-1, length=infoPtr->rowWidSepMap.size(); iCount < length; ++iCount)
 			{
-				TAB_InternalGetItemRect(infoPtr, iCount, &rect, NULL);
-
-				if (PtInRect(&rect, pt))
-				{
-					if (alterHover)
-					{
-						infoPtr->hoverItem = iCount;
-						infoPtr->hoverItemRect = rect;
-					}
-					*flags = TCHT_ONITEM;
-					return iCount;
-				}
-			}
-		}
-		else 
-		{
-			for(iCount = -1, length=infoPtr->rowWidSepMap.size(); iCount < length; ++iCount)
-			{
-				position = iCount==-1?0:HIWORD(infoPtr->rowWidSepMap[iCount]);
-				TAB_InternalGetItemRect(infoPtr, position, &rect, NULL);
+				position = iCount<0?0:HIWORD(infoPtr->rowWidSepMap[iCount]);
+				if (!TAB_InternalGetItemRect(infoPtr, position, &rect, NULL))
+					break;
 				rect.right = infoPtr->win_width;
 				TRACE("HitTest %d pt=(%s) rect=(%s)\n", position, wine_dbgstr_point(&pt), wine_dbgstr_rect(&rect));
 				//TRACE("HitTest pt=(%ld) rect=(%ld)\n", infoPtr->win_width, infoPtr->win_height);
 				if (PtInRect(&rect, pt))
 				{
 					//if (true) { *flags = TCHT_ONITEM; return position; }
-					if (iCount+1 < length)
-					{
-						length = HIWORD(infoPtr->rowWidSepMap[iCount+1]);
-					}
-					else
-					{
-						length = infoPtr->uNumItem;
-					}
-					for(; position < length; ++position)
+					for(rowLength = iCount+1 < length?HIWORD(infoPtr->rowWidSepMap[iCount+1]):infoPtr->uNumItem;
+						position < rowLength; ++position)
 					{
 						TAB_InternalGetItemRect(infoPtr, position, &rect, NULL);
 						if (PtInRect(&rect, pt))
@@ -681,18 +659,44 @@ static INT TAB_InternalHitTest (TAB_INFO *infoPtr, POINT pt, UINT *flags, BOOL a
 				}
 			}
 		}
+		else
+		{
+			for(position=infoPtr->leftmostVisible; position < infoPtr->uNumItem; ++position)
+			{
+				if (TAB_InternalGetItemRect(infoPtr, position, &rect, NULL))
+				{
+					if (PtInRect(&rect, pt))
+					{
+						if (alterHover)
+						{
+							infoPtr->hoverItem = position;
+							infoPtr->hoverItemRect = rect;
+						}
+						*flags = TCHT_ONITEM;
+						return position;
+					}
+				}
+				else break;
+			}
+		}
 	}
-
-	//for (iCount = 0; iCount < infoPtr->uNumItem; iCount++)
-	//{
-	//	TAB_InternalGetItemRect(infoPtr, iCount, &rect, NULL);
-	//
-	//	if (PtInRect(&rect, pt))
-	//	{
-	//		*flags = TCHT_ONITEM;
-	//		return iCount;
-	//	}
-	//}
+#else
+	for (iCount = 0; iCount < infoPtr->uNumItem; iCount++)
+	{
+		TAB_InternalGetItemRect(infoPtr, iCount, &rect, NULL);
+	
+		if (PtInRect(&rect, pt))
+		{
+			if (alterHover)
+			{
+				infoPtr->hoverItem = iCount;
+				infoPtr->hoverItemRect = rect;
+			}
+			*flags = TCHT_ONITEM;
+			return iCount;
+		}
+	}
+#endif
 
 	if (alterHover && infoPtr->hoverItem>=0)
 	{
@@ -1348,9 +1352,6 @@ static LRESULT _OnVScroll(TAB_INFO *infoPtr, int nScrollCode, int nPos)
 {
 	//TRACE("TAB_OnVScroll:: %d -> %d curr=%d \n", nPos, nPos, infoPtr->topmostVisible);
 
-	//if(1) return 0;
-	//nPos = infoPtr->maxRange-nPos;
-
 	if(nScrollCode == SB_THUMBPOSITION 
 		&& nPos != infoPtr->topmostVisible 
 		&& infoPtr->multilineScrolling)
@@ -1373,7 +1374,8 @@ static LRESULT _OnVScroll(TAB_INFO *infoPtr, int nScrollCode, int nPos)
 		TAB_RecalcHotTrack(infoPtr, NULL, NULL, NULL);
 		TAB_InvalidateTabArea(infoPtr);
 		_DismissToolTips(infoPtr);
-		SendMessageW(infoPtr->hwndUpDown, UDM_SETPOS, 0, MAKELONG(infoPtr->topmostVisible, 0));
+
+		SendMessageW(infoPtr->hwndUpDown, UDM_SETPOS32, 0, infoPtr->topmostVisible);
 	}
 
 	return 0;
@@ -1450,7 +1452,8 @@ static void TAB_SetupScrolling(TAB_INFO*   infoPtr, const RECT* clientRect)
 			//	SWP_SHOWWINDOW | SWP_NOZORDER);
 			MoveWindow(
 				infoPtr->hwndUpDown
-				,controlPos.left, controlPos.top
+				,controlPos.left
+				, controlPos.top
 				,controlPos.right - controlPos.left
 				,controlPos.bottom - controlPos.top
 				,FALSE);
@@ -1490,7 +1493,7 @@ static void TAB_SetupScrolling(TAB_INFO*   infoPtr, const RECT* clientRect)
 	}
 	if (infoPtr->hwndUpDown)
 	{
-		if (infoPtr->multilineScrolling)
+		if (infoPtr->multilineScrolling && (infoPtr->dwStyle&TCS_BOTTOM)==0)
 		{
 			SendMessageW(infoPtr->hwndUpDown, UDM_SETRANGE32, maxRange, 0);
 		}
@@ -2704,14 +2707,13 @@ static void TAB_DrawItem(const TAB_INFO *infoPtr, HDC  hdc, INT  iItem)
 */
 static void TAB_DrawBorder(const TAB_INFO *infoPtr, HDC hdc)
 {
-	RECT rect;
+	RECT rect = infoPtr->rcTabView;
 	HTHEME theme = infoPtr->htheme;
-
-	GetClientRect (infoPtr->hwnd, &rect);
 
 	/*
 	* Adjust for the style
 	*/
+
 
 	if (infoPtr->uNumItem)
 	{
@@ -2724,13 +2726,14 @@ static void TAB_DrawBorder(const TAB_INFO *infoPtr, HDC hdc)
 
 		if (infoPtr->dwStyle & TCS_VERTICAL)
 		{
-			rect.top    += rect.bottom;
+			rect.left    = infoPtr->rcTabbar.right;
 		}
 		else if ((infoPtr->dwStyle & TCS_BOTTOM))
 			rect.bottom -= infoPtr->tabHeight * rows + CONTROL_BORDER_SIZEX;
 		else /* not TCS_VERTICAL and not TCS_BOTTOM */
 			rect.top    += infoPtr->tabHeight * rows + CONTROL_BORDER_SIZEX;
 	}
+	::OffsetRect(&rect, -infoPtr->rcPaint.left, -infoPtr->rcPaint.top);
 
 	TRACE("border=(%s)\n", wine_dbgstr_rect(&rect));
 
@@ -2812,7 +2815,6 @@ static inline LRESULT _SetRedraw (TAB_INFO *infoPtr, BOOL doRedraw)
 static void TAB_EnsureSelectionVisible(TAB_INFO* infoPtr)
 {
 	INT iSelected = infoPtr->iSelected;
-
 	if (iSelected < 0)
 		return;
 
@@ -2857,90 +2859,83 @@ static void TAB_EnsureSelectionVisible(TAB_INFO* infoPtr)
 	if ( !infoPtr->needsScrolling && !infoPtr->multilineScrolling || infoPtr->hwndUpDown==0)
 		return;
 
-	INT * acroVisible;
+	INT * topleftVisible;
+	INT iSelectedRow;
+	TAB_ITEM *selected_tab;
 
-	bool b1 = infoPtr->dwStyle&TCS_VERTICAL||infoPtr->dwStyle&TCS_MULTILINE;
+	bool allowingMultilines = infoPtr->dwStyle&(TCS_VERTICAL|TCS_MULTILINE);
 
-	if (b1)
+	if (allowingMultilines)
 	{
-		acroVisible = &infoPtr->topmostVisible;
+		topleftVisible = &infoPtr->topmostVisible;
+		selected_tab = TAB_GetItem(infoPtr, iSelected);
+		iSelectedRow = selected_tab->rect.top;
 	}
 	else
 	{
-		acroVisible = &infoPtr->leftmostVisible;
+		topleftVisible = &infoPtr->leftmostVisible;
 	}
 
-	INT iOrigAcroVisible = *acroVisible;
+	INT lastTopLeft = *topleftVisible;
 
-	if (iOrigAcroVisible >= iSelected
-		&&(infoPtr->dwStyle&TCS_VERTICAL||!b1))
+	if (lastTopLeft >= iSelected
+		&&(infoPtr->dwStyle&TCS_VERTICAL||!allowingMultilines))
 	{
-		*acroVisible = iSelected;
+		*topleftVisible = iSelected;
 	}
 	else
 	{
-		TAB_ITEM *selected = TAB_GetItem(infoPtr, iSelected);
-		RECT r;
+		RECT & clientRect = infoPtr->rcTabView;
 		UINT i;
 		/* Calculate the part of the client area that is visible */
-		GetClientRect(infoPtr->hwnd, &r);
-		INT widthHeight = r.right;
+		INT widthHeight = clientRect.right;
 		if (!widthHeight) return;
-		if (b1 && (infoPtr->dwStyle&TCS_VERTICAL)==0
-			&&iOrigAcroVisible >= (iSelected=selected->rect.top))
+		if (allowingMultilines 
+			&& !(infoPtr->dwStyle&TCS_VERTICAL)
+			&& lastTopLeft >= iSelectedRow)
 		{
-			*acroVisible = r.top;
+			*topleftVisible = iSelectedRow;
 		}
-		else if (b1)
+		else if (allowingMultilines)
 		{
-			widthHeight = r.bottom;
-			//GetClientRect(infoPtr->hwndUpDown, &r);
-			//widthHeight -= r.right;
-			INT minRowTop = iSelected - infoPtr->tabMaxRows + 1;
-			if (minRowTop<0)
-			{
-				minRowTop = 0;
-			}
-			if (*acroVisible<minRowTop)
-			{
-				*acroVisible = minRowTop;
-			}
+			INT minRowToShowOnTop = iSelectedRow - infoPtr->tabMaxRows + 1;
+			if (minRowToShowOnTop<0)
+				minRowToShowOnTop = 0;
+			if (*topleftVisible<minRowToShowOnTop)
+				*topleftVisible = minRowToShowOnTop;
+
 			//LogIs(3, "TAB_EnsureSelectionVisible cap=%d sel=%d minRowTop=%d acro=%d orig=%d"
-			//	, widthHeight/infoPtr->tabHeight, iSelected, minRowTop, *acroVisible, iOrigAcroVisible);
+			//	, clientRect.bottom/infoPtr->tabHeight, iSelectedRow, minRowTop, *acroVisible, iOrigAcroVisible);
 		}
 		else
 		{
-			GetClientRect(infoPtr->hwndUpDown, &r);
-			widthHeight -= r.right;
-
-			if (selected->rect.right - selected->rect.left >= widthHeight )
+			selected_tab = TAB_GetItem(infoPtr, iSelected);
+			if (selected_tab->rect.right - selected_tab->rect.left >= widthHeight )
 			{
 				/* Special case: height of selected item is greater than visible
 				* part of control.
 				*/
-				*acroVisible = iSelected;
+				*topleftVisible = iSelected;
 			}
 			else
 			{
-				for (i = *acroVisible; i < infoPtr->uNumItem; i++)
+				for (i = *topleftVisible; i < infoPtr->uNumItem; i++)
 				{
-					if ((selected->rect.right - TAB_GetItem(infoPtr, i)->rect.left) < widthHeight)
+					if ((selected_tab->rect.right - TAB_GetItem(infoPtr, i)->rect.left) < widthHeight)
 						break;
 				}
-				*acroVisible = i;
+				*topleftVisible = i;
 			}
 		}
 	}
 
-	if (*acroVisible != iOrigAcroVisible) 
+	if (*topleftVisible != lastTopLeft) 
 	{
 		infoPtr->hoverItem = -1;
 		TAB_RecalcHotTrack(infoPtr, NULL, NULL, NULL);
 	}
 
-	SendMessageW(infoPtr->hwndUpDown, UDM_SETPOS, 0
-		, MAKELONG(*acroVisible, 0));
-
+	SendMessageW(infoPtr->hwndUpDown, UDM_SETPOS32, 0 , *topleftVisible);
 }
 
 /******************************************************************************

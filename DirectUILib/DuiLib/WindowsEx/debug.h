@@ -64,6 +64,7 @@ inline void nothing(const CHAR* msg, ...){}
 #define TRACE(MSG,...) LogIs(3,MSG,__VA_ARGS__) 
 //#define TRACE nothing
 //#define TRACE(MSG,...) /##/## MSG
+#define TRACE(MSG,...) 
 
 #define FIXME TRACE
 #define WARN TRACE
