@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "Core\InsituDebug.h"
 
+void BUTTON_Register(HINSTANCE hInst);
+
 namespace DuiLib {
 	IMPLEMENT_DUICONTROL(WinButton)
 
@@ -8,7 +10,7 @@ namespace DuiLib {
 		: CControlUI()
 	{
 		m_dwBackColor = RGB(0, 0, 255);
-		_isDirectUI = true;
+		_isDirectUI = false;
 	}
 
 	LPCTSTR WinButton::GetClass() const
@@ -24,28 +26,40 @@ namespace DuiLib {
 
 	void WinButton::Init()
 	{
-		_hParent = m_pParent->GetHWND();
-		//LogIs("_hParent::%d", _hParent);
-		_hWnd = ::CreateWindow(WC_BUTTON
-			, TEXT("PUSHBUTTON")
-			, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON
-			, 0, 0
-			, 64,64
-			, _hParent
-			, NULL
-			, CPaintManagerUI::GetInstance()
-			,  NULL) ;
-		::ShowWindow(_hWnd, TRUE);
-		::SetWindowText(_hWnd, TEXT("TEST"));
-		if (!dynamic_cast<WinFrame*>(m_pParent))
+		if (!_hWnd)
 		{
-			GetRoot()->_WNDList.push_back(this);
+			BUTTON_Register(CPaintManagerUI::GetInstance());
+			//_isDirectUI = false;
+			__hParent = _hParent;
+			_hWnd = ::CreateWindow(
+				//WC_BUTTON
+				TEXT("MyBUTTON")
+				//, TEXT("PUSHBUTTON")
+				, TEXT("MyBUTTON")
+				, WS_CHILD 
+				| WS_VISIBLE 
+				//| BS_CHECKBOX //| BS_PUSHLIKE
+				, 0, 0
+				, 64,64
+				, _hParent
+				, NULL
+				, CPaintManagerUI::GetInstance()
+				,  NULL) ;
+			::ShowWindow(_hWnd, SW_SHOW);
+			::SetWindowText(_hWnd, TEXT("TEST"));
+		}
+		if (_hParent != __hParent)
+		{
+			__hParent = _hParent;
+			::SetParent(_hWnd, _hParent);
+			::InvalidateRect(_hWnd, NULL, TRUE);
 		}
 	}
 
 	void WinButton::SetPos(RECT rc, bool bNeedInvalidate) 
 	{
 		//__super::SetPos(rc, bNeedInvalidate);
+
 		m_rcItem = rc;
 		resize();
 	}
@@ -58,7 +72,7 @@ namespace DuiLib {
 			//::SetWindowPos(_hWnd, NULL, rcPos.left, rcPos.top, rcPos.right - rcPos.left, rcPos.bottom - rcPos.top, SWP_NOZORDER | SWP_NOACTIVATE);
 			
 			::MoveWindow(_hWnd, rcPos.left, rcPos.top, rcPos.right - rcPos.left, rcPos.bottom - rcPos.top, TRUE);
-
+			//::UpdateWindow(_hWnd);
 		}
 	}
 	

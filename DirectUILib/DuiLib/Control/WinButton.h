@@ -17,6 +17,9 @@ namespace DuiLib {
 		void SetPos(RECT rc, bool bNeedInvalidate = true) override;
 
 		void resize();
+
+	private:
+		HWND __hParent;
 	};
 
 } // namespace DuiLib

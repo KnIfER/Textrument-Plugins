@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "UIButton.h"
+#include "./WindowsEx/button.h"
 
 namespace DuiLib
 {
@@ -20,6 +21,8 @@ namespace DuiLib
 		, m_nStateCount(0)
 	{
 		m_uTextStyle = DT_SINGLELINE | DT_VCENTER | DT_CENTER;
+		BUTTON_Register(CPaintManagerUI::GetInstance());
+		infoPtr = new BUTTON_INFO{0};
 	}
 
 	LPCTSTR CButtonUI::GetClass() const
@@ -36,6 +39,14 @@ namespace DuiLib
 	UINT CButtonUI::GetControlFlags() const
 	{
 		return (IsKeyboardEnabled() ? UIFLAG_TABSTOP : 0) | (IsEnabled() ? UIFLAG_SETCURSOR : 0);
+	}
+
+	void CButtonUI::Init()
+	{
+		if (m_pParent && infoPtr)
+		{
+			Button::_Create(m_pParent->GetHWND(), (WPARAM)infoPtr, 0);
+		}
 	}
 
 	void CButtonUI::DoEvent(TEventUI& event)
@@ -67,6 +78,7 @@ namespace DuiLib
 		{
 			if( ::PtInRect(&m_rcItem, event.ptMouse) && IsEnabled() ) {
 				m_uButtonState |= UISTATE_PUSHED | UISTATE_CAPTURED;
+				infoPtr->state |= BST_PUSHED;
 				Invalidate();
 				if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_BUTTONDOWN);
 			}
@@ -75,8 +87,16 @@ namespace DuiLib
 		if( event.Type == UIEVENT_MOUSEMOVE )
 		{
 			if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
-				if( ::PtInRect(&m_rcItem, event.ptMouse) ) m_uButtonState |= UISTATE_PUSHED;
-				else m_uButtonState &= ~UISTATE_PUSHED;
+				if( ::PtInRect(&m_rcItem, event.ptMouse) ) 
+				{
+					m_uButtonState |= UISTATE_PUSHED;
+					infoPtr->state |= BST_PUSHED;
+				}
+				else
+				{
+					m_uButtonState &= ~UISTATE_PUSHED;
+					infoPtr->state &= ~BST_PUSHED;
+				}
 				Invalidate();
 			}
 			return;
@@ -85,6 +105,7 @@ namespace DuiLib
 		{
 			if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
 				m_uButtonState &= ~(UISTATE_PUSHED | UISTATE_CAPTURED);
+				infoPtr->state &= ~BST_PUSHED;
 				Invalidate();
 				if( ::PtInRect(&m_rcItem, event.ptMouse) ) Activate();				
 			}
@@ -101,6 +122,7 @@ namespace DuiLib
 		{
 			if( IsEnabled() ) {
 				m_uButtonState |= UISTATE_HOT;
+				infoPtr->state |= BST_HOT;
 				Invalidate();
 
 				if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_MOUSEENTER);
@@ -110,6 +132,7 @@ namespace DuiLib
 		{
 			if( IsEnabled() ) {
 				m_uButtonState &= ~UISTATE_HOT;
+				infoPtr->state &= ~BST_HOT;
 				Invalidate();
 
 				if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_MOUSELEAVE);
@@ -432,6 +455,37 @@ namespace DuiLib
 		else if( _tcsicmp(pstrName, _T("focuedfont")) == 0 ) SetFocusedFont(_ttoi(pstrValue));
 		
 		else CLabelUI::SetAttribute(pstrName, pstrValue);
+	}
+
+	bool CButtonUI::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
+	{
+		if(true)
+		{
+			infoPtr->dwStyle = 0
+				//| infoPtr->dwStyle
+				| WS_CHILD 
+				| WS_VISIBLE 
+				//| BS_CHECKBOX
+				//| BS_GROUPBOX
+				//| BS_SPLITBUTTON
+				;
+			infoPtr->rcDraw = &m_rcItem;
+			infoPtr->delegated_Text = (TCHAR*)GetText().GetData();
+
+			if( IsFocused() ) infoPtr->state |= BST_FOCUS;
+			else infoPtr->state &= ~ BST_FOCUS;
+
+			infoPtr->enabled = IsEnabled();
+
+			//infoPtr->state |= BST_CHECKED;
+
+			Button::_Paint(infoPtr, (WPARAM)hDC);
+			return true;
+		}
+		else 
+		{
+			return __super::DoPaint(hDC, rcPaint, pStopControl);
+		}
 	}
 
 	void CButtonUI::PaintText(HDC hDC)

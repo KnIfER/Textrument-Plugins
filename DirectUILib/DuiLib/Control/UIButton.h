@@ -3,6 +3,8 @@
 
 #pragma once
 
+struct _BUTTON_INFO;
+
 namespace DuiLib
 {
 	class UILIB_API CButtonUI : public CLabelUI
@@ -15,6 +17,8 @@ namespace DuiLib
 		LPCTSTR GetClass() const;
 		LPVOID GetInterface(LPCTSTR pstrName);
 		UINT GetControlFlags() const;
+
+		void Init() override;
 
 		bool Activate();
 		void SetEnabled(bool bEnable = true);
@@ -65,6 +69,8 @@ namespace DuiLib
 		DWORD GetFocusedTextColor() const;
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
+		bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
+
 		void PaintText(HDC hDC);
 
 		void PaintBkColor(HDC hDC);
@@ -97,6 +103,7 @@ namespace DuiLib
 
 		int			m_iBindTabIndex;
 		CDuiString	m_sBindTabLayoutName;
+		_BUTTON_INFO* infoPtr;
 	};
 
 }	// namespace DuiLib
