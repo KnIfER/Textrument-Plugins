@@ -91,6 +91,7 @@ typedef struct _BUTTON_INFO
     HWND             hwnd;
     HWND             parent;
     LONG             dwStyle;
+    LONG             dtStyle;
     LONG             exStyle;
     LONG             state;
     HFONT            font;
@@ -112,7 +113,10 @@ typedef struct _BUTTON_INFO
     BOOL is_delegate;
     BOOL enabled;
     RECT* rcDraw;
+    RECT* rcPadding;
     WCHAR* delegated_Text;
+    LONG textAutoWidth;
+    LONG textAutoHeight;
 } BUTTON_INFO;
 
 namespace Button
@@ -120,4 +124,6 @@ namespace Button
     LRESULT _Create(HWND hWnd, WPARAM wParam, LPARAM lParam);
 
     LRESULT _Paint(BUTTON_INFO* infoPtr, WPARAM wParam, HWND hWnd=0);
+
+    void BUTTON_QueryPreempterSize(BUTTON_INFO* infoPtr, WPARAM _preSizeX);
 }

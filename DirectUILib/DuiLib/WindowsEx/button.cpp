@@ -305,14 +305,18 @@ static void init_custom_draw(NMCUSTOMDRAW *nmcd, const BUTTON_INFO *infoPtr, HDC
     /* FIXME: Handle it properly when we support keyboard cues? */
 }
 
+// https://github.com/wine-mirror/wine/blob/e909986e6ea5ecd49b2b847f321ad89b2ae4f6f1/dlls/gdi32/region.c
+// https://github.com/wine-mirror/wine/blob/e909986e6ea5ecd49b2b847f321ad89b2ae4f6f1/dlls/gdi32/clipping.c
+// CombineRgn & GetClipRgn
+HRGN _hrgn = CreateRectRgn( 0, 0, 0, 0 );
+
 HRGN set_control_clipping( HDC hdc, const RECT *rect )
 {
     RECT rc = *rect;
-    HRGN hrgn = CreateRectRgn( 0, 0, 0, 0 );
-
+    HRGN hrgn = _hrgn;
+    
     if (GetClipRgn( hdc, hrgn ) != 1)
     {
-        DeleteObject( hrgn );
         hrgn = 0;
     }
     DPtoLP( hdc, (POINT *)&rc, 2 );
@@ -336,8 +340,14 @@ static WCHAR *heap_strndupW(const WCHAR *src, size_t length)
 /**********************************************************************
  * Convert button styles to flags used by DrawText.
  */
-static UINT BUTTON_BStoDT( DWORD style, DWORD ex_style )
+static UINT BUTTON_BStoDT( const BUTTON_INFO *infoPtr )
 {
+    if (infoPtr->dtStyle)
+    {
+        return infoPtr->dtStyle | DT_NOCLIP;
+    }
+    DWORD style=infoPtr->dwStyle, ex_style=infoPtr->exStyle;
+
     UINT dtStyle = DT_NOCLIP;  /* We use SelectClipRgn to limit output */
 
     /* "Convert" pushlike buttons to pushbuttons */
@@ -419,10 +429,11 @@ static int get_draw_state(const BUTTON_INFO *infoPtr)
         return pb_states[state];
     case BS_CHECKBOX:
     case BS_AUTOCHECKBOX:
-        return cb_states[check_state][state];
-    case BS_RADIOBUTTON:
+        if (check_state>=BST_INDETERMINATE) check_state=BST_CHECKED;
     case BS_3STATE:
     case BS_AUTO3STATE:
+        return cb_states[check_state][state];
+    case BS_RADIOBUTTON:
     case BS_AUTORADIOBUTTON:
         return rb_states[check_state][state];
     case BS_GROUPBOX:
@@ -442,13 +453,12 @@ LRESULT _Create(HWND hWnd, WPARAM wParam, LPARAM lParam)
     if (wParam)
     {
         infoPtr = (BUTTON_INFO*)wParam;
-        infoPtr->dwStyle = lParam;
         infoPtr->parent = hWnd;
         infoPtr->is_delegate = true;
         if (!hDelegate)
         {
             hDelegate = ::CreateWindow(
-                WC_BUTTON
+                L"MyButton"
                 , TEXT("DelegateBtn")
                 , WS_CHILD | BS_DEFPUSHBUTTON // | WS_VISIBLE
                 , 0, 0
@@ -492,7 +502,7 @@ LRESULT _Paint(BUTTON_INFO* infoPtr, WPARAM wParam, HWND hWnd)
     if (is_themed_paint_supported(theme, btn_type))
     {
         int drawState = get_draw_state(infoPtr);
-        UINT dtflags = BUTTON_BStoDT(infoPtr->dwStyle, infoPtr->exStyle);
+        UINT dtflags = BUTTON_BStoDT(infoPtr);
 
         btnThemedPaintFunc[btn_type](theme, infoPtr, hdc, drawState, dtflags, infoPtr->state & BST_FOCUS);
     }
@@ -1095,7 +1105,7 @@ static LRESULT CALLBACK BUTTON_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 /* If maxWidth is zero, rectangle width is unlimited */
 static RECT BUTTON_GetTextRect(const BUTTON_INFO *infoPtr, HDC hdc, const WCHAR *text, LONG maxWidth)
 {
-    UINT dtStyle = BUTTON_BStoDT(infoPtr->dwStyle, infoPtr->exStyle);
+    UINT dtStyle = BUTTON_BStoDT(infoPtr);
     HFONT hPrevFont;
     RECT rect = {0};
 
@@ -1103,6 +1113,7 @@ static RECT BUTTON_GetTextRect(const BUTTON_INFO *infoPtr, HDC hdc, const WCHAR 
     hPrevFont = (HFONT)SelectObject(hdc, infoPtr->font);
     /* Calculate height without DT_VCENTER and DT_BOTTOM to get the correct height */
     DrawTextW(hdc, text, -1, &rect, (dtStyle & ~(DT_VCENTER | DT_BOTTOM)) | DT_CALCRECT);
+    rect.top = 100;
     if (hPrevFont) SelectObject(hdc, hPrevFont);
 
     return rect;
@@ -1596,7 +1607,7 @@ static UINT BUTTON_CalcLayoutRects(const BUTTON_INFO *infoPtr, HDC hdc, RECT *la
    LONG split_style = infoPtr->imagelist.himl ? BUTTON_ILStoBS(infoPtr->imagelist.uAlign) : style;
    WCHAR *text = get_button_text(infoPtr);
    SIZE imageSize = BUTTON_GetImageSize(infoPtr);
-   UINT dtStyle = BUTTON_BStoDT(style, infoPtr->exStyle);
+   UINT dtStyle = BUTTON_BStoDT(infoPtr);
    RECT labelRect, imageRect, imageRectWithMargin, textRect;
    LONG imageMarginWidth, imageMarginHeight;
    const RECT *textMargin = BUTTON_GetTextMargin(infoPtr);
@@ -1851,7 +1862,7 @@ static void PB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     {
         if (action != ODA_FOCUS)
             Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
-	InflateRect( &rc, -1, -1 );
+	    InflateRect( &rc, -1, -1 );
     }
 
     /* Skip the frame drawing if only focus has changed */
@@ -1924,7 +1935,6 @@ static void PB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     SelectObject( hDC, hOldBrush );
     SetBkMode(hDC, oldBkMode);
     SelectClipRgn( hDC, hrgn );
-    if (hrgn) DeleteObject( hrgn );
     DeleteObject( hpen );
 }
 
@@ -2098,7 +2108,6 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
 
 cleanup:
     SelectClipRgn( hDC, hrgn );
-    if (hrgn) DeleteObject( hrgn );
 }
 
 
@@ -2183,7 +2192,6 @@ static void GB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
         BUTTON_DrawLabel(infoPtr, hDC, dtFlags, &imageRect, &textRect);
     }
     SelectClipRgn( hDC, hrgn );
-    if (hrgn) DeleteObject( hrgn );
 }
 
 
@@ -2308,7 +2316,6 @@ static void OB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
 
     SendMessageW( GetParent(infoPtr->hwnd), WM_DRAWITEM, id, (LPARAM)&dis );
     SelectClipRgn( hDC, hrgn );
-    if (hrgn) DeleteObject( hrgn );
 }
 
 
@@ -2453,7 +2460,6 @@ cleanup:
     SelectObject(hDC, old_brush);
     SetBkMode(hDC, old_bk_mode);
     SelectClipRgn(hDC, hrgn);
-    if (hrgn) DeleteObject(hrgn);
     DeleteObject(pen);
 }
 
@@ -2736,7 +2742,6 @@ cleanup:
     SelectObject(hDC, old_brush);
     SetBkMode(hDC, old_bk_mode);
     SelectClipRgn(hDC, hrgn);
-    if (hrgn) DeleteObject(hrgn);
     DeleteObject(pen);
 }
 
@@ -2751,28 +2756,34 @@ static void PB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
     HFONT font = infoPtr->font;
     HFONT hPrevFont = font ? (HFONT)SelectObject(hDC, font) : NULL;
     NMCUSTOMDRAW nmcd;
-    LRESULT cdrf;
-    HWND parent;
+    LRESULT cdrf = 0;
+    HWND parent = 0;
     WCHAR *text;
 
     if (infoPtr->is_delegate)
     {
         theme = GetWindowTheme(hDelegate);
         bgRect = *infoPtr->rcDraw;
+        textRect = bgRect;
+
+        textRect.left += infoPtr->rcPadding->left;
+        textRect.right -= infoPtr->rcPadding->right;
+        textRect.top += infoPtr->rcPadding->top;
+        textRect.bottom -= infoPtr->rcPadding->bottom;
     }
     else
     {
         GetClientRect(infoPtr->hwnd, &bgRect);
+        GetThemeBackgroundContentRect(theme, hDC, BP_PUSHBUTTON, state, &bgRect, &textRect);
+
+        init_custom_draw(&nmcd, infoPtr, hDC, &bgRect);
+        parent = GetParent(infoPtr->hwnd);
+        if (!parent) parent = infoPtr->hwnd;
+        /* Send erase notifications */
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
     }
-    GetThemeBackgroundContentRect(theme, hDC, BP_PUSHBUTTON, state, &bgRect, &textRect);
-    //init_custom_draw(&nmcd, infoPtr, hDC, &bgRect);
-
-    parent = GetParent(infoPtr->hwnd);
-    if (!parent) parent = infoPtr->hwnd;
-
-    /* Send erase notifications */
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+    HRGN hrgn = set_control_clipping( hDC, &bgRect );
 
     if (IsThemeBackgroundPartiallyTransparent(theme, BP_PUSHBUTTON, state))
         DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
@@ -2789,8 +2800,34 @@ static void PB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
     cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
     if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
 
+
     if (!(cdrf & CDRF_DOERASE) && (text = get_button_text(infoPtr)))
     {
+        if ((dtFlags&DT_VCENTER)&&(dtFlags&DT_WORDBREAK))
+        if(infoPtr->is_delegate)
+        {
+            //LONG textCaclHeight;
+            int dh = 0;
+            if (infoPtr->is_delegate)
+            {
+                dh = infoPtr->rcPadding->bottom + infoPtr->rcPadding->top;
+            }
+            if (infoPtr->is_delegate && infoPtr->textAutoHeight>0)
+            {
+                dh += infoPtr->textAutoHeight;
+            }
+            else
+            {
+                // 自行计算高度
+                RECT rcCacl = textRect;
+                DrawText(hDC, text, -1, &rcCacl, (dtFlags & ~(DT_VCENTER | DT_BOTTOM)) | DT_CALCRECT);
+                dh += rcCacl.bottom-rcCacl.top;
+            }
+            dh = (bgRect.bottom-bgRect.top-dh)/2;
+            textRect.top += dh;
+            textRect.bottom += dh;
+        }
+
         DrawThemeText(theme, hDC, BP_PUSHBUTTON, state, text, lstrlenW(text), dtFlags, 0, &textRect);
         if(!infoPtr->is_delegate)heap_free(text);
     }
@@ -2819,40 +2856,23 @@ static void PB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
 
 cleanup:
     if (hPrevFont) SelectObject(hDC, hPrevFont);
+    SelectClipRgn( hDC, hrgn );
 }
 
 static void CB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, int state, UINT dtFlags, BOOL focused)
 {
     SIZE sz;
     RECT bgRect, textRect;
-    HFONT font, hPrevFont = NULL;
+    HFONT font = infoPtr->font;
+    HFONT hPrevFont = (HFONT)SelectObject(hDC, font);
     DWORD dwStyle = infoPtr->dwStyle;
     UINT btn_type = get_button_type( dwStyle );
     int part = (btn_type == BS_RADIOBUTTON) || (btn_type == BS_AUTORADIOBUTTON) ? BP_RADIOBUTTON : BP_CHECKBOX;
     NMCUSTOMDRAW nmcd;
-    LRESULT cdrf;
+    LRESULT cdrf = 0;
     LOGFONTW lf;
-    HWND parent;
+    HWND parent = 0;
     WCHAR *text;
-    BOOL created_font = FALSE;
-
-    HRESULT hr = GetThemeFont(theme, hDC, part, state, TMT_FONT, &lf);
-    if (SUCCEEDED(hr)) {
-        font = CreateFontIndirectW(&lf);
-        if (!font)
-        {
-            TRACE("Failed to create font\n");
-        }
-        else 
-        {
-            TRACE("font = %s\n", debugstr_w(lf.lfFaceName));
-            hPrevFont = (HFONT)SelectObject(hDC, font);
-            created_font = TRUE;
-        }
-    } else {
-        font = (HFONT)SendMessageW(infoPtr->hwnd, WM_GETFONT, 0, 0);
-        hPrevFont = (HFONT)SelectObject(hDC, font);
-    }
 
     if (FAILED(GetThemePartSize(theme, hDC, part, state, NULL, TS_DRAW, &sz)))
         sz.cx = sz.cy = 13;
@@ -2861,75 +2881,113 @@ static void CB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
     {
         theme = GetWindowTheme(hDelegate);
         bgRect = *infoPtr->rcDraw;
+        textRect = bgRect;
     }
     else
     {
         GetClientRect(infoPtr->hwnd, &bgRect);
-    }
-    GetThemeBackgroundContentRect(theme, hDC, part, state, &bgRect, &textRect);
-    init_custom_draw(&nmcd, infoPtr, hDC, &bgRect);
+        GetThemeBackgroundContentRect(theme, hDC, part, state, &bgRect, &textRect);
 
-    if (dtFlags & DT_SINGLELINE) /* Center the checkbox / radio button to the text. */
+        init_custom_draw(&nmcd, infoPtr, hDC, &bgRect);
+        parent = GetParent(infoPtr->hwnd);
+        if (!parent) parent = infoPtr->hwnd;
+        /* Send erase notifications */
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+    }
+    MARGINS margins;
+    RECT focusRect = bgRect;
+
+    /* Center the checkbox / radio button to the text. */
+    if (dtFlags & (DT_SINGLELINE|DT_VCENTER)) 
         bgRect.top = bgRect.top + (textRect.bottom - textRect.top - sz.cy) / 2;
 
-    /* adjust for the check/radio marker */
+    /* 
+     * adjust and draw the check/radio marker bg 
+     */
     bgRect.bottom = bgRect.top + sz.cy;
     bgRect.right = bgRect.left + sz.cx;
     textRect.left = bgRect.right + 6;
-
-    parent = GetParent(infoPtr->hwnd);
-    if (!parent) parent = infoPtr->hwnd;
-
-    /* Send erase notifications */
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
-
     DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
     DrawThemeBackground(theme, hDC, part, state, &bgRect, NULL);
+    bgRect = focusRect;
 
-    if (cdrf & CDRF_NOTIFYPOSTERASE)
+    /* Draw Focus  */
+    GetThemeMargins(theme, hDC, BP_PUSHBUTTON, state, TMT_CONTENTMARGINS, NULL, &margins);
+    focusRect.left += margins.cxLeftWidth + sz.cx;
+    //focusRect.top += margins.cyTopHeight;
+    focusRect.right -= margins.cxRightWidth;
+    //focusRect.bottom -= margins.cyBottomHeight;
+    if (!(cdrf & CDRF_SKIPPOSTPAINT) && focused)
     {
-        nmcd.dwDrawStage = CDDS_POSTERASE;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        DrawFocusRect( hDC, &focusRect );
     }
 
-    /* Send paint notifications */
-    nmcd.dwDrawStage = CDDS_PREPAINT;
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+    /* apply clipping...  */
+    HRGN hrgn = set_control_clipping( hDC, &focusRect );
 
-    text = get_button_text(infoPtr);
-    if (!(cdrf & CDRF_DOERASE) && text)
+    if (parent)
+    {
+        if (cdrf & CDRF_NOTIFYPOSTERASE)
+        {
+            nmcd.dwDrawStage = CDDS_POSTERASE;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
+        /* Send paint notifications */
+        nmcd.dwDrawStage = CDDS_PREPAINT;
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+    }
+
+    if (!(cdrf & CDRF_DOERASE) && (text = get_button_text(infoPtr)))
+    {
+        if (infoPtr->is_delegate)
+        {
+            textRect.left += infoPtr->rcPadding->left;
+            textRect.right -= infoPtr->rcPadding->right;
+            textRect.top += infoPtr->rcPadding->top;
+            textRect.bottom -= infoPtr->rcPadding->bottom;
+        }
+
+        if ((dtFlags&DT_VCENTER)&&(dtFlags&DT_WORDBREAK))
+        if(infoPtr->is_delegate)
+        {
+            //LONG textCaclHeight;
+            int dh = 0;
+            if (infoPtr->is_delegate)
+            {
+                dh = infoPtr->rcPadding->bottom + infoPtr->rcPadding->top;
+            }
+            if (infoPtr->is_delegate && infoPtr->textAutoHeight>0)
+            {
+                dh += infoPtr->textAutoHeight;
+            }
+            else
+            {
+                // 自行计算高度
+                RECT rcCacl = textRect;
+                DrawText(hDC, text, -1, &rcCacl, (dtFlags & ~(DT_VCENTER | DT_BOTTOM)) | DT_CALCRECT);
+                dh += rcCacl.bottom-rcCacl.top;
+            }
+            dh = (bgRect.bottom-bgRect.top-dh)/2;
+            textRect.top += dh;
+            textRect.bottom += dh;
+        }
+
         DrawThemeText(theme, hDC, part, state, text, lstrlenW(text), dtFlags, 0, &textRect);
+        if(!infoPtr->is_delegate) heap_free(text);
+    }
 
-    if (cdrf & CDRF_NOTIFYPOSTPAINT)
+    if (parent && cdrf & CDRF_NOTIFYPOSTPAINT)
     {
         nmcd.dwDrawStage = CDDS_POSTPAINT;
         SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
     }
 
-    if (text)
-    {
-        if (!(cdrf & CDRF_SKIPPOSTPAINT) && focused)
-        {
-            RECT focusRect;
-
-            focusRect = textRect;
-
-            DrawTextW(hDC, text, lstrlenW(text), &focusRect, dtFlags | DT_CALCRECT);
-
-            if (focusRect.right < textRect.right) focusRect.right++;
-            focusRect.bottom = textRect.bottom;
-
-            DrawFocusRect( hDC, &focusRect );
-        }
-        
-        if(!infoPtr->is_delegate) heap_free(text);
-    }
 
 cleanup:
-    if (created_font) DeleteObject(font);
     if (hPrevFont) SelectObject(hDC, hPrevFont);
+    SelectClipRgn( hDC, hrgn );
 }
 
 static void GB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, int state, UINT dtFlags, BOOL focused)
@@ -2937,25 +2995,8 @@ static void GB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
     RECT bgRect, textRect, contentRect;
     WCHAR *text = get_button_text(infoPtr);
     LOGFONTW lf;
-    HFONT font, hPrevFont = NULL;
-    BOOL created_font = FALSE;
-
-    HRESULT hr = GetThemeFont(theme, hDC, BP_GROUPBOX, state, TMT_FONT, &lf);
-    if (SUCCEEDED(hr)) {
-        font = CreateFontIndirectW(&lf);
-        if (!font)
-        {
-            TRACE("Failed to create font\n");
-        }
-        else 
-        {
-            hPrevFont = (HFONT)SelectObject(hDC, font);
-            created_font = TRUE;
-        }
-    } else {
-        font = (HFONT)SendMessageW(infoPtr->hwnd, WM_GETFONT, 0, 0);
-        hPrevFont = (HFONT)SelectObject(hDC, font);
-    }
+    HFONT font = infoPtr->font;
+    HFONT hPrevFont = (HFONT)SelectObject(hDC, font);
 
     if (infoPtr->is_delegate)
     {
@@ -2996,80 +3037,141 @@ static void GB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
         if(!infoPtr->is_delegate) heap_free(text);
     }
 
-    if (created_font) DeleteObject(font);
     if (hPrevFont) SelectObject(hDC, hPrevFont);
+}
+
+void BUTTON_QueryPreempterSize(BUTTON_INFO* infoPtr, WPARAM _preSizeX)
+{
+    int & psX = *(int*)_preSizeX;
+    LONG dwStyle = infoPtr->dwStyle;
+    UINT btn_type = get_button_type( dwStyle );
+    HWND hWnd = hDelegate;
+    HTHEME theme = GetWindowTheme( hWnd );
+    switch(btn_type)
+    {
+        case BS_CHECKBOX:
+        case BS_AUTOCHECKBOX:
+        case BS_3STATE:
+        case BS_AUTO3STATE:
+        case BS_RADIOBUTTON:
+        case BS_AUTORADIOBUTTON:
+        {
+            int state = get_draw_state(infoPtr);
+            int part = (btn_type == BS_RADIOBUTTON) || (btn_type == BS_AUTORADIOBUTTON) ? BP_RADIOBUTTON : BP_CHECKBOX;
+            SIZE sz;
+            if (FAILED(GetThemePartSize(theme, 0, part, infoPtr->state, NULL, TS_DRAW, &sz)))
+                sz.cx = sz.cy = 13;
+            psX = sz.cx + 6;
+        }
+        break;
+        case BS_SPLITBUTTON:
+        case BS_DEFSPLITBUTTON:
+        {
+            psX = infoPtr->glyph_size.cx;
+        }
+        break;
+        case BS_COMMANDLINK:
+        {
+            SIZE img_size;
+            int state = get_draw_state(infoPtr);
+            if (infoPtr->u.image || infoPtr->imagelist.himl)
+                img_size = BUTTON_GetImageSize(infoPtr);
+            else
+                GetThemePartSize(theme, NULL, BP_COMMANDLINKGLYPH, state, NULL, TS_DRAW, &img_size);
+            if(img_size.cx)
+                psX = img_size.cx + command_link_margin;
+            else 
+                psX = 0;
+            //RECT textRect;
+            //GetThemeBackgroundContentRect(theme, NULL, BP_COMMANDLINK, state, infoPtr->rcDraw, &textRect);
+            //psX += (infoPtr->rcDraw->right - infoPtr->rcDraw->left) - (textRect.right - textRect.left);
+            MARGINS margins;
+            /* The focus rect has margins of a push button rather than command link... */
+            GetThemeMargins(theme, NULL, BP_PUSHBUTTON, state, TMT_SIZINGMARGINS, NULL, &margins);
+            //psX += margins.cxLeftWidth + margins.cxRightWidth;
+        }
+        break;
+        default:
+            psX = 0;
+        break;
+    }
+    
 }
 
 static void SB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, int state, UINT dtFlags, BOOL focused)
 {
     HFONT old_font = infoPtr->font ? (HFONT)SelectObject(hDC, infoPtr->font) : NULL;
-    RECT rc, content_rect, push_rect, dropdown_rect;
+    RECT bgRect, textRect, push_rect, dropdown_rect;
     NMCUSTOMDRAW nmcd;
-    LRESULT cdrf;
-    HWND parent;
-
+    LRESULT cdrf = 0;
+    HWND parent = 0;
 
     if (infoPtr->is_delegate)
     {
         theme = GetWindowTheme(hDelegate);
-        rc = *infoPtr->rcDraw;
+        bgRect = *infoPtr->rcDraw;
+        textRect = bgRect;
     }
     else
     {
-        GetClientRect(infoPtr->hwnd, &rc);
+        GetClientRect(infoPtr->hwnd, &bgRect);
+        init_custom_draw(&nmcd, infoPtr, hDC, &bgRect);
+        parent = GetParent(infoPtr->hwnd);
+        if (!parent) parent = infoPtr->hwnd;
     }
-    init_custom_draw(&nmcd, infoPtr, hDC, &rc);
-
-    parent = GetParent(infoPtr->hwnd);
-    if (!parent) parent = infoPtr->hwnd;
 
     /* Send erase notifications */
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+    if (parent)
+    {
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+    }
 
     if (IsThemeBackgroundPartiallyTransparent(theme, BP_PUSHBUTTON, state))
         DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
 
     /* The zone outside the content is ignored for the dropdown (draws over) */
-    GetThemeBackgroundContentRect(theme, hDC, BP_PUSHBUTTON, state, &rc, &content_rect);
-    get_split_button_rects(infoPtr, &rc, &push_rect, &dropdown_rect);
+    if (!infoPtr->is_delegate) GetThemeBackgroundContentRect(theme, hDC, BP_PUSHBUTTON, state, &bgRect, &textRect);
+    get_split_button_rects(infoPtr, &bgRect, &push_rect, &dropdown_rect);
 
     if (infoPtr->split_style & BCSS_NOSPLIT)
     {
-        push_rect = rc;
-        DrawThemeBackground(theme, hDC, BP_PUSHBUTTON, state, &rc, NULL);
+        push_rect = bgRect;
+        DrawThemeBackground(theme, hDC, BP_PUSHBUTTON, state, &bgRect, NULL);
     }
     else
     {
-        RECT r = { dropdown_rect.left, content_rect.top, dropdown_rect.right, content_rect.bottom };
+        RECT r = { dropdown_rect.left, textRect.top, dropdown_rect.right, textRect.bottom };
         UINT edge = (infoPtr->split_style & BCSS_ALIGNLEFT) ? BF_RIGHT : BF_LEFT;
         const RECT *clip = NULL;
 
         /* If only the dropdown is pressed, we need to draw it separately */
         if (state != PBS_PRESSED && (infoPtr->state & BST_DROPDOWNPUSHED))
         {
-            DrawThemeBackground(theme, hDC, BP_PUSHBUTTON, PBS_PRESSED, &rc, &dropdown_rect);
+            DrawThemeBackground(theme, hDC, BP_PUSHBUTTON, PBS_PRESSED, &bgRect, &dropdown_rect);
             clip = &push_rect;
         }
-        DrawThemeBackground(theme, hDC, BP_PUSHBUTTON, state, &rc, clip);
+        DrawThemeBackground(theme, hDC, BP_PUSHBUTTON, state, &bgRect, clip);
 
         /* Draw the separator */
         DrawThemeEdge(theme, hDC, BP_PUSHBUTTON, state, &r, EDGE_ETCHED, edge, NULL);
 
         /* The content rect should be the content area of the push button */
-        GetThemeBackgroundContentRect(theme, hDC, BP_PUSHBUTTON, state, &push_rect, &content_rect);
+        if (!infoPtr->is_delegate) GetThemeBackgroundContentRect(theme, hDC, BP_PUSHBUTTON, state, &push_rect, &textRect);
     }
 
-    if (cdrf & CDRF_NOTIFYPOSTERASE)
+    if (parent)
     {
-        nmcd.dwDrawStage = CDDS_POSTERASE;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_NOTIFYPOSTERASE)
+        {
+            nmcd.dwDrawStage = CDDS_POSTERASE;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
+        /* Send paint notifications */
+        nmcd.dwDrawStage = CDDS_PREPAINT;
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
     }
-
-    /* Send paint notifications */
-    nmcd.dwDrawStage = CDDS_PREPAINT;
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
 
     if (!(cdrf & CDRF_DOERASE))
     {
@@ -3079,7 +3181,42 @@ static void SB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
 
         if ((text = get_button_text(infoPtr)))
         {
-            DrawThemeText(theme, hDC, BP_PUSHBUTTON, state, text, lstrlenW(text), dtFlags, 0, &content_rect);
+            HRGN hrgn = set_control_clipping( hDC, &textRect );
+
+            if (infoPtr->is_delegate)
+            {
+                textRect.left += infoPtr->rcPadding->left - infoPtr->glyph_size.cx/2;
+                textRect.right += -infoPtr->rcPadding->right - infoPtr->glyph_size.cx/2;
+                textRect.top += infoPtr->rcPadding->top;
+                textRect.bottom -= infoPtr->rcPadding->bottom;
+            }
+
+            if ((dtFlags&DT_VCENTER)&&(dtFlags&DT_WORDBREAK))
+            if(infoPtr->is_delegate)
+            {
+                //LONG textCaclHeight;
+                int dh = 0;
+                if (infoPtr->is_delegate)
+                {
+                    dh = infoPtr->rcPadding->bottom + infoPtr->rcPadding->top;
+                }
+                if (infoPtr->is_delegate && infoPtr->textAutoHeight>0)
+                {
+                    dh += infoPtr->textAutoHeight;
+                }
+                else
+                {
+                    // 自行计算高度
+                    RECT rcCacl = textRect;
+                    DrawText(hDC, text, -1, &rcCacl, (dtFlags & ~(DT_VCENTER | DT_BOTTOM)) | DT_CALCRECT);
+                    dh += rcCacl.bottom-rcCacl.top;
+                }
+                dh = (bgRect.bottom-bgRect.top-dh)/2;
+                textRect.top += dh;
+                textRect.bottom += dh;
+            }
+            DrawThemeText(theme, hDC, BP_PUSHBUTTON, state, text, lstrlenW(text), dtFlags, 0, &textRect);
+            SelectClipRgn( hDC, hrgn );
             if(!infoPtr->is_delegate) heap_free(text);
         }
 
@@ -3093,12 +3230,15 @@ static void SB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
         SetBkMode(hDC, old_bk_mode);
     }
 
-    if (cdrf & CDRF_NOTIFYPOSTPAINT)
+    if (parent)
     {
-        nmcd.dwDrawStage = CDDS_POSTPAINT;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_NOTIFYPOSTPAINT)
+        {
+            nmcd.dwDrawStage = CDDS_POSTPAINT;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
+        if (cdrf & CDRF_SKIPPOSTPAINT) goto cleanup;
     }
-    if (cdrf & CDRF_SKIPPOSTPAINT) goto cleanup;
 
     if (focused)
     {
@@ -3108,7 +3248,7 @@ static void SB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
 
         push_rect.left += margins.cxLeftWidth;
         push_rect.top += margins.cyTopHeight;
-        push_rect.right -= margins.cxRightWidth;
+        //push_rect.right -= margins.cxRightWidth;
         push_rect.bottom -= margins.cyBottomHeight;
         DrawFocusRect(hDC, &push_rect);
     }
@@ -3121,55 +3261,57 @@ static void CL_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
 {
     HFONT old_font = infoPtr->font ? (HFONT)SelectObject(hDC, infoPtr->font) : NULL;
     NMCUSTOMDRAW nmcd;
-    LRESULT cdrf;
-    HWND parent;
-    RECT rc;
-
+    LRESULT cdrf = 0;
+    HWND parent = 0;
+    RECT bgRect;
 
     if (infoPtr->is_delegate)
     {
         theme = GetWindowTheme(hDelegate);
-        rc = *infoPtr->rcDraw;
+        bgRect = *infoPtr->rcDraw;
     }
     else
     {
-        GetClientRect(infoPtr->hwnd, &rc);
+        GetClientRect(infoPtr->hwnd, &bgRect);
+        init_custom_draw(&nmcd, infoPtr, hDC, &bgRect);
+
+        parent = GetParent(infoPtr->hwnd);
+        if (!parent) parent = infoPtr->hwnd;
+
+        /* Send erase notifications */
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
     }
-    init_custom_draw(&nmcd, infoPtr, hDC, &rc);
-
-    parent = GetParent(infoPtr->hwnd);
-    if (!parent) parent = infoPtr->hwnd;
-
-    /* Send erase notifications */
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
 
     if (IsThemeBackgroundPartiallyTransparent(theme, BP_COMMANDLINK, state))
         DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
-    DrawThemeBackground(theme, hDC, BP_COMMANDLINK, state, &rc, NULL);
+    DrawThemeBackground(theme, hDC, BP_COMMANDLINK, state, &bgRect, NULL);
 
-    if (cdrf & CDRF_NOTIFYPOSTERASE)
+    if (parent)
     {
-        nmcd.dwDrawStage = CDDS_POSTERASE;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_NOTIFYPOSTERASE)
+        {
+            nmcd.dwDrawStage = CDDS_POSTERASE;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
+        /* Send paint notifications */
+        nmcd.dwDrawStage = CDDS_PREPAINT;
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
     }
-
-    /* Send paint notifications */
-    nmcd.dwDrawStage = CDDS_PREPAINT;
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
 
     if (!(cdrf & CDRF_DOERASE))
     {
-        RECT r, img_rect;
+        RECT textRect, img_rect;
         UINT txt_h = 0;
         SIZE img_size;
         WCHAR *text;
 
-        GetThemeBackgroundContentRect(theme, hDC, BP_COMMANDLINK, state, &rc, &r);
+        if(!infoPtr->is_delegate) GetThemeBackgroundContentRect(theme, hDC, BP_COMMANDLINK, state, &bgRect, &textRect);
+        else textRect = bgRect;
 
         /* The text alignment and styles are fixed and don't depend on button styles */
-        dtFlags = DT_TOP | DT_LEFT | DT_WORDBREAK;
+        dtFlags = DT_TOP | DT_LEFT | DT_WORDBREAK | DT_NOCLIP;
 
         /* Command Links ignore the margins of the image list or its alignment */
         if (infoPtr->u.image || infoPtr->imagelist.himl)
@@ -3177,22 +3319,32 @@ static void CL_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
         else
             GetThemePartSize(theme, NULL, BP_COMMANDLINKGLYPH, state, NULL, TS_DRAW, &img_size);
 
-        img_rect = r;
-        if (img_size.cx) r.left += img_size.cx + command_link_margin;
+        if (infoPtr->is_delegate)
+        {
+            textRect.left += infoPtr->rcPadding->left;
+            textRect.right -= infoPtr->rcPadding->right;
+            textRect.top += infoPtr->rcPadding->top;
+            textRect.bottom -= infoPtr->rcPadding->bottom;
+        }
+
+        img_rect = textRect;
+        if (img_size.cx) textRect.left += img_size.cx + command_link_margin;
 
         /* Draw the text */
         if ((text = get_button_text(infoPtr)))
         {
+            HRGN hrgn = set_control_clipping( hDC, &bgRect );
+            // 对于Command link，内边距是要考虑的，垂直居中则不必。
             UINT len = lstrlenW(text);
             RECT text_rect;
-
             GetThemeTextExtent(theme, hDC, BP_COMMANDLINK, state, text, len,
-                               dtFlags | DT_END_ELLIPSIS, &r, &text_rect);
+                               dtFlags | DT_END_ELLIPSIS, &textRect, &text_rect);
             DrawThemeText(theme, hDC, BP_COMMANDLINK, state, text, len,
-                          dtFlags | DT_END_ELLIPSIS, 0, &r);
+                          dtFlags | DT_END_ELLIPSIS, 0, &textRect);
 
             txt_h = text_rect.bottom - text_rect.top;
             if(!infoPtr->is_delegate) heap_free(text);
+            SelectClipRgn(hDC, hrgn);
         }
 
         /* Draw the note */
@@ -3200,18 +3352,22 @@ static void CL_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
         {
             DTTOPTS opts;
 
-            r.top += txt_h;
+            textRect.top += txt_h;
             opts.dwSize = sizeof(opts);
             opts.dwFlags = DTT_FONTPROP;
             opts.iFontPropId = TMT_BODYFONT;
             DrawThemeTextEx(theme, hDC, BP_COMMANDLINK, state,
                             infoPtr->note, infoPtr->note_length,
-                            dtFlags | DT_NOPREFIX, &r, &opts);
+                            dtFlags | DT_NOPREFIX, &textRect, &opts);
         }
 
         /* Position the image at the vertical center of the drawn text (not note) */
-        txt_h = min(txt_h, img_rect.bottom - img_rect.top);
-        if (img_size.cy < txt_h) img_rect.top += (txt_h - img_size.cy) / 2;
+        //txt_h = min(txt_h, img_rect.bottom - img_rect.top);
+        //if (img_size.cy < txt_h) img_rect.top += (txt_h - img_size.cy) / 2;
+        if (infoPtr->is_delegate)
+        {
+            img_rect.top += infoPtr->rcPadding->top;
+        }
 
         img_rect.right = img_rect.left + img_size.cx;
         img_rect.bottom = img_rect.top + img_size.cy;
@@ -3224,12 +3380,15 @@ static void CL_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
             DrawThemeBackground(theme, hDC, BP_COMMANDLINKGLYPH, state, &img_rect, NULL);
     }
 
-    if (cdrf & CDRF_NOTIFYPOSTPAINT)
+    if (parent)
     {
-        nmcd.dwDrawStage = CDDS_POSTPAINT;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_NOTIFYPOSTPAINT)
+        {
+            nmcd.dwDrawStage = CDDS_POSTPAINT;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
+        if (cdrf & CDRF_SKIPPOSTPAINT) goto cleanup;
     }
-    if (cdrf & CDRF_SKIPPOSTPAINT) goto cleanup;
 
     if (focused)
     {
@@ -3238,11 +3397,11 @@ static void CL_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
         /* The focus rect has margins of a push button rather than command link... */
         GetThemeMargins(theme, hDC, BP_PUSHBUTTON, state, TMT_CONTENTMARGINS, NULL, &margins);
 
-        rc.left += margins.cxLeftWidth;
-        rc.top += margins.cyTopHeight;
-        rc.right -= margins.cxRightWidth;
-        rc.bottom -= margins.cyBottomHeight;
-        DrawFocusRect(hDC, &rc);
+        bgRect.left += margins.cxLeftWidth;
+        bgRect.top += margins.cyTopHeight;
+        bgRect.right -= margins.cxRightWidth;
+        bgRect.bottom -= margins.cyBottomHeight;
+        DrawFocusRect(hDC, &bgRect);
     }
 
 cleanup:
