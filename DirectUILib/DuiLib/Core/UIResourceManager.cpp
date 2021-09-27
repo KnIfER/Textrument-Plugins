@@ -217,9 +217,9 @@ namespace DuiLib {
 		return TRUE;
 	}
 
-	CDuiString CResourceManager::GetText(LPCTSTR lpstrId, LPCTSTR lpstrType)
+	CDuiString & CResourceManager::GetText(LPCTSTR lpstrId, LPCTSTR lpstrType)
 	{
-		if(lpstrId == NULL) return _T("");
+		if(lpstrId == NULL) return CDuiString::EmptyInstance();
 
 		CDuiString *lpstrFind = static_cast<CDuiString *>(m_mTextResourceHashMap.Find(lpstrId));
 		if (lpstrFind == NULL && m_pQuerypInterface)
@@ -230,7 +230,11 @@ namespace DuiLib {
 				m_mTextResourceHashMap.Insert(lpstrId, (LPVOID)lpstrFind);
 			}
 		}
-		return lpstrFind == NULL ? lpstrId : *lpstrFind;
+		if (!lpstrFind)
+		{
+			return CDuiString::EmptyInstance(lpstrId);
+		}
+		return *lpstrFind;
 	}
 
 	void CResourceManager::ReloadText()

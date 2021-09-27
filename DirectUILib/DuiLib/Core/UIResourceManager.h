@@ -38,7 +38,7 @@ namespace DuiLib {
 		
 	public:
 		void SetTextQueryInterface(IQueryControlText* pInterface) { m_pQuerypInterface = pInterface; }
-		CDuiString GetText(LPCTSTR lpstrId, LPCTSTR lpstrType = NULL);
+		CDuiString & GetText(LPCTSTR lpstrId, LPCTSTR lpstrType = NULL);
 		void ReloadText();
 		void ResetTextMap();
 

@@ -88,14 +88,6 @@ namespace DuiLib
 	//************************************
 	CDxAnimationUI::~CDxAnimationUI( void )
 	{
-		try
-		{
-
-		}
-		catch (...)
-		{
-			throw "CDxAnimationUI::~CDxAnimationUI";
-		}
 	}
 
 

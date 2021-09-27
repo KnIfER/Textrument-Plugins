@@ -166,7 +166,7 @@ namespace DuiLib
 		return MulDiv(iValue, 100, m_nScaleFactor);
 	}
 
-	RECT CDPI::Scale(RECT rcRect)
+	RECT CDPI::Scale(const RECT & rcRect)
 	{
 		RECT rcScale = rcRect;
 		int sw = Scale(rcRect.right - rcRect.left);

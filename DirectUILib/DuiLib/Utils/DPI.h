@@ -38,7 +38,7 @@ namespace DuiLib
 		UINT GetDPI();
 		UINT GetScale();
 		void SetScale(UINT uDPI);
-		RECT Scale(RECT rcRect);
+		RECT Scale(const RECT & rcRect);
 		void Scale(RECT *pRect);
 		POINT Scale(POINT ptPoint);
 		void Scale(POINT *pPoint);

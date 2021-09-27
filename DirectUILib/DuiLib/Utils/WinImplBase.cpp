@@ -75,19 +75,19 @@ namespace DuiLib
 #if defined(WIN32) && !defined(UNDER_CE)
 	LRESULT WindowImplBase::OnNcActivate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if( ::IsIconic(*this)||!IsWindowLess() ) bHandled = FALSE;
+		if( ::IsIconic(*this)||!_isWindowLess ) bHandled = FALSE;
 		return (wParam == 0) ? TRUE : FALSE;
 	}
 
 	LRESULT WindowImplBase::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if(!IsWindowLess() ) bHandled = FALSE;
+		if(!_isWindowLess ) bHandled = FALSE;
 		return 0;
 	}
 
 	LRESULT WindowImplBase::OnNcPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if(!IsWindowLess() ) bHandled = FALSE;
+		if(!_isWindowLess ) bHandled = FALSE;
 		return 0;
 	}
 
@@ -140,7 +140,7 @@ namespace DuiLib
 
 	LRESULT WindowImplBase::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if(!IsWindowLess() ) {
+		if(!_isWindowLess ) {
 			bHandled = FALSE;
 			return false;
 		}
@@ -271,11 +271,6 @@ namespace DuiLib
 
 	LRESULT WindowImplBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		// 调整窗口样式
-		LONG styleValue = ::GetWindowLong(*this, GWL_STYLE);
-		if(IsWindowLess()) styleValue &= ~WS_CAPTION;
-		::SetWindowLong(*this, GWL_STYLE, styleValue | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-
 		// 关联UI管理器
 		m_pm.Init(m_hWnd, GetManagerName());
 		// 注册PreMessage回调

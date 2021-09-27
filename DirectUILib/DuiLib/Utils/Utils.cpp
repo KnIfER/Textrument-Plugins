@@ -353,6 +353,7 @@ namespace DuiLib
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 	//
+	CDuiString CDuiString::_EmptyInstance = L"";
 
 	CDuiString::CDuiString() : m_pstr(m_szBuffer)
 	{

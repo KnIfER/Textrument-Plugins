@@ -25,7 +25,7 @@ namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 
-	typedef enum EVENTTYPE_UI
+	enum EVENTTYPE_UI
 	{
 		UIEVENT__FIRST = 1,
 		UIEVENT__KEYBEGIN,
@@ -168,7 +168,7 @@ namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 	// 内部保留的消息
-	typedef enum MSGTYPE_UI
+	enum MSGTYPE_UI
 	{
 		UIMSG_TRAYICON = WM_USER + 1,// 托盘消息
 		UIMSG_SET_DPI,				 // DPI

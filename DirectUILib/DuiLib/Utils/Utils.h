@@ -142,6 +142,22 @@ namespace DuiLib
 		CDuiString(LPCTSTR lpsz, int nLen = -1);
 		~CDuiString();
 
+		static CDuiString & EmptyInstance(LPCTSTR lpstrId=0)
+		{
+			if (!lpstrId)
+			{
+				if (_EmptyInstance.GetLength()>0)
+				{
+					// 放空 ： 释放栈区数据，保存类结构中的本地数据。
+					_EmptyInstance.Empty();
+				}
+			}
+			else
+			{
+				_EmptyInstance = lpstrId;
+			}
+			return _EmptyInstance;
+		};
 		void Empty();
 		int GetLength() const;
 		bool IsEmpty() const;
@@ -201,6 +217,7 @@ namespace DuiLib
 	protected:
 		LPTSTR m_pstr;
 		TCHAR m_szBuffer[MAX_LOCAL_STRING_LEN + 1];
+		static CDuiString _EmptyInstance;
 	};
 
 	static std::vector<CDuiString> StrSplit(CDuiString text, CDuiString sp)

@@ -252,6 +252,14 @@ HWND CWindowWnd::Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD 
 
 HWND CWindowWnd::Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD dwExStyle, int x, int y, int cx, int cy, HMENU hMenu)
 {
+	// 调整窗口样式
+	WindowImplBase* _this = dynamic_cast<WindowImplBase*>(this);
+	if (_this)
+	{
+		if(_this->IsWindowLess()) dwStyle &= ~WS_CAPTION;
+		dwStyle |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	}
+
 	if( GetSuperClassName() != NULL && !RegisterSuperclass() ) return NULL;
 	if( GetSuperClassName() == NULL && !RegisterWindowClass() ) return NULL;
 	if(m_bUnicode) {
