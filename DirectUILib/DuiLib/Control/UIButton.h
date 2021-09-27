@@ -24,6 +24,9 @@ namespace DuiLib
 		void SetEnabled(bool bEnable = true);
 		void DoEvent(TEventUI& event);
 
+		int Toggle();
+		int GetCheckedValue();
+
 		virtual LPCTSTR GetNormalImage();
 		virtual void SetNormalImage(LPCTSTR pStrImage);
 		virtual LPCTSTR GetHotImage();
@@ -69,6 +72,8 @@ namespace DuiLib
 		DWORD GetFocusedTextColor() const;
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
+		SIZE EstimateSize(const SIZE & szAvailable);
+
 		bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
 
 		void PaintText(HDC hDC);
@@ -77,6 +82,27 @@ namespace DuiLib
 		void PaintStatusImage(HDC hDC);
 		void PaintForeImage(HDC hDC);
 
+
+		// |pstrText| = convenient string to set the type, only the two three chars are used :
+		//	"P"==BS_PUSHBUTTON, "push"==BS_PUSHBUTTON, "C"==BS_CHECKBOX, "_CHECK"==BS_AUTOCHECKBOX,
+		//	BS_DEFPUSHBUTTON, BS_[AUTO]RADIOBUTTON, BS_[AUTO]3STATE, BS_GROUPBOX, BS_OWNERDRAW...
+		// |type| = Button Control Styles. (BS_PUSHBUTTON, ...)
+		//	see https://docs.microsoft.com/en-us/windows/win32/controls/button-styles
+		void SetType(LPCTSTR pstrText=0, int type=BS_OWNERDRAW);
+
+		CDuiString & CButtonUI::GetNote() { 
+			return _note; 
+		}
+
+		void SetNote(LPCTSTR pstrText) {
+			_note = pstrText;
+			Invalidate();
+		}
+
+		void SetHotTack(bool hotTrack) {
+			_hotTrack = hotTrack;
+			Invalidate();
+		}
 	protected:
 		UINT m_uButtonState;
 
@@ -103,7 +129,10 @@ namespace DuiLib
 
 		int			m_iBindTabIndex;
 		CDuiString	m_sBindTabLayoutName;
+
 		_BUTTON_INFO* infoPtr;
+		CDuiString _note;
+		bool _hotTrack;
 	};
 
 }	// namespace DuiLib

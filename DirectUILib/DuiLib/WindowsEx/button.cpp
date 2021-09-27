@@ -485,6 +485,10 @@ LRESULT _Create(HWND hWnd, WPARAM wParam, LPARAM lParam)
     infoPtr->split_style = BCSS_STRETCH;
     infoPtr->glyph = (HIMAGELIST)0x36;  /* Marlett down arrow char code */
     infoPtr->glyph_size.cx = get_default_glyph_size(infoPtr);
+    infoPtr->opts = new DTTOPTS{};
+    infoPtr->bg_opts = new DTBGOPTS{};
+    ((DTTOPTS*)infoPtr->opts)->dwSize = sizeof(DTTOPTS);
+    ((DTBGOPTS*)infoPtr->bg_opts)->dwSize = sizeof(DTBGOPTS);
     return TRUE;
 }
 
@@ -498,16 +502,37 @@ LRESULT _Paint(BUTTON_INFO* infoPtr, WPARAM wParam, HWND hWnd)
         hWnd = hDelegate;
     HTHEME theme = GetWindowTheme( hWnd );
     hdc = wParam ? (HDC)wParam : BeginPaint( hWnd, &ps );
-
+    //infoPtr->bgrTextColor = 0xFF0000FF;
+    infoPtr->bgrBackground = 0xFF0000FF;
+    infoPtr->tintFlag = 0;
+    if(infoPtr->bgrTextColor)
+    {
+        infoPtr->tintFlag |= USE_COLOR_TEXT;
+        if (infoPtr->bgrTextColor==0x010000) // #FF000001
+            infoPtr->bgrTextColor = 0;
+        //else infoPtr->bgrTextColor = 0xFF0000FF;
+        infoPtr->bgrTextColor &= 0x00FFFFFF;
+    }
+    if(infoPtr->bgrBackground)
+    {
+        infoPtr->tintFlag |= USE_COLOR_BACK;
+        if (infoPtr->bgrBackground==0x010000) // #FF000001
+            infoPtr->bgrBackground = 0;
+        else infoPtr->bgrBackground = 0xFF0000FF;
+        infoPtr->bgrBackground &= 0x00FFFFFF;
+    }
     if (is_themed_paint_supported(theme, btn_type))
     {
         int drawState = get_draw_state(infoPtr);
         UINT dtflags = BUTTON_BStoDT(infoPtr);
-
+    
         btnThemedPaintFunc[btn_type](theme, infoPtr, hdc, drawState, dtflags, infoPtr->state & BST_FOCUS);
     }
-    else if (btnPaintFunc[btn_type])
+    else
+    if (btnPaintFunc[btn_type])
     {
+        if (infoPtr->tintFlag&USE_COLOR_TEXT)
+            ::SetTextColor(hdc, infoPtr->bgrTextColor&0x00FFFFFF);
         int nOldMode = SetBkMode( hdc, OPAQUE );
         btnPaintFunc[btn_type]( infoPtr, hdc, ODA_DRAWENTIRE );
         SetBkMode(hdc, nOldMode); /*  reset painting mode */
@@ -1924,11 +1949,11 @@ static void PB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
         {
             if (pushedState) OffsetRect(&labelRect, 1, 1);
 
-            oldTxtColor = SetTextColor( hDC, GetSysColor(COLOR_BTNTEXT) );
+            if(!(infoPtr->tintFlag&USE_COLOR_TEXT)) oldTxtColor = SetTextColor( hDC, GetSysColor(COLOR_BTNTEXT) );
 
             BUTTON_DrawLabel(infoPtr, hDC, dtFlags, &imageRect, &textRect);
 
-            SetTextColor( hDC, oldTxtColor );
+            if(!(infoPtr->tintFlag&USE_COLOR_TEXT)) SetTextColor( hDC, oldTxtColor );
         }
     }
     if (parent)
@@ -1965,12 +1990,12 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     HBRUSH hBrush;
     int delta, text_offset, checkBoxWidth, checkBoxHeight;
     UINT dtFlags;
-    LRESULT cdrf;
+    LRESULT cdrf = 0;
     HFONT hFont;
     NMCUSTOMDRAW nmcd;
     LONG state = infoPtr->state;
     LONG style = infoPtr->dwStyle;
-    HWND parent;
+    HWND parent = 0;
     HRGN hrgn;
 
     if (style & BS_PUSHLIKE)
@@ -1996,13 +2021,6 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     GetCharWidthW( hDC, '0', '0', &text_offset );
     text_offset /= 2;
 
-    parent = GetParent(infoPtr->hwnd);
-    if (!parent) parent = infoPtr->hwnd;
-    hBrush = (HBRUSH)SendMessageW(parent, WM_CTLCOLORSTATIC, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
-    if (!hBrush) /* did the app forget to call defwindowproc ? */
-        hBrush = (HBRUSH)DefWindowProcW(parent, WM_CTLCOLORSTATIC, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
-    hrgn = set_control_clipping( hDC, &bgRect );
-
     if (style & BS_LEFTTEXT || infoPtr->exStyle & WS_EX_RIGHT)
     {
         labelRect.right -= checkBoxWidth + text_offset;
@@ -2014,20 +2032,30 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
         rbox.right = rbox.left + checkBoxWidth;
     }
 
-    init_custom_draw(&nmcd, infoPtr, hDC, &bgRect);
-
-    /* Send erase notifications */
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
-
-    /* Since WM_ERASEBKGND does nothing, first prepare background */
-    if (action == ODA_SELECT) FillRect( hDC, &rbox, hBrush );
-    if (action == ODA_DRAWENTIRE) FillRect( hDC, &bgRect, hBrush );
-    if (cdrf & CDRF_NOTIFYPOSTERASE)
+    if (!infoPtr->is_delegate)
     {
-        nmcd.dwDrawStage = CDDS_POSTERASE;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        parent = GetParent(infoPtr->hwnd);
+        if (!parent) parent = infoPtr->hwnd;
+        hBrush = (HBRUSH)SendMessageW(parent, WM_CTLCOLORSTATIC, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
+        if (!hBrush) /* did the app forget to call defwindowproc ? */
+            hBrush = (HBRUSH)DefWindowProcW(parent, WM_CTLCOLORSTATIC, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
+
+        init_custom_draw(&nmcd, infoPtr, hDC, &bgRect);
+
+        /* Send erase notifications */
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+
+        /* Since WM_ERASEBKGND does nothing, first prepare background */
+        if (action == ODA_SELECT) FillRect( hDC, &rbox, hBrush );
+        if (action == ODA_DRAWENTIRE) FillRect( hDC, &bgRect, hBrush );
+        if (cdrf & CDRF_NOTIFYPOSTERASE)
+        {
+            nmcd.dwDrawStage = CDDS_POSTERASE;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
     }
+    hrgn = set_control_clipping( hDC, &bgRect );
 
     /* Draw label */
     bgRect = labelRect;
@@ -2053,10 +2081,13 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
         rbox.bottom = labelRect.bottom;
     }
 
-    /* Send paint notifications */
-    nmcd.dwDrawStage = CDDS_PREPAINT;
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+    if (parent)
+    {
+        /* Send paint notifications */
+        nmcd.dwDrawStage = CDDS_PREPAINT;
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+    }
 
     /* Draw the check-box bitmap */
     if (!(cdrf & CDRF_DOERASE))
@@ -2115,17 +2146,20 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
 
             DrawFrameControl(hDC, &rbox, DFC_BUTTON, flags);
         }
-
+        
         if (dtFlags != (UINT)-1L) /* Something to draw */
             if (action == ODA_DRAWENTIRE) BUTTON_DrawLabel(infoPtr, hDC, dtFlags, &imageRect, &textRect);
     }
 
-    if (cdrf & CDRF_NOTIFYPOSTPAINT)
+    if (parent)
     {
-        nmcd.dwDrawStage = CDDS_POSTPAINT;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_NOTIFYPOSTPAINT)
+        {
+            nmcd.dwDrawStage = CDDS_POSTPAINT;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
+        if ((cdrf & CDRF_SKIPPOSTPAINT) || dtFlags == (UINT)-1L) goto cleanup;
     }
-    if ((cdrf & CDRF_SKIPPOSTPAINT) || dtFlags == (UINT)-1L) goto cleanup;
 
     /* ... and focus */
     if (action == ODA_FOCUS || (state & BST_FOCUS))
@@ -2175,16 +2209,10 @@ static void GB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     HFONT hFont;
     UINT dtFlags;
     TEXTMETRICW tm;
-    HWND parent;
+    HWND parent = 0;
     HRGN hrgn;
 
     if ((hFont = infoPtr->font)) SelectObject( hDC, hFont );
-    /* GroupBox acts like static control, so it sends CTLCOLORSTATIC */
-    parent = GetParent(infoPtr->hwnd);
-    if (!parent) parent = infoPtr->hwnd;
-    hbr = (HBRUSH)SendMessageW(parent, WM_CTLCOLORSTATIC, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
-    if (!hbr) /* did the app forget to call defwindowproc ? */
-        hbr = (HBRUSH)DefWindowProcW(parent, WM_CTLCOLORSTATIC, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
     if (infoPtr->is_delegate)
     {
         labelRect = *infoPtr->rcDraw;
@@ -2192,6 +2220,13 @@ static void GB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     else
     {
         GetClientRect(infoPtr->hwnd, &labelRect);
+
+        /* GroupBox acts like static control, so it sends CTLCOLORSTATIC */
+        parent = GetParent(infoPtr->hwnd);
+        if (!parent) parent = infoPtr->hwnd;
+        hbr = (HBRUSH)SendMessageW(parent, WM_CTLCOLORSTATIC, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
+        if (!hbr) /* did the app forget to call defwindowproc ? */
+            hbr = (HBRUSH)DefWindowProcW(parent, WM_CTLCOLORSTATIC, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
     }
     rcFrame = labelRect;
     hrgn = set_control_clipping(hDC, &labelRect);
@@ -2205,19 +2240,22 @@ static void GB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
 
     if (dtFlags != (UINT)-1)
     {
-        /* Because buttons have CS_PARENTDC class style, there is a chance
-         * that label will be drawn out of client rect.
-         * But Windows doesn't clip label's rect, so do I.
-         */
+        if (parent)
+        {
+            /* Because buttons have CS_PARENTDC class style, there is a chance
+            * that label will be drawn out of client rect.
+            * But Windows doesn't clip label's rect, so do I.
+            */
 
-        /* There is 1-pixel margin at the left, right, and bottom */
-        labelRect.left--;
-        labelRect.right++;
-        labelRect.bottom++;
-        FillRect(hDC, &labelRect, hbr);
-        labelRect.left++;
-        labelRect.right--;
-        labelRect.bottom--;
+            /* There is 1-pixel margin at the left, right, and bottom */
+            labelRect.left--;
+            labelRect.right++;
+            labelRect.bottom++;
+            FillRect(hDC, &labelRect, hbr);
+            labelRect.left++;
+            labelRect.right--;
+            labelRect.bottom--;
+        }
 
         BUTTON_DrawLabel(infoPtr, hDC, dtFlags, &imageRect, &textRect);
     }
@@ -2464,7 +2502,7 @@ static void SB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
 
     if (!(cdrf & CDRF_DOERASE) && action != ODA_FOCUS)
     {
-        COLORREF old_color = SetTextColor(hDC, GetSysColor(COLOR_BTNTEXT));
+        COLORREF old_color = (infoPtr->tintFlag&USE_COLOR_TEXT)?0:SetTextColor(hDC, GetSysColor(COLOR_BTNTEXT));
         RECT label_rect = push_rect, image_rect, textRect;
 
         /* Draw label */
@@ -2487,7 +2525,7 @@ static void SB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
             BUTTON_DrawLabel(infoPtr, hDC, dtFlags, &image_rect, &textRect);
 
         draw_split_button_dropdown_glyph(infoPtr, hDC, &dropdown_rect);
-        SetTextColor(hDC, old_color);
+        if(!(infoPtr->tintFlag&USE_COLOR_TEXT)) SetTextColor(hDC, old_color);
     }
 
     if (parent)
@@ -2693,7 +2731,7 @@ static void CL_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     if (!(cdrf & CDRF_DOERASE) && action != ODA_FOCUS)
     {
         UINT flags = IsEnabled(infoPtr) ? DSS_NORMAL : DSS_DISABLED;
-        COLORREF old_color = SetTextColor(hDC, GetSysColor(flags == DSS_NORMAL ?
+        COLORREF old_color = (infoPtr->tintFlag&USE_COLOR_TEXT)?0:SetTextColor(hDC, GetSysColor(flags == DSS_NORMAL ?
                                                            COLOR_BTNTEXT : COLOR_GRAYTEXT));
         HIMAGELIST defimg = NULL;
         NONCLIENTMETRICSW ncm;
@@ -2769,7 +2807,7 @@ static void CL_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
         else
             BUTTON_DrawImage(infoPtr, hDC, NULL, flags, &content_rect);
 
-        SetTextColor(hDC, old_color);
+        if(!(infoPtr->tintFlag&USE_COLOR_TEXT)) SetTextColor(hDC, old_color);
     }
 
     if (cdrf & CDRF_NOTIFYPOSTPAINT)
@@ -2835,7 +2873,26 @@ static void PB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
 
     if (IsThemeBackgroundPartiallyTransparent(theme, BP_PUSHBUTTON, state))
         DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
-    DrawThemeBackground(theme, hDC, BP_PUSHBUTTON, state, &bgRect, NULL);
+    //if (infoPtr->tintFlag&USE_COLOR_BACK)
+    //{ // https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/ns-uxtheme-dtbgopts
+    //    DTBGOPTS* opts = (DTBGOPTS*)infoPtr->bg_opts;
+    //    opts->dwFlags = DTBG_OMITCONTENT;
+    //    // not able to change color.
+    //
+    //    DrawThemeBackgroundEx(theme, hDC, BP_PUSHBUTTON, state, &bgRect, opts);
+    //
+    //    HBRUSH hBrush = CreateSolidBrush(infoPtr->bgrBackground);
+    //    HBRUSH hOldBrush = (HBRUSH)SelectObject(hDC, hBrush);
+    //    RECT rc = bgRect;
+    //    InflateRect(&rc, -2, -2);
+    //    Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
+    //    SelectObject(hDC, hOldBrush);
+    //    DeleteObject(hBrush);
+    //}
+    //else
+    //{
+        DrawThemeBackground(theme, hDC, BP_PUSHBUTTON, state, &bgRect, NULL);  // 绘制按钮背景色与边框
+    //}
 
     if (cdrf & CDRF_NOTIFYPOSTERASE)
     {
@@ -2876,7 +2933,17 @@ static void PB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
             textRect.bottom += dh;
         }
 
-        DrawThemeText(theme, hDC, BP_PUSHBUTTON, state, text, lstrlenW(text), dtFlags, 0, &textRect);
+        if(infoPtr->tintFlag&USE_COLOR_TEXT)
+        {
+            DTTOPTS* opts = (DTTOPTS*)infoPtr->opts;
+            opts->dwFlags = DTT_TEXTCOLOR;
+            opts->crText = infoPtr->bgrTextColor&0x00FFFFFF;
+            DrawThemeTextEx(theme, hDC, BP_PUSHBUTTON, state,text, lstrlenW(text), dtFlags, &textRect, opts);
+        }
+        else
+        {
+            DrawThemeText(theme, hDC, BP_PUSHBUTTON, state, text, lstrlenW(text), dtFlags, 0, &textRect);
+        }
         if(!infoPtr->is_delegate)heap_free(text);
     }
 
@@ -2957,7 +3024,7 @@ static void CB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
     bgRect.right = bgRect.left + sz.cx;
     textRect.left = bgRect.right + 6;
     DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
-    DrawThemeBackground(theme, hDC, part, state, &bgRect, NULL);
+    DrawThemeBackground(theme, hDC, part, state, &bgRect, NULL); // 绘制了选择框
     bgRect = focusRect;
 
     /* Draw Focus  */
@@ -3021,8 +3088,17 @@ static void CB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
             textRect.top += dh;
             textRect.bottom += dh;
         }
-
-        DrawThemeText(theme, hDC, part, state, text, lstrlenW(text), dtFlags, 0, &textRect);
+        if(infoPtr->tintFlag&USE_COLOR_TEXT)
+        {
+            DTTOPTS* opts = (DTTOPTS*)infoPtr->opts;
+            opts->dwFlags = DTT_TEXTCOLOR;
+            opts->crText = infoPtr->bgrTextColor&0x00FFFFFF;
+            DrawThemeTextEx(theme, hDC, part, state,text, lstrlenW(text), dtFlags, &textRect, opts);
+        }
+        else
+        {
+            DrawThemeText(theme, hDC, part, state, text, lstrlenW(text), dtFlags, 0, &textRect);
+        }
         if(!infoPtr->is_delegate) heap_free(text);
     }
 
@@ -3081,7 +3157,17 @@ static void GB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
     if (text)
     {
         InflateRect(&textRect, -2, 0);
-        DrawThemeText(theme, hDC, BP_GROUPBOX, state, text, lstrlenW(text), 0, 0, &textRect);
+        if(infoPtr->tintFlag&USE_COLOR_TEXT)
+        {
+            DTTOPTS* opts = (DTTOPTS*)infoPtr->opts;
+            opts->dwFlags = DTT_TEXTCOLOR;
+            opts->crText = infoPtr->bgrTextColor&0x00FFFFFF;
+            DrawThemeTextEx(theme, hDC, BP_GROUPBOX, state,text, lstrlenW(text), dtFlags, &textRect, opts);
+        }
+        else
+        {
+            DrawThemeText(theme, hDC, BP_GROUPBOX, state, text, lstrlenW(text), 0, 0, &textRect);
+        }
         if(!infoPtr->is_delegate) heap_free(text);
     }
 
@@ -3263,18 +3349,28 @@ static void SB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
                 textRect.top += dh;
                 textRect.bottom += dh;
             }
-            DrawThemeText(theme, hDC, BP_PUSHBUTTON, state, text, lstrlenW(text), dtFlags, 0, &textRect);
+            if(infoPtr->tintFlag&USE_COLOR_TEXT)
+            {
+                DTTOPTS* opts = (DTTOPTS*)infoPtr->opts;
+                opts->dwFlags = DTT_TEXTCOLOR;
+                opts->crText = infoPtr->bgrTextColor&0x00FFFFFF;
+                DrawThemeTextEx(theme, hDC, BP_PUSHBUTTON, state,text, lstrlenW(text), dtFlags, &textRect, opts);
+            }
+            else
+            {
+                DrawThemeText(theme, hDC, BP_PUSHBUTTON, state, text, lstrlenW(text), dtFlags, 0, &textRect);
+            }
             SelectClipRgn( hDC, hrgn );
             if(!infoPtr->is_delegate) heap_free(text);
         }
 
         GetThemeColor(theme, BP_PUSHBUTTON, state, TMT_TEXTCOLOR, &color);
         old_bk_mode = SetBkMode(hDC, TRANSPARENT);
-        old_color = SetTextColor(hDC, color);
+        old_color = infoPtr->tintFlag?0:SetTextColor(hDC, color);
 
         draw_split_button_dropdown_glyph(infoPtr, hDC, &dropdown_rect);
 
-        SetTextColor(hDC, old_color);
+        if(!(infoPtr->tintFlag&USE_COLOR_TEXT)) SetTextColor(hDC, old_color);
         SetBkMode(hDC, old_bk_mode);
     }
 
@@ -3387,8 +3483,7 @@ static void CL_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
             RECT text_rect;
             GetThemeTextExtent(theme, hDC, BP_COMMANDLINK, state, text, len,
                                dtFlags | DT_END_ELLIPSIS, &textRect, &text_rect);
-            DrawThemeText(theme, hDC, BP_COMMANDLINK, state, text, len,
-                          dtFlags | DT_END_ELLIPSIS, 0, &textRect);
+            DrawThemeText(theme, hDC, BP_COMMANDLINK, state, text, len, dtFlags | DT_END_ELLIPSIS, 0, &textRect);
 
             txt_h = text_rect.bottom - text_rect.top;
             if(!infoPtr->is_delegate) heap_free(text);

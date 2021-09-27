@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "Core\InsituDebug.h"
 
-void BUTTON_Register(HINSTANCE hInst);
+void BUTTON_Register();
 
 namespace DuiLib {
 	IMPLEMENT_DUICONTROL(WinButton)
@@ -28,25 +28,33 @@ namespace DuiLib {
 	{
 		if (!_hWnd)
 		{
-			BUTTON_Register(CPaintManagerUI::GetInstance());
+			BUTTON_Register();
 			//_isDirectUI = false;
 			__hParent = _hParent;
 			_hWnd = ::CreateWindow(
-				//WC_BUTTON
-				TEXT("MyBUTTON")
+				WC_BUTTON
+				//TEXT("MyBUTTON")
 				//, TEXT("PUSHBUTTON")
 				, TEXT("MyBUTTON")
 				, WS_CHILD 
 				| WS_VISIBLE 
-				//| BS_CHECKBOX //| BS_PUSHLIKE
+				| BS_MULTILINE  
+				//| BS_CENTER 
+				| BS_VCENTER 
+				| 0x0000000EL // BS_COMMANDLINK 
+				//| BS_AUTO3STATE 
+				//| BS_AUTOCHECKBOX  | BS_PUSHLIKE
 				, 0, 0
 				, 64,64
 				, _hParent
 				, NULL
 				, CPaintManagerUI::GetInstance()
 				,  NULL) ;
+			SendMessage(_hWnd, BCM_FIRST + 0x0009, 0, (LPARAM)L"with note"); // BCM_SETNOTE
+
 			::ShowWindow(_hWnd, SW_SHOW);
-			::SetWindowText(_hWnd, TEXT("TEST"));
+			::SetWindowText(_hWnd, TEXT("TEST\nWRAP"));
+			::SetWindowText(_hWnd, TEXT("Run...Run...Run... 123 "));
 		}
 		if (_hParent != __hParent)
 		{

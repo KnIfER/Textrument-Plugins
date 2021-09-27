@@ -123,7 +123,8 @@ namespace DuiLib
 			return GetFixedSize();
 		}
 
-		if ((szAvailable.cx != m_szAvailableLast.cx || szAvailable.cy != m_szAvailableLast.cy)) {
+		if ((szAvailable.cx != m_szAvailableLast.cx || szAvailable.cy != m_szAvailableLast.cy)) 
+		{
 			m_bNeedEstimateSize = true;
 		}
 
@@ -136,7 +137,7 @@ namespace DuiLib
 			m_cxyFixedLast = GetFixedSize();
 			if (m_uTextStyle & DT_SINGLELINE) 
 			{
-				//if (m_cxyFixedLast.cy == 0) 
+				if (m_bAutoCalcHeight) 
 				{
 					m_cxyFixedLast.cy = m_pManager->GetFontInfo(m_iFont)->tm.tmHeight + 8;
 					m_cxyFixedLast.cy += rcTextPadding.top + rcTextPadding.bottom;
@@ -159,9 +160,10 @@ namespace DuiLib
 			else if(m_bAutoCalcHeight) 
 			{
 				int fixedWidth = (m_cxyFixedLast.cx>0?m_cxyFixedLast:szAvailable).cx;
-				if (fixedWidth!=0)
+				fixedWidth -= _preSizeX;
+				if (fixedWidth>0)
 				{
-					RECT rcText = { 0, 0, fixedWidth, 125 };
+					RECT rcText = { 0, 0, fixedWidth, -100 };
 					rcText.left += rcTextPadding.left;
 					rcText.right -= rcTextPadding.right;
 					if( m_bShowHtml ) {
@@ -169,16 +171,27 @@ namespace DuiLib
 						CRenderEngine::DrawHtmlText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, 0, NULL, NULL, nLinks, m_iFont, DT_CALCRECT | m_uTextStyle & ~DT_RIGHT & ~DT_CENTER & ~DT_TABSTOP );
 					}
 					else {
-						CRenderEngine::DrawPlainText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, 0, m_iFont, DT_CALCRECT | m_uTextStyle & ~DT_RIGHT & ~DT_CENTER & ~DT_TABSTOP);
+						CRenderEngine::DrawPlainText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, 0, m_iFont, (m_uTextStyle & ~(DT_VCENTER | DT_BOTTOM)) | DT_CALCRECT);
 					}
-					m_cxyFixedLast.cy = rcText.bottom + rcTextPadding.top + rcTextPadding.bottom;
-					if (m_bAutoCalcWidth)
+					if (rcText.bottom<0)
 					{
-						m_cxyFixedLast.cx = rcText.right + GetManager()->GetDPIObj()->Scale(m_rcTextPadding.left + m_rcTextPadding.right);
+						m_cxyFixedLast.cy = GetHeight(); // 维持不变
+					}
+					else
+					{
+						m_cxyFixedLast.cy = rcText.bottom + rcTextPadding.top + rcTextPadding.bottom;
+						if (m_bAutoCalcWidth)
+						{
+							m_cxyFixedLast.cx = rcText.right + GetManager()->GetDPIObj()->Scale(m_rcTextPadding.left + m_rcTextPadding.right) + _preSizeX;
+						}
 					}
 				}
+				else
+				{
+					m_cxyFixedLast.cy = GetHeight(); // 维持不变
+				}
 			}
-			// accoring to the doc, no way to handle the case !m_bAutoCalcHeight && m_bAutoCalcWidth
+			// accoring to the doc, no way to handle the case !m_bAutoCalcHeight && m_bAutoCalcWidth in multiline mode
 
 		}
 		return m_cxyFixedLast;
@@ -217,16 +230,16 @@ namespace DuiLib
 		}
 		else if( _tcsicmp(pstrName, _T("valign")) == 0 ) {
 			if( _tcsstr(pstrValue, _T("top")) != NULL ) {
-				m_uTextStyle &= ~(DT_BOTTOM | DT_VCENTER | DT_WORDBREAK);
-				m_uTextStyle |= (DT_TOP | DT_SINGLELINE);
+				m_uTextStyle &= ~(DT_BOTTOM | DT_VCENTER); //  | DT_WORDBREAK
+				m_uTextStyle |= (DT_TOP); //  | DT_SINGLELINE
 			}
 			if( _tcsstr(pstrValue, _T("vcenter")) != NULL ) {
-				m_uTextStyle &= ~(DT_TOP | DT_BOTTOM | DT_WORDBREAK);            
-				m_uTextStyle |= (DT_VCENTER | DT_SINGLELINE);
+				m_uTextStyle &= ~(DT_TOP | DT_BOTTOM); // | DT_WORDBREAK 
+				m_uTextStyle |= (DT_VCENTER); //  | DT_SINGLELINE
 			}
 			if( _tcsstr(pstrValue, _T("bottom")) != NULL ) {
-				m_uTextStyle &= ~(DT_TOP | DT_VCENTER | DT_WORDBREAK);
-				m_uTextStyle |= (DT_BOTTOM | DT_SINGLELINE);
+				m_uTextStyle &= ~(DT_TOP | DT_VCENTER); //  | DT_WORDBREAK
+				m_uTextStyle |= (DT_BOTTOM); //  | DT_SINGLELINE
 			}
 		}
 		else if( _tcsicmp(pstrName, _T("endellipsis")) == 0 ) {
@@ -236,10 +249,10 @@ namespace DuiLib
 		else if( _tcsicmp(pstrName, _T("wordbreak")) == 0 ) {
 			if( _tcsicmp(pstrValue, _T("true")) == 0 ) {
 				m_uTextStyle &= ~DT_SINGLELINE;
-				m_uTextStyle |= DT_WORDBREAK | DT_EDITCONTROL;
+				m_uTextStyle |= DT_WORDBREAK; //  | DT_EDITCONTROL
 			}
 			else {
-				m_uTextStyle &= ~DT_WORDBREAK & ~DT_EDITCONTROL;
+				m_uTextStyle &= ~DT_WORDBREAK; //  & ~DT_EDITCONTROL
 				m_uTextStyle |= DT_SINGLELINE;
 			}
 		}

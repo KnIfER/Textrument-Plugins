@@ -86,6 +86,9 @@ typedef struct tagNMBCDROPDOWN
 
 #endif // (NTDDI_VERSION >= NTDDI_VISTA)
 
+#define USE_COLOR_TEXT 0x1
+#define USE_COLOR_BACK 0x1
+
 typedef struct _BUTTON_INFO
 {
     HWND             hwnd;
@@ -93,6 +96,8 @@ typedef struct _BUTTON_INFO
     LONG             dwStyle;
     LONG             dtStyle;
     LONG             exStyle;
+    COLORREF         bgrTextColor;
+    COLORREF         bgrBackground;
     LONG             state;
     HFONT            font;
     WCHAR           *note;
@@ -115,8 +120,12 @@ typedef struct _BUTTON_INFO
     RECT* rcDraw;
     RECT* rcPadding;
     WCHAR* delegated_Text;
+    int tintFlag;
     LONG textAutoWidth;
     LONG textAutoHeight;
+
+    void* opts;
+    void* bg_opts;
 } BUTTON_INFO;
 
 namespace Button

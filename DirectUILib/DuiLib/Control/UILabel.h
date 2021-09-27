@@ -58,6 +58,8 @@ namespace DuiLib
 		SIZE    m_szAvailableLast;
 		SIZE    m_cxyFixedLast;
 		bool    m_bNeedEstimateSize;
+
+		int _preSizeX = 0;
 	};
 }
 

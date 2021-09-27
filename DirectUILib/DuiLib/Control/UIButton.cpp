@@ -19,10 +19,14 @@ namespace DuiLib
 		, m_dwDisabledBkColor(0)
 		, m_iBindTabIndex(-1)
 		, m_nStateCount(0)
+		, _hotTrack(true)
 	{
 		m_uTextStyle = DT_SINGLELINE | DT_VCENTER | DT_CENTER;
-		BUTTON_Register(CPaintManagerUI::GetInstance());
+		BUTTON_Register();
 		infoPtr = new BUTTON_INFO{0};
+		infoPtr->dwStyle = WS_CHILD | WS_VISIBLE | BS_OWNERDRAW;
+		infoPtr->rcDraw = &m_rcItem;
+		infoPtr->rcPadding = &m_rcTextPadding;
 	}
 
 	LPCTSTR CButtonUI::GetClass() const
@@ -41,14 +45,6 @@ namespace DuiLib
 		return (IsKeyboardEnabled() ? UIFLAG_TABSTOP : 0) | (IsEnabled() ? UIFLAG_SETCURSOR : 0);
 	}
 
-	void CButtonUI::Init()
-	{
-		if (m_pParent && infoPtr)
-		{
-			Button::_Create(m_pParent->GetHWND(), (WPARAM)infoPtr, 0);
-		}
-	}
-
 	void CButtonUI::DoEvent(TEventUI& event)
 	{
 		if( !IsMouseEnabled() && event.Type > UIEVENT__MOUSEBEGIN && event.Type < UIEVENT__MOUSEEND ) {
@@ -56,93 +52,106 @@ namespace DuiLib
 			else CLabelUI::DoEvent(event);
 			return;
 		}
-
-		if( event.Type == UIEVENT_SETFOCUS ) 
+		switch(event.Type)
 		{
-			Invalidate();
-		}
-		if( event.Type == UIEVENT_KILLFOCUS ) 
-		{
-			Invalidate();
-		}
-		if( event.Type == UIEVENT_KEYDOWN )
-		{
-			if (IsKeyboardEnabled()) {
-				if( event.chKey == VK_SPACE || event.chKey == VK_RETURN ) {
-					Activate();
-					return;
-				}
-			}
-		}		
-		if( event.Type == UIEVENT_BUTTONDOWN || event.Type == UIEVENT_DBLCLICK)
-		{
-			if( ::PtInRect(&m_rcItem, event.ptMouse) && IsEnabled() ) {
-				m_uButtonState |= UISTATE_PUSHED | UISTATE_CAPTURED;
-				infoPtr->state |= BST_PUSHED;
+			case UIEVENT_SETFOCUS:
+			case UIEVENT_KILLFOCUS:
 				Invalidate();
-				if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_BUTTONDOWN);
-			}
-			return;
-		}	
-		if( event.Type == UIEVENT_MOUSEMOVE )
-		{
-			if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
-				if( ::PtInRect(&m_rcItem, event.ptMouse) ) 
-				{
-					m_uButtonState |= UISTATE_PUSHED;
+				break;
+			case UIEVENT_KEYDOWN:
+				if (IsKeyboardEnabled()) {
+					if( event.chKey == VK_SPACE || event.chKey == VK_RETURN ) {
+						Activate();
+						return;
+					}
+				}
+				break;
+			case UIEVENT_BUTTONDOWN:
+			case UIEVENT_DBLCLICK:
+				if( ::PtInRect(&m_rcItem, event.ptMouse) && IsEnabled() ) {
+					m_uButtonState |= UISTATE_PUSHED | UISTATE_CAPTURED;
 					infoPtr->state |= BST_PUSHED;
+					Invalidate();
+					if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_BUTTONDOWN);
 				}
-				else
-				{
-					m_uButtonState &= ~UISTATE_PUSHED;
+				return;
+			case UIEVENT_MOUSEMOVE:
+				if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
+					if( ::PtInRect(&m_rcItem, event.ptMouse) ) 
+					{
+						m_uButtonState |= UISTATE_PUSHED;
+						infoPtr->state |= BST_PUSHED;
+					}
+					else
+					{
+						m_uButtonState &= ~UISTATE_PUSHED;
+						infoPtr->state &= ~BST_PUSHED;
+					}
+					Invalidate();
+				}
+				return;
+			case UIEVENT_BUTTONUP:
+				if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
+					m_uButtonState &= ~(UISTATE_PUSHED | UISTATE_CAPTURED);
 					infoPtr->state &= ~BST_PUSHED;
+					Invalidate();
+					if( ::PtInRect(&m_rcItem, event.ptMouse) ) Activate();				
 				}
-				Invalidate();
-			}
-			return;
-		}
-		if( event.Type == UIEVENT_BUTTONUP )
-		{
-			if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
-				m_uButtonState &= ~(UISTATE_PUSHED | UISTATE_CAPTURED);
-				infoPtr->state &= ~BST_PUSHED;
-				Invalidate();
-				if( ::PtInRect(&m_rcItem, event.ptMouse) ) Activate();				
-			}
-			return;
-		}
-		if( event.Type == UIEVENT_CONTEXTMENU )
-		{
-			if( IsContextMenuUsed() ) {
-				m_pManager->SendNotify(this, DUI_MSGTYPE_MENU, event.wParam, event.lParam);
-			}
-			return;
-		}
-		if( event.Type == UIEVENT_MOUSEENTER )
-		{
-			if( IsEnabled() ) {
-				m_uButtonState |= UISTATE_HOT;
-				infoPtr->state |= BST_HOT;
-				Invalidate();
+				return;
+			case UIEVENT_CONTEXTMENU:
+				if( IsContextMenuUsed() ) {
+					m_pManager->SendNotify(this, DUI_MSGTYPE_MENU, event.wParam, event.lParam);
+				}
+				return;
+			case UIEVENT_MOUSEENTER:
+			case UIEVENT_MOUSELEAVE:
+				if( _hotTrack && IsEnabled()  ) {
+					if (event.Type==UIEVENT_MOUSEENTER)
+					{
+						m_uButtonState |= UISTATE_HOT;
+						infoPtr->state |= BST_HOT;
+						Invalidate();
 
-				if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_MOUSEENTER);
-			}
-		}
-		if( event.Type == UIEVENT_MOUSELEAVE )
-		{
-			if( IsEnabled() ) {
-				m_uButtonState &= ~UISTATE_HOT;
-				infoPtr->state &= ~BST_HOT;
-				Invalidate();
+						if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_MOUSEENTER);
+					}
+					else
+					{
+						m_uButtonState &= ~UISTATE_HOT;
+						infoPtr->state &= ~BST_HOT;
+						Invalidate();
 
-				if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_MOUSELEAVE);
-			}
-		}
-		if( event.Type == UIEVENT_SETCURSOR ) {
-			::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_HAND)));
-			return;
-		}
+						if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_MOUSELEAVE);
+					}
+				}
+				return;
+			case UIEVENT_SETCURSOR:
+				if( (infoPtr->dwStyle&BS_TYPEMASK)==BS_OWNERDRAW )
+					::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_HAND)));
+				return;
+		}  
 		CLabelUI::DoEvent(event);
+	}
+
+	int CButtonUI::Toggle()
+	{
+		int type = infoPtr->dwStyle&BS_TYPEMASK;
+		int state = infoPtr->state & 0x3;
+		bool _3state = type==BS_3STATE||type==BS_AUTO3STATE;
+		state = (state+1) % (_3state?3:2);
+		infoPtr->state = infoPtr->state&~0x3|state;
+		Invalidate();
+		return state;
+	}
+
+	int CButtonUI::GetCheckedValue()
+	{
+		int type = infoPtr->dwStyle&BS_TYPEMASK;
+		int state = infoPtr->state & 0x3;
+		if (state>=2&&!(type==BS_3STATE||type==BS_AUTO3STATE))
+		{
+			state = 1;
+		}
+		return state;
 	}
 
 	bool CButtonUI::Activate()
@@ -408,6 +417,8 @@ namespace DuiLib
 		else if( _tcsicmp(pstrName, _T("statecount")) == 0 ) SetStateCount(_ttoi(pstrValue));
 		else if( _tcsicmp(pstrName, _T("bindtabindex")) == 0 ) BindTabIndex(_ttoi(pstrValue));
 		else if( _tcsicmp(pstrName, _T("bindtablayoutname")) == 0 ) BindTabLayoutName(pstrValue);
+		else if( _tcsicmp(pstrName, _T("type")) == 0 ) SetType(pstrValue);
+		else if( _tcsicmp(pstrName, _T("note")) == 0 ) SetNote(pstrValue);
 		else if( _tcsicmp(pstrName, _T("hotbkcolor")) == 0 )
 		{
 			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
@@ -451,35 +462,130 @@ namespace DuiLib
 			SetFocusedTextColor(clrColor);
 		}
 		else if( _tcsicmp(pstrName, _T("hotfont")) == 0 ) SetHotFont(_ttoi(pstrValue));
+		else if( _tcsicmp(pstrName, _T("hottrack")) == 0 ) SetHotTack(_tcsicmp(pstrValue, _T("true")));
 		else if( _tcsicmp(pstrName, _T("pushedfont")) == 0 ) SetPushedFont(_ttoi(pstrValue));
 		else if( _tcsicmp(pstrName, _T("focuedfont")) == 0 ) SetFocusedFont(_ttoi(pstrValue));
 		
 		else CLabelUI::SetAttribute(pstrName, pstrValue);
 	}
 
+
+	SIZE CButtonUI::EstimateSize(const SIZE & szAvailable)
+	{
+		bool bNeedEstimate = (m_cxyFixed.cx <= 0 || m_cxyFixed.cy <= 0) && (szAvailable.cx != m_szAvailableLast.cx || szAvailable.cy != m_szAvailableLast.cy);
+		if (bNeedEstimate) 
+		{
+			Button::BUTTON_QueryPreempterSize(infoPtr, (WPARAM)&_preSizeX);
+			//_preSizeX = 30;
+		}
+		SIZE & ret = __super::EstimateSize(szAvailable);
+		if (bNeedEstimate) 
+		{
+			infoPtr->textAutoWidth = m_bAutoCalcWidth?ret.cx-(GetManager()->GetDPIObj()->Scale(m_rcTextPadding.left + m_rcTextPadding.right) + _preSizeX):0;
+			infoPtr->textAutoHeight = m_bAutoCalcHeight?ret.cy-(m_rcTextPadding.top + m_rcTextPadding.bottom):0;
+		}
+		return ret;
+	}
+
+	void CButtonUI::SetType(LPCTSTR pstrText, int type)
+	{
+		if (pstrText)
+		{
+			int length = lstrlen(pstrText);
+			if (length>=1)
+			{
+				TCHAR tc = pstrText[0];
+				bool auto_ = false;
+				if (tc==L'_' && length>1)
+				{
+					auto_ = true;
+					tc = pstrText[1];
+				}
+				if(tc>=L'a'&&tc<=L'z') tc = _toupper(tc);
+				switch(tc)
+				{
+					case L'P':
+						type = auto_?BS_DEFPUSHBUTTON:BS_PUSHBUTTON;
+					break;
+					case L'C':
+						type = auto_?BS_AUTOCHECKBOX:BS_CHECKBOX;
+					break;
+					case L'R':
+						type = auto_?BS_AUTORADIOBUTTON:BS_RADIOBUTTON;
+					break;
+					case L'3':
+						type = auto_?BS_AUTO3STATE:BS_3STATE;
+					break;
+					case L'G':
+						type = BS_GROUPBOX;
+					break;
+					case L'U':
+						type = BS_USERBUTTON;
+					break;
+					case L'S':
+						type = auto_?BS_DEFSPLITBUTTON:BS_SPLITBUTTON;
+					break;
+					case L'L':
+						type = BS_COMMANDLINK;
+					break;
+					default:
+						type = BS_OWNERDRAW;
+					break;
+				}
+			}
+		}
+		infoPtr->dwStyle &= ~BS_TYPEMASK;
+		infoPtr->dwStyle |= type & BS_TYPEMASK;
+	}
+
+	void CButtonUI::Init()
+	{
+		if (!infoPtr->hwnd)
+		{
+			if (m_pParent)
+			{
+				Button::_Create(m_pParent->GetHWND(), (WPARAM)infoPtr, 0);
+			}
+			if (0)
+			{
+				infoPtr->dwStyle |= WS_CHILD | WS_VISIBLE 
+					//| infoPtr->dwStyle
+					| BS_MULTILINE 
+					| BS_CENTER 
+					| BS_VCENTER
+					;
+				SetType(0, 
+					//BS_AUTO3STATE
+					//BS_GROUPBOX
+					//BS_SPLITBUTTON
+					//BS_3STATE
+					BS_OWNERDRAW
+				);
+			}
+		}
+	}
+
 	bool CButtonUI::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
 	{
-		if(true)
+		if((infoPtr->dwStyle&BS_TYPEMASK)!=BS_OWNERDRAW)
 		{
-			infoPtr->dwStyle = 0
-				//| infoPtr->dwStyle
-				| WS_CHILD 
-				| WS_VISIBLE 
-				//| BS_CHECKBOX
-				//| BS_GROUPBOX
-				//| BS_SPLITBUTTON
-				;
-			infoPtr->rcDraw = &m_rcItem;
+			infoPtr->dtStyle = m_uTextStyle;
+			infoPtr->font = m_pManager->GetFont(GetFont());
+
 			infoPtr->delegated_Text = (TCHAR*)GetText().GetData();
+			infoPtr->note = (TCHAR*)_note.GetData();
+			infoPtr->note_length = _note.GetLength();
 
 			if( IsFocused() ) infoPtr->state |= BST_FOCUS;
 			else infoPtr->state &= ~ BST_FOCUS;
 
 			infoPtr->enabled = IsEnabled();
-
-			//infoPtr->state |= BST_CHECKED;
+			infoPtr->bgrTextColor = RGB(GetBValue(m_dwTextColor), GetGValue(m_dwTextColor), GetRValue(m_dwTextColor));
 
 			Button::_Paint(infoPtr, (WPARAM)hDC);
+
+			if(m_items.GetSize()) PaintChildren(hDC, rcPaint, pStopControl);
+
 			return true;
 		}
 		else 
