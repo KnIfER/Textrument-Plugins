@@ -138,6 +138,7 @@
     <ClInclude Include="comctl32.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="heap.h" />
+    <ClInclude Include="WindowsEx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

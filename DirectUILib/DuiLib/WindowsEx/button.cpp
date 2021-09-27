@@ -1815,54 +1815,54 @@ static void BUTTON_DrawLabel(const BUTTON_INFO *infoPtr, HDC hdc, UINT dtFlags, 
 static void PB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
 {
     //if(1) return;
-    RECT     rc, labelRect, imageRect, textRect;
+    RECT     bgRect, labelRect, imageRect, textRect;
     UINT     dtFlags, uState;
     HPEN     hOldPen, hpen;
     HBRUSH   hOldBrush;
     INT      oldBkMode;
     COLORREF oldTxtColor;
-    LRESULT  cdrf;
+    LRESULT  cdrf = 0;
     HFONT hFont;
     NMCUSTOMDRAW nmcd;
     LONG state = infoPtr->state;
     LONG style = infoPtr->dwStyle;
     BOOL pushedState = (state & BST_PUSHED);
-    HWND parent;
+    HWND parent = 0;
     HRGN hrgn;
+    if ((hFont = infoPtr->font)) SelectObject( hDC, hFont );
 
     if (infoPtr->is_delegate)
     {
-        rc = *infoPtr->rcDraw;
+        bgRect = *infoPtr->rcDraw;
     }
     else
     {
-        GetClientRect(infoPtr->hwnd, &rc);
+        GetClientRect(infoPtr->hwnd, &bgRect);
+
+        /* Send WM_CTLCOLOR to allow changing the font (the colors are fixed) */
+        parent = GetParent(infoPtr->hwnd);
+        if (!parent) parent = infoPtr->hwnd;
+        SendMessageW( parent, WM_CTLCOLORBTN, (WPARAM)hDC, (LPARAM)infoPtr->hwnd );
+
+        init_custom_draw(&nmcd, infoPtr, hDC, &bgRect);
+
+        /* Send erase notifications */
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
     }
 
-    /* Send WM_CTLCOLOR to allow changing the font (the colors are fixed) */
-    if ((hFont = infoPtr->font)) SelectObject( hDC, hFont );
-    parent = GetParent(infoPtr->hwnd);
-    if (!parent) parent = infoPtr->hwnd;
-    SendMessageW( parent, WM_CTLCOLORBTN, (WPARAM)hDC, (LPARAM)infoPtr->hwnd );
-
-    hrgn = set_control_clipping( hDC, &rc );
+    hrgn = set_control_clipping( hDC, &bgRect );
 
     hpen = CreatePen( PS_SOLID, 1, GetSysColor(COLOR_WINDOWFRAME));
     hOldPen = (HPEN)SelectObject(hDC, hpen);
     hOldBrush = (HBRUSH)SelectObject(hDC,GetSysColorBrush(COLOR_BTNFACE));
     oldBkMode = SetBkMode(hDC, TRANSPARENT);
 
-    init_custom_draw(&nmcd, infoPtr, hDC, &rc);
-
-    /* Send erase notifications */
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
-
     if (get_button_type(style) == BS_DEFPUSHBUTTON)
     {
         if (action != ODA_FOCUS)
-            Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
-	    InflateRect( &rc, -1, -1 );
+            Rectangle(hDC, bgRect.left, bgRect.top, bgRect.right, bgRect.bottom);
+	    InflateRect( &bgRect, -1, -1 );
     }
 
     /* Skip the frame drawing if only focus has changed */
@@ -1883,27 +1883,42 @@ static void PB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
         if (state & (BST_CHECKED | BST_INDETERMINATE))
             uState |= DFCS_CHECKED;
 
-        DrawFrameControl( hDC, &rc, DFC_BUTTON, uState );
+        DrawFrameControl( hDC, &bgRect, DFC_BUTTON, uState );
     }
 
-    if (cdrf & CDRF_NOTIFYPOSTERASE)
+    if (parent)
     {
-        nmcd.dwDrawStage = CDDS_POSTERASE;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_NOTIFYPOSTERASE)
+        {
+            nmcd.dwDrawStage = CDDS_POSTERASE;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
+        /* Send paint notifications */
+        nmcd.dwDrawStage = CDDS_PREPAINT;
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
     }
-
-    /* Send paint notifications */
-    nmcd.dwDrawStage = CDDS_PREPAINT;
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
 
     if (!(cdrf & CDRF_DOERASE) && action != ODA_FOCUS)
     {
         /* draw button label */
-        labelRect = rc;
+        labelRect = bgRect;
         /* Shrink label rect at all sides by 2 so that the content won't touch the surrounding frame */
         InflateRect(&labelRect, -2, -2);
-        dtFlags = BUTTON_CalcLayoutRects(infoPtr, hDC, &labelRect, &imageRect, &textRect);
+        if (infoPtr->is_delegate)
+        {
+            dtFlags = BUTTON_BStoDT(infoPtr);
+            textRect = bgRect;
+
+            textRect.left += infoPtr->rcPadding->left;
+            textRect.right -= infoPtr->rcPadding->right;
+            textRect.top += infoPtr->rcPadding->top;
+            textRect.bottom -= infoPtr->rcPadding->bottom;
+        }
+        else
+        {
+            dtFlags = BUTTON_CalcLayoutRects(infoPtr, hDC, &labelRect, &imageRect, &textRect);
+        }
 
         if (dtFlags != (UINT)-1L)
         {
@@ -1916,18 +1931,20 @@ static void PB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
             SetTextColor( hDC, oldTxtColor );
         }
     }
-
-    if (cdrf & CDRF_NOTIFYPOSTPAINT)
+    if (parent)
     {
-        nmcd.dwDrawStage = CDDS_POSTPAINT;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_NOTIFYPOSTPAINT)
+        {
+            nmcd.dwDrawStage = CDDS_POSTPAINT;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
+        if ((cdrf & CDRF_SKIPPOSTPAINT) || dtFlags == (UINT)-1L) goto cleanup;
     }
-    if ((cdrf & CDRF_SKIPPOSTPAINT) || dtFlags == (UINT)-1L) goto cleanup;
 
     if (action == ODA_FOCUS || (state & BST_FOCUS))
     {
-        InflateRect( &rc, -2, -2 );
-        DrawFocusRect( hDC, &rc );
+        InflateRect( &bgRect, -2, -2 );
+        DrawFocusRect( hDC, &bgRect );
     }
 
  cleanup:
@@ -1944,7 +1961,7 @@ static void PB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
 
 static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
 {
-    RECT rbox, labelRect, imageRect, textRect, client;
+    RECT rbox, labelRect, imageRect, textRect, bgRect;
     HBRUSH hBrush;
     int delta, text_offset, checkBoxWidth, checkBoxHeight;
     UINT dtFlags;
@@ -1964,16 +1981,16 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
 
     if (infoPtr->is_delegate)
     {
-        client = *infoPtr->rcDraw;
+        bgRect = *infoPtr->rcDraw;
     }
     else
     {
-        GetClientRect(infoPtr->hwnd, &client);
+        GetClientRect(infoPtr->hwnd, &bgRect);
     }
-    rbox = labelRect = client;
+    rbox = labelRect = bgRect;
 
-    checkBoxWidth  = 12 + 1;      // fixme  12 * GetDpiForWindow( infoPtr->hwnd ) / 96
-    checkBoxHeight = 12 + 1;      // fixme  12 * GetDpiForWindow( infoPtr->hwnd ) / 96
+    checkBoxWidth  = 12 * DpiForWindow( infoPtr->hwnd ) / 96 + 1;
+    checkBoxHeight = 12 * DpiForWindow( infoPtr->hwnd ) / 96 + 1;
 
     if ((hFont = infoPtr->font)) SelectObject( hDC, hFont );
     GetCharWidthW( hDC, '0', '0', &text_offset );
@@ -1984,7 +2001,7 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     hBrush = (HBRUSH)SendMessageW(parent, WM_CTLCOLORSTATIC, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
     if (!hBrush) /* did the app forget to call defwindowproc ? */
         hBrush = (HBRUSH)DefWindowProcW(parent, WM_CTLCOLORSTATIC, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
-    hrgn = set_control_clipping( hDC, &client );
+    hrgn = set_control_clipping( hDC, &bgRect );
 
     if (style & BS_LEFTTEXT || infoPtr->exStyle & WS_EX_RIGHT)
     {
@@ -1994,10 +2011,10 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     else
     {
         labelRect.left += checkBoxWidth + text_offset;
-        rbox.right = checkBoxWidth;
+        rbox.right = rbox.left + checkBoxWidth;
     }
 
-    init_custom_draw(&nmcd, infoPtr, hDC, &client);
+    init_custom_draw(&nmcd, infoPtr, hDC, &bgRect);
 
     /* Send erase notifications */
     cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
@@ -2005,7 +2022,7 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
 
     /* Since WM_ERASEBKGND does nothing, first prepare background */
     if (action == ODA_SELECT) FillRect( hDC, &rbox, hBrush );
-    if (action == ODA_DRAWENTIRE) FillRect( hDC, &client, hBrush );
+    if (action == ODA_DRAWENTIRE) FillRect( hDC, &bgRect, hBrush );
     if (cdrf & CDRF_NOTIFYPOSTERASE)
     {
         nmcd.dwDrawStage = CDDS_POSTERASE;
@@ -2013,8 +2030,21 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     }
 
     /* Draw label */
-    client = labelRect;
-    dtFlags = BUTTON_CalcLayoutRects(infoPtr, hDC, &labelRect, &imageRect, &textRect);
+    bgRect = labelRect;
+    if (infoPtr->is_delegate)
+    {
+        dtFlags = BUTTON_BStoDT(infoPtr);
+        textRect = bgRect;
+
+        textRect.left += infoPtr->rcPadding->left;
+        textRect.right -= infoPtr->rcPadding->right;
+        textRect.top += infoPtr->rcPadding->top;
+        textRect.bottom -= infoPtr->rcPadding->bottom;
+    }
+    else
+    {
+        dtFlags = BUTTON_CalcLayoutRects(infoPtr, hDC, &labelRect, &imageRect, &textRect);
+    }
 
     /* Only adjust rbox when rtext is valid */
     if (dtFlags != (UINT)-1L)
@@ -2102,7 +2132,7 @@ static void CB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     {
         labelRect.left--;
         labelRect.right++;
-        IntersectRect(&labelRect, &labelRect, &client);
+        IntersectRect(&labelRect, &labelRect, &bgRect);
         DrawFocusRect(hDC, &labelRect);
     }
 
@@ -2333,9 +2363,11 @@ static void SB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     HPEN pen, old_pen;
     HBRUSH old_brush;
     INT old_bk_mode;
-    LRESULT cdrf;
-    HWND parent;
+    LRESULT cdrf = 0;
+    HWND parent = 0;
     HRGN hrgn;
+
+    if (infoPtr->font) SelectObject(hDC, infoPtr->font);
 
     if (infoPtr->is_delegate)
     {
@@ -2344,12 +2376,15 @@ static void SB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     else
     {
         GetClientRect(infoPtr->hwnd, &rc);
-    }
+        /* Send WM_CTLCOLOR to allow changing the font (the colors are fixed) */
+        if (!(parent = GetParent(infoPtr->hwnd))) parent = infoPtr->hwnd;
+        SendMessageW(parent, WM_CTLCOLORBTN, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
+        init_custom_draw(&nmcd, infoPtr, hDC, &rc);
 
-    /* Send WM_CTLCOLOR to allow changing the font (the colors are fixed) */
-    if (infoPtr->font) SelectObject(hDC, infoPtr->font);
-    if (!(parent = GetParent(infoPtr->hwnd))) parent = infoPtr->hwnd;
-    SendMessageW(parent, WM_CTLCOLORBTN, (WPARAM)hDC, (LPARAM)infoPtr->hwnd);
+        /* Send erase notifications */
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+    }
 
     hrgn = set_control_clipping(hDC, &rc);
 
@@ -2357,12 +2392,6 @@ static void SB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     old_pen = (HPEN)SelectObject(hDC, pen);
     old_brush = (HBRUSH)SelectObject(hDC, GetSysColorBrush(COLOR_BTNFACE));
     old_bk_mode = SetBkMode(hDC, TRANSPARENT);
-
-    init_custom_draw(&nmcd, infoPtr, hDC, &rc);
-
-    /* Send erase notifications */
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
 
     if (get_button_type(style) == BS_DEFSPLITBUTTON)
     {
@@ -2417,16 +2446,18 @@ static void SB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
         }
     }
 
-    if (cdrf & CDRF_NOTIFYPOSTERASE)
+    if (parent)
     {
-        nmcd.dwDrawStage = CDDS_POSTERASE;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_NOTIFYPOSTERASE)
+        {
+            nmcd.dwDrawStage = CDDS_POSTERASE;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
+        /* Send paint notifications */
+        nmcd.dwDrawStage = CDDS_PREPAINT;
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
     }
-
-    /* Send paint notifications */
-    nmcd.dwDrawStage = CDDS_PREPAINT;
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
 
     /* Shrink push button rect so that the content won't touch the surrounding frame */
     InflateRect(&push_rect, -2, -2);
@@ -2434,23 +2465,40 @@ static void SB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     if (!(cdrf & CDRF_DOERASE) && action != ODA_FOCUS)
     {
         COLORREF old_color = SetTextColor(hDC, GetSysColor(COLOR_BTNTEXT));
-        RECT label_rect = push_rect, image_rect, text_rect;
+        RECT label_rect = push_rect, image_rect, textRect;
 
-        dtFlags = BUTTON_CalcLayoutRects(infoPtr, hDC, &label_rect, &image_rect, &text_rect);
+        /* Draw label */
+        if (infoPtr->is_delegate)
+        {
+            dtFlags = BUTTON_BStoDT(infoPtr);
+            textRect = label_rect;
+
+            textRect.left += infoPtr->rcPadding->left;
+            textRect.right -= infoPtr->rcPadding->right;
+            textRect.top += infoPtr->rcPadding->top;
+            textRect.bottom -= infoPtr->rcPadding->bottom;
+        }
+        else
+        {
+            dtFlags = BUTTON_CalcLayoutRects(infoPtr, hDC, &label_rect, &image_rect, &textRect);
+        }
 
         if (dtFlags != (UINT)-1L)
-            BUTTON_DrawLabel(infoPtr, hDC, dtFlags, &image_rect, &text_rect);
+            BUTTON_DrawLabel(infoPtr, hDC, dtFlags, &image_rect, &textRect);
 
         draw_split_button_dropdown_glyph(infoPtr, hDC, &dropdown_rect);
         SetTextColor(hDC, old_color);
     }
 
-    if (cdrf & CDRF_NOTIFYPOSTPAINT)
+    if (parent)
     {
-        nmcd.dwDrawStage = CDDS_POSTPAINT;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_NOTIFYPOSTPAINT)
+        {
+            nmcd.dwDrawStage = CDDS_POSTPAINT;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
+        if ((cdrf & CDRF_SKIPPOSTPAINT) || dtFlags == (UINT)-1L) goto cleanup;
     }
-    if ((cdrf & CDRF_SKIPPOSTPAINT) || dtFlags == (UINT)-1L) goto cleanup;
 
     if (action == ODA_FOCUS || (state & BST_FOCUS))
         DrawFocusRect(hDC, &push_rect);
@@ -3407,26 +3455,29 @@ static void CL_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
 cleanup:
     if (old_font) SelectObject(hDC, old_font);
 }
+
+static BOOL _REGISTERED = false;
 }
 using namespace Button;
 
 #define WC_BUTTONA              "MyButton"
 #define WC_BUTTONW              L"MyButton"
 
-void BUTTON_Register(HINSTANCE hInst)
+void BUTTON_Register()
 {
-    WNDCLASSW wndClass;
-    if (COMCTL32_hModule==0)
+    if (!_REGISTERED)
     {
-        COMCTL32_hModule=hInst;
+        if (!WindowsExInitialized) InitWindowsEx();
+        WNDCLASSW wndClass;
+        memset(&wndClass, 0, sizeof(wndClass));
+        wndClass.style = CS_GLOBALCLASS | CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW | CS_PARENTDC;
+        wndClass.lpfnWndProc = BUTTON_WindowProc;
+        wndClass.cbClsExtra = 0;
+        wndClass.cbWndExtra = sizeof(BUTTON_INFO *);
+        wndClass.hCursor = LoadCursorW(0, (LPWSTR)IDC_ARROW);
+        wndClass.hbrBackground = NULL;
+        wndClass.lpszClassName = WC_BUTTONW;
+        RegisterClassW(&wndClass);
+        _REGISTERED = true;
     }
-    memset(&wndClass, 0, sizeof(wndClass));
-    wndClass.style = CS_GLOBALCLASS | CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW | CS_PARENTDC;
-    wndClass.lpfnWndProc = BUTTON_WindowProc;
-    wndClass.cbClsExtra = 0;
-    wndClass.cbWndExtra = sizeof(BUTTON_INFO *);
-    wndClass.hCursor = LoadCursorW(0, (LPWSTR)IDC_ARROW);
-    wndClass.hbrBackground = NULL;
-    wndClass.lpszClassName = WC_BUTTONW;
-    RegisterClassW(&wndClass);
 }

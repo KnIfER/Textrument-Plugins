@@ -1532,8 +1532,6 @@ static void TAB_SetItemBounds (TAB_INFO *infoPtr)
 	INT         curItemRowCount;
 	HFONT       hFont, hOldFont;
 	HDC         hdc;
-	INT         iTemp;
-	RECT*       rcItem;
 	INT         iIndex;
 	INT         icon_width = 0;
 
@@ -3438,7 +3436,6 @@ static LRESULT _Create (HWND hwnd, LPARAM lParam)
 	TEXTMETRICW fontMetrics;
 	HDC hdc;
 	HFONT hOldFont;
-	DWORD style;
 
 	ReadColors();
 
@@ -3763,9 +3760,9 @@ static INT _StyleChanged(TAB_INFO *infoPtr, WPARAM wStyleType, const STYLESTRUCT
 {
 	TRACE("(styletype=%lx, styleOld=0x%08x, styleNew=0x%08x)\n", wStyleType, lpss->styleOld, lpss->styleNew);
 
-	if (wStyleType != GWL_STYLE) return 0;
+	if (wStyleType == GWL_STYLE) infoPtr->dwStyle = lpss->styleNew;
+	if (wStyleType == GWL_EXSTYLE) infoPtr->exStyle = lpss->styleNew;
 
-	infoPtr->dwStyle = lpss->styleNew;
 	TAB_SetItemBounds (infoPtr);
 	InvalidateRect(infoPtr->hwnd, NULL, TRUE);
 
@@ -3855,6 +3852,8 @@ static LRESULT WINAPI TAB_WindowProc (HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	case WM_HSCROLL: return _OnHScroll(infoPtr, (int)LOWORD(wParam), (int)HIWORD(wParam));
 	case WM_VSCROLL: return _OnVScroll(infoPtr, (int)LOWORD(wParam), (int)HIWORD(wParam));
 
+	//case WM_CONTEXTMENU: LogIs("WM_CONTEXTMENU!!! %d", hwnd); break;
+
 	case WM_STYLECHANGED: return _StyleChanged(infoPtr, wParam, (LPSTYLESTRUCT)lParam);
 	case WM_SYSCOLORCHANGE: /* COMCTL32_RefreshSysColors(); //fixme */ return 0;
 	case WM_THEMECHANGED: return theme_changed (infoPtr);
@@ -3869,33 +3868,40 @@ static LRESULT WINAPI TAB_WindowProc (HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 
 	default:
 		if (uMsg >= WM_USER && uMsg < WM_APP && !COMCTL32_IsReflectedMessage(uMsg))
+		{
 			WARN("unknown msg %04x wp=%08lx lp=%08lx\n", uMsg, wParam, lParam);
+		}
 		break;
 	}
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
+
+static BOOL _REGISTERED = false;
 }
 using namespace WineTab;
 #define WC_TABCONTROLM          L"MyTabControl32"
 
 void TAB_Register()
 {
-	WNDCLASSW wndClass;
-
-	ZeroMemory (&wndClass, sizeof(WNDCLASSW));
-	wndClass.style         = CS_GLOBALCLASS | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-	wndClass.lpfnWndProc   = TAB_WindowProc;
-	wndClass.cbClsExtra    = 0;
-	wndClass.cbWndExtra    = sizeof(TAB_INFO *);
-	wndClass.hCursor       = LoadCursorW (0, (LPWSTR)IDC_ARROW);
-	wndClass.hbrBackground = (HBRUSH)(COLOR_BTNFACE+1);
-	wndClass.lpszClassName = WC_TABCONTROLM;
-
-	RegisterClassW (&wndClass);
+	if (!_REGISTERED)
+	{
+		if (!WindowsExInitialized) InitWindowsEx();
+		WNDCLASSW wndClass;
+		ZeroMemory (&wndClass, sizeof(WNDCLASSW));
+		wndClass.style         = CS_GLOBALCLASS | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+		wndClass.lpfnWndProc   = TAB_WindowProc;
+		wndClass.cbClsExtra    = 0;
+		wndClass.cbWndExtra    = sizeof(TAB_INFO *);
+		wndClass.hCursor       = LoadCursorW (0, (LPWSTR)IDC_ARROW);
+		wndClass.hbrBackground = (HBRUSH)(COLOR_BTNFACE+1);
+		wndClass.lpszClassName = WC_TABCONTROLM;
+		RegisterClassW (&wndClass);
+		_REGISTERED = true;
+	}
 }
-
 
 void TAB_Unregister ()
 {
 	UnregisterClassW (WC_TABCONTROLM, NULL);
+	_REGISTERED = false;
 }

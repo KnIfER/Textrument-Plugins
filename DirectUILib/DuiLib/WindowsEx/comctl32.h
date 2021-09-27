@@ -123,7 +123,8 @@ typedef std::function<int(void*, UINT, WPARAM, LPARAM)> Listener;
 #define TCS_EX_HOTTRACKDRAW        0x00000010
 #define TCS_EX_PLAINBUTTONS        0x00000020
 #define TCN_SIZECHANGE         (TCN_FIRST - 6)
-
+namespace WindowsEx
+{
 typedef struct
 {
     COLORREF clrBtnHighlight;       /* COLOR_BTNHIGHLIGHT                  */
@@ -149,6 +150,24 @@ typedef struct
 __declspec(selectany) COMCTL32_SysColor  comctl32_color;
 __declspec(selectany) HBRUSH  COMCTL32_hPattern55AABrush;
 __declspec(selectany) HINSTANCE  COMCTL32_hModule = 0;
+__declspec(selectany) BOOL  WindowsExInitialized = 0;
+
+
+// system DPI, same for all monitor.
+__declspec(selectany) UINT uSystemDPI = 96;//USER_DEFAULT_SCREEN_DPI;
+
+using GetDpiForWindowSig = UINT(WINAPI *)(HWND hwnd);
+__declspec(selectany) GetDpiForWindowSig fnGetDpiForWindow = nullptr;
+
+__declspec(selectany) HMODULE hDLLShcore {};
+using GetDpiForMonitorSig = HRESULT (WINAPI *)(HMONITOR hmonitor, /*MONITOR_DPI_TYPE*/int dpiType, UINT *dpiX, UINT *dpiY);
+__declspec(selectany) GetDpiForMonitorSig fnGetDpiForMonitor = nullptr;
+
+using GetSystemMetricsForDpiSig = int(WINAPI *)(int nIndex, UINT dpi);
+__declspec(selectany) GetSystemMetricsForDpiSig fnGetSystemMetricsForDpi = nullptr;
+
+using AdjustWindowRectExForDpiSig = BOOL(WINAPI *)(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle, UINT dpi);
+__declspec(selectany) AdjustWindowRectExForDpiSig fnAdjustWindowRectExForDpi = nullptr;
 
 #define TCM_SETMAXROWS        (TCM_FIRST + 66)
 #define TabCtrl_SetMaxRows(hwnd, val) \
@@ -199,4 +218,12 @@ __declspec(selectany) HINSTANCE  COMCTL32_hModule = 0;
     (LPARAM)SNDMSG((hwnd), TCM_GETITEMEXTRA, (LPARAM)position, 0)
 
 void ReadColors();
+
+UINT DpiForWindow(HWND hWnd);
+
 #endif  /* __WINE_COMCTL32_H */
+}
+
+using namespace WindowsEx;
+
+void InitWindowsEx(HINSTANCE hInst=0);

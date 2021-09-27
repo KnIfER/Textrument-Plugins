@@ -1,6 +1,6 @@
 #pragma once
 
-void BUTTON_Register(HINSTANCE hInst);
+void BUTTON_Register();
 
 #ifndef BST_DROPDOWNPUSHED
 
