@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <GL_LTCG>Use Link Time Code Generation</GL_LTCG>
+    <GL_NONE>No Whole Program Optimization; /LTCG:OFF</GL_NONE>
+    <DIS_WARN>4996</DIS_WARN>
+    <GL>No</GL>
+    <LG>/LTCG:OFF</LG>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <DisableSpecificWarnings>$(DIS_WARN)</DisableSpecificWarnings>
+      <WholeProgramOptimization>$(GL)</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>$(LG) %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="GL_LTCG">
+      <Value>$(GL_LTCG)</Value>
+    </BuildMacro>
+    <BuildMacro Include="GL_NONE">
+      <Value>$(GL_NONE)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DIS_WARN">
+      <Value>$(DIS_WARN)</Value>
+    </BuildMacro>
+    <BuildMacro Include="GL">
+      <Value>$(GL)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LG">
+      <Value>$(LG)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

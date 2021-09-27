@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window caption="0,0,0,30" inset="0,0,0,0" sizebox="4,4,4,4"layered="false">
+ <Font id="0" name="宋体" size="50" bold="false"/>
+ <Font id="1" name="宋体" size="22"/>
+ <Font id="2" name="宋体" size="18"/>
+ 
+
+<WinFrame inset="0,0,0,0">
+
+	<HorizontalLayout inset="10,10,0,0" bkcolor="#ffffffff" >
+	
+		<VerticalLayout  vscrollbar="true">
+		
+			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+				text="多种自适应文本宽高的按钮控件" 
+				type="push"
+				name="Run" 
+				autocalcwidth="true" 
+				autocalcheight="true" 
+				valign="vcenter"
+				wordbreak="true"
+				textpadding="5,15,5,15"
+				/>
+			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+				text="&Virtual-button-controls with adaptive width and height" 
+				type="push"
+				name="Run" 
+				autocalcwidth="true" 
+				autocalcheight="true" 
+				valign="vcenter"
+				wordbreak="true"
+				textpadding="5,15,5,15"
+				/>
+			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+				text="模拟三态切换按钮（复选框）" 
+				type="3state"
+				name="Run" 
+				autocalcwidth="true" 
+				autocalcheight="true" 
+				valign="vcenter"
+				wordbreak="true"
+				textpadding="5,15,5,15"
+				/>
+			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+				text="Virtual 3-state check box" 
+				type="_3state"
+				name="Run" 
+				autocalcwidth="true" 
+				autocalcheight="true" 
+				valign="vcenter"
+				wordbreak="true"
+				textpadding="5,15,5,15"
+				/>
+			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+				text="圆形单选按钮" 
+				type="_radio"
+				name="Run" 
+				autocalcwidth="true" 
+				autocalcheight="true" 
+				valign="vcenter"
+				wordbreak="true"
+				textpadding="5,15,5,15"
+				/>
+			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+				text="Virtual Radio Button" 
+				type="_radio"
+				name="Run" 
+				autocalcwidth="true" 
+				autocalcheight="true" 
+				valign="vcenter"
+				wordbreak="true"
+				textpadding="5,15,5,15"
+				/>
+				
+				
+			<Button  textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+				text="组合框" 
+				type="group"
+				name="Run" 
+				height="100"
+				width="250"
+				valign="vcenter"
+				wordbreak="true"
+				textpadding="5,15,5,15"
+				inset="10,20,10,20"
+				autocalcwidth="false" 
+				autocalcheight="false" 
+				>
+					<HorizontalLayout>
+						<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+							text="复选框" 
+							type="check"
+							name="Run" 
+							autocalcwidth="true" 
+							autocalcheight="true" 
+							valign="vcenter"
+							wordbreak="true"
+							textpadding="5,15,5,15"
+							/>
+						<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+							text="组合按钮" 
+							type="push"
+							name="Run" 
+							autocalcwidth="true" 
+							autocalcheight="true" 
+							valign="vcenter"
+							wordbreak="true"
+							textpadding="5,15,5,15"
+							/>
+					</HorizontalLayout>
+				</Button>
+				
+				
+			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+				text="这是一个菜单按钮" 
+				type="split"
+				autocalcwidth="true" 
+				autocalcheight="true" 
+				valign="vcenter"
+				wordbreak="true"
+				textpadding="5,15,5,15"
+				/>
+			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+				text="这是一个命令链接按钮" 
+				type="link"
+				note="备注：此处测量大小比较麻烦，字体规格与指定的不一致，只能用padding代替。"
+				autocalcwidth="true" 
+				autocalcheight="true" 
+				valign="vcenter"
+				wordbreak="true"
+				textpadding="5,5,5,70"
+				/>
+			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+				text="以上按钮，均无窗口句柄。是由UIButton，调用WINE的方法绘制的，模拟了win32的原生控件。" 
+				name="Run" 
+				autocalcwidth="true" 
+				autocalcheight="true" 
+				valign="vcenter"
+				wordbreak="true"
+				textpadding="5,15,5,15"
+				
+				 bordersize="5" bordercolor="#77FFFFFF" bkcolor3="#ffffff5f" bkcolor1="#ffffee00" bkcolor2="#ffffff00"
+				/>
+		</VerticalLayout>
+		
+		<!--Button  textcolor="#FF0000FF" font="1" 
+		text="Run...
+Run
+Run" 
+		
+		name="Run" 
+		
+		height="200" width="50"
+		
+		
+		/-->
+		
+	</HorizontalLayout>
+	
+</WinFrame>
+</Window>
