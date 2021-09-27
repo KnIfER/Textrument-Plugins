@@ -34,7 +34,11 @@ namespace DuiLib {
 		m_nBorderStyle(PS_SOLID),
 		m_nTooltipWidth(300),
 		m_wCursor(0),
-		m_instance(NULL)
+		m_instance(NULL),
+
+		m_bAutoDestroy(true),
+		m_bDelayedDestroy(true),
+		_IsViewGroup(false)
 	{
 		m_tCurEffects.m_bEnableEffect	= false;
 		m_tCurEffects.m_iZoom			= -1;
@@ -113,6 +117,10 @@ namespace DuiLib {
 	{
 		m_pManager = pManager;
 		m_pParent = pParent;
+		for( int it = 0; it < m_items.GetSize(); it++ ) {
+			static_cast<CControlUI*>(m_items[it])->SetManager(pManager, this, bInit);
+		}
+
 		if (pParent)
 		{
 			_hParent = m_pParent->GetHWND();
@@ -403,6 +411,15 @@ namespace DuiLib {
 
 		m_rcItem = rc;
 		if( m_pManager == NULL ) return;
+
+		if (!_IsViewGroup && m_items.GetSize())
+		{
+			ApplyInsetToRect(rc);
+			for( int it = 0; it < m_items.GetSize(); it++ ) {
+				CControlUI* pControl = static_cast<CControlUI*>(m_items[it]);
+				pControl->SetPos(rc, false);
+			}
+		}
 
 		if( !m_bSetPos ) {
 			m_bSetPos = true;
@@ -764,6 +781,27 @@ namespace DuiLib {
 	{
 		if( (uFlags & UIFIND_VISIBLE) != 0 && !IsVisible() ) return NULL;
 		if( (uFlags & UIFIND_ENABLED) != 0 && !IsEnabled() ) return NULL;
+		
+		if( !_IsViewGroup && (uFlags & UIFIND_HITTEST) ) {
+			int length = m_items.GetSize() - 1;
+			if (length>=0)
+			{
+				RECT rc = m_rcItem;
+				ApplyInsetToRect(rc);
+				CControlUI* pResult = NULL;
+				bool topFirst = uFlags & UIFIND_TOP_FIRST;
+				for( int it = length; it >= 0; it-- ) {
+					pResult = static_cast<CControlUI*>(m_items[topFirst?it:(length-it)])->FindControl(Proc, pData, uFlags);
+					if( pResult != NULL ) {
+						if( (uFlags & UIFIND_HITTEST) != 0 && !pResult->IsFloat() && !::PtInRect(&rc, *(static_cast<LPPOINT>(pData))) )
+							continue;
+						else 
+							return pResult;
+					}          
+				}
+			}
+		}
+		
 		if( (uFlags & UIFIND_HITTEST) != 0 && (!m_bMouseEnabled || !::PtInRect(&m_rcItem, * static_cast<LPPOINT>(pData))) ) return NULL;
 		return Proc(this, pData);
 	}
@@ -1149,6 +1187,9 @@ namespace DuiLib {
 		{
 
 			if( _tcsicmp(pstrName, _T("height")) == 0 ) SetFixedHeight(_ttoi(pstrValue));
+			if( _tcsicmp(pstrName, _T("inset")) == 0 ) {
+				SetInset(m_rcInset, pstrValue);
+			}
 			else if( _tcsicmp(pstrName, _T("minwidth")) == 0 ) SetMinWidth(_ttoi(pstrValue));
 			else if( _tcsicmp(pstrName, _T("minheight")) == 0 ) SetMinHeight(_ttoi(pstrValue));
 			else if( _tcsicmp(pstrName, _T("maxwidth")) == 0 ) SetMaxWidth(_ttoi(pstrValue));
@@ -1312,7 +1353,49 @@ namespace DuiLib {
 			PaintText(hDC);
 			PaintBorder(hDC);
 		}
+
+		if(!_IsViewGroup && m_items.GetSize()) PaintChildren(hDC, rcPaint, pStopControl);
+
 		return true;
+	}
+
+	bool CControlUI::PaintChildren(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
+	{
+		RECT rc = m_rcItem;
+		ApplyInsetToRect(rc);
+		RECT rcTemp;
+		if( !::IntersectRect(&rcTemp, &rcPaint, &rc) ) {
+			for( int it = 0; it < m_items.GetSize(); it++ ) {
+				CControlUI* pControl = static_cast<CControlUI*>(m_items[it]);
+				if( pControl == pStopControl ) return false;
+				if( !pControl->IsVisible() ) continue;
+				if( !::IntersectRect(&rcTemp, &rcPaint, &pControl->GetPos()) ) continue;
+				if( pControl ->IsFloat() ) {
+					if( !::IntersectRect(&rcTemp, &m_rcItem, &pControl->GetPos()) ) continue;
+					if( !pControl->Paint(hDC, rcPaint, pStopControl) ) return false;
+				}
+			}
+		}
+		else {
+			CRenderClip childClip;
+			CRenderClip::GenerateClip(hDC, rcTemp, childClip);
+			for( int it = 0; it < m_items.GetSize(); it++ ) {
+				CControlUI* pControl = static_cast<CControlUI*>(m_items[it]);
+				if( pControl == pStopControl ) return false;
+				if( !pControl->IsVisible() ) continue;
+				if( !::IntersectRect(&rcTemp, &rcPaint, &pControl->GetPos()) ) continue;
+				if( pControl->IsFloat() ) {
+					if( !::IntersectRect(&rcTemp, &m_rcItem, &pControl->GetPos()) ) continue;
+					CRenderClip::UseOldClipBegin(hDC, childClip);
+					if( !pControl->Paint(hDC, rcPaint, pStopControl) ) return false;
+					CRenderClip::UseOldClipEnd(hDC, childClip);
+				}
+				else {
+					if( !::IntersectRect(&rcTemp, &rc, &pControl->GetPos()) ) continue;
+					if( !pControl->Paint(hDC, rcPaint, pStopControl) ) return false;
+				}
+			}
+		}
 	}
 
 	void CControlUI::PaintBkColor(HDC hDC)
@@ -1512,5 +1595,98 @@ namespace DuiLib {
 		Invalidate();
 	}
 
+	////////////////////////////////
+	// Container Interface
+	int CControlUI::GetItemIndex(CControlUI* pControl) const
+	{
+		for( int it = 0; it < m_items.GetSize(); it++ ) {
+			if( static_cast<CControlUI*>(m_items[it]) == pControl ) {
+				return it;
+			}
+		}
+
+		return -1;
+	}
+
+	bool CControlUI::SetItemIndex(CControlUI* pControl, int iIndex)
+	{
+		for( int it = 0; it < m_items.GetSize(); it++ ) {
+			if( static_cast<CControlUI*>(m_items[it]) == pControl ) {
+				NeedUpdate();            
+				m_items.Remove(it);
+				return m_items.InsertAt(iIndex, pControl);
+			}
+		}
+
+		return false;
+	}
+
+	bool CControlUI::Add(CControlUI* pControl)
+	{
+		if( pControl == NULL) return false;
+
+		if( m_pManager != NULL ) m_pManager->InitControls(pControl, this);
+		if( IsVisible() ) NeedUpdate();
+		else pControl->SetInternVisible(false);
+		bool ret = m_items.Add(pControl);
+		if (m_pManager && ret && m_pManager->_bIsLayoutOnly)
+		{
+			SetPos(m_rcItem);
+		}
+		return ret;   
+	}
+
+	bool CControlUI::AddAt(CControlUI* pControl, int iIndex)
+	{
+		if( pControl == NULL) return false;
+
+		if( m_pManager != NULL ) m_pManager->InitControls(pControl, this);
+		if( IsVisible() ) NeedUpdate();
+		else pControl->SetInternVisible(false);
+		return m_items.InsertAt(iIndex, pControl);
+	}
+
+	bool CControlUI::Remove(CControlUI* pControl)
+	{
+		if( pControl == NULL) return false;
+
+		for( int it = 0; it < m_items.GetSize(); it++ ) {
+			if( static_cast<CControlUI*>(m_items[it]) == pControl ) {
+				NeedUpdate();
+				if( m_bAutoDestroy ) {
+					if( m_bDelayedDestroy && m_pManager ) m_pManager->AddDelayedCleanup(pControl);             
+					else delete pControl;
+				}
+				return m_items.Remove(it);
+			}
+		}
+		return false;
+	}
+
+	bool CControlUI::RemoveAt(int iIndex)
+	{
+		CControlUI* pControl = GetItemAt(iIndex);
+		if (pControl != NULL) {
+			return Remove(pControl);
+		}
+
+		return false;
+	}
+
+	void CControlUI::RemoveAll()
+	{
+		for( int it = 0; m_bAutoDestroy && it < m_items.GetSize(); it++ ) {
+			CControlUI* pItem = static_cast<CControlUI*>(m_items[it]);
+			if( m_bDelayedDestroy && m_pManager && !m_pManager->_bIsLayoutOnly ) {
+				m_pManager->AddDelayedCleanup(pItem);             
+			}
+			else {
+				delete pItem;
+				pItem = NULL;
+			}
+		}
+		m_items.Empty();
+		NeedUpdate();
+	}
 
 } // namespace DuiLib

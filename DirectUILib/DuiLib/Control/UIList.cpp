@@ -940,12 +940,7 @@ namespace DuiLib {
 		if (m_iCurSel < 0) return;
 		RECT rcItem = m_pList->GetItemAt(iIndex)->GetPos();
 		RECT rcList = m_pList->GetPos();
-		RECT rcListInset = m_pList->GetInset();
-
-		rcList.left += rcListInset.left;
-		rcList.top += rcListInset.top;
-		rcList.right -= rcListInset.right;
-		rcList.bottom -= rcListInset.bottom;
+		m_pList->ApplyInsetToRect(rcList);
 
 		CScrollBarUI* pHorizontalScrollBar = m_pList->GetHorizontalScrollBar();
 		if (pHorizontalScrollBar && pHorizontalScrollBar->IsVisible()) rcList.bottom -= pHorizontalScrollBar->GetFixedHeight();
@@ -2125,11 +2120,7 @@ namespace DuiLib {
 			CContainerUI* pParentContainer = static_cast<CContainerUI*>(GetParent()->GetInterface(_T("Container")));
 			if (pParentContainer) {
 				RECT rc = pParentContainer->GetPos();
-				RECT rcInset = pParentContainer->GetInset();
-				rc.left += rcInset.left;
-				rc.top += rcInset.top;
-				rc.right -= rcInset.right;
-				rc.bottom -= rcInset.bottom;
+				pParentContainer->ApplyInsetToRect(rc);
 				CScrollBarUI* pVerticalScrollBar = pParentContainer->GetVerticalScrollBar();
 				if (pVerticalScrollBar && pVerticalScrollBar->IsVisible()) rc.right -= pVerticalScrollBar->GetFixedWidth();
 				CScrollBarUI* pHorizontalScrollBar = pParentContainer->GetHorizontalScrollBar();
@@ -2767,11 +2758,7 @@ namespace DuiLib {
 			CContainerUI* pParentContainer = static_cast<CContainerUI*>(GetParent()->GetInterface(_T("Container")));
 			if (pParentContainer) {
 				RECT rc = pParentContainer->GetPos();
-				RECT rcInset = pParentContainer->GetInset();
-				rc.left += rcInset.left;
-				rc.top += rcInset.top;
-				rc.right -= rcInset.right;
-				rc.bottom -= rcInset.bottom;
+				pParentContainer->ApplyInsetToRect(rc);
 				CScrollBarUI* pVerticalScrollBar = pParentContainer->GetVerticalScrollBar();
 				if (pVerticalScrollBar && pVerticalScrollBar->IsVisible()) rc.right -= pVerticalScrollBar->GetFixedWidth();
 				CScrollBarUI* pHorizontalScrollBar = pParentContainer->GetHorizontalScrollBar();

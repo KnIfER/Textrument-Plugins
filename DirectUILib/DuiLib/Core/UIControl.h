@@ -7,11 +7,29 @@ namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 
+	class IContainerUI
+	{
+	public:
+		virtual CControlUI* GetItemAt(int iIndex) const = 0;
+		virtual int GetItemIndex(CControlUI* pControl) const  = 0;
+		virtual bool SetItemIndex(CControlUI* pControl, int iIndex)  = 0;
+		virtual int GetCount() const = 0;
+		virtual bool Add(CControlUI* pControl) = 0;
+		virtual bool AddAt(CControlUI* pControl, int iIndex)  = 0;
+		virtual bool Remove(CControlUI* pControl) = 0;
+		virtual bool RemoveAt(int iIndex)  = 0;
+		virtual void RemoveAll() = 0;
+	};
+
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	//
+
 	typedef CControlUI* (CALLBACK* FINDCONTROLPROC)(CControlUI*, LPVOID);
 
 	class CContainerUI;
 
-	class UILIB_API CControlUI
+	class UILIB_API CControlUI : public IContainerUI
 	{
 		DECLARE_DUICONTROL(CControlUI)
 	public:
@@ -30,7 +48,58 @@ namespace DuiLib {
 		virtual void SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit = true);
 		virtual CControlUI* GetParent() const;
 	    void setInstance(HINSTANCE instance = NULL) {m_instance = instance;};
-		
+
+		// 子布局
+		CControlUI* GetItemAt(int iIndex) const {
+			return iIndex < 0 || iIndex >= m_items.GetSize()?NULL:static_cast<CControlUI*>(m_items[iIndex]);
+		}
+		int GetItemIndex(CControlUI* pControl) const;
+		bool SetItemIndex(CControlUI* pControl, int iIndex);
+		int GetCount() const {
+			return m_items.GetSize();
+		};
+		bool Add(CControlUI* pControl);
+		bool AddAt(CControlUI* pControl, int iIndex);
+		bool Remove(CControlUI* pControl);
+		bool RemoveAt(int iIndex);
+		void RemoveAll();
+		bool IsAutoDestroy() const {
+			return m_bAutoDestroy;
+		}
+		void SetAutoDestroy(bool bAuto) {
+			m_bAutoDestroy = bAuto;
+		}
+		bool IsDelayedDestroy() const {
+			return m_bDelayedDestroy;
+		}
+		void SetDelayedDestroy(bool bDelayed) {
+			m_bDelayedDestroy = bDelayed;
+		}
+		bool PaintChildren(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
+		const RECT & GetInset() const {
+			if(m_pManager) return m_pManager->GetDPIObj()->Scale(m_rcInset);
+			return m_rcInset;
+		}
+		void ApplyInsetToRect(RECT & rc) const {
+			rc.left += m_rcInset.left;
+			rc.top += m_rcInset.top;
+			rc.right -= m_rcInset.right;
+			rc.bottom -= m_rcInset.bottom;
+		}
+		// 设置内边距，相当于安卓中的Padding
+		void SetInset(RECT & rcInset, LPCTSTR handyStr = 0) {
+			if (handyStr)
+			{
+				LPTSTR pstr = NULL;
+				rcInset.left = _tcstol(handyStr, &pstr, 10);  ASSERT(pstr);    
+				rcInset.top = _tcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);    
+				rcInset.right = _tcstol(pstr + 1, &pstr, 10);  ASSERT(pstr);    
+				rcInset.bottom = _tcstol(pstr + 1, &pstr, 10); ASSERT(pstr);    
+			}
+			m_rcInset = rcInset;
+			NeedUpdate();
+		}
+
 		// 定时器
 		bool SetTimer(UINT nTimerID, UINT nElapse);
 		void KillTimer(UINT nTimerID);
@@ -270,6 +339,13 @@ namespace DuiLib {
 		CControlUI* m_pParent;
 		CDuiString m_sVirtualWnd;
 		CDuiString m_sName;
+
+		CStdPtrArray m_items;
+		bool _IsViewGroup;
+		bool m_bAutoDestroy;
+		bool m_bDelayedDestroy;
+		RECT m_rcInset;
+		RECT m_rcInsetScaled;
 
 		HWND _hWnd = 0;
 		HWND _hParent = 0;

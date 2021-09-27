@@ -150,11 +150,7 @@ namespace DuiLib
 			CContainerUI* pParentContainer = static_cast<CContainerUI*>(GetParent()->GetInterface(_T("Container")));
 			if( pParentContainer ) {
 				RECT rc = pParentContainer->GetPos();
-				RECT rcInset = pParentContainer->GetInset();
-				rc.left += rcInset.left;
-				rc.top += rcInset.top;
-				rc.right -= rcInset.right;
-				rc.bottom -= rcInset.bottom;
+				pParentContainer->ApplyInsetToRect(rc);
 				CScrollBarUI* pVerticalScrollBar = pParentContainer->GetVerticalScrollBar();
 				if( pVerticalScrollBar && pVerticalScrollBar->IsVisible() ) rc.right -= pVerticalScrollBar->GetFixedWidth();
 				CScrollBarUI* pHorizontalScrollBar = pParentContainer->GetHorizontalScrollBar();

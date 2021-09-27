@@ -547,10 +547,9 @@ namespace DuiLib {
 				}
 				// 普通控件
 				else {
-					if( pContainer == NULL ) pContainer = static_cast<IContainerUI*>(pParent->GetInterface(_T("IContainer")));
-					ASSERT(pContainer);
-					if( pContainer == NULL ) return NULL;
-					if( !pContainer->Add(pControl) ) {
+					//if( pContainer == NULL ) pContainer = static_cast<IContainerUI*>(pParent->GetInterface(_T("IContainer")));
+ 					//if( pContainer == NULL ) return NULL;
+					if( !pParent->Add(pControl) ) {
 						delete pControl;
 						continue;
 					}

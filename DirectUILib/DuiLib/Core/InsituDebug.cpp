@@ -1,4 +1,4 @@
-
+#include "stdafx.h"
 #include "InsituDebug.h"
 #include <iostream>
 #include <stdarg.h>
@@ -84,7 +84,7 @@ void LogIs(int show, HWND hWnd, const CHAR* msg, va_list & args)
 			hWnd = mainAppWnd;
 		}
 
-		CHAR buffer[512]={};
+		CHAR buffer[512]={0};
 		// https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/vsprintf-s-vsprintf-s-l-vswprintf-s-vswprintf-s-l?view=msvc-160
 		// vsprintf_s and vswprintf_s return the number of characters written, 
 		//  not including the terminating null character, 
