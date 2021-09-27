@@ -40,6 +40,8 @@ namespace DuiLib {
 		void SetEventListener(Listener & listener);
 
 		LPARAM GetTabDataAt(int position);
+
+		void SetMultiLine(bool enabled, int maxLns=3);
 	private:
 		static LRESULT CALLBACK TabWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 		HIMAGELIST _hImageList = 0;

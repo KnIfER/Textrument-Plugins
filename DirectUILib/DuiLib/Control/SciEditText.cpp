@@ -13,7 +13,7 @@ namespace DuiLib {
 		, ScintillaCall()
 	{
 		m_dwBackColor = RGB(0, 0, 255);
-		_isDirectUI = true;
+		_isDirectUI = false;
 	}
 
 	LPCTSTR SciEditText::GetClass() const
@@ -36,64 +36,52 @@ namespace DuiLib {
 
 	void SciEditText::Init()
 	{
-		_hParent = m_pParent->GetHWND();
-		// see SciTEWin.cxx
-		//Lexilla::SetDefaultDirectory(GetSciTEPath(FilePath()).AsUTF8());
+		if (!_hWnd && m_pParent->GetHWND())
+		{
+			_hParent = m_pParent->GetHWND();
+			// see SciTEWin.cxx
+			//Lexilla::SetDefaultDirectory(GetSciTEPath(FilePath()).AsUTF8());
 
-		Scintilla_RegisterClasses(CPaintManagerUI::GetInstance());
-		Lexilla::SetDefault(CreateLexer);
+			Scintilla_RegisterClasses(CPaintManagerUI::GetInstance());
+			Lexilla::SetDefault(CreateLexer);
 
-		//LogIs("_hParent::%d", _hParent);
-		
-		// see SciTEWinBar.cxx
-		_hWnd = ::CreateWindowEx(
-			0,
-			TEXT("Scintilla"),
-			TEXT("EditText"),
-			WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-			0, 0,
-			100, 100,
-			_hParent,
-			NULL,
-			CPaintManagerUI::GetInstance(),
-			nullptr);
-		
-		//LogIs("Scintilla_hWnd:: %d", _hWnd);
+			//LogIs("_hParent::%d", _hParent);
 
-		::ShowWindow(_hWnd, TRUE);
-		//::SetWindowText(_hWnd, TEXT("TEST"));
-		//if (!dynamic_cast<WinFrame*>(m_pParent))
-		//{
-		//	GetRoot()->_WNDList.push_back(this);
-		//}
+			// see SciTEWinBar.cxx
+			_hWnd = ::CreateWindowEx(
+				0,
+				TEXT("Scintilla"),
+				TEXT("EditText"),
+				WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+				0, 0,
+				100, 100,
+				_hParent,
+				NULL,
+				CPaintManagerUI::GetInstance(),
+				nullptr);
 
-		SciFnDirectStatus fn_ = reinterpret_cast<SciFnDirectStatus>(
-			::SendMessage(_hWnd, (UINT)Message::GetDirectStatusFunction, 0, 0));
-		const sptr_t ptr_ = ::SendMessage(_hWnd, (UINT)Message::GetDirectPointer, 0, 0);
-		SetFnPtr(fn_, ptr_);
+			//LogIs("Scintilla_hWnd:: %d", _hWnd);
 
+			//::ShowWindow(_hWnd, TRUE);
+			//::SetWindowText(_hWnd, TEXT("TEST"));
+			//if (!dynamic_cast<WinFrame*>(m_pParent))
+			//{
+			//	GetRoot()->_WNDList.push_back(this);
+			//}
+
+			SciFnDirectStatus fn_ = reinterpret_cast<SciFnDirectStatus>(
+				::SendMessage(_hWnd, (UINT)Message::GetDirectStatusFunction, 0, 0));
+			const sptr_t ptr_ = ::SendMessage(_hWnd, (UINT)Message::GetDirectPointer, 0, 0);
+			SetFnPtr(fn_, ptr_);
+		}
 	}
 
 	void SciEditText::SetPos(RECT rc, bool bNeedInvalidate) 
 	{
-		//__super::SetPos(rc, bNeedInvalidate);
 		m_rcItem = rc;
-		resize();
+		::MoveWindow(_hWnd, rc.left, rc.top
+			, rc.right - rc.left, rc.bottom - rc.top
+			, TRUE);
+		::UpdateWindow(_hWnd);
 	}
-
-	void SciEditText::resize() 
-	{
-		if(_hWnd) {
-			RECT rcPos = m_rcItem;
-
-			//::SetWindowPos(_hWnd, NULL, rcPos.left, rcPos.top, rcPos.right - rcPos.left, rcPos.bottom - rcPos.top, SWP_NOZORDER | SWP_NOACTIVATE);
-			
-			::MoveWindow(_hWnd, rcPos.left, rcPos.top
-				, rcPos.right - rcPos.left, rcPos.bottom - rcPos.top
-				, TRUE);
-
-		}
-	}
-	
-
 } // namespace DuiLib

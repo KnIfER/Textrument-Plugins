@@ -27,8 +27,6 @@ namespace DuiLib {
 
 		void Init() override;
 		void SetPos(RECT rc, bool bNeedInvalidate = true) override;
-
-		void resize();
 	};
 
 } // namespace DuiLib

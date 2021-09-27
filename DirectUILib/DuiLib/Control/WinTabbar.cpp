@@ -77,23 +77,23 @@ namespace DuiLib {
 		_hParent = m_pParent->GetHWND();
 		//LogIs("_hParent::%d", _hParent);
 		TAB_Register();
-		DWORD style = WS_CHILD | WS_VISIBLE 
+		DWORD style = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
 			//| TCS_MULTILINE
-			//| TCS_BUTTONS
-			//| TCS_FLATBUTTONS
+			//| TCS_BUTTONS | TCS_FLATBUTTONS
 			//| TCS_BOTTOM
 			//| TCS_VERTICAL
 			| TCS_FOCUSNEVER
 			| WS_CLIPCHILDREN 
-			| TCS_HOTTRACKDRAW 
 			//| TCS_FIXEDWIDTH 
-
-			| TCS_FLICKERFREE 
-
-			| TCS_FIXEDBASELINE 
+			;
+		DWORD styleEx = 0
+			| TCS_EX_HOTTRACKDRAW 
+			| TCS_EX_FLICKERFREE 
+			| TCS_EX_FIXEDBASELINE 
+			//| TCS_EX_PLAINBUTTONS | TCS_EX_FLATSEPARATORS
 			;
 		_hWnd = ::CreateWindowEx(
-			0,
+			styleEx,
 			L"MyTabControl32",
 			TEXT("Tab"),
 			style,
@@ -174,6 +174,21 @@ namespace DuiLib {
 		return TabCtrl_GetItemExtra(_hWnd, position);
 	}
 
+	void WinTabbar::SetMultiLine(bool enabled, int maxLns)
+	{
+		DWORD style = GetWindowLong(GetHWND(), GWL_STYLE);
+		if (enabled)
+		{
+			style |= TCS_MULTILINE;
+		}
+		else
+		{
+			style &= ~TCS_MULTILINE;
+		}
+		SetWindowLong(GetHWND(), GWL_STYLE, style);
+		TabCtrl_SetMaxRows(GetHWND(), maxLns);
+	}
+
 	bool WinTabbar::setTabFont(int fontSize, TCHAR* fontName)
 	{
 		//设置字体
@@ -219,10 +234,11 @@ namespace DuiLib {
 	{
 		if(_hWnd) {
 			RECT rcPos = m_rcItem;
-
+			//::InflateRect(&rcPos, -10, -10);
 			//::SetWindowPos(_hWnd, NULL, rcPos.left, rcPos.top, rcPos.right - rcPos.left, rcPos.bottom - rcPos.top, SWP_NOZORDER | SWP_NOACTIVATE);
-			
+			//ShowWindow(_hWnd, SW_SHOW);
 			::MoveWindow(_hWnd, rcPos.left, rcPos.top, rcPos.right - rcPos.left, rcPos.bottom - rcPos.top, TRUE);
+			::UpdateWindow(_hWnd);
 
 			TabCtrl_AdjustRect(_hWnd, false, &rcPos);
 
@@ -233,7 +249,7 @@ namespace DuiLib {
 						SetFloatPos(it);
 					}
 					else { 
-						pControl->SetPos(rcPos, false);
+						pControl->SetPos(rcPos, true);
 					}
 				}
 			}

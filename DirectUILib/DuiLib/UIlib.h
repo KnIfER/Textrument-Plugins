@@ -126,6 +126,7 @@ typedef std::function<int(void*, UINT, WPARAM, LPARAM)> Listener;
 #include "Control/WinButton.h"
 #include "Control/WinTabbar.h"
 #include "Control/SciEditText.h"
+#include "Control/WinSplitter.h"
 
 #include "Control/ListView.h"
 #include "ControlEx/ImageView.h"

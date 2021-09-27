@@ -39,7 +39,7 @@ namespace DuiLib {
 			//::SetFocus(m_hWnd);
 		};
 		void Notify(TNotifyUI& msg){
-			if( msg.sType == _T("click") ) ;
+			wParent->GetManager()->SendNotify(msg);
 		}
 		void initRootLayout(CControlUI* root_layout) {
 			if (root_layout)
@@ -129,11 +129,18 @@ namespace DuiLib {
 
 	void WinFrame::Init()
 	{
-		if (!_hWnd)
+		if (!_hWnd && GetParent()->GetHWND())
 		{ // create default duilib window
+			__hParent = _hParent;
 			wEmbedded = new WndBase;
 			((WndBase*)wEmbedded)->Init(this);
 			_hWnd = wEmbedded->GetHWND();
+		}
+		if (_hWnd && _hParent != __hParent)
+		{
+			__hParent = _hParent;
+			::SetParent(_hWnd, _hParent);
+			SetPos(GetPos());
 		}
 	}
 

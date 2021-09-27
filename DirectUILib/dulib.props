@@ -13,6 +13,8 @@
     <RTO_x64>$(ROOT)\x64\Release</RTO_x64>
     <DU_Lib_s64D>$(DUPA)\Build\Bin\Win64\Debug</DU_Lib_s64D>
     <RTO_x64D>$(ROOT)\x64\Debug</RTO_x64D>
+    <DUILib_STATIC_32>$(DUPA)\Build\Bin\Win32\Release</DUILib_STATIC_32>
+    <DUILib_STATIC_32D>$(DUPA)\Build\Bin\Win32\Debug</DUILib_STATIC_32D>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
@@ -52,6 +54,12 @@
     </BuildMacro>
     <BuildMacro Include="RTO_x64D">
       <Value>$(RTO_x64D)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DUILib_STATIC_32">
+      <Value>$(DUILib_STATIC_32)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DUILib_STATIC_32D">
+      <Value>$(DUILib_STATIC_32D)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

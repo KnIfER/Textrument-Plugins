@@ -20,6 +20,7 @@ namespace DuiLib {
 		CControlUI* FindControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags) override;
 	protected:
 		CWindowWnd* wEmbedded;
+		HWND __hParent;
 	};
 
 } // namespace DuiLib

@@ -13,9 +13,6 @@
     <Filter Include="Control">
       <UniqueIdentifier>{9ee45b32-9fa8-4d0a-9a8f-0a3f173fc205}</UniqueIdentifier>
     </Filter>
-    <Filter Include="WindowsEx">
-      <UniqueIdentifier>{94a35dfb-f168-412e-a8f0-34553d90167d}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils\downloadmgr.h">
@@ -150,12 +147,6 @@
     <ClInclude Include="Control\UIHotKey.h">
       <Filter>Control</Filter>
     </ClInclude>
-    <ClInclude Include="Control\UIIPAddress.h">
-      <Filter>Control</Filter>
-    </ClInclude>
-    <ClInclude Include="Control\UIIPAddressEx.h">
-      <Filter>Control</Filter>
-    </ClInclude>
     <ClInclude Include="Control\UILabel.h">
       <Filter>Control</Filter>
     </ClInclude>
@@ -197,9 +188,6 @@
     </ClInclude>
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="UIlib.h" />
-    <ClInclude Include="..\..\..\..\..\browsers\SunPlayer_DuiLib-master\SunPlayer_DuiLib\DuiLib\Control\UIRing.h">
-      <Filter>Control</Filter>
-    </ClInclude>
     <ClInclude Include="Core\UIDxAnimation.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -224,13 +212,19 @@
     <ClInclude Include="Core\WinFrame.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsEx\comctl32.h">
-      <Filter>WindowsEx</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowsEx\debug.h">
-      <Filter>WindowsEx</Filter>
-    </ClInclude>
     <ClInclude Include="Control\WinTabbar.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\WinSplitter.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\UIRing.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\UIIPAddress.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\UIIPAddressEx.h">
       <Filter>Control</Filter>
     </ClInclude>
   </ItemGroup>
@@ -387,15 +381,6 @@
     </ClCompile>
     <ClCompile Include="StdAfx.cpp" />
     <ClCompile Include="UILib.cpp" />
-    <ClCompile Include="..\..\..\..\..\browsers\SunPlayer_DuiLib-master\SunPlayer_DuiLib\DuiLib\Control\UIRing.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\browsers\SunPlayer_DuiLib-master\SunPlayer_DuiLib\DuiLib\Control\UIIPAddress.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\browsers\SunPlayer_DuiLib-master\SunPlayer_DuiLib\DuiLib\Control\UIIPAddressEx.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
     <ClCompile Include="Core\UIDxAnimation.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -423,13 +408,19 @@
     <ClCompile Include="Core\WinFrame.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="WindowsEx\tab.cpp">
-      <Filter>WindowsEx</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowsEx\comctl32.cpp">
-      <Filter>WindowsEx</Filter>
-    </ClCompile>
     <ClCompile Include="Control\WinTabbar.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\WinSplitter.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\UIRing.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\UIIPAddress.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\UIIPAddressEx.cpp">
       <Filter>Control</Filter>
     </ClCompile>
   </ItemGroup>
