@@ -21,19 +21,23 @@
 
 #include <stdarg.h>
 
+#include "windows.h"
 #include "windef.h"
 #include "winbase.h"
 #include "wingdi.h"
 #include "winuser.h"
 #include "uxtheme.h"
-#include "uxthemedll.h"
+//#include "uxthemedll.h"
 #include "vssym32.h"
-#include "wine/debug.h"
+#include "debug.h"
 
-WINE_DEFAULT_DEBUG_CHANNEL(theme_scroll);
+#include "scrollbar.h"
 
-void WINAPI UXTHEME_ScrollBarDraw(HWND hwnd, HDC dc, INT bar, enum SCROLL_HITTEST hit_test,
-                                  const struct SCROLL_TRACKING_INFO *tracking_info,
+//WINE_DEFAULT_DEBUG_CHANNEL(theme_scroll);
+
+void WINAPI UXTHEME_ScrollBarDraw(HWND hwnd, HDC dc, INT bar, enum SCROLL_HITTEST hit_test, 
+                                  BOOL hit_is_push, 
+                                  //const struct SCROLL_TRACKING_INFO *tracking_info,
                                   BOOL draw_arrows, BOOL draw_interior, RECT *rect, INT arrowsize,
                                   INT thumbpos, INT thumbsize, BOOL vertical)
 {
@@ -48,13 +52,15 @@ void WINAPI UXTHEME_ScrollBarDraw(HWND hwnd, HDC dc, INT bar, enum SCROLL_HITTES
 
     if (!theme)
     {
-        user_api.pScrollBarDraw(hwnd, dc, bar, hit_test, tracking_info, draw_arrows, draw_interior,
-                                rect, arrowsize, thumbpos, thumbsize, vertical);
+        //user_api.pScrollBarDraw(hwnd, dc, bar, hit_test, tracking_info, draw_arrows, draw_interior,
+        //                        rect, arrowsize, thumbpos, thumbsize, vertical);
         return;
     }
 
     style = GetWindowLongW(hwnd, GWL_STYLE);
-    if (bar == SB_CTL && (style & SBS_SIZEBOX || style & SBS_SIZEGRIP)) {
+    if (bar == SB_CTL && (style & SBS_SIZEBOX || style & SBS_SIZEGRIP)) 
+    //if (1) 
+    {
         int state;
 
         if (style & SBS_SIZEBOXTOPLEFTALIGN)
@@ -79,8 +85,7 @@ void WINAPI UXTHEME_ScrollBarDraw(HWND hwnd, HDC dc, INT bar, enum SCROLL_HITTES
             lowertrackstate = SCRBS_NORMAL;
             thumbstate = SCRBS_NORMAL;
 
-            if (vertical == tracking_info->vertical && hit_test == tracking_info->hit_test
-                && GetCapture() == hwnd)
+            if (hit_is_push)
             {
                 if (hit_test == SCROLL_TOP_RECT)
                     uppertrackstate = SCRBS_PRESSED;
@@ -100,8 +105,8 @@ void WINAPI UXTHEME_ScrollBarDraw(HWND hwnd, HDC dc, INT bar, enum SCROLL_HITTES
             }
 
             /* Thumb is also shown as pressed when tracking */
-            if (tracking_info->win == hwnd && tracking_info->bar == bar)
-                thumbstate = SCRBS_PRESSED;
+            //if (tracking_info->win == hwnd && tracking_info->bar == bar)
+           //     thumbstate = SCRBS_PRESSED;
         }
 
         if (vertical) {
@@ -113,9 +118,8 @@ void WINAPI UXTHEME_ScrollBarDraw(HWND hwnd, HDC dc, INT bar, enum SCROLL_HITTES
             } else {
                 uparrowstate = ABS_UPNORMAL;
                 downarrowstate = ABS_DOWNNORMAL;
-
-                if (vertical == tracking_info->vertical && hit_test == tracking_info->hit_test
-                    && GetCapture() == hwnd)
+                
+                if (hit_is_push)
                 {
                     if (hit_test == SCROLL_TOP_ARROW)
                         uparrowstate = ABS_UPPRESSED;
@@ -191,21 +195,21 @@ void WINAPI UXTHEME_ScrollBarDraw(HWND hwnd, HDC dc, INT bar, enum SCROLL_HITTES
                 leftarrowstate = ABS_LEFTNORMAL;
                 rightarrowstate = ABS_RIGHTNORMAL;
 
-                if (vertical == tracking_info->vertical && hit_test == tracking_info->hit_test
-                    && GetCapture() == hwnd)
-                {
-                    if (hit_test == SCROLL_TOP_ARROW)
-                        leftarrowstate = ABS_LEFTPRESSED;
-                    else if (hit_test == SCROLL_BOTTOM_ARROW)
-                        rightarrowstate = ABS_RIGHTPRESSED;
-                }
-                else
-                {
-                    if (hit_test == SCROLL_TOP_ARROW)
-                        leftarrowstate = ABS_LEFTHOT;
-                    else if (hit_test == SCROLL_BOTTOM_ARROW)
-                        rightarrowstate = ABS_RIGHTHOT;
-                }
+                //if (vertical == tracking_info->vertical && hit_test == tracking_info->hit_test
+                //    && GetCapture() == hwnd)
+                //{
+                //    if (hit_test == SCROLL_TOP_ARROW)
+                //        leftarrowstate = ABS_LEFTPRESSED;
+                //    else if (hit_test == SCROLL_BOTTOM_ARROW)
+                //        rightarrowstate = ABS_RIGHTPRESSED;
+                //}
+                //else
+                //{
+                //    if (hit_test == SCROLL_TOP_ARROW)
+                //        leftarrowstate = ABS_LEFTHOT;
+                //    else if (hit_test == SCROLL_BOTTOM_ARROW)
+                //        rightarrowstate = ABS_RIGHTHOT;
+                //}
             }
 
             partrect = *rect;
@@ -263,45 +267,4 @@ void WINAPI UXTHEME_ScrollBarDraw(HWND hwnd, HDC dc, INT bar, enum SCROLL_HITTES
 
     if (bar != SB_CTL)
         CloseThemeData(theme);
-}
-
-LRESULT WINAPI UXTHEME_ScrollbarWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
-                                        BOOL unicode)
-{
-    const WCHAR* themeClass = WC_SCROLLBARW;
-    HTHEME theme;
-    LRESULT result;
-
-    TRACE("(%p, 0x%x, %lu, %lu, %d)\n", hwnd, msg, wParam, lParam, unicode);
-
-    switch (msg) {
-        case WM_CREATE:
-            result = user_api.pScrollBarWndProc(hwnd, msg, wParam, lParam, unicode);
-            OpenThemeData(hwnd, themeClass);
-            return result;
-
-        case WM_DESTROY:
-            theme = GetWindowTheme(hwnd);
-            CloseThemeData(theme);
-            return user_api.pScrollBarWndProc(hwnd, msg, wParam, lParam, unicode);
-
-        case WM_THEMECHANGED:
-            theme = GetWindowTheme(hwnd);
-            CloseThemeData(theme);
-            OpenThemeData(hwnd, themeClass);
-            InvalidateRect(hwnd, NULL, TRUE);
-            break;
-
-        case WM_SYSCOLORCHANGE:
-            theme = GetWindowTheme(hwnd);
-            if (!theme) return user_api.pScrollBarWndProc(hwnd, msg, wParam, lParam, unicode);
-            /* Do nothing. When themed, a WM_THEMECHANGED will be received, too,
-             * which will do the repaint. */
-            break;
-
-        default:
-            return user_api.pScrollBarWndProc(hwnd, msg, wParam, lParam, unicode);
-    }
-
-    return 0;
 }

@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "UIScrollBar.h"
+#include "WindowsEx/scrollbar.h"
 
 namespace DuiLib
 {
@@ -791,14 +792,30 @@ namespace DuiLib
 
 	bool CScrollBarUI::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
 	{
-		PaintBkColor(hDC);
-		PaintBkImage(hDC);
-		PaintBk(hDC);
-		PaintButton1(hDC);
-		PaintButton2(hDC);
-		PaintThumb(hDC);
-		PaintRail(hDC);
-		PaintBorder(hDC);
+		if (m_sThumbNormalImage.IsEmpty())
+		{
+			UINT hot_push_mask = UISTATE_HOT | UISTATE_PUSHED;
+			UINT pushState = m_uThumbState & hot_push_mask;
+			UXTHEME_ScrollBarDraw(GetHWND(), hDC, 0
+				, pushState?SCROLL_THUMB 
+					: (pushState = (m_uButton1State & UISTATE_PUSHED))?SCROLL_TOP_ARROW
+					: (pushState = (m_uButton2State & UISTATE_PUSHED))?SCROLL_BOTTOM_ARROW
+					: SCROLL_NOWHERE
+				, pushState & UISTATE_PUSHED
+				, true, true, &m_rcItem, m_rcButton1.bottom-m_rcButton1.top, m_rcThumb.top - m_rcItem.top
+				, m_rcThumb.bottom-m_rcThumb.top, !m_bHorizontal);
+		}
+		else
+		{
+			PaintBkColor(hDC);
+			PaintBkImage(hDC);
+			PaintBk(hDC);
+			PaintButton1(hDC);
+			PaintButton2(hDC);
+			PaintThumb(hDC);
+			PaintRail(hDC);
+			PaintBorder(hDC);
+		}
 		return true;
 	}
 
@@ -956,6 +973,21 @@ namespace DuiLib
 		DWORD dwBorderColor = 0xFF85E4FF;
 		int nBorderSize = 2;
 		CRenderEngine::DrawRect(hDC, m_rcThumb, nBorderSize, dwBorderColor);
+
+		RECT rc = m_rcItem;
+		int number = 1;
+		float space = (m_rcItem.bottom-m_rcItem.top)*1.f / number;
+		//for (size_t i = 0; i < number; i++)
+		//{
+		//	rc.top = space*i;
+		//	rc.bottom = rc.top+5;
+		//	//CRenderEngine::DrawRect(hDC, rc, nBorderSize, dwBorderColor);
+		//}
+		for (size_t i = 0; i < number; i++)
+		{
+			rc.bottom = rc.top = space*i;
+			//CRenderEngine::DrawLine(hDC, rc, nBorderSize, dwBorderColor);
+		}
 	}
 
 	void CScrollBarUI::PaintRail(HDC hDC)
