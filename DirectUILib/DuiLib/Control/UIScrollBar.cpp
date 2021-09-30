@@ -796,14 +796,26 @@ namespace DuiLib
 		{
 			UINT hot_push_mask = UISTATE_HOT | UISTATE_PUSHED;
 			UINT pushState = m_uThumbState & hot_push_mask;
-			UXTHEME_ScrollBarDraw(GetHWND(), hDC, 0
-				, pushState?SCROLL_THUMB 
-					: (pushState = (m_uButton1State & UISTATE_PUSHED))?SCROLL_TOP_ARROW
-					: (pushState = (m_uButton2State & UISTATE_PUSHED))?SCROLL_BOTTOM_ARROW
-					: SCROLL_NOWHERE
-				, pushState & UISTATE_PUSHED
-				, true, true, &m_rcItem, m_rcButton1.bottom-m_rcButton1.top, m_rcThumb.top - m_rcItem.top
-				, m_rcThumb.bottom-m_rcThumb.top, !m_bHorizontal);
+			SCROLL_HITTEST hit_item = pushState?SCROLL_THUMB 
+				: ((pushState=m_uButton1State) & UISTATE_PUSHED)?SCROLL_TOP_ARROW
+				: ((pushState=m_uButton2State) & UISTATE_PUSHED)?SCROLL_BOTTOM_ARROW
+				: SCROLL_NOWHERE;
+			if (m_bHorizontal)
+			{
+				UXTHEME_ScrollBarDraw(GetHWND(), hDC, 0
+					, hit_item
+					, pushState & UISTATE_PUSHED
+					, true, true, &m_rcItem, m_rcButton1.right-m_rcButton1.left, m_rcThumb.left - m_rcItem.left
+					, m_rcThumb.right-m_rcThumb.left, false);
+			}
+			else
+			{
+				UXTHEME_ScrollBarDraw(GetHWND(), hDC, 0
+					, hit_item
+					, pushState & UISTATE_PUSHED
+					, true, true, &m_rcItem, m_rcButton1.bottom-m_rcButton1.top, m_rcThumb.top - m_rcItem.top
+					, m_rcThumb.bottom-m_rcThumb.top, true);
+			}
 		}
 		else
 		{

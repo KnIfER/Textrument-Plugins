@@ -50,10 +50,12 @@ void WINAPI UXTHEME_ScrollBarDraw(HWND hwnd, HDC dc, INT bar, enum SCROLL_HITTES
     else
         theme = OpenThemeDataForDpi(NULL, WC_SCROLLBARW, GetDpiForWindow(hwnd));
 
+    //theme = 0;
+
     if (!theme)
     {
-        //user_api.pScrollBarDraw(hwnd, dc, bar, hit_test, tracking_info, draw_arrows, draw_interior,
-        //                        rect, arrowsize, thumbpos, thumbsize, vertical);
+        USER_ScrollBarDraw(0, hwnd, dc, bar, hit_test, hit_is_push, draw_arrows, draw_interior,
+                                    rect, arrowsize, thumbpos, thumbsize, vertical);
         return;
     }
 
@@ -195,21 +197,20 @@ void WINAPI UXTHEME_ScrollBarDraw(HWND hwnd, HDC dc, INT bar, enum SCROLL_HITTES
                 leftarrowstate = ABS_LEFTNORMAL;
                 rightarrowstate = ABS_RIGHTNORMAL;
 
-                //if (vertical == tracking_info->vertical && hit_test == tracking_info->hit_test
-                //    && GetCapture() == hwnd)
-                //{
-                //    if (hit_test == SCROLL_TOP_ARROW)
-                //        leftarrowstate = ABS_LEFTPRESSED;
-                //    else if (hit_test == SCROLL_BOTTOM_ARROW)
-                //        rightarrowstate = ABS_RIGHTPRESSED;
-                //}
-                //else
-                //{
-                //    if (hit_test == SCROLL_TOP_ARROW)
-                //        leftarrowstate = ABS_LEFTHOT;
-                //    else if (hit_test == SCROLL_BOTTOM_ARROW)
-                //        rightarrowstate = ABS_RIGHTHOT;
-                //}
+                if (hit_is_push)
+                {
+                    if (hit_test == SCROLL_TOP_ARROW)
+                        leftarrowstate = ABS_LEFTPRESSED;
+                    else if (hit_test == SCROLL_BOTTOM_ARROW)
+                        rightarrowstate = ABS_RIGHTPRESSED;
+                }
+                else
+                {
+                    if (hit_test == SCROLL_TOP_ARROW)
+                        leftarrowstate = ABS_LEFTHOT;
+                    else if (hit_test == SCROLL_BOTTOM_ARROW)
+                        rightarrowstate = ABS_RIGHTHOT;
+                }
             }
 
             partrect = *rect;

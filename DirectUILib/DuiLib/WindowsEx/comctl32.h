@@ -218,6 +218,8 @@ __declspec(selectany) AdjustWindowRectExForDpiSig fnAdjustWindowRectExForDpi = n
     (LPARAM)SNDMSG((hwnd), TCM_GETITEMEXTRA, (LPARAM)position, 0)
 
 void ReadColors();
+HBRUSH DEFWND_ControlColor( HDC hDC, UINT ctlType );
+HPEN SYSCOLOR_GetPen( INT index );
 
 UINT DpiForWindow(HWND hWnd);
 

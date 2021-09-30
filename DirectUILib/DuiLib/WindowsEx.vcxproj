@@ -18,6 +18,21 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WindowsEx\button.h" />
+    <ClInclude Include="WindowsEx\comctl32.h" />
+    <ClInclude Include="WindowsEx\debug.h" />
+    <ClInclude Include="WindowsEx\heap.h" />
+    <ClInclude Include="WindowsEx\scrollbar.h" />
+    <ClInclude Include="WindowsEx\WindowsEx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="WindowsEx\button.cpp" />
+    <ClCompile Include="WindowsEx\comctl32.cpp" />
+    <ClCompile Include="WindowsEx\scroll.cpp" />
+    <ClCompile Include="WindowsEx\scrollbar.cpp" />
+    <ClCompile Include="WindowsEx\tab.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{0371208C-B635-405E-86C6-4EEA745786E8}</ProjectGuid>
@@ -58,26 +73,38 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\Program.props" />
+    <Import Project="..\..\Program.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\Program.props" />
+    <Import Project="..\..\Program.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\Program.props" />
+    <Import Project="..\..\Program.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\Program.props" />
+    <Import Project="..\..\Program.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\build\$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>$(Configuration)_$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\build\$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>$(Configuration)_$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\build\$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>$(Configuration)_$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\build\$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>$(Configuration)_$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -128,18 +155,6 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="button.cpp" />
-    <ClCompile Include="comctl32.cpp" />
-    <ClCompile Include="tab.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="button.h" />
-    <ClInclude Include="comctl32.h" />
-    <ClInclude Include="debug.h" />
-    <ClInclude Include="heap.h" />
-    <ClInclude Include="WindowsEx.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
