@@ -36,18 +36,22 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "windows.h"
 #include "windef.h"
 #include "winbase.h"
 #include "winnt.h"
 #include "imm.h"
 #include "usp10.h"
 #include "commctrl.h"
+#include "comctl32.h"
 #include "uxtheme.h"
 #include "vsstyle.h"
-#include "wine/debug.h"
-#include "wine/heap.h"
+#include "debug.h"
+#include "heap.h"
 
-WINE_DEFAULT_DEBUG_CHANNEL(edit);
+namespace Edit{
+
+//WINE_DEFAULT_DEBUG_CHANNEL(edit);
 
 #define BUFLIMIT_INITIAL    30000   /* initial buffer size */
 #define GROWLENGTH		32	/* buffers granularity in bytes: must be power of 2 */
@@ -241,7 +245,7 @@ static INT EDIT_WordBreakProc(EDITSTATE *es, LPWSTR s, INT index, INT count, INT
         memset(&psa,0,sizeof(SCRIPT_ANALYSIS));
         psa.eScript = SCRIPT_UNDEFINED;
 
-        es->logAttr = heap_alloc(sizeof(SCRIPT_LOGATTR) * get_text_length(es));
+        es->logAttr = (SCRIPT_LOGATTR*)heap_alloc(sizeof(SCRIPT_LOGATTR) * get_text_length(es));
         ScriptBreak(es->text, get_text_length(es), &psa, es->logAttr);
     }
 
@@ -336,7 +340,7 @@ static SCRIPT_STRING_ANALYSIS EDIT_UpdateUniscribeData_linedef(EDITSTATE *es, HD
 		if (!udc)
 			udc = GetDC(es->hwndSelf);
 		if (es->font)
-			old_font = SelectObject(udc, es->font);
+			old_font = (HFONT)SelectObject(udc, es->font);
 
 		tabdef.cTabStops = es->tabs_count;
 		tabdef.iScale = GdiGetCharDimensions(udc, NULL, NULL);
@@ -377,7 +381,7 @@ static SCRIPT_STRING_ANALYSIS EDIT_UpdateUniscribeData(EDITSTATE *es, HDC dc, IN
 			if (!udc)
 				udc = GetDC(es->hwndSelf);
 			if (es->font)
-				old_font = SelectObject(udc, es->font);
+				old_font = (HFONT)SelectObject(udc, es->font);
 
 			if (es->style & ES_PASSWORD)
 				ScriptStringAnalyse(udc, &es->password_char, length, (1.5*length+16), -1, SSA_LINK|SSA_FALLBACK|SSA_GLYPHS|SSA_PASSWORD, -1, NULL, NULL, NULL, NULL, NULL, &es->ssa);
@@ -479,7 +483,7 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 			{
 				/* The buffer has been expanded, create a new line and
 				   insert it into the link list */
-				LINEDEF *new_line = heap_alloc_zero(sizeof(*new_line));
+				LINEDEF *new_line = (LINEDEF*)heap_alloc_zero(sizeof(*new_line));
 				new_line->next = previous_line->next;
 				previous_line->next = new_line;
 				current_line = new_line;
@@ -589,7 +593,7 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 				if (current_line->ssa)
 				{
 					count = ScriptString_pcOutChars(current_line->ssa);
-					piDx = heap_alloc(sizeof(INT) * (*count));
+					piDx = (INT*)heap_alloc(sizeof(INT) * (*count));
 					ScriptStringGetLogicalWidths(current_line->ssa,piDx);
 
 					prev = current_line->net_length-1;
@@ -1192,7 +1196,7 @@ static void EDIT_LockBuffer(EDITSTATE *es)
         if (!es->hloc32W)
             return;
 
-        es->text = LocalLock(es->hloc32W);
+        es->text = (LPWSTR)LocalLock(es->hloc32W);
     }
 
     es->lock_count++;
@@ -1301,7 +1305,7 @@ static BOOL EDIT_MakeUndoFit(EDITSTATE *es, UINT size)
 	TRACE("trying to ReAlloc to %d+1\n", size);
 
 	alloc_size = ROUND_TO_GROW((size + 1) * sizeof(WCHAR));
-	if ((es->undo_text = HeapReAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, es->undo_text, alloc_size))) {
+	if ((es->undo_text = (LPWSTR)HeapReAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, es->undo_text, alloc_size))) {
 		es->undo_buffer_size = alloc_size/sizeof(WCHAR) - 1;
 		return TRUE;
 	}
@@ -2073,11 +2077,11 @@ static INT EDIT_PaintText(EDITSTATE *es, HDC dc, INT x, INT y, INT line, INT col
 	        }
 		else
 		{
-			HFONT current = GetCurrentObject(dc,OBJ_FONT);
+			HFONT current = (HFONT)GetCurrentObject(dc,OBJ_FONT);
 			GetObjectW(current,sizeof(LOGFONTW),&underline_font);
 			underline_font.lfUnderline = TRUE;
 			hUnderline = CreateFontIndirectW(&underline_font);
-			old_font = SelectObject(dc,hUnderline);
+			old_font = (HFONT)SelectObject(dc,hUnderline);
 	        }
 	}
 	li = EDIT_EM_LineIndex(es, line);
@@ -2472,7 +2476,7 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
 		/* there is something to be deleted */
 		TRACE("deleting stuff.\n");
 		bufl = e - s;
-		buf = heap_alloc((bufl + 1) * sizeof(WCHAR));
+		buf = (LPWSTR)heap_alloc((bufl + 1) * sizeof(WCHAR));
 		if (!buf) return;
 		memcpy(buf, es->text + s, bufl * sizeof(WCHAR));
 		buf[bufl] = 0; /* ensure 0 termination */
@@ -2706,13 +2710,6 @@ static int get_cjk_fontinfo_margin(int width, int side_bearing)
     return margin;
 }
 
-struct char_width_info {
-    INT min_lsb, min_rsb, unknown;
-};
-
-/* Undocumented gdi32 export */
-extern BOOL WINAPI GetCharWidthInfo(HDC, struct char_width_info *);
-
 /*********************************************************************
  *
  *	EM_SETMARGINS
@@ -2735,7 +2732,7 @@ static void EDIT_EM_SetMargins(EDITSTATE *es, INT action,
         /* Set the default margins depending on the font */
         if (es->font && (left == EC_USEFONTINFO || right == EC_USEFONTINFO)) {
             HDC dc = GetDC(es->hwndSelf);
-            HFONT old_font = SelectObject(dc, es->font);
+            HFONT old_font = (HFONT)SelectObject(dc, es->font);
             LONG width = GdiGetCharDimensions(dc, &tm, NULL), rc_width;
             RECT rc;
 
@@ -2835,7 +2832,7 @@ static BOOL EDIT_EM_SetTabStops(EDITSTATE *es, INT count, const INT *tabs)
 	if (!count)
 		es->tabs = NULL;
 	else {
-		es->tabs = heap_alloc(count * sizeof(INT));
+		es->tabs = (LPINT)heap_alloc(count * sizeof(INT));
 		memcpy(es->tabs, tabs, count * sizeof(INT));
 	}
 	EDIT_InvalidateUniscribeData(es);
@@ -2879,7 +2876,7 @@ static BOOL EDIT_EM_Undo(EDITSTATE *es)
 
 	ulength = lstrlenW(es->undo_text);
 
-	utext = heap_alloc((ulength + 1) * sizeof(WCHAR));
+	utext = (LPWSTR)heap_alloc((ulength + 1) * sizeof(WCHAR));
 
 	lstrcpyW(utext, es->undo_text);
 
@@ -2931,7 +2928,7 @@ static void EDIT_WM_Paste(EDITSTATE *es)
 
 	OpenClipboard(es->hwndSelf);
 	if ((hsrc = GetClipboardData(CF_UNICODETEXT))) {
-		src = GlobalLock(hsrc);
+		src = (LPWSTR)GlobalLock(hsrc);
                 len = lstrlenW(src);
 		/* Protect single-line edit against pasting new line character */
 		if (!(es->style & ES_MULTILINE) && ((ptr = wcschr(src, '\n')))) {
@@ -2967,7 +2964,7 @@ static void EDIT_WM_Copy(EDITSTATE *es)
 
 	len = e - s;
 	hdst = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, (len + 1) * sizeof(WCHAR));
-	dst = GlobalLock(hdst);
+	dst = (LPWSTR)GlobalLock(hdst);
 	memcpy(dst, es->text + s, len * sizeof(WCHAR));
 	dst[len] = 0; /* ensure 0 termination */
 	TRACE("%s\n", debugstr_w(dst));
@@ -3581,7 +3578,7 @@ static void EDIT_WM_Paint(EDITSTATE *es, HDC hdc)
 		}
 
 		/* Draw the frame. Same code as in nonclient.c */
-		old_brush = SelectObject(dc, GetSysColorBrush(COLOR_WINDOWFRAME));
+		old_brush = (HBRUSH)SelectObject(dc, GetSysColorBrush(COLOR_WINDOWFRAME));
 		PatBlt(dc, rc.left, rc.top, rc.right - rc.left, bh, PATCOPY);
 		PatBlt(dc, rc.left, rc.top, bw, rc.bottom - rc.top, PATCOPY);
 		PatBlt(dc, rc.left, rc.bottom - 1, rc.right - rc.left, -bw, PATCOPY);
@@ -3605,7 +3602,7 @@ static void EDIT_WM_Paint(EDITSTATE *es, HDC hdc)
 		IntersectClipRect(dc, rc.left, rc.top, rc.right, rc.bottom);
 	}
 	if (es->font)
-		old_font = SelectObject(dc, es->font);
+		old_font = (HFONT)SelectObject(dc, es->font);
 
 	if (!es->bEnableState)
 		SetTextColor(dc, GetSysColor(COLOR_GRAYTEXT));
@@ -3747,7 +3744,7 @@ static void EDIT_WM_SetFont(EDITSTATE *es, HFONT font, BOOL redraw)
 	EDIT_InvalidateUniscribeData(es);
 	dc = GetDC(es->hwndSelf);
 	if (font)
-		old_font = SelectObject(dc, font);
+		old_font = (HFONT)SelectObject(dc, font);
 	GetTextMetricsW(dc, &tm);
 	es->line_height = tm.tmHeight;
 	es->char_width = tm.tmAveCharWidth;
@@ -4205,7 +4202,7 @@ static LRESULT EDIT_EM_GetThumb(EDITSTATE *es)
 static inline WCHAR *heap_strdupW(const WCHAR *str)
 {
     int len = lstrlenW(str) + 1;
-    WCHAR *ret = heap_alloc(len * sizeof(WCHAR));
+    WCHAR *ret = (WCHAR*)heap_alloc(len * sizeof(WCHAR));
     lstrcpyW(ret, str);
     return ret;
 }
@@ -4271,7 +4268,7 @@ static void EDIT_GetCompositionStr(HIMC hIMC, LPARAM CompFlag, EDITSTATE *es)
         return;
     }
 
-    lpCompStr = heap_alloc(buflen);
+    lpCompStr = (LPWSTR)heap_alloc(buflen);
     if (!lpCompStr)
     {
         ERR("Unable to allocate IME CompositionString\n");
@@ -4291,7 +4288,7 @@ static void EDIT_GetCompositionStr(HIMC hIMC, LPARAM CompFlag, EDITSTATE *es)
         if (dwBufLenAttr)
         {
             dwBufLenAttr ++;
-            lpCompStrAttr = heap_alloc(dwBufLenAttr + 1);
+            lpCompStrAttr = (LPSTR)heap_alloc(dwBufLenAttr + 1);
             if (!lpCompStrAttr)
             {
                 ERR("Unable to allocate IME Attribute String\n");
@@ -4337,7 +4334,7 @@ static void EDIT_GetResultStr(HIMC hIMC, EDITSTATE *es)
         return;
     }
 
-    lpResultStr = heap_alloc(buflen);
+    lpResultStr = (LPWSTR)heap_alloc(buflen);
     if (!lpResultStr)
     {
         ERR("Unable to alloc buffer for IME string\n");
@@ -4403,7 +4400,7 @@ static LRESULT EDIT_WM_NCCreate(HWND hwnd, LPCREATESTRUCTW lpcs)
 
     TRACE("Creating edit control, style = %08x\n", lpcs->style);
 
-    if (!(es = heap_alloc_zero(sizeof(*es))))
+    if (!(es = (EDITSTATE*)heap_alloc_zero(sizeof(*es))))
         return FALSE;
     SetWindowLongPtrW( hwnd, 0, (LONG_PTR)es );
 
@@ -4465,12 +4462,12 @@ static LRESULT EDIT_WM_NCCreate(HWND hwnd, LPCREATESTRUCTW lpcs)
 	    goto cleanup;
 	es->buffer_size = LocalSize(es->hloc32W)/sizeof(WCHAR) - 1;
 
-	if (!(es->undo_text = heap_alloc_zero((es->buffer_size + 1) * sizeof(WCHAR))))
+	if (!(es->undo_text = (LPWSTR)heap_alloc_zero((es->buffer_size + 1) * sizeof(WCHAR))))
 		goto cleanup;
 	es->undo_buffer_size = es->buffer_size;
 
 	if (es->style & ES_MULTILINE)
-	    if (!(es->first_line_def = heap_alloc_zero(sizeof(LINEDEF))))
+	    if (!(es->first_line_def = (LINEDEF*)heap_alloc_zero(sizeof(LINEDEF))))
 	        goto cleanup;
 	es->line_count = 1;
 
@@ -4769,7 +4766,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
     }
 
     case EM_SETWORDBREAKPROC:
-        EDIT_EM_SetWordBreakProc(es, (void *)lParam);
+        EDIT_EM_SetWordBreakProc(es, (EDITWORDBREAKPROC)lParam);
         result = 1;
         break;
 
@@ -5112,6 +5109,8 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 
     return result;
 }
+}
+using namespace Edit;
 
 void EDIT_Register(void)
 {
@@ -5128,6 +5127,6 @@ void EDIT_Register(void)
 #endif
     wndClass.hCursor = LoadCursorW(0, (LPWSTR)IDC_IBEAM);
     wndClass.hbrBackground = NULL;
-    wndClass.lpszClassName = WC_EDITW;
+    wndClass.lpszClassName = L"MyEdit";
     RegisterClassW(&wndClass);
 }
