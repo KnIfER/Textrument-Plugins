@@ -31,6 +31,7 @@
 #include "vssym32.h"
 #include "debug.h"
 
+#include "comctl32.h"
 #include "scrollbar.h"
 
 //WINE_DEFAULT_DEBUG_CHANNEL(theme_scroll);
@@ -48,7 +49,7 @@ void WINAPI UXTHEME_ScrollBarDraw(HWND hwnd, HDC dc, INT bar, enum SCROLL_HITTES
     if (bar == SB_CTL)
         theme = GetWindowTheme(hwnd);
     else
-        theme = OpenThemeDataForDpi(NULL, WC_SCROLLBARW, GetDpiForWindow(hwnd));
+        theme = ThemeForDpi(NULL, WC_SCROLLBARW);
 
     //theme = 0;
 

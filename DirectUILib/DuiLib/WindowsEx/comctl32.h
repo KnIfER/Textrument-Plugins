@@ -35,6 +35,7 @@
 #include "winuser.h"
 #include "winnls.h"
 #include "commctrl.h"
+#include "uxtheme.h"
 
 #include <functional>
 
@@ -123,6 +124,20 @@ typedef std::function<int(void*, UINT, WPARAM, LPARAM)> Listener;
 #define TCS_EX_HOTTRACKDRAW        0x00000010
 #define TCS_EX_PLAINBUTTONS        0x00000020
 #define TCN_SIZECHANGE         (TCN_FIRST - 6)
+
+#define ES_COMBO               0x00000200 /* Undocumented. Parent is a combobox */
+
+
+
+// The expression ARRAY_SIZE(a) is a compile-time constant of type
+// size_t which represents the number of elements of the given
+// array. You should only use ARRAY_SIZE on statically allocated
+// arrays.
+
+#define ARRAY_SIZE(a)                               \
+  ((sizeof(a) / sizeof(*(a))) /                     \
+  static_cast<size_t>(!(sizeof(a) % sizeof(*(a)))))
+
 namespace WindowsEx
 {
 typedef struct
@@ -168,6 +183,9 @@ __declspec(selectany) GetSystemMetricsForDpiSig fnGetSystemMetricsForDpi = nullp
 
 using AdjustWindowRectExForDpiSig = BOOL(WINAPI *)(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle, UINT dpi);
 __declspec(selectany) AdjustWindowRectExForDpiSig fnAdjustWindowRectExForDpi = nullptr;
+
+using OpenThemeDataForDpiSig = HTHEME(WINAPI *)(HWND hwnd, LPCWSTR pszClassList, UINT dpi);
+__declspec(selectany) OpenThemeDataForDpiSig fnOpenThemeDataForDpi = nullptr;
 
 #define TCM_SETMAXROWS        (TCM_FIRST + 66)
 #define TabCtrl_SetMaxRows(hwnd, val) \
@@ -222,6 +240,15 @@ HBRUSH DEFWND_ControlColor( HDC hDC, UINT ctlType );
 HPEN SYSCOLOR_GetPen( INT index );
 
 UINT DpiForWindow(HWND hWnd);
+HTHEME ThemeForDpi(HWND hWnd, LPCWSTR pszClassList);
+
+LONG WINAPI GdiGetCharDimensions(HDC hdc, LPTEXTMETRICW lptm, LONG *height);
+DWORD WINAPI GdiGetCodePage( HDC hdc );
+
+struct char_width_info {
+    INT min_lsb, min_rsb, unknown;
+};
+BOOL WINAPI GetCharWidthInfo(HDC hdc, struct char_width_info *info);
 
 #endif  /* __WINE_COMCTL32_H */
 }

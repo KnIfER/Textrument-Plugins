@@ -59,6 +59,10 @@ inline BOOL COMCTL32_IsReflectedMessage(UINT uMsg)
 #define debugstr_w  
 #define debugstr_a  
 
+inline const std::wstring debugstr_wn(const WCHAR * msg, UINT ln){
+    return std::wstring(msg, ln);
+}
+
 inline void nothing(const CHAR* msg, ...){}
 
 #define TRACE(MSG,...) LogIs(3,MSG,__VA_ARGS__) 
@@ -67,6 +71,7 @@ inline void nothing(const CHAR* msg, ...){}
 
 #define FIXME TRACE
 #define WARN TRACE
+#define ERR TRACE
 
 inline int Free(void* ptr) {
   //  free(ptr);
@@ -75,12 +80,13 @@ inline int Free(void* ptr) {
 
 static CHAR buffer[512];
 
-inline const CHAR* wine_dbgstr_rect(RECT* rect) {
-    //CHAR buffer[512];
+
+#define wine_dbgstr_rect(rect) _wine_dbgstr_rect(rect).c_str()
+
+inline const std::string _wine_dbgstr_rect(RECT* rect) {
     if (rect)
     {
-        //CHAR* buffer = malloc(512);
-        int ret=sprintf_s(buffer, 255, "%ld %ld %ld %ld", rect->left, rect->top, rect->right, rect->bottom);
+        sprintf_s(buffer, 255, "%ld %ld %ld %ld", rect->left, rect->top, rect->right, rect->bottom);
         return buffer;
     }
     return "[/]";

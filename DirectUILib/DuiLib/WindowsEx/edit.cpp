@@ -41,7 +41,6 @@
 #include "winbase.h"
 #include "winnt.h"
 #include "imm.h"
-#include "usp10.h"
 #include "commctrl.h"
 #include "comctl32.h"
 #include "uxtheme.h"
@@ -49,111 +48,11 @@
 #include "debug.h"
 #include "heap.h"
 
+#include "edit.h"
+
 namespace Edit{
 
 //WINE_DEFAULT_DEBUG_CHANNEL(edit);
-
-#define BUFLIMIT_INITIAL    30000   /* initial buffer size */
-#define GROWLENGTH		32	/* buffers granularity in bytes: must be power of 2 */
-#define ROUND_TO_GROW(size)	(((size) + (GROWLENGTH - 1)) & ~(GROWLENGTH - 1))
-#define HSCROLL_FRACTION	3	/* scroll window by 1/3 width */
-
-/*
- *	extra flags for EDITSTATE.flags field
- */
-#define EF_MODIFIED		0x0001	/* text has been modified */
-#define EF_FOCUSED		0x0002	/* we have input focus */
-#define EF_UPDATE		0x0004	/* notify parent of changed state */
-#define EF_VSCROLL_TRACK	0x0008	/* don't SetScrollPos() since we are tracking the thumb */
-#define EF_HSCROLL_TRACK	0x0010	/* don't SetScrollPos() since we are tracking the thumb */
-#define EF_AFTER_WRAP		0x0080	/* the caret is displayed after the last character of a
-					   wrapped line, instead of in front of the next character */
-#define EF_USE_SOFTBRK		0x0100	/* Enable soft breaks in text. */
-#define EF_DIALOGMODE           0x0200  /* Indicates that we are inside a dialog window */
-
-#define ID_CB_LISTBOX 1000
-
-typedef enum
-{
-	END_0 = 0,			/* line ends with terminating '\0' character */
-	END_WRAP,			/* line is wrapped */
-	END_HARD,			/* line ends with a hard return '\r\n' */
-        END_SOFT,       		/* line ends with a soft return '\r\r\n' */
-        END_RICH        		/* line ends with a single '\n' */
-} LINE_END;
-
-typedef struct tagLINEDEF {
-	INT length;			/* bruto length of a line in bytes */
-	INT net_length;			/* netto length of a line in visible characters */
-	LINE_END ending;
-	INT width;			/* width of the line in pixels */
-	INT index; 			/* line index into the buffer */
-	SCRIPT_STRING_ANALYSIS ssa;	/* Uniscribe Data */
-	struct tagLINEDEF *next;
-} LINEDEF;
-
-typedef struct
-{
-	LPWSTR text;			/* the actual contents of the control */
-        UINT text_length;               /* cached length of text buffer (in WCHARs) - use get_text_length() to retrieve */
-	UINT buffer_size;		/* the size of the buffer in characters */
-	UINT buffer_limit;		/* the maximum size to which the buffer may grow in characters */
-	HFONT font;			/* NULL means standard system font */
-	INT x_offset;			/* scroll offset	for multi lines this is in pixels
-								for single lines it's in characters */
-	INT line_height;		/* height of a screen line in pixels */
-	INT char_width;			/* average character width in pixels */
-	DWORD style;			/* sane version of wnd->dwStyle */
-	WORD flags;			/* flags that are not in es->style or wnd->flags (EF_XXX) */
-	INT undo_insert_count;		/* number of characters inserted in sequence */
-	UINT undo_position;		/* character index of the insertion and deletion */
-	LPWSTR undo_text;		/* deleted text */
-	UINT undo_buffer_size;		/* size of the deleted text buffer */
-	INT selection_start;		/* == selection_end if no selection */
-	INT selection_end;		/* == current caret position */
-	WCHAR password_char;		/* == 0 if no password char, and for multi line controls */
-	INT left_margin;		/* in pixels */
-	INT right_margin;		/* in pixels */
-	RECT format_rect;
-	INT text_width;			/* width of the widest line in pixels for multi line controls
-					   and just line width for single line controls	*/
-	INT region_posx;		/* Position of cursor relative to region: */
-	INT region_posy;		/* -1: to left, 0: within, 1: to right */
-	EDITWORDBREAKPROCW word_break_proc;
-	INT line_count;			/* number of lines */
-	INT y_offset;			/* scroll offset in number of lines */
-	BOOL bCaptureState; 		/* flag indicating whether mouse was captured */
-	BOOL bEnableState;		/* flag keeping the enable state */
-	HWND hwndSelf;			/* the our window handle */
-	HWND hwndParent;		/* Handle of parent for sending EN_* messages.
-				           Even if parent will change, EN_* messages
-					   should be sent to the first parent. */
-	HWND hwndListBox;		/* handle of ComboBox's listbox or NULL */
-	INT wheelDeltaRemainder;        /* scroll wheel delta left over after scrolling whole lines */
-	WCHAR *cue_banner_text;
-	BOOL cue_banner_draw_focused;
-
-	/*
-	 *	only for multi line controls
-	 */
-	INT lock_count;			/* amount of re-entries in the EditWndProc */
-	INT tabs_count;
-	LPINT tabs;
-	LINEDEF *first_line_def;	/* linked list of (soft) linebreaks */
-	HLOCAL hloc32W;			/* our unicode local memory block */
-        HLOCAL hlocapp;                 /* The text buffer handle belongs to the app */
-	/*
-	 * IME Data
-	 */
-	UINT composition_len;   /* length of composition, 0 == no composition */
-	int composition_start;  /* the character position for the composition */
-	/*
-	 * Uniscribe Data
-	 */
-	SCRIPT_LOGATTR *logAttr;
-	SCRIPT_STRING_ANALYSIS ssa; /* Uniscribe Data for single line controls */
-} EDITSTATE;
-
 
 #define SWAP_UINT32(x,y) do { UINT temp = (UINT)(x); (x) = (UINT)(y); (y) = temp; } while(0)
 #define ORDER_UINT(x,y) do { if ((UINT)(y) < (UINT)(x)) SWAP_UINT32((x),(y)); } while(0)
@@ -168,7 +67,12 @@ typedef struct
 		     (LPARAM)(es->hwndSelf)); \
 	} while(0)
 
-static LRESULT EDIT_EM_PosFromChar(EDITSTATE *es, INT index, BOOL after_wrap);
+
+	static HWND hDelegate = 0;
+	static UINT_PTR _timerID;
+	static EDITSTATE* tEditState = nullptr;
+	void CALLBACK EDIT_TimerProc(HWND hwnd,UINT message,UINT iTimerID,DWORD dwTime);
+
 
 /*********************************************************************
  *
@@ -213,7 +117,12 @@ static HBRUSH EDIT_NotifyCtlColor(EDITSTATE *es, HDC hdc)
 static inline UINT get_text_length(EDITSTATE *es)
 {
     if(es->text_length == (UINT)-1)
-        es->text_length = lstrlenW(es->text);
+	{
+		if (es->useTextObj)
+			fnEDITOBJ_RecalcSz(es);
+		else
+			es->text_length = lstrlenW(es->text);
+	}
     return es->text_length;
 }
 
@@ -304,7 +213,9 @@ static inline void EDIT_InvalidateUniscribeData_linedef(LINEDEF *line_def)
 {
 	if (line_def->ssa)
 	{
+		SCRIPT_STRING_ANALYSIS ssa = line_def->ssa;
 		ScriptStringFree(&line_def->ssa);
+		if (line_def->next && line_def->next->ssa==ssa) line_def->next->ssa = NULL;
 		line_def->ssa = NULL;
 	}
 }
@@ -313,7 +224,8 @@ static inline void EDIT_InvalidateUniscribeData(EDITSTATE *es)
 {
 	LINEDEF *line_def = es->first_line_def;
 	while (line_def)
-	{
+	{		
+		//TRACE("EDIT_InvalidateUniscribeData_linedef::index=%d ending=%d length=%d ssa=%pd width=%d ", line_def->index, line_def->ending, line_def->length, line_def->ssa, line_def->width);
 		EDIT_InvalidateUniscribeData_linedef(line_def);
 		line_def = line_def->next;
 	}
@@ -351,11 +263,14 @@ static SCRIPT_STRING_ANALYSIS EDIT_UpdateUniscribeData_linedef(EDITSTATE *es, HD
                                          (1.5*line_def->net_length+16), -1,
                                          SSA_LINK|SSA_FALLBACK|SSA_GLYPHS|SSA_TAB, -1,
                                          NULL, NULL, NULL, &tabdef, NULL, &line_def->ssa);
+
 		if (FAILED(hr))
 		{
 			WARN("ScriptStringAnalyse failed (%x)\n",hr);
 			line_def->ssa = NULL;
 		}
+
+		//TRACE("EDIT_UpdateUniscribeData_linedef::%d %d", line_def->index, line_def->ssa);
 
 		if (es->font)
 			SelectObject(udc, old_font);
@@ -483,7 +398,7 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 			{
 				/* The buffer has been expanded, create a new line and
 				   insert it into the link list */
-				LINEDEF *new_line = (LINEDEF*)heap_alloc_zero(sizeof(*new_line));
+				LINEDEF *new_line = (LINEDEF*)heap_alloc_zero(sizeof(LINEDEF));
 				new_line->next = previous_line->next;
 				previous_line->next = new_line;
 				current_line = new_line;
@@ -721,8 +636,11 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 		if ((es->style & ES_CENTER) || (es->style & ES_RIGHT))
 			rc.left = es->format_rect.left;
 		else
-                        rc.left = LOWORD(EDIT_EM_PosFromChar(es, nstart_index, FALSE));
+            rc.left = (short)LOWORD(EDIT_EM_PosFromChar(es, nstart_index, FALSE));
 		rc.right = es->format_rect.right;
+		//TRACE("modtmp::rc=[%s], f.left=%ld", wine_dbgstr_rect(&rc), es->format_rect.left);
+		//TRACE("redraw::rc=[%s]", wine_dbgstr_rect(es->rcDraw));
+		//TRACE("EDIT_EM_PosFromChar::st=%d, xoff=%d, pos=%ld", nstart_index, es->x_offset, LOWORD(EDIT_EM_PosFromChar(es, nstart_index, FALSE)));
 		SetRectRgn(hrgn, rc.left, rc.top, rc.right, rc.bottom);
 
 		rc.top = rc.bottom;
@@ -743,6 +661,9 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 		tmphrgn = CreateRectRgn(rc.left, rc.top, rc.right, rc.bottom);
 		CombineRgn(hrgn, hrgn, tmphrgn, RGN_OR);
 		DeleteObject(tmphrgn);
+
+		//GetRgnBox(hrgn, &rc);
+		//TRACE("hrgn::rc=[%s]", wine_dbgstr_rect(&rc));
 	}
 }
 
@@ -1003,7 +924,7 @@ static INT EDIT_EM_LineLength(EDITSTATE *es, INT index)
  *	EM_POSFROMCHAR
  *
  */
-static LRESULT EDIT_EM_PosFromChar(EDITSTATE *es, INT index, BOOL after_wrap)
+LRESULT EDIT_EM_PosFromChar(EDITSTATE *es, INT index, BOOL after_wrap)
 {
 	INT len = get_text_length(es);
 	INT l;
@@ -1049,7 +970,8 @@ static LRESULT EDIT_EM_PosFromChar(EDITSTATE *es, INT index, BOOL after_wrap)
 			x = w - (lw - x);
 		else if (es->style & ES_CENTER)
 			x += (w - lw) / 2;
-	} else {
+	} 
+	else {
 		INT xoff = 0;
 		INT xi = 0;
 		EDIT_UpdateUniscribeData(es, NULL, 0);
@@ -1113,6 +1035,7 @@ static LRESULT EDIT_EM_PosFromChar(EDITSTATE *es, INT index, BOOL after_wrap)
 	}
 	x += es->format_rect.left;
 	y += es->format_rect.top;
+	//assert((short)LOWORD(MAKELONG(x, y))==x);
 	return MAKELONG((INT16)x, (INT16)y);
 }
 
@@ -1171,8 +1094,11 @@ static void EDIT_GetLineRect(EDITSTATE *es, INT line, INT scol, INT ecol, LPRECT
 		pt3+=es->format_rect.left;
 	}
 	else pt3 = pt1;
-	rc->right = max(max(pt1 , pt2),pt3);
-	rc->left = min(min(pt1, pt2),pt3);
+	rc->right = max(max(pt1 , pt2),pt3) + 1;
+	rc->left = min(min(pt1, pt2),pt3) - 1;
+	//if (es->is_delegate) ::OffsetRect(rc, es->rcDraw->left, es->rcDraw->top);
+	//if (es->is_delegate) ::OffsetRect(rc, 100, 100);
+	//if (es->is_delegate) rc->left=999;
 }
 
 
@@ -1189,8 +1115,9 @@ static inline void text_buffer_changed(EDITSTATE *es)
  * EDIT_LockBuffer
  *
  */
-static void EDIT_LockBuffer(EDITSTATE *es)
+void EDIT_LockBuffer(EDITSTATE *es)
 {
+	if(es->useTextObj) return; 
     if (!es->text)
     {
         if (!es->hloc32W)
@@ -1208,8 +1135,9 @@ static void EDIT_LockBuffer(EDITSTATE *es)
  *	EDIT_UnlockBuffer
  *
  */
-static void EDIT_UnlockBuffer(EDITSTATE *es, BOOL force)
+void EDIT_UnlockBuffer(EDITSTATE *es, BOOL force)
 {
+	if(es->useTextObj) return; 
     /* Edit window might be already destroyed */
     if (!IsWindow(es->hwndSelf))
     {
@@ -1263,15 +1191,15 @@ static BOOL EDIT_MakeFit(EDITSTATE *es, UINT size)
 
 	TRACE("trying to ReAlloc to %d+1 characters\n", size);
 
-        /* Force edit to unlock its buffer. es->text now NULL */
+    /* Force edit to unlock its buffer. es->text now NULL */
 	EDIT_UnlockBuffer(es, TRUE);
 
 	if (es->hloc32W) {
 	    UINT alloc_size = ROUND_TO_GROW((size + 1) * sizeof(WCHAR));
 	    if ((hNew32W = LocalReAlloc(es->hloc32W, alloc_size, LMEM_MOVEABLE | LMEM_ZEROINIT))) {
-		TRACE("Old 32 bit handle %p, new handle %p\n", es->hloc32W, hNew32W);
-		es->hloc32W = hNew32W;
-		es->buffer_size = LocalSize(hNew32W)/sizeof(WCHAR) - 1;
+			TRACE("Old 32 bit handle %p, new handle %p\n", es->hloc32W, hNew32W);
+			es->hloc32W = hNew32W;
+			es->buffer_size = LocalSize(hNew32W)/sizeof(WCHAR) - 1;
 	    }
 	}
 
@@ -1324,11 +1252,19 @@ static BOOL EDIT_MakeUndoFit(EDITSTATE *es, UINT size)
  */
 static void EDIT_UpdateTextRegion(EDITSTATE *es, HRGN hrgn, BOOL bErase)
 {
-    if (es->flags & EF_UPDATE) {
-        es->flags &= ~EF_UPDATE;
-        EDIT_NOTIFY_PARENT(es, EN_UPDATE);
-    }
-    InvalidateRgn(es->hwndSelf, hrgn, bErase);
+	if (es->is_delegate)
+	{
+		InvalidateRgn(es->hwndParent, hrgn, bErase);
+		//RECT rc; GetRgnBox(hrgn, &rc); EDIT_UpdateText(es, &rc, bErase);
+	}
+	else
+	{
+		if (es->flags & EF_UPDATE) {
+			es->flags &= ~EF_UPDATE;
+			EDIT_NOTIFY_PARENT(es, EN_UPDATE);
+		}
+		InvalidateRgn(es->hwndSelf, hrgn, bErase);
+	}
 }
 
 
@@ -1339,11 +1275,19 @@ static void EDIT_UpdateTextRegion(EDITSTATE *es, HRGN hrgn, BOOL bErase)
  */
 static void EDIT_UpdateText(EDITSTATE *es, const RECT *rc, BOOL bErase)
 {
-    if (es->flags & EF_UPDATE) {
-        es->flags &= ~EF_UPDATE;
-        EDIT_NOTIFY_PARENT(es, EN_UPDATE);
-    }
-    InvalidateRect(es->hwndSelf, rc, bErase);
+	if (es->is_delegate)
+	{
+		if (!rc) rc = es->rcDraw;
+		InvalidateRect(es->hwndParent, rc, FALSE);
+	}
+	else
+	{
+		if (es->flags & EF_UPDATE) {
+			es->flags &= ~EF_UPDATE;
+			EDIT_NOTIFY_PARENT(es, EN_UPDATE);
+		}
+		InvalidateRect(es->hwndSelf, rc, TRUE);
+	}
 }
 
 /*********************************************************************
@@ -1375,51 +1319,60 @@ static void EDIT_SL_InvalidateText(EDITSTATE *es, INT start, INT end)
 static void EDIT_ML_InvalidateText(EDITSTATE *es, INT start, INT end)
 {
 	INT vlc = get_vertical_line_count(es);
-	INT sl = EDIT_EM_LineFromChar(es, start);
-	INT el = EDIT_EM_LineFromChar(es, end);
+	INT lnSt = EDIT_EM_LineFromChar(es, start);
+	INT lnEd = EDIT_EM_LineFromChar(es, end);
 	INT sc;
 	INT ec;
 	RECT rc1;
 	RECT rcWnd;
 	RECT rcLine;
 	RECT rcUpdate;
-	INT l;
+	INT ln;
 
-	if ((el < es->y_offset) || (sl > es->y_offset + vlc))
+	if ((lnEd < es->y_offset) || (lnSt > es->y_offset + vlc))
 		return;
 
-	sc = start - EDIT_EM_LineIndex(es, sl);
-	ec = end - EDIT_EM_LineIndex(es, el);
-	if (sl < es->y_offset) {
-		sl = es->y_offset;
+	sc = start - EDIT_EM_LineIndex(es, lnSt);
+	ec = end - EDIT_EM_LineIndex(es, lnEd);
+	if (lnSt < es->y_offset) 
+	{
+		lnSt = es->y_offset;
 		sc = 0;
 	}
-	if (el > es->y_offset + vlc) {
-		el = es->y_offset + vlc;
-		ec = EDIT_EM_LineLength(es, EDIT_EM_LineIndex(es, el));
+	if (lnEd > es->y_offset + vlc) {
+		lnEd = es->y_offset + vlc;
+		ec = EDIT_EM_LineLength(es, EDIT_EM_LineIndex(es, lnEd));
 	}
-	GetClientRect(es->hwndSelf, &rc1);
+	if (es->is_delegate)
+	{
+		rc1 = *es->rcDraw;
+	}
+	else
+	{
+		GetClientRect(es->hwndSelf, &rc1);
+	}
 	IntersectRect(&rcWnd, &rc1, &es->format_rect);
-	if (sl == el) {
-		EDIT_GetLineRect(es, sl, sc, ec, &rcLine);
+	if (lnSt == lnEd) 
+	{
+		EDIT_GetLineRect(es, lnSt, sc, ec, &rcLine);
 		if (IntersectRect(&rcUpdate, &rcWnd, &rcLine))
 			EDIT_UpdateText(es, &rcUpdate, TRUE);
 	} else {
-		EDIT_GetLineRect(es, sl, sc,
+		EDIT_GetLineRect(es, lnSt, sc,
 				EDIT_EM_LineLength(es,
-					EDIT_EM_LineIndex(es, sl)),
+					EDIT_EM_LineIndex(es, lnSt)),
 				&rcLine);
 		if (IntersectRect(&rcUpdate, &rcWnd, &rcLine))
 			EDIT_UpdateText(es, &rcUpdate, TRUE);
-		for (l = sl + 1 ; l < el ; l++) {
-			EDIT_GetLineRect(es, l, 0,
+		for (ln = lnSt + 1 ; ln < lnEd ; ln++) {
+			EDIT_GetLineRect(es, ln, 0,
 				EDIT_EM_LineLength(es,
-					EDIT_EM_LineIndex(es, l)),
+					EDIT_EM_LineIndex(es, ln)),
 				&rcLine);
 			if (IntersectRect(&rcUpdate, &rcWnd, &rcLine))
 				EDIT_UpdateText(es, &rcUpdate, TRUE);
 		}
-		EDIT_GetLineRect(es, el, 0, ec, &rcLine);
+		EDIT_GetLineRect(es, lnEd, 0, ec, &rcLine);
 		if (IntersectRect(&rcUpdate, &rcWnd, &rcLine))
 			EDIT_UpdateText(es, &rcUpdate, TRUE);
 	}
@@ -1469,12 +1422,13 @@ static void EDIT_InvalidateText(EDITSTATE *es, INT start, INT end)
  */
 static BOOL EDIT_EM_SetSel(EDITSTATE *es, UINT start, UINT end, BOOL after_wrap)
 {
+	//TRACE("EDIT_EM_SetSel::%d, %d", start, end);
 	UINT old_start = es->selection_start;
 	UINT old_end = es->selection_end;
 	UINT len = get_text_length(es);
 
-        if (start == old_start && end == old_end)
-            return FALSE;
+    if (start == old_start && end == old_end)
+        return FALSE;
 
 	if (start == (UINT)-1) {
 		start = es->selection_end;
@@ -1500,36 +1454,36 @@ static BOOL EDIT_EM_SetSel(EDITSTATE *es, UINT start, UINT end, BOOL after_wrap)
 	 * Knuth 5.3.1 (p 183) assures us that this can be done optimally
 	 * in 5 comparisons; i.e. it is impossible to do better than the
 	 * following: */
-        ORDER_UINT(end, old_end);
-        ORDER_UINT(start, old_start);
-        ORDER_UINT(old_start, old_end);
-        ORDER_UINT(start, end);
+    ORDER_UINT(end, old_end);
+    ORDER_UINT(start, old_start);
+    ORDER_UINT(old_start, old_end);
+    ORDER_UINT(start, end);
 	/* Note that at this point 'end' and 'old_start' are not in order, but
 	 * start is definitely the min. and old_end is definitely the max. */
 	if (end != old_start)
+    {
+		/*
+		 * One can also do
+		 *          ORDER_UINT32(end, old_start);
+		 *          EDIT_InvalidateText(es, start, end);
+		 *          EDIT_InvalidateText(es, old_start, old_end);
+		 * in place of the following if statement.
+		 * (That would complete the optimal five-comparison four-element sort.)
+		 */
+        if (old_start > end )
         {
-/*
- * One can also do
- *          ORDER_UINT32(end, old_start);
- *          EDIT_InvalidateText(es, start, end);
- *          EDIT_InvalidateText(es, old_start, old_end);
- * in place of the following if statement.
- * (That would complete the optimal five-comparison four-element sort.)
- */
-            if (old_start > end )
-            {
-                EDIT_InvalidateText(es, start, end);
-                EDIT_InvalidateText(es, old_start, old_end);
-            }
-            else
-            {
-                EDIT_InvalidateText(es, start, old_start);
-                EDIT_InvalidateText(es, end, old_end);
-            }
+            EDIT_InvalidateText(es, start, end);
+            EDIT_InvalidateText(es, old_start, old_end);
+        }
+        else
+        {
+            EDIT_InvalidateText(es, start, old_start);
+            EDIT_InvalidateText(es, end, old_end);
+        }
 	}
-        else EDIT_InvalidateText(es, start, old_end);
+    else EDIT_InvalidateText(es, start, old_end);
 
-        return TRUE;
+    return TRUE;
 }
 
 
@@ -1608,7 +1562,8 @@ static BOOL EDIT_EM_LineScroll_internal(EDITSTATE *es, INT dx, INT dy)
 	if (nyoff >= es->line_count - lines_per_page)
 		nyoff = max(0, es->line_count - lines_per_page);
 	dy = (es->y_offset - nyoff) * es->line_height;
-	if (dx || dy) {
+	if (dx || dy) 
+	{
 		RECT rc1;
 		RECT rc;
 
@@ -1617,18 +1572,34 @@ static BOOL EDIT_EM_LineScroll_internal(EDITSTATE *es, INT dx, INT dy)
 		    es->x_offset += dx;
 		else
 		    es->x_offset += dx / es->char_width;
-
-		GetClientRect(es->hwndSelf, &rc1);
-		IntersectRect(&rc, &rc1, &es->format_rect);
-		ScrollWindowEx(es->hwndSelf, -dx, dy,
+		if (es->is_delegate)
+		{
+			rc1 = *es->rcDraw;
+			//rc1 = es->rcLastDraw;
+			if (es->style&WS_BORDER) InflateRect(&rc, -1, -1);
+			//IntersectRect(&rc, &rc1, &es->format_rect);
+			//IntersectRect(&rc, &rc1, &es->rcLastDraw);
+			//ScrollWindowEx(es->hwndParent, -dx, dy,
+			//	&rc1, &rc, NULL, NULL, SW_INVALIDATE);
+			InvalidateRect(es->hwndParent, &rc1, FALSE);
+		}
+		else
+		{
+			GetClientRect(es->hwndSelf, &rc1);
+			IntersectRect(&rc, &rc1, &es->format_rect);
+			ScrollWindowEx(es->hwndSelf, -dx, dy,
 				NULL, &rc, NULL, NULL, SW_INVALIDATE);
+		}
 		/* force scroll info update */
 		EDIT_UpdateScrollInfo(es);
 	}
-	if (dx && !(es->flags & EF_HSCROLL_TRACK))
-		EDIT_NOTIFY_PARENT(es, EN_HSCROLL);
-	if (dy && !(es->flags & EF_VSCROLL_TRACK))
-		EDIT_NOTIFY_PARENT(es, EN_VSCROLL);
+	if (!es->is_delegate)
+	{
+		if (dx && !(es->flags & EF_HSCROLL_TRACK))
+			EDIT_NOTIFY_PARENT(es, EN_HSCROLL);
+		if (dy && !(es->flags & EF_VSCROLL_TRACK))
+			EDIT_NOTIFY_PARENT(es, EN_VSCROLL);
+	}
 	return TRUE;
 }
 
@@ -1705,15 +1676,14 @@ static LRESULT EDIT_EM_Scroll(EDITSTATE *es, INT action)
  *	EDIT_SetCaretPos
  *
  */
-static void EDIT_SetCaretPos(EDITSTATE *es, INT pos,
-			     BOOL after_wrap)
+void EDIT_SetCaretPos(EDITSTATE *es, INT pos, BOOL after_wrap)
 {
     LRESULT res;
 
     if (es->flags & EF_FOCUSED)
     {
         res = EDIT_EM_PosFromChar(es, pos, after_wrap);
-        TRACE("%d - %dx%d\n", pos, (short)LOWORD(res), (short)HIWORD(res));
+        TRACE("_SetCaretPos::%d - %dx%d\n", pos, (short)LOWORD(res), (short)HIWORD(res));
         SetCaretPos((short)LOWORD(res), (short)HIWORD(res));
     }
 }
@@ -1726,7 +1696,8 @@ static void EDIT_SetCaretPos(EDITSTATE *es, INT pos,
  */
 static void EDIT_EM_ScrollCaret(EDITSTATE *es)
 {
-	if (es->style & ES_MULTILINE) {
+	if (es->style & ES_MULTILINE) 
+	{
 		INT l;
 		INT vlc;
 		INT ww;
@@ -1755,12 +1726,15 @@ static void EDIT_EM_ScrollCaret(EDITSTATE *es)
 		    if(dx || dy || (es->y_offset && (es->line_count - es->y_offset < vlc)))
 			EDIT_EM_LineScroll_internal(es, dx, dy);
 		}
-	} else {
+	} 
+	else 
+	{
 		INT x;
 		INT goal;
 		INT format_width;
 
 		x = (short)LOWORD(EDIT_EM_PosFromChar(es, es->selection_end, FALSE));
+		//TRACE("_ScrollCaret::x=%d\n", x);
 		format_width = es->format_rect.right - es->format_rect.left;
 		if (x < es->format_rect.left) {
 			goal = es->format_rect.left + format_width / HSCROLL_FRACTION;
@@ -1865,18 +1839,20 @@ static void EDIT_MoveEnd(EDITSTATE *es, BOOL extend, BOOL ctrl)
  */
 static void EDIT_MoveForward(EDITSTATE *es, BOOL extend)
 {
-	INT e = es->selection_end;
+	INT ed = es->selection_end;
 
-	if (es->text[e]) {
-		e++;
-		if ((es->style & ES_MULTILINE) && (es->text[e - 1] == '\r')) {
-			if (es->text[e] == '\n')
-				e++;
-			else if ((es->text[e] == '\r') && (es->text[e + 1] == '\n'))
-				e += 2;
+	if (es->text[ed]) 
+	{
+		ed++;
+		if ((es->style & ES_MULTILINE) && (es->text[ed - 1] == '\r')) 
+		{
+			if (es->text[ed] == '\n')
+				ed++;
+			else if ((es->text[ed] == '\r') && (es->text[ed + 1] == '\n'))
+				ed += 2;
 		}
 	}
-	EDIT_EM_SetSel(es, extend ? es->selection_start : e, e, FALSE);
+	EDIT_EM_SetSel(es, extend ? es->selection_start : ed, ed, FALSE);
 	EDIT_EM_ScrollCaret(es);
 }
 
@@ -2136,7 +2112,7 @@ static void EDIT_PaintLine(EDITSTATE *es, HDC dc, INT line, BOOL rev)
 	} else if (line)
 		return;
 
-	TRACE("line=%d\n", line);
+	TRACE("PaintLine::line=%d\n", line);
 
 	ssa = EDIT_UpdateUniscribeData(es, dc, line);
 	pos = EDIT_EM_PosFromChar(es, EDIT_EM_LineIndex(es, line), FALSE);
@@ -2179,20 +2155,22 @@ static void EDIT_PaintLine(EDITSTATE *es, HDC dc, INT line, BOOL rev)
 	}
 
 	if (ssa)
+	{
 		ScriptStringOut(ssa, x, y, 0, &es->format_rect, s - li, e - li, FALSE);
-	else if (rev && (s != e) &&
-			((es->flags & EF_FOCUSED) || (es->style & ES_NOHIDESEL))) {
+	}
+	else if (rev && (s != e) && ((es->flags & EF_FOCUSED) || (es->style & ES_NOHIDESEL))) 
+	{
 		x += EDIT_PaintText(es, dc, x, y, line, 0, s - li, FALSE);
 		x += EDIT_PaintText(es, dc, x, y, line, s - li, e - s, TRUE);
 		x += EDIT_PaintText(es, dc, x, y, line, e - li, li + ll - e, FALSE);
 	} else
 		x += EDIT_PaintText(es, dc, x, y, line, 0, ll, FALSE);
 
-       if (es->cue_banner_text && es->text_length == 0 && (!(es->flags & EF_FOCUSED) || es->cue_banner_draw_focused))
-       {
-	       SetTextColor(dc, GetSysColor(COLOR_GRAYTEXT));
-	       TextOutW(dc, x, y, es->cue_banner_text, lstrlenW(es->cue_banner_text));
-       }
+    if (es->cue_banner_text && es->text_length == 0 && (!(es->flags & EF_FOCUSED) || es->cue_banner_draw_focused))
+    {
+	    SetTextColor(dc, GetSysColor(COLOR_GRAYTEXT));
+	    TextOutW(dc, x, y, es->cue_banner_text, lstrlenW(es->cue_banner_text));
+    }
 }
 
 
@@ -2307,7 +2285,14 @@ static LRESULT EDIT_EM_CharFromPos(EDITSTATE *es, INT x, INT y)
 
 	pt.x = x;
 	pt.y = y;
-	GetClientRect(es->hwndSelf, &rc);
+	if (es->is_delegate)
+	{
+		rc = *es->rcDraw;
+	}
+	else
+	{
+		GetClientRect(es->hwndSelf, &rc);
+	}
 	if (!PtInRect(&rc, pt))
 		return -1;
 
@@ -2433,28 +2418,29 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
 {
 	UINT tl = get_text_length(es);
 	UINT utl;
-	UINT s;
-	UINT e;
+	UINT st;
+	UINT ed;
 	UINT i;
 	UINT size;
 	LPWSTR p;
 	HRGN hrgn = 0;
 	LPWSTR buf = NULL;
 	UINT bufl;
+	//send_update=false;
 
 	TRACE("%s, can_undo %d, send_update %d\n",
 	    debugstr_wn(lpsz_replace, strl), can_undo, send_update);
 
-	s = es->selection_start;
-	e = es->selection_end;
+	st = es->selection_start;
+	ed = es->selection_end;
 
 	EDIT_InvalidateUniscribeData(es);
-	if ((s == e) && !strl)
+	if ((st == ed) && !strl)
 		return;
 
-	ORDER_UINT(s, e);
+	ORDER_UINT(st, ed);
 
-	size = tl - (e - s) + strl;
+	size = tl - (ed - st) + strl;
 	if (!size)
 		es->text_width = 0;
 
@@ -2463,40 +2449,42 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
 	if ((honor_limit) && (size > es->buffer_limit)) {
 		EDIT_NOTIFY_PARENT(es, EN_MAXTEXT);
 		/* Buffer limit can be smaller than the actual length of text in combobox */
-		if (es->buffer_limit < (tl - (e-s)))
+		if (es->buffer_limit < (tl - (ed-st)))
 			strl = 0;
 		else
-			strl = min(strl, es->buffer_limit - (tl - (e-s)));
+			strl = min(strl, es->buffer_limit - (tl - (ed-st)));
 	}
 
-	if (!EDIT_MakeFit(es, tl - (e - s) + strl))
+	if (es->useTextObj && !fnEDITOBJ_MakeFit(es, tl - (ed - st) + strl + 1))
+		return;
+	else if (!EDIT_MakeFit(es, tl - (ed - st) + strl))
 		return;
 
-	if (e != s) {
+	if (ed != st) {
 		/* there is something to be deleted */
 		TRACE("deleting stuff.\n");
-		bufl = e - s;
+		bufl = ed - st;
 		buf = (LPWSTR)heap_alloc((bufl + 1) * sizeof(WCHAR));
 		if (!buf) return;
-		memcpy(buf, es->text + s, bufl * sizeof(WCHAR));
+		memcpy(buf, es->text + st, bufl * sizeof(WCHAR));
 		buf[bufl] = 0; /* ensure 0 termination */
 		/* now delete */
-		lstrcpyW(es->text + s, es->text + e);
-                text_buffer_changed(es);
+		lstrcpyW(es->text + st, es->text + ed);
+        text_buffer_changed(es);
 	}
 	if (strl) {
 		/* there is an insertion */
 		tl = get_text_length(es);
-		TRACE("inserting stuff (tl %d, strl %d, selstart %d (%s), text %s)\n", tl, strl, s, debugstr_w(es->text + s), debugstr_w(es->text));
-		for (p = es->text + tl ; p >= es->text + s ; p--)
+		TRACE("inserting stuff (tl %d, strl %d, selstart %d (%s), text %s)\n", tl, strl, st, debugstr_w(es->text + st), debugstr_w(es->text));
+		for (p = es->text + tl ; p >= es->text + st ; p--)
 			p[strl] = p[0];
-		for (i = 0 , p = es->text + s ; i < strl ; i++)
+		for (i = 0 , p = es->text + st ; i < strl ; i++)
 			p[i] = lpsz_replace[i];
 		if(es->style & ES_UPPERCASE)
 			CharUpperBuffW(p, strl);
 		else if(es->style & ES_LOWERCASE)
 			CharLowerBuffW(p, strl);
-                text_buffer_changed(es);
+        text_buffer_changed(es);
 	}
 	if (es->style & ES_MULTILINE)
 	{
@@ -2507,18 +2495,19 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
 		EDIT_BuildLineDefs_ML(es, st, st + strl,
 				strl - abs(es->selection_end - es->selection_start), hrgn);
 		/* if text is too long undo all changes */
+		if(false)
 		if (honor_limit && !(es->style & ES_AUTOVSCROLL) && (es->line_count > vlc)) {
 			if (strl)
-				lstrcpyW(es->text + e, es->text + e + strl);
-			if (e != s)
-				for (i = 0 , p = es->text ; i < e - s ; i++)
-					p[i + s] = buf[i];
-                        text_buffer_changed(es);
-			EDIT_BuildLineDefs_ML(es, s, e,
+				lstrcpyW(es->text + ed, es->text + ed + strl);
+			if (ed != st)
+				for (i = 0 , p = es->text ; i < ed - st ; i++)
+					p[i + st] = buf[i];
+            text_buffer_changed(es);
+			EDIT_BuildLineDefs_ML(es, st, ed,
 				abs(es->selection_end - es->selection_start) - strl, hrgn);
 			strl = 0;
-			e = s;
-                        SetRectRgn(hrgn, 0, 0, 0, 0);
+			ed = st;
+            SetRectRgn(hrgn, 0, 0, 0, 0);
 			EDIT_NOTIFY_PARENT(es, EN_MAXTEXT);
 		}
 	}
@@ -2527,71 +2516,83 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
 		EDIT_InvalidateUniscribeData(es);
 		EDIT_CalcLineWidth_SL(es);
 		/* remove chars that don't fit */
-		if (honor_limit && !(es->style & ES_AUTOHSCROLL) && (es->text_width > fw)) {
-			while ((es->text_width > fw) && s + strl >= s) {
-				lstrcpyW(es->text + s + strl - 1, es->text + s + strl);
+		if (honor_limit && !(es->style & ES_AUTOHSCROLL) && (es->text_width > fw)) 
+		{
+			while ((es->text_width > fw) && st + strl >= st) 
+			{
+				lstrcpyW(es->text + st + strl - 1, es->text + st + strl);
 				strl--;
 				es->text_length = -1;
 				EDIT_InvalidateUniscribeData(es);
 				EDIT_CalcLineWidth_SL(es);
 			}
-                        text_buffer_changed(es);
+            text_buffer_changed(es);
 			EDIT_NOTIFY_PARENT(es, EN_MAXTEXT);
 		}
 	}
 
-	if (e != s) {
-		if (can_undo) {
+	if (ed != st) 
+	{
+		if (can_undo) 
+		{
 			utl = lstrlenW(es->undo_text);
-			if (!es->undo_insert_count && (*es->undo_text && (s == es->undo_position))) {
+			if (!es->undo_insert_count && (*es->undo_text && (st == es->undo_position))) 
+			{
 				/* undo-buffer is extended to the right */
-				EDIT_MakeUndoFit(es, utl + e - s);
-				memcpy(es->undo_text + utl, buf, (e - s)*sizeof(WCHAR));
-				(es->undo_text + utl)[e - s] = 0; /* ensure 0 termination */
-			} else if (!es->undo_insert_count && (*es->undo_text && (e == es->undo_position))) {
+				EDIT_MakeUndoFit(es, utl + ed - st);
+				memcpy(es->undo_text + utl, buf, (ed - st)*sizeof(WCHAR));
+				(es->undo_text + utl)[ed - st] = 0; /* ensure 0 termination */
+			} 
+			else if (!es->undo_insert_count && (*es->undo_text && (ed == es->undo_position))) 
+			{
 				/* undo-buffer is extended to the left */
-				EDIT_MakeUndoFit(es, utl + e - s);
+				EDIT_MakeUndoFit(es, utl + ed - st);
 				for (p = es->undo_text + utl ; p >= es->undo_text ; p--)
-					p[e - s] = p[0];
-				for (i = 0 , p = es->undo_text ; i < e - s ; i++)
+					p[ed - st] = p[0];
+				for (i = 0 , p = es->undo_text ; i < ed - st ; i++)
 					p[i] = buf[i];
-				es->undo_position = s;
-			} else {
+				es->undo_position = st;
+			} 
+			else 
+			{
 				/* new undo-buffer */
-				EDIT_MakeUndoFit(es, e - s);
-				memcpy(es->undo_text, buf, (e - s)*sizeof(WCHAR));
-				es->undo_text[e - s] = 0; /* ensure 0 termination */
-				es->undo_position = s;
+				EDIT_MakeUndoFit(es, ed - st);
+				memcpy(es->undo_text, buf, (ed - st)*sizeof(WCHAR));
+				es->undo_text[ed - st] = 0; /* ensure 0 termination */
+				es->undo_position = st;
 			}
 			/* any deletion makes the old insertion-undo invalid */
 			es->undo_insert_count = 0;
-		} else
-			EDIT_EM_EmptyUndoBuffer(es);
+		} 
+		else EDIT_EM_EmptyUndoBuffer(es);
 	}
-	if (strl) {
-		if (can_undo) {
-			if ((s == es->undo_position) ||
-				((es->undo_insert_count) &&
-				(s == es->undo_position + es->undo_insert_count)))
+	if (strl)
+	{
+		if (can_undo) 
+		{
+			if (st == es->undo_position 
+				|| (es->undo_insert_count 
+					&& st == es->undo_position+es->undo_insert_count))
 				/*
 				 * insertion is new and at delete position or
 				 * an extension to either left or right
 				 */
 				es->undo_insert_count += strl;
-			else {
+			else 
+			{
 				/* new insertion undo */
-				es->undo_position = s;
+				es->undo_position = st;
 				es->undo_insert_count = strl;
 				/* new insertion makes old delete-buffer invalid */
 				*es->undo_text = '\0';
 			}
-		} else
-			EDIT_EM_EmptyUndoBuffer(es);
+		} 
+		else EDIT_EM_EmptyUndoBuffer(es);
 	}
 
 	heap_free(buf);
 
-	s += strl;
+	st += strl;
 
 	/* If text has been deleted and we're right or center aligned then scroll rightward */
 	if (es->style & (ES_RIGHT | ES_CENTER))
@@ -2607,7 +2608,7 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
 		}
 	}
 
-	EDIT_EM_SetSel(es, s, s, FALSE);
+	EDIT_EM_SetSel(es, st, st, FALSE);
 	es->flags |= EF_MODIFIED;
 	if (send_update) es->flags |= EF_UPDATE;
 	if (hrgn)
@@ -2615,8 +2616,10 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
 		EDIT_UpdateTextRegion(es, hrgn, TRUE);
 		DeleteObject(hrgn);
 	}
-	else
-            EDIT_UpdateText(es, NULL, TRUE);
+	else 
+	{
+		EDIT_UpdateText(es, NULL, TRUE);
+	}
 
 	EDIT_EM_ScrollCaret(es);
 
@@ -2624,7 +2627,7 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
 	EDIT_UpdateScrollInfo(es);
 
 
-        if(send_update || (es->flags & EF_UPDATE))
+    if(send_update || (es->flags & EF_UPDATE))
 	{
 	    es->flags &= ~EF_UPDATE;
 	    EDIT_NOTIFY_PARENT(es, EN_CHANGE);
@@ -2679,7 +2682,7 @@ static void EDIT_EM_SetHandle(EDITSTATE *es, HLOCAL hloc)
  *	NOTE: this version currently implements WinNT limits
  *
  */
-static void EDIT_EM_SetLimitText(EDITSTATE *es, UINT limit)
+void _SetLimitText(EDITSTATE *es, UINT limit)
 {
     if (!limit) limit = ~0u;
     if (!(es->style & ES_MULTILINE)) limit = min(limit, 0x7ffffffe);
@@ -2864,7 +2867,7 @@ static void EDIT_EM_SetWordBreakProc(EDITSTATE *es, EDITWORDBREAKPROCW wbp)
  *	EM_UNDO / WM_UNDO
  *
  */
-static BOOL EDIT_EM_Undo(EDITSTATE *es)
+static BOOL _Undo(EDITSTATE *es)
 {
 	INT ulength;
 	LPWSTR utext;
@@ -2916,7 +2919,7 @@ static inline BOOL EDIT_IsInsideDialog(EDITSTATE *es)
  *	WM_PASTE
  *
  */
-static void EDIT_WM_Paste(EDITSTATE *es)
+static void _Paste(EDITSTATE *es)
 {
 	HGLOBAL hsrc;
 	LPWSTR src, ptr;
@@ -2929,20 +2932,19 @@ static void EDIT_WM_Paste(EDITSTATE *es)
 	OpenClipboard(es->hwndSelf);
 	if ((hsrc = GetClipboardData(CF_UNICODETEXT))) {
 		src = (LPWSTR)GlobalLock(hsrc);
-                len = lstrlenW(src);
-		/* Protect single-line edit against pasting new line character */
-		if (!(es->style & ES_MULTILINE) && ((ptr = wcschr(src, '\n')))) {
-			len = ptr - src;
-			if (len && src[len - 1] == '\r')
-				--len;
-		}
-                EDIT_EM_ReplaceSel(es, TRUE, src, len, TRUE, TRUE);
+        len = lstrlenW(src);
+		///* Protect single-line edit against pasting new line character */
+		//if (!(es->style & ES_MULTILINE) && ((ptr = wcschr(src, '\n')))) {
+		//	len = ptr - src;
+		//	if (len && src[len - 1] == '\r') --len;
+		//}
+        EDIT_EM_ReplaceSel(es, TRUE, src, len, TRUE, TRUE);
 		GlobalUnlock(hsrc);
 	}
-        else if (es->style & ES_PASSWORD) {
-            /* clear selected text in password edit box even with empty clipboard */
-            EDIT_EM_ReplaceSel(es, TRUE, NULL, 0, TRUE, TRUE);
-        }
+    else if (es->style & ES_PASSWORD) {
+        /* clear selected text in password edit box even with empty clipboard */
+        EDIT_EM_ReplaceSel(es, TRUE, NULL, 0, TRUE, TRUE);
+    }
 	CloseClipboard();
 }
 
@@ -2952,7 +2954,7 @@ static void EDIT_WM_Paste(EDITSTATE *es)
  *	WM_COPY
  *
  */
-static void EDIT_WM_Copy(EDITSTATE *es)
+static void _Copy(EDITSTATE *es)
 {
 	INT s = min(es->selection_start, es->selection_end);
 	INT e = max(es->selection_start, es->selection_end);
@@ -2996,9 +2998,9 @@ static inline void EDIT_WM_Clear(EDITSTATE *es)
  *	WM_CUT
  *
  */
-static inline void EDIT_WM_Cut(EDITSTATE *es)
+static inline void _Cut(EDITSTATE *es)
 {
-	EDIT_WM_Copy(es);
+	_Copy(es);
 	EDIT_WM_Clear(es);
 }
 
@@ -3008,9 +3010,9 @@ static inline void EDIT_WM_Cut(EDITSTATE *es)
  *	WM_CHAR
  *
  */
-static LRESULT EDIT_WM_Char(EDITSTATE *es, WCHAR c)
+LRESULT _Char(EDITSTATE *es, WCHAR c)
 {
-        BOOL control;
+    BOOL control;
 
 	control = GetKeyState(VK_CONTROL) & 0x8000;
 
@@ -3024,7 +3026,8 @@ static LRESULT EDIT_WM_Char(EDITSTATE *es, WCHAR c)
                 if (EDIT_IsInsideDialog(es))
                     break;
 	case '\n':
-		if (es->style & ES_MULTILINE) {
+		if (es->style & ES_MULTILINE) 
+		{
 			if (es->style & ES_READONLY) {
 				EDIT_MoveHome(es, FALSE, FALSE);
 				EDIT_MoveDown_ML(es, FALSE);
@@ -3054,19 +3057,19 @@ static LRESULT EDIT_WM_Char(EDITSTATE *es, WCHAR c)
 		break;
 	case 0x03: /* ^C */
 		if (!(es->style & ES_PASSWORD))
-		    SendMessageW(es->hwndSelf, WM_COPY, 0, 0);
+			_Copy(es);
 		break;
 	case 0x16: /* ^V */
-	        if (!(es->style & ES_READONLY))
-		    SendMessageW(es->hwndSelf, WM_PASTE, 0, 0);
+	    if (!(es->style & ES_READONLY))
+			_Paste(es);
 		break;
 	case 0x18: /* ^X */
-	        if (!((es->style & ES_READONLY) || (es->style & ES_PASSWORD)))
-		    SendMessageW(es->hwndSelf, WM_CUT, 0, 0);
+	    if (!((es->style & ES_READONLY) || (es->style & ES_PASSWORD)))
+			_Cut(es);
 		break;
 	case 0x1A: /* ^Z */
-	        if (!(es->style & ES_READONLY))
-		    SendMessageW(es->hwndSelf, WM_UNDO, 0, 0);
+	    if (!(es->style & ES_READONLY))
+			_Undo(es);
 		break;
 
 	default:
@@ -3089,29 +3092,32 @@ static LRESULT EDIT_WM_Char(EDITSTATE *es, WCHAR c)
  */
 static void EDIT_ContextMenuCommand(EDITSTATE *es, UINT id)
 {
+	EDIT_LockBuffer(es);
 	switch (id) {
 		case EM_UNDO:
-                        SendMessageW(es->hwndSelf, WM_UNDO, 0, 0);
+            _Undo(es);
 			break;
 		case WM_CUT:
-                        SendMessageW(es->hwndSelf, WM_CUT, 0, 0);
+			_Cut(es);
 			break;
 		case WM_COPY:
-                        SendMessageW(es->hwndSelf, WM_COPY, 0, 0);
+			_Copy(es);
 			break;
 		case WM_PASTE:
-                        SendMessageW(es->hwndSelf, WM_PASTE, 0, 0);
+			_Paste(es);
 			break;
 		case WM_CLEAR:
-                        SendMessageW(es->hwndSelf, WM_CLEAR, 0, 0);
+			EDIT_WM_Clear(es);
 			break;
 		case EM_SETSEL:
-                        SendMessageW(es->hwndSelf, EM_SETSEL, 0, -1);
+			EDIT_EM_SetSel(es, 0, -1, FALSE);
+			EDIT_EM_ScrollCaret(es);
 			break;
 		default:
 			ERR("unknown menu item, please report\n");
 			break;
 	}
+	EDIT_UnlockBuffer(es, FALSE);
 }
 
 
@@ -3131,9 +3137,9 @@ static void EDIT_ContextMenuCommand(EDITSTATE *es, UINT id)
  *		(as we do in EDIT_WM_Command()).
  *
  */
-static void EDIT_WM_ContextMenu(EDITSTATE *es, INT x, INT y)
+void EDIT_WM_ContextMenu(EDITSTATE *es, INT x, INT y)
 {
-    HMENU menu = LoadMenuA(GetModuleHandleA("user32.dll"), "EDITMENU");
+    HMENU menu = LoadMenuA(GetModuleHandleA(NULL), "EDITMENU");
     HMENU popup = GetSubMenu(menu, 0);
     UINT start = es->selection_start;
     UINT end = es->selection_end;
@@ -3158,22 +3164,24 @@ static void EDIT_WM_ContextMenu(EDITSTATE *es, INT x, INT y)
     pt.x = x;
     pt.y = y;
 
+	HWND hwnd = es->is_delegate?es->hwndParent:es->hwndParent;
+
     if (pt.x == -1 && pt.y == -1) /* passed via VK_APPS press/release */
     {
         RECT rc;
 
         /* Windows places the menu at the edit's center in this case */
-        GetClientRect(es->hwndSelf, &rc);
+        GetClientRect(hwnd, &rc);
         pt.x = rc.left + (rc.right - rc.left) / 2;
         pt.y = rc.top + (rc.bottom - rc.top) / 2;
-        ClientToScreen(es->hwndSelf, &pt);
+        ClientToScreen(hwnd, &pt);
     }
 
-    if (!(es->flags & EF_FOCUSED))
-        SetFocus(es->hwndSelf);
+    if (!es->is_delegate && !(es->flags & EF_FOCUSED))
+        SetFocus(hwnd);
 
     cmd = TrackPopupMenu(popup, TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_NONOTIFY,
-            pt.x, pt.y, 0, es->hwndSelf, NULL);
+            pt.x, pt.y, 0, hwnd, NULL);
 
     if (cmd)
         EDIT_ContextMenuCommand(es, cmd);
@@ -3254,6 +3262,35 @@ static BOOL EDIT_CheckCombo(EDITSTATE *es, UINT msg, INT key)
     return TRUE;
 }
 
+LRESULT _MouseWheel(EDITSTATE *es, WPARAM wParam, LPARAM lParam)
+{
+	int wheelDelta;
+	INT pulScrollLines = 3;
+	SystemParametersInfoW(SPI_GETWHEELSCROLLLINES,0, &pulScrollLines, 0);
+
+	if (wParam & (MK_SHIFT | MK_CONTROL))
+	{
+		return DefWindowProcW(es->is_delegate?es->hwndParent:es->hwndSelf, WM_MOUSEWHEEL, wParam, lParam);
+	}
+
+	wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+	/* if scrolling changes direction, ignore left overs */
+	if ((wheelDelta < 0 && es->wheelDeltaRemainder < 0) ||
+		(wheelDelta > 0 && es->wheelDeltaRemainder > 0))
+		es->wheelDeltaRemainder += wheelDelta;
+	else
+		es->wheelDeltaRemainder = wheelDelta;
+
+	if (es->wheelDeltaRemainder && pulScrollLines)
+	{
+		int cLineScroll;
+		pulScrollLines = min(es->line_count, pulScrollLines);
+		cLineScroll = pulScrollLines * es->wheelDeltaRemainder / WHEEL_DELTA;
+		es->wheelDeltaRemainder -= WHEEL_DELTA * cLineScroll / pulScrollLines;
+		return EDIT_EM_LineScroll(es, 0, -cLineScroll);
+	}
+	return FALSE;
+}
 
 /*********************************************************************
  *
@@ -3263,7 +3300,7 @@ static BOOL EDIT_CheckCombo(EDITSTATE *es, UINT msg, INT key)
  *	(i.e. non-printable keys) & Backspace & Delete
  *
  */
-static LRESULT EDIT_WM_KeyDown(EDITSTATE *es, INT key)
+LRESULT _KeyDown(EDITSTATE *es, INT key)
 {
 	BOOL shift;
 	BOOL control;
@@ -3324,7 +3361,7 @@ static LRESULT EDIT_WM_KeyDown(EDITSTATE *es, INT key)
 		if (!(es->style & ES_READONLY) && !(shift && control)) {
 			if (es->selection_start != es->selection_end) {
 				if (shift)
-					EDIT_WM_Cut(es);
+					_Cut(es);
 				else
 					EDIT_WM_Clear(es);
 			} else {
@@ -3345,9 +3382,9 @@ static LRESULT EDIT_WM_KeyDown(EDITSTATE *es, INT key)
 	case VK_INSERT:
 		if (shift) {
 			if (!(es->style & ES_READONLY))
-				EDIT_WM_Paste(es);
+				_Paste(es);
 		} else if (control)
-			EDIT_WM_Copy(es);
+			_Copy(es);
 		break;
 	case VK_RETURN:
 	    /* If the edit doesn't want the return send a message to the default object */
@@ -3405,7 +3442,7 @@ static LRESULT EDIT_WM_KillFocus(HTHEME theme, EDITSTATE *es)
     DestroyCaret();
     if (!(es->style & ES_NOHIDESEL))
         EDIT_InvalidateText(es, es->selection_start, es->selection_end);
-    EDIT_NOTIFY_PARENT(es, EN_KILLFOCUS);
+    if(!es->is_delegate)EDIT_NOTIFY_PARENT(es, EN_KILLFOCUS);
     /* Throw away left over scroll when we lose focus */
     es->wheelDeltaRemainder = 0;
 
@@ -3424,7 +3461,7 @@ static LRESULT EDIT_WM_KillFocus(HTHEME theme, EDITSTATE *es)
  *	The caret position has been set on the WM_LBUTTONDOWN message
  *
  */
-static LRESULT EDIT_WM_LButtonDblClk(EDITSTATE *es)
+LRESULT _LButtonDblClk(EDITSTATE *es)
 {
 	INT s;
 	INT e = es->selection_end;
@@ -3433,7 +3470,7 @@ static LRESULT EDIT_WM_LButtonDblClk(EDITSTATE *es)
 	INT ll;
 
 	es->bCaptureState = TRUE;
-	SetCapture(es->hwndSelf);
+	if(es->is_delegate) SetCapture(es->hwndSelf);
 
 	l = EDIT_EM_LineFromChar(es, e);
 	li = EDIT_EM_LineIndex(es, l);
@@ -3443,7 +3480,15 @@ static LRESULT EDIT_WM_LButtonDblClk(EDITSTATE *es)
 	EDIT_EM_SetSel(es, s, e, FALSE);
 	EDIT_EM_ScrollCaret(es);
 	es->region_posx = es->region_posy = 0;
-	SetTimer(es->hwndSelf, 0, 100, NULL);
+	if (es->is_delegate)
+	{
+		tEditState = es;
+		_timerID = SetTimer(0, 0, 100, EDIT_TimerProc);
+	}
+	else
+	{
+		SetTimer(es->hwndSelf, 0, 100, NULL);
+	}
 	return 0;
 }
 
@@ -3453,22 +3498,32 @@ static LRESULT EDIT_WM_LButtonDblClk(EDITSTATE *es)
  *	WM_LBUTTONDOWN
  *
  */
-static LRESULT EDIT_WM_LButtonDown(EDITSTATE *es, DWORD keys, INT x, INT y)
+LRESULT _LButtonDown(EDITSTATE *es, DWORD keys, INT x, INT y)
 {
 	INT e;
 	BOOL after_wrap;
 
 	es->bCaptureState = TRUE;
-	SetCapture(es->hwndSelf);
+	if (!es->is_delegate) SetCapture(es->hwndSelf);
 	EDIT_ConfinePoint(es, &x, &y);
 	e = EDIT_CharFromPos(es, x, y, &after_wrap);
 	EDIT_EM_SetSel(es, (keys & MK_SHIFT) ? es->selection_start : e, e, after_wrap);
 	EDIT_EM_ScrollCaret(es);
 	es->region_posx = es->region_posy = 0;
-	SetTimer(es->hwndSelf, 0, 100, NULL);
+	if (es->is_delegate)
+	{
+		tEditState = es;
+		_timerID = SetTimer(0, 0, 90, EDIT_TimerProc);
+	}
+	else
+	{
+		SetTimer(es->hwndSelf, 0, 100, NULL);
+	}
 
-	if (!(es->flags & EF_FOCUSED))
-            SetFocus(es->hwndSelf);
+	if (!es->is_delegate && !(es->flags & EF_FOCUSED))
+	{
+		SetFocus(es->hwndSelf);
+	}
 
 	return 0;
 }
@@ -3479,10 +3534,19 @@ static LRESULT EDIT_WM_LButtonDown(EDITSTATE *es, DWORD keys, INT x, INT y)
  *	WM_LBUTTONUP
  *
  */
-static LRESULT EDIT_WM_LButtonUp(EDITSTATE *es)
+LRESULT _LButtonUp(EDITSTATE *es)
 {
-	if (es->bCaptureState) {
-		KillTimer(es->hwndSelf, 0);
+	if (es->bCaptureState) 
+	{
+		if (es->is_delegate)
+		{
+			KillTimer(0, _timerID);
+		}
+		else
+		{
+			KillTimer(es->hwndSelf, 0);
+		}
+		if(es->is_delegate) tEditState = nullptr;
 		if (GetCapture() == es->hwndSelf) ReleaseCapture();
 	}
 	es->bCaptureState = FALSE;
@@ -3507,39 +3571,40 @@ static LRESULT EDIT_WM_MButtonDown(EDITSTATE *es)
  *	WM_MOUSEMOVE
  *
  */
-static LRESULT EDIT_WM_MouseMove(EDITSTATE *es, INT x, INT y)
+LRESULT _MouseMove(EDITSTATE *es, INT x, INT y)
 {
-	INT e;
+	INT ed;
 	BOOL after_wrap;
-	INT prex, prey;
+	INT prex = x, prey = y;
 
-        /* If the mouse has been captured by process other than the edit control itself,
-         * the windows edit controls will not select the strings with mouse move.
-         */
-        if (!es->bCaptureState || GetCapture() != es->hwndSelf)
+    /* If the mouse has been captured by process other than the edit control itself,
+        * the windows edit controls will not select the strings with mouse move.
+        */
+    if (!es->is_delegate && (!es->bCaptureState || GetCapture() != es->hwndSelf))
 		return 0;
 
 	/*
 	 *	FIXME: gotta do some scrolling if outside client
 	 *		area.  Maybe reset the timer ?
 	 */
-	prex = x; prey = y;
 	EDIT_ConfinePoint(es, &x, &y);
-	es->region_posx = (prex < x) ? -1 : ((prex > x) ? 1 : 0);
-	es->region_posy = (prey < y) ? -1 : ((prey > y) ? 1 : 0);
-	e = EDIT_CharFromPos(es, x, y, &after_wrap);
-	EDIT_EM_SetSel(es, es->selection_start, e, after_wrap);
+	es->region_posx = (prex < x) ? -1 : ((prex > x) ? 1 : 0); // sign(prex-x)
+	es->region_posy = (prey < y) ? -1 : ((prey > y) ? 1 : 0); // sign(prey-y)
+	ed = EDIT_CharFromPos(es, x, y, &after_wrap);
+	//TRACE("_MouseMove_SetSel::x=%d, y=%d\n", x, y);
+	EDIT_EM_SetSel(es, es->selection_start, ed, after_wrap);
 	EDIT_SetCaretPos(es,es->selection_end,es->flags & EF_AFTER_WRAP);
 	return 0;
 }
 
+HRGN _hrgn = CreateRectRgn( 0, 0, 0, 0 );
 
 /*********************************************************************
  *
  *	WM_PAINT
  *
  */
-static void EDIT_WM_Paint(EDITSTATE *es, HDC hdc)
+void _Paint(EDITSTATE *es, HDC hdc, const RECT* rcPaint)
 {
 	PAINTSTRUCT ps;
 	INT i;
@@ -3552,15 +3617,26 @@ static void EDIT_WM_Paint(EDITSTATE *es, HDC hdc)
 	HBRUSH brush;
 	HBRUSH old_brush;
 	INT bw, bh;
-	BOOL rev = es->bEnableState &&
-				((es->flags & EF_FOCUSED) ||
-					(es->style & ES_NOHIDESEL));
-        dc = hdc ? hdc : BeginPaint(es->hwndSelf, &ps);
+	BOOL rev = es->bEnableState && ((es->flags & EF_FOCUSED) || (es->style & ES_NOHIDESEL));
+    dc = hdc ? hdc : BeginPaint(es->hwndSelf, &ps);
+
+	HRGN hrgn = _hrgn;
+	if (GetClipRgn( hdc, hrgn ) != 1) hrgn = 0;
 
 	/* The dc we use for calculating may not be the one we paint into.
 	   This is the safest action. */
 	EDIT_InvalidateUniscribeData(es);
-	GetClientRect(es->hwndSelf, &rcClient);
+
+	if (es->is_delegate)
+	{
+		rcClient = *es->rcDraw;
+		es->format_rect = rcClient;
+	}
+	else
+	{
+		GetClientRect(es->hwndSelf, &rcClient);
+	}
+
 
 	/* get the background brush */
 	brush = EDIT_NotifyCtlColor(es, dc);
@@ -3568,7 +3644,8 @@ static void EDIT_WM_Paint(EDITSTATE *es, HDC hdc)
 	/* paint the border and the background */
 	IntersectClipRect(dc, rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
 
-	if(es->style & WS_BORDER) {
+	if(es->style & WS_BORDER) 
+	{
 		bw = GetSystemMetrics(SM_CXBORDER);
 		bh = GetSystemMetrics(SM_CYBORDER);
 		rc = rcClient;
@@ -3581,22 +3658,33 @@ static void EDIT_WM_Paint(EDITSTATE *es, HDC hdc)
 		old_brush = (HBRUSH)SelectObject(dc, GetSysColorBrush(COLOR_WINDOWFRAME));
 		PatBlt(dc, rc.left, rc.top, rc.right - rc.left, bh, PATCOPY);
 		PatBlt(dc, rc.left, rc.top, bw, rc.bottom - rc.top, PATCOPY);
-		PatBlt(dc, rc.left, rc.bottom - 1, rc.right - rc.left, -bw, PATCOPY);
-		PatBlt(dc, rc.right - 1, rc.top, -bw, rc.bottom - rc.top, PATCOPY);
+		PatBlt(dc, rc.left, rc.bottom, rc.right - rc.left, -bw, PATCOPY);
+		PatBlt(dc, rc.right, rc.top, -bw, rc.bottom - rc.top, PATCOPY);
 		SelectObject(dc, old_brush);
 
 		/* Keep the border clean */
-		IntersectClipRect(dc, rc.left+bw, rc.top+bh,
-		    max(rc.right-bw, rc.left+bw), max(rc.bottom-bh, rc.top+bh));
+		IntersectClipRect(dc, rc.left+bw, rc.top+bh, max(rc.right-bw, rc.left+bw), max(rc.bottom-bh, rc.top+bh));
+
+		if (es->is_delegate)
+		{
+			InflateRect(&rcClient, -2, -2);
+			es->format_rect = rcClient;
+		}
+	}
+
+	if (es->is_delegate && rcPaint)
+	{
+		es->rcLastDraw = *rcPaint;
 	}
 
 	GetClipBox(dc, &rc);
-	FillRect(dc, &rc, brush);
+	//rc = rcClient;
+	if(!es->is_delegate)
+	{
+		FillRect(dc, &rc, brush);
+		IntersectClipRect(dc, es->format_rect.left, es->format_rect.top, es->format_rect.right, es->format_rect.bottom);
+	}
 
-	IntersectClipRect(dc, es->format_rect.left,
-				es->format_rect.top,
-				es->format_rect.right,
-				es->format_rect.bottom);
 	if (es->style & ES_MULTILINE) {
 		rc = rcClient;
 		IntersectClipRect(dc, rc.left, rc.top, rc.right, rc.bottom);
@@ -3604,10 +3692,13 @@ static void EDIT_WM_Paint(EDITSTATE *es, HDC hdc)
 	if (es->font)
 		old_font = (HFONT)SelectObject(dc, es->font);
 
+
 	if (!es->bEnableState)
 		SetTextColor(dc, GetSysColor(COLOR_GRAYTEXT));
+	//rcRgn = rcClient;
 	GetClipBox(dc, &rcRgn);
-	if (es->style & ES_MULTILINE) {
+	if (es->style & ES_MULTILINE) 
+	{
 		INT vlc = get_vertical_line_count(es);
 		for (i = es->y_offset ; i <= min(es->y_offset + vlc, es->y_offset + es->line_count - 1) ; i++) {
 			EDIT_UpdateUniscribeData(es, dc, i);
@@ -3615,17 +3706,45 @@ static void EDIT_WM_Paint(EDITSTATE *es, HDC hdc)
 			if (IntersectRect(&rc, &rcRgn, &rcLine))
 				EDIT_PaintLine(es, dc, i, rev);
 		}
-	} else {
+	} 
+	else 
+	{
 		EDIT_UpdateUniscribeData(es, dc, 0);
 		EDIT_GetLineRect(es, 0, 0, -1, &rcLine);
 		if (IntersectRect(&rc, &rcRgn, &rcLine))
 			EDIT_PaintLine(es, dc, 0, rev);
+
+		if (es->flags&EF_SHOWLNRET)
+		{
+			// 渲染换行符 \n
+			SetBkMode(dc, TRANSPARENT);
+			UINT st = EDIT_CharFromPos(es, rcLine.left, rcLine.top, NULL);
+			UINT ed = EDIT_CharFromPos(es, rcLine.right, rcLine.top, NULL);
+			char c;
+			while(st<ed)
+			{
+				c = es->text[st];
+				if (c=='\n'||c=='\r')
+				{
+					LRESULT position = EDIT_EM_PosFromChar(es, (INT)st, FALSE);
+					//TextOutW(dc, (short)LOWORD(position), (short)HIWORD(position), L"|", 1);
+					short x = (short)LOWORD(position)-1;
+					short y = (short)HIWORD(position)+es->line_height-1;
+					MoveToEx(dc, x, y-es->line_height/2, NULL);
+					LineTo(dc,  x, y);
+					LineTo(dc,  x-es->line_height/2, y);
+				}
+				st++;
+			}
+		}
 	}
 	if (es->font)
 		SelectObject(dc, old_font);
 
-        if (!hdc)
-            EndPaint(es->hwndSelf, &ps);
+    if (!hdc)
+        EndPaint(es->hwndSelf, &ps);
+
+	SelectClipRgn( dc, hrgn );
 }
 
 static void EDIT_WM_NCPaint(HWND hwnd, HRGN region)
@@ -3691,7 +3810,7 @@ static void EDIT_WM_SetFocus(HTHEME theme, EDITSTATE *es)
     CreateCaret(es->hwndSelf, 0, 1, es->line_height);
     EDIT_SetCaretPos(es, es->selection_end, es->flags & EF_AFTER_WRAP);
     ShowCaret(es->hwndSelf);
-    EDIT_NOTIFY_PARENT(es, EN_SETFOCUS);
+	if(!es->is_delegate)EDIT_NOTIFY_PARENT(es, EN_SETFOCUS);
 
     if (theme)
         flags |= RDW_FRAME | RDW_ERASE;
@@ -3732,9 +3851,9 @@ static DWORD get_font_margins(HDC hdc, const TEXTMETRICW *tm)
  * unchanged.
  *
  */
-static void EDIT_WM_SetFont(EDITSTATE *es, HFONT font, BOOL redraw)
+void _SetFont(EDITSTATE *es, HFONT font, BOOL redraw)
 {
-	TEXTMETRICW tm;
+	TEXTMETRICW tm{0};
 	HDC dc;
 	HFONT old_font = 0;
 	RECT clientRect;
@@ -3743,18 +3862,24 @@ static void EDIT_WM_SetFont(EDITSTATE *es, HFONT font, BOOL redraw)
 	es->font = font;
 	EDIT_InvalidateUniscribeData(es);
 	dc = GetDC(es->hwndSelf);
-	if (font)
-		old_font = (HFONT)SelectObject(dc, font);
+	if (font) old_font = (HFONT)SelectObject(dc, font);
 	GetTextMetricsW(dc, &tm);
 	es->line_height = tm.tmHeight;
 	es->char_width = tm.tmAveCharWidth;
 	margins = get_font_margins(dc, &tm);
-	if (font)
-		SelectObject(dc, old_font);
+	if (font) SelectObject(dc, old_font);
 	ReleaseDC(es->hwndSelf, dc);
 
 	/* Reset the format rect and the margins */
-	GetClientRect(es->hwndSelf, &clientRect);
+	if (es->is_delegate)
+	{
+		clientRect = *es->rcDraw;
+		return;
+	}
+	else
+	{
+		GetClientRect(es->hwndSelf, &clientRect);
+	}
 	EDIT_SetRectNP(es, &clientRect);
 	if (margins)
 		EDIT_EM_SetMargins(es, EC_LEFTMARGIN | EC_RIGHTMARGIN,
@@ -3789,7 +3914,7 @@ static void EDIT_WM_SetFont(EDITSTATE *es, HFONT font, BOOL redraw)
  *  The modified flag is reset. EN_UPDATE and EN_CHANGE notifications are sent.
  *
  */
-static void EDIT_WM_SetText(EDITSTATE *es, LPCWSTR text)
+void _SetText(EDITSTATE *es, LPCWSTR text)
 {
     if (es->flags & EF_UPDATE)
         /* fixed this bug once; complain if we see it about to happen again. */
@@ -3908,7 +4033,7 @@ static LRESULT EDIT_WM_SysKeyDown(EDITSTATE *es, INT key, DWORD key_data)
 {
 	if ((key == VK_BACK) && (key_data & 0x2000)) {
 		if (EDIT_EM_CanUndo(es))
-			EDIT_EM_Undo(es);
+			_Undo(es);
 		return 0;
 	} else if (key == VK_UP || key == VK_DOWN) {
 		if (EDIT_CheckCombo(es, WM_SYSKEYDOWN, key))
@@ -3923,6 +4048,7 @@ static LRESULT EDIT_WM_SysKeyDown(EDITSTATE *es, INT key, DWORD key_data)
  *	WM_TIMER
  *
  */
+
 static void EDIT_WM_Timer(EDITSTATE *es)
 {
 	if (es->region_posx < 0) {
@@ -4387,52 +4513,89 @@ static void EDIT_ImeComposition(HWND hwnd, LPARAM CompFlag, EDITSTATE *es)
 }
 
 
-/*********************************************************************
- *
- *	WM_NCCREATE
- *
- * See also EDIT_WM_StyleChanged
- */
-static LRESULT EDIT_WM_NCCreate(HWND hwnd, LPCREATESTRUCTW lpcs)
+void CALLBACK EDIT_TimerProc(HWND hwnd,UINT message,UINT iTimerID,DWORD dwTime) 
+{
+	if (tEditState) EDIT_WM_Timer(tEditState);
+}
+
+/* WM_NCCREATE See also EDIT_WM_StyleChanged */
+LRESULT _Create(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
 	EDITSTATE *es;
 	UINT alloc_size;
+	if (wParam)
+	{
+		es = (EDITSTATE*)wParam;
+		es->hwndParent = hwnd;
+		es->is_delegate = true;
+		if (!hDelegate)
+		{
+			hDelegate = ::CreateWindow(
+				L"MyEdit"
+				, TEXT("DelegateBtn")
+				, WS_CHILD // | WS_VISIBLE
+				, 0, 0
+				//,64,64
+				, 0,0
+				, hwnd
+				, NULL
+				, GetModuleHandle(NULL)
+				,  NULL) ;
+		}
+		es->hwndSelf = hDelegate;
+	}
+	else
+	{
+		LPCREATESTRUCTW lpcs = (LPCREATESTRUCTW)lParam;
+		TRACE("Creating edit control, style = %08x\n", lpcs->style);
+		es = new EDITSTATE{};
+		//if (!(es = (EDITSTATE*)heap_alloc_zero(sizeof(*es)))) return FALSE;
+		SetWindowLongPtrW( hwnd, 0, (LONG_PTR)es );
+		/*
+		*      Note: since the EDITSTATE has not been fully initialized yet,
+		*            we can't use any API calls that may send
+		*            WM_XXX messages before WM_NCCREATE is completed.
+		*/
+		es->style = lpcs->style;
+		es->hwndSelf = hwnd;
+		/* Save parent, which will be notified by EN_* messages */
+		es->hwndParent = lpcs->hwndParent;
 
-    TRACE("Creating edit control, style = %08x\n", lpcs->style);
+		if (es->style & ES_COMBO)
+			es->hwndListBox = GetDlgItem(es->hwndParent, ID_CB_LISTBOX);
 
-    if (!(es = (EDITSTATE*)heap_alloc_zero(sizeof(*es))))
-        return FALSE;
-    SetWindowLongPtrW( hwnd, 0, (LONG_PTR)es );
+		/* FIXME: should we handle changes to WS_EX_RIGHT style after creation? */
+		if (lpcs->dwExStyle & WS_EX_RIGHT) es->style |= ES_RIGHT;
 
-       /*
-        *      Note: since the EDITSTATE has not been fully initialized yet,
-        *            we can't use any API calls that may send
-        *            WM_XXX messages before WM_NCCREATE is completed.
+
+		/*
+		* In Win95 look and feel, the WS_BORDER style is replaced by the
+		* WS_EX_CLIENTEDGE style for the edit control. This gives the edit
+		* control a nonclient area so we don't need to draw the border.
+		* If WS_BORDER without WS_EX_CLIENTEDGE is specified we shouldn't have
+		* a nonclient area and we should handle painting the border ourselves.
+		*
+		* When making modifications please ensure that the code still works
+		* for edit controls created directly with style 0x50800000, exStyle 0
+		* (which should have a single pixel border)
+		*/
+		if (lpcs->dwExStyle & WS_EX_CLIENTEDGE)
+			es->style &= ~WS_BORDER;
+		else if (es->style & WS_BORDER)
+			SetWindowLongW(hwnd, GWL_STYLE, es->style & ~WS_BORDER);
+	}
+    es->bEnableState = !(es->style & WS_DISABLED);
+
+
+    /* Number overrides lowercase overrides uppercase (at least it
+        * does in Win95).  However I'll bet that ES_NUMBER would be
+        * invalid under Win 3.1.
         */
-
-    es->style = lpcs->style;
-
-        es->bEnableState = !(es->style & WS_DISABLED);
-
-	es->hwndSelf = hwnd;
-	/* Save parent, which will be notified by EN_* messages */
-	es->hwndParent = lpcs->hwndParent;
-
-	if (es->style & ES_COMBO)
-	   es->hwndListBox = GetDlgItem(es->hwndParent, ID_CB_LISTBOX);
-
-        /* FIXME: should we handle changes to WS_EX_RIGHT style after creation? */
-        if (lpcs->dwExStyle & WS_EX_RIGHT) es->style |= ES_RIGHT;
-
-        /* Number overrides lowercase overrides uppercase (at least it
-         * does in Win95).  However I'll bet that ES_NUMBER would be
-         * invalid under Win 3.1.
-         */
-        if (es->style & ES_NUMBER) {
-                ; /* do not override the ES_NUMBER */
-        }  else if (es->style & ES_LOWERCASE) {
-                es->style &= ~ES_UPPERCASE;
-        }
+    if (es->style & ES_NUMBER) {
+            ; /* do not override the ES_NUMBER */
+    }  else if (es->style & ES_LOWERCASE) {
+            es->style &= ~ES_UPPERCASE;
+    }
 	if (es->style & ES_MULTILINE) {
 		es->buffer_limit = BUFLIMIT_INITIAL;
 		if (es->style & WS_VSCROLL)
@@ -4457,10 +4620,13 @@ static LRESULT EDIT_WM_NCCreate(HWND hwnd, LPCREATESTRUCTW lpcs)
 			es->password_char = '*';
 	}
 
-	alloc_size = ROUND_TO_GROW((es->buffer_size + 1) * sizeof(WCHAR));
-	if(!(es->hloc32W = LocalAlloc(LMEM_MOVEABLE | LMEM_ZEROINIT, alloc_size)))
-	    goto cleanup;
-	es->buffer_size = LocalSize(es->hloc32W)/sizeof(WCHAR) - 1;
+	if (!es->useTextObj)
+	{
+		alloc_size = ROUND_TO_GROW((es->buffer_size + 1) * sizeof(WCHAR));
+		if(!(es->hloc32W = LocalAlloc(LMEM_MOVEABLE | LMEM_ZEROINIT, alloc_size)))
+			goto cleanup;
+		es->buffer_size = LocalSize(es->hloc32W)/sizeof(WCHAR) - 1;
+	}
 
 	if (!(es->undo_text = (LPWSTR)heap_alloc_zero((es->buffer_size + 1) * sizeof(WCHAR))))
 		goto cleanup;
@@ -4470,22 +4636,6 @@ static LRESULT EDIT_WM_NCCreate(HWND hwnd, LPCREATESTRUCTW lpcs)
 	    if (!(es->first_line_def = (LINEDEF*)heap_alloc_zero(sizeof(LINEDEF))))
 	        goto cleanup;
 	es->line_count = 1;
-
-	/*
-	 * In Win95 look and feel, the WS_BORDER style is replaced by the
-	 * WS_EX_CLIENTEDGE style for the edit control. This gives the edit
-	 * control a nonclient area so we don't need to draw the border.
-         * If WS_BORDER without WS_EX_CLIENTEDGE is specified we shouldn't have
-         * a nonclient area and we should handle painting the border ourselves.
-         *
-         * When making modifications please ensure that the code still works
-         * for edit controls created directly with style 0x50800000, exStyle 0
-         * (which should have a single pixel border)
-	 */
-	if (lpcs->dwExStyle & WS_EX_CLIENTEDGE)
-		es->style &= ~WS_BORDER;
-        else if (es->style & WS_BORDER)
-		SetWindowLongW(hwnd, GWL_STYLE, es->style & ~WS_BORDER);
 
 	return TRUE;
 
@@ -4518,7 +4668,7 @@ static LRESULT EDIT_WM_Create(EDITSTATE *es, const WCHAR *name)
      * not fully initialized), we should be very careful which
      * functions can be called, and in what order.
      */
-    EDIT_WM_SetFont(es, 0, FALSE);
+    _SetFont(es, 0, FALSE);
     EDIT_EM_EmptyUndoBuffer(es);
 
     /* We need to calculate the format rect
@@ -4597,7 +4747,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
     LRESULT result = 0;
     RECT *rect;
 
-    TRACE("hwnd=%p msg=%#x wparam=%lx lparam=%lx\n", hwnd, msg, wParam, lParam);
+    //TRACE("hwnd=%p msg=%#x wparam=%lx lparam=%lx\n", hwnd, msg, wParam, lParam);
 
     if (!es && msg != WM_NCCREATE)
         return DefWindowProcW(hwnd, msg, wParam, lParam);
@@ -4707,7 +4857,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
         break;
 
     case EM_SETLIMITTEXT:
-        EDIT_EM_SetLimitText(es, wParam);
+        _SetLimitText(es, wParam);
         break;
 
     case EM_CANUNDO:
@@ -4716,7 +4866,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 
     case EM_UNDO:
     case WM_UNDO:
-        result = (LRESULT)EDIT_EM_Undo(es);
+        result = (LRESULT)_Undo(es);
         break;
 
     case EM_FMTLINES:
@@ -4812,7 +4962,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
      */
 
     case WM_NCCREATE:
-        result = EDIT_WM_NCCreate(hwnd, (LPCREATESTRUCTW)lParam);
+        result = _Create(hwnd, wParam, lParam);
         break;
 
     case WM_NCDESTROY:
@@ -4859,7 +5009,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
                 break;
             }
         }
-        result = EDIT_WM_Char(es, charW);
+        result = _Char(es, charW);
         break;
     }
 
@@ -4870,11 +5020,11 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
             if (wParam > 0xffff) /* convert to surrogates */
             {
                 wParam -= 0x10000;
-                EDIT_WM_Char(es, (wParam >> 10) + 0xd800);
-                EDIT_WM_Char(es, (wParam & 0x03ff) + 0xdc00);
+                _Char(es, (wParam >> 10) + 0xd800);
+                _Char(es, (wParam & 0x03ff) + 0xdc00);
             }
             else
-                EDIT_WM_Char(es, wParam);
+                _Char(es, wParam);
         }
         return 0;
 
@@ -4887,7 +5037,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
         break;
 
     case WM_COPY:
-        EDIT_WM_Copy(es);
+        _Copy(es);
         break;
 
     case WM_CREATE:
@@ -4895,7 +5045,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
         break;
 
     case WM_CUT:
-        EDIT_WM_Cut(es);
+        _Cut(es);
         break;
 
     case WM_ENABLE:
@@ -4927,7 +5077,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
         break;
 
     case WM_KEYDOWN:
-        result = EDIT_WM_KeyDown(es, (INT)wParam);
+        result = _KeyDown(es, (INT)wParam);
         break;
 
     case WM_KILLFOCUS:
@@ -4935,15 +5085,15 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
         break;
 
     case WM_LBUTTONDBLCLK:
-        result = EDIT_WM_LButtonDblClk(es);
+        result = _LButtonDblClk(es);
         break;
 
     case WM_LBUTTONDOWN:
-        result = EDIT_WM_LButtonDown(es, wParam, (short)LOWORD(lParam), (short)HIWORD(lParam));
+        result = _LButtonDown(es, wParam, (short)LOWORD(lParam), (short)HIWORD(lParam));
         break;
 
     case WM_LBUTTONUP:
-        result = EDIT_WM_LButtonUp(es);
+        result = _LButtonUp(es);
         break;
 
     case WM_MBUTTONDOWN:
@@ -4951,12 +5101,12 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
         break;
 
     case WM_MOUSEMOVE:
-        result = EDIT_WM_MouseMove(es, (short)LOWORD(lParam), (short)HIWORD(lParam));
+        result = _MouseMove(es, (short)LOWORD(lParam), (short)HIWORD(lParam));
         break;
 
     case WM_PRINTCLIENT:
     case WM_PAINT:
-        EDIT_WM_Paint(es, (HDC)wParam);
+        _Paint(es, (HDC)wParam);
         break;
 
     case WM_NCPAINT:
@@ -4964,7 +5114,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
         break;
 
     case WM_PASTE:
-        EDIT_WM_Paste(es);
+        _Paste(es);
         break;
 
     case WM_SETFOCUS:
@@ -4972,7 +5122,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
         break;
 
     case WM_SETFONT:
-        EDIT_WM_SetFont(es, (HFONT)wParam, LOWORD(lParam) != 0);
+        _SetFont(es, (HFONT)wParam, LOWORD(lParam) != 0);
         break;
 
     case WM_SETREDRAW:
@@ -4980,7 +5130,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
         break;
 
     case WM_SETTEXT:
-        EDIT_WM_SetText(es, (const WCHAR *)lParam);
+        _SetText(es, (const WCHAR *)lParam);
         result = TRUE;
         break;
 
@@ -5001,7 +5151,8 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
         break;
 
     case WM_TIMER:
-        EDIT_WM_Timer(es);
+        if(hwnd==hDelegate) return DefWindowProcW(hwnd, msg, wParam, lParam);
+		EDIT_WM_Timer(es);
         break;
 
     case WM_VSCROLL:
@@ -5010,32 +5161,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_MOUSEWHEEL:
     {
-        int wheelDelta;
-        INT pulScrollLines = 3;
-        SystemParametersInfoW(SPI_GETWHEELSCROLLLINES,0, &pulScrollLines, 0);
-
-        if (wParam & (MK_SHIFT | MK_CONTROL))
-        {
-            result = DefWindowProcW(hwnd, msg, wParam, lParam);
-            break;
-        }
-
-        wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        /* if scrolling changes direction, ignore left overs */
-        if ((wheelDelta < 0 && es->wheelDeltaRemainder < 0) ||
-               (wheelDelta > 0 && es->wheelDeltaRemainder > 0))
-                es->wheelDeltaRemainder += wheelDelta;
-        else
-            es->wheelDeltaRemainder = wheelDelta;
-
-        if (es->wheelDeltaRemainder && pulScrollLines)
-        {
-            int cLineScroll;
-            pulScrollLines = min(es->line_count, pulScrollLines);
-            cLineScroll = pulScrollLines * es->wheelDeltaRemainder / WHEEL_DELTA;
-            es->wheelDeltaRemainder -= WHEEL_DELTA * cLineScroll / pulScrollLines;
-            result = EDIT_EM_LineScroll(es, 0, -cLineScroll);
-        }
+		result = _MouseWheel(es, wParam, lParam);
         break;
     }
 
@@ -5105,7 +5231,7 @@ static LRESULT CALLBACK EDIT_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
     if (IsWindow(hwnd) && es && msg != EM_GETHANDLE)
         EDIT_UnlockBuffer(es, FALSE);
 
-    TRACE("hwnd=%p msg=%x -- 0x%08lx\n", hwnd, msg, result);
+    //TRACE("hwnd=%p msg=%x -- 0x%08lx\n", hwnd, msg, result);
 
     return result;
 }
