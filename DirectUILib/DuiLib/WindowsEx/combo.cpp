@@ -20,11 +20,14 @@
  *
  */
 
+
 #include <stdarg.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define OEMRESOURCE
 
+#include "windows.h"
 #include "windef.h"
 #include "winbase.h"
 #include "wingdi.h"
@@ -32,12 +35,17 @@
 #include "uxtheme.h"
 #include "vssym32.h"
 #include "commctrl.h"
-#include "wine/debug.h"
-#include "wine/heap.h"
+#include "debug.h"
+#include "heap.h"
+#include "windowsx.h"
 
 #include "comctl32.h"
 
-WINE_DEFAULT_DEBUG_CHANNEL(combo);
+#include "combo.h"
+
+namespace Combo{
+
+//WINE_DEFAULT_DEBUG_CHANNEL(combo);
 
   /* bits in the dwKeyData */
 #define KEYDATA_ALT             0x2000
@@ -106,7 +114,7 @@ static BOOL COMBO_Init(void)
 
       TRACE("combo bitmap [%i,%i]\n", CBitWidth, CBitHeight );
 
-      hPrevB = SelectObject( hDC, hComboBmp);
+      hPrevB = (HBITMAP)SelectObject( hDC, hComboBmp);
       SetRect( &r, 0, 0, CBitWidth, CBitHeight );
       InvertRect( hDC, &r );
       SelectObject( hDC, hPrevB );
@@ -125,7 +133,7 @@ static LRESULT COMBO_NCCreate(HWND hwnd, LONG style)
 {
     HEADCOMBO *lphc;
 
-    if (COMBO_Init() && (lphc = heap_alloc_zero(sizeof(*lphc))))
+    if (COMBO_Init() && (lphc = (HEADCOMBO*)heap_alloc_zero(sizeof(*lphc))))
     {
         lphc->self = hwnd;
         SetWindowLongPtrW( hwnd, 0, (LONG_PTR)lphc );
@@ -179,7 +187,7 @@ static INT combo_get_text_height(const HEADCOMBO *combo)
     TEXTMETRICW tm;
 
     if (combo->hFont)
-        prev_font = SelectObject(hdc, combo->hFont);
+        prev_font = (HFONT)SelectObject(hdc, combo->hFont);
 
     GetTextMetricsW(hdc, &tm);
 
@@ -319,14 +327,15 @@ static void CBCalcPlacement(HEADCOMBO *combo)
     /* Start with the client rectangle. */
     GetClientRect(combo->self, &combo->textRect);
 
+
+    /* The button starts the same vertical position as the text area. */
+    combo->buttonRect = combo->textRect;
+
     /* Remove the borders */
     InflateRect(&combo->textRect, -COMBO_XBORDERSIZE(), -COMBO_YBORDERSIZE());
 
     /* Chop off the bottom part to fit with the height of the text area. */
     combo->textRect.bottom = combo->textRect.top + CBGetTextAreaHeight(combo, FALSE);
-
-    /* The button starts the same vertical position as the text area. */
-    combo->buttonRect = combo->textRect;
 
     /* If the combobox is "simple" there is no button. */
     if (CB_GETTYPE(combo) == CBS_SIMPLE)
@@ -484,7 +493,7 @@ static LRESULT COMBO_Create( HWND hwnd, LPHEADCOMBO lphc, HWND hwndParent, LONG 
       {
         lbeExStyle |= (WS_EX_TOPMOST | WS_EX_TOOLWINDOW);
       }
-
+      // L"ComboLBox" WC_BUTTON
       lphc->hWndLBox = CreateWindowExW(lbeExStyle, L"ComboLBox", NULL, lbeStyle,
               lphc->droppedRect.left, lphc->droppedRect.top, lphc->droppedRect.right - lphc->droppedRect.left,
               lphc->droppedRect.bottom - lphc->droppedRect.top, hwnd, (HMENU)ID_CB_LISTBOX,
@@ -507,7 +516,9 @@ static LRESULT COMBO_Create( HWND hwnd, LPHEADCOMBO lphc, HWND hwndParent, LONG 
 
               if (!IsWindowEnabled(hwnd)) lbeStyle |= WS_DISABLED;
 
-              lphc->hWndEdit = CreateWindowExW(0, WC_EDITW, NULL, lbeStyle,
+              // WC_EDITW
+
+              lphc->hWndEdit = CreateWindowExW(0, L"MyEdit", NULL, lbeStyle,
                                                lphc->textRect.left, lphc->textRect.top,
                                                lphc->textRect.right - lphc->textRect.left,
                                                lphc->textRect.bottom - lphc->textRect.top,
@@ -635,7 +646,7 @@ static void CBPaintText(HEADCOMBO *lphc, HDC hdc_paint)
         size = SendMessageW(lphc->hWndLBox, LB_GETTEXTLEN, id, 0);
 	if (size == LB_ERR)
 	  FIXME("LB_ERR probably not handled yet\n");
-        if ((pText = heap_alloc((size + 1) * sizeof(WCHAR))))
+        if ((pText = (WCHAR*)heap_alloc((size + 1) * sizeof(WCHAR))))
 	{
             /* size from LB_GETTEXTLEN may be too large, from LB_GETTEXT is accurate */
            size=SendMessageW(lphc->hWndLBox, LB_GETTEXT, id, (LPARAM)pText);
@@ -654,7 +665,7 @@ static void CBPaintText(HEADCOMBO *lphc, HDC hdc_paint)
      /* paint text field ourselves */
      HDC hdc = hdc_paint ? hdc_paint : GetDC(lphc->self);
      UINT itemState = ODS_COMBOBOXEDIT;
-     HFONT hPrevFont = (lphc->hFont) ? SelectObject(hdc, lphc->hFont) : 0;
+     HFONT hPrevFont = (lphc->hFont) ? (HFONT)SelectObject(hdc, lphc->hFont) : 0;
      HBRUSH hPrevBrush, hBkgBrush;
 
      /*
@@ -663,7 +674,7 @@ static void CBPaintText(HEADCOMBO *lphc, HDC hdc_paint)
      InflateRect( &rectEdit, -1, -1 );
 
      hBkgBrush = COMBO_PrepareColors( lphc, hdc );
-     hPrevBrush = SelectObject( hdc, hBkgBrush );
+     hPrevBrush = (HBRUSH)SelectObject( hdc, hBkgBrush );
      FillRect( hdc, &rectEdit, hBkgBrush );
 
      if( CB_OWNERDRAWN(lphc) )
@@ -773,22 +784,32 @@ static LRESULT COMBO_ThemedPaint(HTHEME theme, HEADCOMBO *lphc, HDC hdc)
 
     DrawThemeBackground(theme, hdc, 0, IsWindowEnabled(lphc->self) ? CBXS_NORMAL : CBXS_DISABLED, &frame, NULL);
 
-    /* Paint button */
-    if (!IsRectEmpty(&lphc->buttonRect))
-    {
-        if (!IsWindowEnabled(lphc->self))
-            button_state = CBXS_DISABLED;
-        else if (lphc->wState & CBF_BUTTONDOWN)
-            button_state = CBXS_PRESSED;
-        else if (lphc->wState & CBF_HOT)
-            button_state = CBXS_HOT;
-        else
-            button_state = CBXS_NORMAL;
-        DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTON, button_state, &lphc->buttonRect, NULL);
-    }
+    //RECT frame = frame;
+    //DrawThemeBackground(theme, hdc, CP_BACKGROUND, CBXS_NORMAL, &frame, NULL);
+    //DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTON, CBXS_NORMAL, &frame, NULL);
+    //DrawThemeBackground(theme, hdc, CP_TRANSPARENTBACKGROUND, CBXS_NORMAL, &frame, NULL);
+    //DrawThemeBackground(theme, hdc, CP_BORDER, CBXS_PRESSED, &frame, NULL);
+    ////DrawThemeBackground(theme, hdc, CP_READONLY, CBXS_NORMAL, &frame, NULL);
+    //// DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTONRIGHT, CBXS_NORMAL, &frame, NULL);
+    // // DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTONLEFT, CBXS_NORMAL, &frame, NULL);
 
-    if ((lphc->dwStyle & CBS_DROPDOWNLIST) == CBS_DROPDOWNLIST)
-        CBPaintText(lphc, hdc);
+
+   ///* Paint button */
+   if (!IsRectEmpty(&lphc->buttonRect))
+   {
+       if (!IsWindowEnabled(lphc->self))
+           button_state = CBXS_DISABLED;
+       else if (lphc->wState & CBF_BUTTONDOWN)
+           button_state = CBXS_PRESSED;
+       else if (lphc->wState & CBF_HOT)
+           button_state = CBXS_HOT;
+       else
+           button_state = CBXS_NORMAL;
+       DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTON, button_state, &lphc->buttonRect, NULL);
+   }
+   
+   if ((lphc->dwStyle & CBS_DROPDOWNLIST) == CBS_DROPDOWNLIST)
+       CBPaintText(lphc, hdc);
 
     return 0;
 }
@@ -807,7 +828,7 @@ static LRESULT COMBO_Paint(HEADCOMBO *lphc, HDC hdc)
      * DC.
      */
     hBkgBrush = COMBO_PrepareColors(lphc, hdc);
-    hPrevBrush = SelectObject(hdc, hBkgBrush);
+    hPrevBrush = (HBRUSH)SelectObject(hdc, hBkgBrush);
     if (!(lphc->wState & CBF_EDIT))
         FillRect(hdc, &lphc->textRect, hBkgBrush);
 
@@ -851,7 +872,7 @@ static INT CBUpdateLBox( LPHEADCOMBO lphc, BOOL bSelect )
    length = SendMessageW( lphc->hWndEdit, WM_GETTEXTLENGTH, 0, 0 );
 
     if (length > 0)
-        pText = heap_alloc((length + 1) * sizeof(WCHAR));
+        pText = (WCHAR*)heap_alloc((length + 1) * sizeof(WCHAR));
 
    TRACE("\t edit text length %i\n", length );
 
@@ -888,7 +909,7 @@ static void CBUpdateEdit( LPHEADCOMBO lphc , INT index )
        length = SendMessageW(lphc->hWndLBox, LB_GETTEXTLEN, index, 0);
        if( length != LB_ERR)
        {
-           if ((pText = heap_alloc((length + 1) * sizeof(WCHAR))))
+           if ((pText = (WCHAR*)heap_alloc((length + 1) * sizeof(WCHAR))))
                SendMessageW(lphc->hWndLBox, LB_GETTEXT, index, (LPARAM)pText);
        }
    }
@@ -1318,7 +1339,7 @@ static LRESULT COMBO_GetText( HEADCOMBO *lphc, INT count, LPWSTR buf )
         /* 'length' is without the terminating character */
         if (length >= count)
         {
-            WCHAR *lpBuffer = heap_alloc((length + 1) * sizeof(WCHAR));
+            WCHAR *lpBuffer = (WCHAR*)heap_alloc((length + 1) * sizeof(WCHAR));
             if (!lpBuffer) goto error;
             length = SendMessageW(lphc->hWndLBox, LB_GETTEXT, idx, (LPARAM)lpBuffer);
 
@@ -2114,6 +2135,10 @@ static LRESULT CALLBACK COMBO_WindowProc( HWND hwnd, UINT message, WPARAM wParam
     return DefWindowProcW(hwnd, message, wParam, lParam);
 }
 
+}
+
+using namespace Combo;
+
 void COMBO_Register(void)
 {
     WNDCLASSW wndClass;
@@ -2125,6 +2150,6 @@ void COMBO_Register(void)
     wndClass.cbWndExtra = sizeof(HEADCOMBO *);
     wndClass.hCursor = LoadCursorW(0, (LPWSTR)IDC_ARROW);
     wndClass.hbrBackground = NULL;
-    wndClass.lpszClassName = WC_COMBOBOXW;
+    wndClass.lpszClassName = L"MyComboBox";
     RegisterClassW(&wndClass);
 }
