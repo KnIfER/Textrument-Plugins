@@ -87,7 +87,7 @@ namespace DuiLib
 				//| WS_BORDER  
 				//| ES_PASSWORD
 				//| infoPtr->dwStyle
-				//| ES_MULTILINE 
+				| ES_MULTILINE 
 				| ES_NOHIDESEL 
 				;
 			EDITOBJ_SyncText(infoPtr);
@@ -107,10 +107,10 @@ namespace DuiLib
 				//	//|BS_OWNERDRAW
 				//);
 				EDIT_LockBuffer(infoPtr);
-				_SetLimitText(infoPtr, 128);
+				//_SetLimitText(infoPtr, 128);
 				//_SetText(infoPtr, L"深度\n搜索深\n度\n搜\n索\n深度搜\n索深度搜\n索");
-				_SetText(infoPtr, L"1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索");
-				_SetText(infoPtr, L"1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索");
+				_SetText(infoPtr, L"1 深度\n2 搜索深\n3 度\n4 搜 happy mary \n5 索\n6 深度搜\n7 索深度搜\n8 索");
+				//_SetText(infoPtr, L"1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索1 深度\n2 搜索深\n3 度\n4 搜\n5 索\n6 深度搜\n7 索深度搜\n8 索");
 				EDIT_UnlockBuffer(infoPtr, false);
 			}
 		}
@@ -120,6 +120,8 @@ namespace DuiLib
 	{
 		//infoPtr->dtStyle = m_uTextStyle;
 		//infoPtr->font = _manager->GetFont(GetFont());
+		__super::DoPaint(hDC, rcPaint, pStopControl);
+
 		if (infoPtr->is_delegate)
 		{
 			EDITOBJ_SyncText(infoPtr);
@@ -140,7 +142,7 @@ namespace DuiLib
 			if(m_items.GetSize()) PaintChildren(hDC, rcPaint, pStopControl);
 		}
 
-		return __super::DoPaint(hDC, rcPaint, pStopControl);
+		return true;
 
 		//return true;
 	}
@@ -339,9 +341,15 @@ namespace DuiLib
 
 	void InputBox::SetText(LPCTSTR pstrText)
 	{
+		//_SetText(infoPtr, pstrText);
+
 		m_sText = pstrText;
-		//if( m_pWindow != NULL ) Edit_SetText(*m_pWindow, m_sText);
-		Invalidate();
+		EDITOBJ_SyncText(infoPtr);
+		EDIT_ResetText(infoPtr);
+		//
+		//EDIT_InvalidateUniscribeData(infoPtr);
+
+		//Invalidate();
 	}
 
 	void InputBox::SetMaxChar(UINT uMax)

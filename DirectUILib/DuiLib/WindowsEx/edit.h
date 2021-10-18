@@ -114,7 +114,11 @@ typedef struct _EDIT_STATE
 	LONG_PTR textObj;
 	RECT* rcDraw;
 	RECT* rcPadding;
-	RECT rcLastDraw;
+
+	std::set<SCRIPT_STRING_ANALYSIS> validPtrs;
+
+	int prex;
+	int prey;
 
 } EDITSTATE;
 
@@ -153,6 +157,14 @@ LRESULT _KeyDown(EDITSTATE *es, INT key);
 LRESULT _LButtonDblClk(EDITSTATE *es);
 
 void EDIT_WM_ContextMenu(EDITSTATE *es, INT x, INT y);
+
+void EDIT_MoveBackward(EDITSTATE *es, BOOL extend, BOOL fromTimer=FALSE);
+
+void EDIT_MoveForward(EDITSTATE *es, BOOL extend, BOOL fromTimer=FALSE);
+
+inline void EDIT_InvalidateUniscribeData(EDITSTATE *es);
+
+void EDIT_ResetText(EDITSTATE *es);
 
 using EDITOBJ_MakeFitSig = BOOL(*)(EDITSTATE *es, UINT size);
 __declspec(selectany) EDITOBJ_MakeFitSig fnEDITOBJ_MakeFit = nullptr;

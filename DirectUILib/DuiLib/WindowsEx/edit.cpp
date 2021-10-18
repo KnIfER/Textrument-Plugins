@@ -48,6 +48,8 @@
 #include "debug.h"
 #include "heap.h"
 
+#include <set>
+
 #include "edit.h"
 
 namespace Edit{
@@ -56,17 +58,6 @@ namespace Edit{
 
 #define SWAP_UINT32(x,y) do { UINT temp = (UINT)(x); (x) = (UINT)(y); (y) = temp; } while(0)
 #define ORDER_UINT(x,y) do { if ((UINT)(y) < (UINT)(x)) SWAP_UINT32((x),(y)); } while(0)
-
-/* used for disabled or read-only edit control */
-#define EDIT_NOTIFY_PARENT(es, wNotifyCode) \
-	do \
-	{ /* Notify parent which has created this edit control */ \
-	    TRACE("notification " #wNotifyCode " sent to hwnd=%p\n", es->hwndParent); \
-	    SendMessageW(es->hwndParent, WM_COMMAND, \
-		     MAKEWPARAM(GetWindowLongPtrW((es->hwndSelf),GWLP_ID), wNotifyCode), \
-		     (LPARAM)(es->hwndSelf)); \
-	} while(0)
-
 
 	static HWND hDelegate = 0;
 	static UINT_PTR _timerID;
@@ -107,9 +98,9 @@ static HBRUSH EDIT_NotifyCtlColor(EDITSTATE *es, HDC hdc)
         msg = WM_CTLCOLOREDIT;
 
     /* Why do we notify to es->hwndParent, and we send this one to GetParent()? */
-    hbrush = (HBRUSH)SendMessageW(GetParent(es->hwndSelf), msg, (WPARAM)hdc, (LPARAM)es->hwndSelf);
+    hbrush = (HBRUSH)SendMessageW(es->hwndParent, msg, (WPARAM)hdc, (LPARAM)es->hwndSelf);
     if (!hbrush)
-        hbrush = (HBRUSH)DefWindowProcW(GetParent(es->hwndSelf), msg, (WPARAM)hdc, (LPARAM)es->hwndSelf);
+        hbrush = (HBRUSH)DefWindowProcW(es->hwndParent, msg, (WPARAM)hdc, (LPARAM)es->hwndSelf);
     return hbrush;
 }
 
@@ -143,7 +134,7 @@ static INT EDIT_WordBreakProc(EDITSTATE *es, LPWSTR s, INT index, INT count, INT
 {
     INT ret = 0;
 
-    TRACE("s=%p, index=%d, count=%d, action=%d\n", s, index, count, action);
+    //TRACE("EDIT_WordBreakProc::s=%p, index=%d, count=%d, action=%d\n", s, index, count, action);
 
     if(!s) return 0;
 
@@ -209,24 +200,43 @@ static INT EDIT_CallWordBreakProc(EDITSTATE *es, INT start, INT index, INT count
     return ret;
 }
 
-static inline void EDIT_InvalidateUniscribeData_linedef(LINEDEF *line_def)
+static inline void EDIT_InvalidateUniscribeData_linedef(EDITSTATE *es, LINEDEF *line_def)
 {
 	if (line_def->ssa)
 	{
-		SCRIPT_STRING_ANALYSIS ssa = line_def->ssa;
-		ScriptStringFree(&line_def->ssa);
-		if (line_def->next && line_def->next->ssa==ssa) line_def->next->ssa = NULL;
+		//SCRIPT_STRING_ANALYSIS ssa = line_def->ssa;
+		//if(ScriptString_pLogAttr(&line_def->ssa))
+		auto iter = es->validPtrs.find(line_def->ssa);
+		if (iter!=es->validPtrs.end())
+		{
+			es->validPtrs.erase(iter);
+			ScriptStringFree(&line_def->ssa);
+		}
+		//LINEDEF *next = line_def->next;
+		////if (next && next->ssa==ssa) next->ssa = NULL;
+		//while (next)
+		//{		
+		//	if (next->ssa==ssa)
+		//	{
+		//		next->ssa = NULL;
+		//	}
+		//	else if(next->ssa)
+		//	{
+		//		break;
+		//	}
+		//	next = next->next;
+		//}
 		line_def->ssa = NULL;
 	}
 }
 
-static inline void EDIT_InvalidateUniscribeData(EDITSTATE *es)
+inline void EDIT_InvalidateUniscribeData(EDITSTATE *es)
 {
 	LINEDEF *line_def = es->first_line_def;
 	while (line_def)
 	{		
 		//TRACE("EDIT_InvalidateUniscribeData_linedef::index=%d ending=%d length=%d ssa=%pd width=%d ", line_def->index, line_def->ending, line_def->length, line_def->ssa, line_def->width);
-		EDIT_InvalidateUniscribeData_linedef(line_def);
+		EDIT_InvalidateUniscribeData_linedef(es, line_def);
 		line_def = line_def->next;
 	}
 	if (es->ssa)
@@ -263,14 +273,26 @@ static SCRIPT_STRING_ANALYSIS EDIT_UpdateUniscribeData_linedef(EDITSTATE *es, HD
                                          (1.5*line_def->net_length+16), -1,
                                          SSA_LINK|SSA_FALLBACK|SSA_GLYPHS|SSA_TAB, -1,
                                          NULL, NULL, NULL, &tabdef, NULL, &line_def->ssa);
-
+		
 		if (FAILED(hr))
 		{
 			WARN("ScriptStringAnalyse failed (%x)\n",hr);
 			line_def->ssa = NULL;
 		}
+		else
+		{
+			auto iter = es->validPtrs.find(line_def->ssa);
+			if (iter==es->validPtrs.end())
+			{
+				es->validPtrs.insert(line_def->ssa);
+			}
+			else
+			{
+				line_def->ssa = NULL;
+			}
+		}
 
-		//TRACE("EDIT_UpdateUniscribeData_linedef::%d %d", line_def->index, line_def->ssa);
+		//TRACE("EDIT_UpdateUniscribeData_linedef::index=%d ending=%d length=%d ssa=%pd width=%d ", line_def->index, line_def->ending, line_def->length, line_def->ssa, line_def->width);
 
 		if (es->font)
 			SelectObject(udc, old_font);
@@ -451,7 +473,7 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 		if (current_line->net_length)
 		{
 			const SIZE *sz;
-			EDIT_InvalidateUniscribeData_linedef(current_line);
+			EDIT_InvalidateUniscribeData_linedef(es, current_line);
 			EDIT_UpdateUniscribeData_linedef(es, NULL, current_line);
 			if (current_line->ssa)
 			{
@@ -485,7 +507,7 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 				prev = EDIT_CallWordBreakProc(es, current_position - es->text,
 						next, current_line->net_length, WB_LEFT);
 				current_line->net_length = prev;
-				EDIT_InvalidateUniscribeData_linedef(current_line);
+				EDIT_InvalidateUniscribeData_linedef(es, current_line);
 				EDIT_UpdateUniscribeData_linedef(es, NULL, current_line);
 				if (current_line->ssa)
 					sz = ScriptString_pSize(current_line->ssa);
@@ -502,7 +524,7 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 				INT *piDx;
 				const INT *count;
 
-				EDIT_InvalidateUniscribeData_linedef(current_line);
+				EDIT_InvalidateUniscribeData_linedef(es, current_line);
 				EDIT_UpdateUniscribeData_linedef(es, NULL, current_line);
 
 				if (current_line->ssa)
@@ -591,7 +613,7 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 
 		/* Discard data for non-visible lines. It will be calculated as needed */
 		if ((line_index < es->y_offset) || (line_index > es->y_offset + vlc))
-			EDIT_InvalidateUniscribeData_linedef(current_line);
+			EDIT_InvalidateUniscribeData_linedef(es, current_line);
 
 		current_line = current_line->next;
 		line_index++;
@@ -606,7 +628,7 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 		while (current_line)
 		{
 			pnext = current_line->next;
-			EDIT_InvalidateUniscribeData_linedef(current_line);
+			EDIT_InvalidateUniscribeData_linedef(es, current_line);
 			heap_free(current_line);
 			current_line = pnext;
 			es->line_count--;
@@ -1207,7 +1229,7 @@ static BOOL EDIT_MakeFit(EDITSTATE *es, UINT size)
 
 	if (es->buffer_size < size) {
 		WARN("FAILED !  We now have %d+1\n", es->buffer_size);
-		EDIT_NOTIFY_PARENT(es, EN_ERRSPACE);
+		NOTIFY_PARENT(es->hwndSelf, EN_ERRSPACE);
 		return FALSE;
 	} else {
 		TRACE("We now have %d+1\n", es->buffer_size);
@@ -1261,7 +1283,7 @@ static void EDIT_UpdateTextRegion(EDITSTATE *es, HRGN hrgn, BOOL bErase)
 	{
 		if (es->flags & EF_UPDATE) {
 			es->flags &= ~EF_UPDATE;
-			EDIT_NOTIFY_PARENT(es, EN_UPDATE);
+			NOTIFY_PARENT(es->hwndSelf, EN_UPDATE);
 		}
 		InvalidateRgn(es->hwndSelf, hrgn, bErase);
 	}
@@ -1284,7 +1306,7 @@ static void EDIT_UpdateText(EDITSTATE *es, const RECT *rc, BOOL bErase)
 	{
 		if (es->flags & EF_UPDATE) {
 			es->flags &= ~EF_UPDATE;
-			EDIT_NOTIFY_PARENT(es, EN_UPDATE);
+			NOTIFY_PARENT(es->hwndSelf, EN_UPDATE);
 		}
 		InvalidateRect(es->hwndSelf, rc, TRUE);
 	}
@@ -1596,9 +1618,9 @@ static BOOL EDIT_EM_LineScroll_internal(EDITSTATE *es, INT dx, INT dy)
 	if (!es->is_delegate)
 	{
 		if (dx && !(es->flags & EF_HSCROLL_TRACK))
-			EDIT_NOTIFY_PARENT(es, EN_HSCROLL);
+			NOTIFY_PARENT(es->hwndSelf, EN_HSCROLL);
 		if (dy && !(es->flags & EF_VSCROLL_TRACK))
-			EDIT_NOTIFY_PARENT(es, EN_VSCROLL);
+			NOTIFY_PARENT(es->hwndSelf, EN_VSCROLL);
 	}
 	return TRUE;
 }
@@ -1683,7 +1705,7 @@ void EDIT_SetCaretPos(EDITSTATE *es, INT pos, BOOL after_wrap)
     if (es->flags & EF_FOCUSED)
     {
         res = EDIT_EM_PosFromChar(es, pos, after_wrap);
-        TRACE("_SetCaretPos::%d - %dx%d\n", pos, (short)LOWORD(res), (short)HIWORD(res));
+        //TRACE("_SetCaretPos::%d - %dx%d\n", pos, (short)LOWORD(res), (short)HIWORD(res));
         SetCaretPos((short)LOWORD(res), (short)HIWORD(res));
     }
 }
@@ -1767,20 +1789,27 @@ static void EDIT_EM_ScrollCaret(EDITSTATE *es)
  *	EDIT_MoveBackward
  *
  */
-static void EDIT_MoveBackward(EDITSTATE *es, BOOL extend)
+void EDIT_MoveBackward(EDITSTATE *es, BOOL extend, BOOL fromTimer)
 {
-	INT e = es->selection_end;
-
-	if (e) {
-		e--;
-		if ((es->style & ES_MULTILINE) && e &&
-				(es->text[e - 1] == '\r') && (es->text[e] == '\n')) {
-			e--;
-			if (e && (es->text[e - 1] == '\r'))
-				e--;
+	INT ed = es->selection_end;
+	if (ed) {
+		int newEd = fromTimer?EDIT_CharFromPos(es, es->prex, es->prey, NULL):ed;
+		if (newEd<ed)
+		{
+			ed = max(newEd, 0);
+		}
+		else
+		{
+			ed--;
+			if ((es->style & ES_MULTILINE) && ed &&
+				(es->text[ed - 1] == '\r') && (es->text[ed] == '\n')) {
+				ed--;
+				if (ed && (es->text[ed - 1] == '\r'))
+					ed--;
+			}
 		}
 	}
-	EDIT_EM_SetSel(es, extend ? es->selection_start : e, e, FALSE);
+	EDIT_EM_SetSel(es, extend ? es->selection_start : ed, ed, FALSE);
 	EDIT_EM_ScrollCaret(es);
 }
 
@@ -1837,19 +1866,28 @@ static void EDIT_MoveEnd(EDITSTATE *es, BOOL extend, BOOL ctrl)
  *	EDIT_MoveForward
  *
  */
-static void EDIT_MoveForward(EDITSTATE *es, BOOL extend)
+void EDIT_MoveForward(EDITSTATE *es, BOOL extend, BOOL fromTimer)
 {
 	INT ed = es->selection_end;
 
 	if (es->text[ed]) 
 	{
-		ed++;
-		if ((es->style & ES_MULTILINE) && (es->text[ed - 1] == '\r')) 
+		int newEd = fromTimer?EDIT_CharFromPos(es, es->prex, es->prey, NULL):ed;
+		if (newEd>ed)
 		{
-			if (es->text[ed] == '\n')
-				ed++;
-			else if ((es->text[ed] == '\r') && (es->text[ed + 1] == '\n'))
-				ed += 2;
+			ed = get_text_length(es);
+			ed = min(ed, newEd);
+		}
+		else
+		{
+			ed++;
+			if ((es->style & ES_MULTILINE) && (es->text[ed - 1] == '\r')) 
+			{
+				if (es->text[ed] == '\n')
+					ed++;
+				else if ((es->text[ed] == '\r') && (es->text[ed + 1] == '\n'))
+					ed += 2;
+			}
 		}
 	}
 	EDIT_EM_SetSel(es, extend ? es->selection_start : ed, ed, FALSE);
@@ -2112,7 +2150,7 @@ static void EDIT_PaintLine(EDITSTATE *es, HDC dc, INT line, BOOL rev)
 	} else if (line)
 		return;
 
-	TRACE("PaintLine::line=%d\n", line);
+	//TRACE("PaintLine::line=%d\n", line);
 
 	ssa = EDIT_UpdateUniscribeData(es, dc, line);
 	pos = EDIT_EM_PosFromChar(es, EDIT_EM_LineIndex(es, line), FALSE);
@@ -2447,7 +2485,7 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
 	/* Issue the EN_MAXTEXT notification and continue with replacing text
          * so that buffer limit is honored. */
 	if ((honor_limit) && (size > es->buffer_limit)) {
-		EDIT_NOTIFY_PARENT(es, EN_MAXTEXT);
+		NOTIFY_PARENT(es->hwndSelf, EN_MAXTEXT);
 		/* Buffer limit can be smaller than the actual length of text in combobox */
 		if (es->buffer_limit < (tl - (ed-st)))
 			strl = 0;
@@ -2508,7 +2546,7 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
 			strl = 0;
 			ed = st;
             SetRectRgn(hrgn, 0, 0, 0, 0);
-			EDIT_NOTIFY_PARENT(es, EN_MAXTEXT);
+			NOTIFY_PARENT(es->hwndSelf, EN_MAXTEXT);
 		}
 	}
 	else {
@@ -2527,7 +2565,7 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
 				EDIT_CalcLineWidth_SL(es);
 			}
             text_buffer_changed(es);
-			EDIT_NOTIFY_PARENT(es, EN_MAXTEXT);
+			NOTIFY_PARENT(es->hwndSelf, EN_MAXTEXT);
 		}
 	}
 
@@ -2630,7 +2668,7 @@ static void EDIT_EM_ReplaceSel(EDITSTATE *es, BOOL can_undo, const WCHAR *lpsz_r
     if(send_update || (es->flags & EF_UPDATE))
 	{
 	    es->flags &= ~EF_UPDATE;
-	    EDIT_NOTIFY_PARENT(es, EN_CHANGE);
+	    NOTIFY_PARENT(es->hwndSelf, EN_CHANGE);
 	}
 	EDIT_InvalidateUniscribeData(es);
 }
@@ -2891,7 +2929,7 @@ static BOOL _Undo(EDITSTATE *es)
 	EDIT_EM_ReplaceSel(es, TRUE, utext, ulength, TRUE, TRUE);
 	EDIT_EM_SetSel(es, es->undo_position, es->undo_position + es->undo_insert_count, FALSE);
         /* send the notification after the selection start and end are set */
-        EDIT_NOTIFY_PARENT(es, EN_CHANGE);
+        NOTIFY_PARENT(es->hwndSelf, EN_CHANGE);
 	EDIT_EM_ScrollCaret(es);
 	heap_free(utext);
 
@@ -3268,18 +3306,59 @@ LRESULT _MouseWheel(EDITSTATE *es, WPARAM wParam, LPARAM lParam)
 	INT pulScrollLines = 3;
 	SystemParametersInfoW(SPI_GETWHEELSCROLLLINES,0, &pulScrollLines, 0);
 
-	if (wParam & (MK_SHIFT | MK_CONTROL))
-	{
+	if (wParam & MK_CONTROL)
 		return DefWindowProcW(es->is_delegate?es->hwndParent:es->hwndSelf, WM_MOUSEWHEEL, wParam, lParam);
-	}
 
 	wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+
+	if ((wParam & MK_SHIFT) || !(es->style & ES_MULTILINE))
+	{
+		if (es->style & ES_MULTILINE)
+		{
+			wheelDelta = -wheelDelta;
+			INT fw = es->format_rect.right - es->format_rect.left;
+			/* check if we are going to move too far */
+			if(es->x_offset + wheelDelta + fw > es->text_width)
+				wheelDelta = es->text_width - fw - es->x_offset;
+			if(wheelDelta)
+				EDIT_EM_LineScroll_internal(es, wheelDelta, 0);
+		}
+		else
+		{
+			wheelDelta = wheelDelta>0?-1:wheelDelta<0?1:0;
+			int before = es->x_offset;
+			if(es->x_offset + wheelDelta < 0)
+				es->x_offset = 0;
+			else
+			{
+				es->x_offset += wheelDelta;
+				UINT end = get_text_length(es);
+				int x = (short)LOWORD(EDIT_EM_PosFromChar(es, end, FALSE));
+				// see _ScrollCaret
+				int format_width = es->format_rect.right - es->format_rect.left;
+				int goal = es->format_rect.right - es->char_width;
+				if (x < goal) 
+				{
+					while ((x < goal) && es->x_offset) {
+						es->x_offset--;
+						x = (short)LOWORD(EDIT_EM_PosFromChar(es, end, FALSE));
+					}
+				}
+			}
+			if (before!=es->x_offset)
+				EDIT_UpdateText(es, NULL, TRUE);
+		}
+
+		return TRUE;
+	}
+
 	/* if scrolling changes direction, ignore left overs */
 	if ((wheelDelta < 0 && es->wheelDeltaRemainder < 0) ||
 		(wheelDelta > 0 && es->wheelDeltaRemainder > 0))
 		es->wheelDeltaRemainder += wheelDelta;
 	else
 		es->wheelDeltaRemainder = wheelDelta;
+
 
 	if (es->wheelDeltaRemainder && pulScrollLines)
 	{
@@ -3289,6 +3368,8 @@ LRESULT _MouseWheel(EDITSTATE *es, WPARAM wParam, LPARAM lParam)
 		es->wheelDeltaRemainder -= WHEEL_DELTA * cLineScroll / pulScrollLines;
 		return EDIT_EM_LineScroll(es, 0, -cLineScroll);
 	}
+
+
 	return FALSE;
 }
 
@@ -3419,8 +3500,8 @@ LRESULT _KeyDown(EDITSTATE *es, INT key)
             {
                 if (EDIT_EM_SetSel(es, 0, get_text_length(es), FALSE))
                 {
-                    EDIT_NOTIFY_PARENT(es, EN_UPDATE);
-                    EDIT_NOTIFY_PARENT(es, EN_CHANGE);
+                    NOTIFY_PARENT(es->hwndSelf, EN_UPDATE);
+                    NOTIFY_PARENT(es->hwndSelf, EN_CHANGE);
                 }
             }
             break;
@@ -3442,7 +3523,7 @@ static LRESULT EDIT_WM_KillFocus(HTHEME theme, EDITSTATE *es)
     DestroyCaret();
     if (!(es->style & ES_NOHIDESEL))
         EDIT_InvalidateText(es, es->selection_start, es->selection_end);
-    if(!es->is_delegate)EDIT_NOTIFY_PARENT(es, EN_KILLFOCUS);
+    if(!es->is_delegate)NOTIFY_PARENT(es->hwndSelf, EN_KILLFOCUS);
     /* Throw away left over scroll when we lose focus */
     es->wheelDeltaRemainder = 0;
 
@@ -3463,21 +3544,25 @@ static LRESULT EDIT_WM_KillFocus(HTHEME theme, EDITSTATE *es)
  */
 LRESULT _LButtonDblClk(EDITSTATE *es)
 {
-	INT s;
-	INT e = es->selection_end;
+	INT st;
+	INT ed = es->selection_end;
 	INT l;
 	INT li;
 	INT ll;
 
 	es->bCaptureState = TRUE;
-	if(es->is_delegate) SetCapture(es->hwndSelf);
+	if(!es->is_delegate) SetCapture(es->hwndSelf);
 
-	l = EDIT_EM_LineFromChar(es, e);
+	l = EDIT_EM_LineFromChar(es, ed);
 	li = EDIT_EM_LineIndex(es, l);
-	ll = EDIT_EM_LineLength(es, e);
-	s = li + EDIT_CallWordBreakProc(es, li, e - li, ll, WB_LEFT);
-	e = li + EDIT_CallWordBreakProc(es, li, e - li, ll, WB_RIGHT);
-	EDIT_EM_SetSel(es, s, e, FALSE);
+	ll = EDIT_EM_LineLength(es, ed);
+	st = li + EDIT_CallWordBreakProc(es, li, ed - li, ll, WB_LEFT);
+	ed = li + EDIT_CallWordBreakProc(es, li, ed - li, ll, WB_RIGHT);
+	while(ed>st && es->text[ed-1]==' ')
+	{
+		ed--;
+	}
+	EDIT_EM_SetSel(es, st, ed, FALSE);
 	EDIT_EM_ScrollCaret(es);
 	es->region_posx = es->region_posy = 0;
 	if (es->is_delegate)
@@ -3500,14 +3585,14 @@ LRESULT _LButtonDblClk(EDITSTATE *es)
  */
 LRESULT _LButtonDown(EDITSTATE *es, DWORD keys, INT x, INT y)
 {
-	INT e;
+	INT ed;
 	BOOL after_wrap;
 
 	es->bCaptureState = TRUE;
 	if (!es->is_delegate) SetCapture(es->hwndSelf);
 	EDIT_ConfinePoint(es, &x, &y);
-	e = EDIT_CharFromPos(es, x, y, &after_wrap);
-	EDIT_EM_SetSel(es, (keys & MK_SHIFT) ? es->selection_start : e, e, after_wrap);
+	ed = EDIT_CharFromPos(es, x, y, &after_wrap);
+	EDIT_EM_SetSel(es, (keys & MK_SHIFT) ? es->selection_start : ed, ed, after_wrap);
 	EDIT_EM_ScrollCaret(es);
 	es->region_posx = es->region_posy = 0;
 	if (es->is_delegate)
@@ -3575,7 +3660,7 @@ LRESULT _MouseMove(EDITSTATE *es, INT x, INT y)
 {
 	INT ed;
 	BOOL after_wrap;
-	INT prex = x, prey = y;
+	es->prex = x, es->prey = y;
 
     /* If the mouse has been captured by process other than the edit control itself,
         * the windows edit controls will not select the strings with mouse move.
@@ -3588,8 +3673,8 @@ LRESULT _MouseMove(EDITSTATE *es, INT x, INT y)
 	 *		area.  Maybe reset the timer ?
 	 */
 	EDIT_ConfinePoint(es, &x, &y);
-	es->region_posx = (prex < x) ? -1 : ((prex > x) ? 1 : 0); // sign(prex-x)
-	es->region_posy = (prey < y) ? -1 : ((prey > y) ? 1 : 0); // sign(prey-y)
+	es->region_posx = (es->prex < x) ? -1 : ((es->prex > x) ? 1 : 0); // sign(es->prex-x)
+	es->region_posy = (es->prey < y) ? -1 : ((es->prey > y) ? 1 : 0); // sign(es->prey-y)
 	ed = EDIT_CharFromPos(es, x, y, &after_wrap);
 	//TRACE("_MouseMove_SetSel::x=%d, y=%d\n", x, y);
 	EDIT_EM_SetSel(es, es->selection_start, ed, after_wrap);
@@ -3606,6 +3691,7 @@ HRGN _hrgn = CreateRectRgn( 0, 0, 0, 0 );
  */
 void _Paint(EDITSTATE *es, HDC hdc, const RECT* rcPaint)
 {
+	//if(1) return;
 	PAINTSTRUCT ps;
 	INT i;
 	HDC dc;
@@ -3672,11 +3758,6 @@ void _Paint(EDITSTATE *es, HDC hdc, const RECT* rcPaint)
 		}
 	}
 
-	if (es->is_delegate && rcPaint)
-	{
-		es->rcLastDraw = *rcPaint;
-	}
-
 	GetClipBox(dc, &rc);
 	//rc = rcClient;
 	if(!es->is_delegate)
@@ -3697,6 +3778,7 @@ void _Paint(EDITSTATE *es, HDC hdc, const RECT* rcPaint)
 		SetTextColor(dc, GetSysColor(COLOR_GRAYTEXT));
 	//rcRgn = rcClient;
 	GetClipBox(dc, &rcRgn);
+	SetBkMode(dc, TRANSPARENT);
 	if (es->style & ES_MULTILINE) 
 	{
 		INT vlc = get_vertical_line_count(es);
@@ -3717,7 +3799,6 @@ void _Paint(EDITSTATE *es, HDC hdc, const RECT* rcPaint)
 		if (es->flags&EF_SHOWLNRET)
 		{
 			// 渲染换行符 \n
-			SetBkMode(dc, TRANSPARENT);
 			UINT st = EDIT_CharFromPos(es, rcLine.left, rcLine.top, NULL);
 			UINT ed = EDIT_CharFromPos(es, rcLine.right, rcLine.top, NULL);
 			char c;
@@ -3810,7 +3891,7 @@ static void EDIT_WM_SetFocus(HTHEME theme, EDITSTATE *es)
     CreateCaret(es->hwndSelf, 0, 1, es->line_height);
     EDIT_SetCaretPos(es, es->selection_end, es->flags & EF_AFTER_WRAP);
     ShowCaret(es->hwndSelf);
-	if(!es->is_delegate)EDIT_NOTIFY_PARENT(es, EN_SETFOCUS);
+	if(!es->is_delegate)NOTIFY_PARENT(es->hwndSelf, EN_SETFOCUS);
 
     if (theme)
         flags |= RDW_FRAME | RDW_ERASE;
@@ -3901,6 +3982,22 @@ void _SetFont(EDITSTATE *es, HFONT font, BOOL redraw)
 	}
 }
 
+void EDIT_ResetText(EDITSTATE *es)
+{
+
+	EDIT_InvalidateUniscribeData(es);
+	if (es->style & ES_MULTILINE)
+	{
+		INT st = min(es->selection_start, es->selection_end);
+		INT vlc = get_vertical_line_count(es);
+
+		EDIT_BuildLineDefs_ML(es, 0, get_text_length(es),
+			get_text_length(es), 0);
+	}
+	else {
+		
+	}
+}
 
 /*********************************************************************
  *
@@ -3942,8 +4039,8 @@ void _SetText(EDITSTATE *es, LPCWSTR text)
      */
     if( !((es->style & ES_MULTILINE) || es->hwndListBox))
     {
-        EDIT_NOTIFY_PARENT(es, EN_UPDATE);
-        EDIT_NOTIFY_PARENT(es, EN_CHANGE);
+        //NOTIFY_PARENT(es->hwndSelf, EN_UPDATE);
+        //NOTIFY_PARENT(es->hwndSelf, EN_CHANGE);
     }
     EDIT_EM_ScrollCaret(es);
     EDIT_UpdateScrollInfo(es);
@@ -4052,14 +4149,10 @@ static LRESULT EDIT_WM_SysKeyDown(EDITSTATE *es, INT key, DWORD key_data)
 static void EDIT_WM_Timer(EDITSTATE *es)
 {
 	if (es->region_posx < 0) {
-		EDIT_MoveBackward(es, TRUE);
+		EDIT_MoveBackward(es, TRUE, TRUE);
 	} else if (es->region_posx > 0) {
-		EDIT_MoveForward(es, TRUE);
+		EDIT_MoveForward(es, TRUE, TRUE);
 	}
-/*
- *	FIXME: gotta do some vertical scrolling here, like
- *		EDIT_EM_LineScroll(hwnd, 0, 1);
- */
 }
 
 /*********************************************************************
@@ -4145,7 +4238,7 @@ static LRESULT EDIT_WM_HScroll(EDITSTATE *es, INT action, INT pos)
 		if (!dx) {
 			/* force scroll info update */
 			EDIT_UpdateScrollInfo(es);
-			EDIT_NOTIFY_PARENT(es, EN_HSCROLL);
+			NOTIFY_PARENT(es->hwndSelf, EN_HSCROLL);
 		}
 		break;
 	case SB_ENDSCROLL:
@@ -4186,9 +4279,9 @@ static LRESULT EDIT_WM_HScroll(EDITSTATE *es, INT action, INT pos)
 	    INT fw = es->format_rect.right - es->format_rect.left;
 	    /* check if we are going to move too far */
 	    if(es->x_offset + dx + fw > es->text_width)
-		dx = es->text_width - fw - es->x_offset;
+			dx = es->text_width - fw - es->x_offset;
 	    if(dx)
-		EDIT_EM_LineScroll_internal(es, dx, 0);
+			EDIT_EM_LineScroll_internal(es, dx, 0);
 	}
 	return 0;
 }
@@ -4268,7 +4361,7 @@ static LRESULT EDIT_WM_VScroll(EDITSTATE *es, INT action, INT pos)
 		{
 			/* force scroll info update */
 			EDIT_UpdateScrollInfo(es);
-			EDIT_NOTIFY_PARENT(es, EN_VSCROLL);
+			NOTIFY_PARENT(es->hwndSelf, EN_VSCROLL);
 		}
 		break;
 	case SB_ENDSCROLL:
@@ -4689,7 +4782,7 @@ static LRESULT EDIT_WM_Create(EDITSTATE *es, const WCHAR *name)
          * Messages are only to be sent when the USER does something to
          * change the contents. So I am removing this EN_CHANGE
          *
-         * EDIT_NOTIFY_PARENT(es, EN_CHANGE);
+         * NOTIFY_PARENT(es->hwndSelf, EN_CHANGE);
          */
         EDIT_EM_ScrollCaret(es);
     }
