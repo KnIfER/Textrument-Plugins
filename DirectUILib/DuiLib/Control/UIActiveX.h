@@ -17,7 +17,7 @@ namespace DuiLib {
 
 	class UILIB_API CActiveXUI : public CControlUI, public IMessageFilterUI
 	{
-		DECLARE_DUICONTROL(CActiveXUI)
+		DECLARE_QKCONTROL(CActiveXUI)
 
 		friend class CActiveXCtrl;
 	public:
@@ -38,11 +38,10 @@ namespace DuiLib {
 		bool CreateControl(LPCTSTR pstrCLSID);
 		HRESULT GetControl(const IID iid, LPVOID* ppRet);
 		CLSID GetClisd() const;
-		CDuiString GetModuleName() const;
+		QkString GetModuleName() const;
 		void SetModuleName(LPCTSTR pstrText);
 
 		void SetVisible(bool bVisible = true);
-		void SetInternVisible(bool bVisible = true);
 		void SetPos(RECT rc, bool bNeedInvalidate = true);
 		void Move(SIZE szOffset, bool bNeedInvalidate = true);
 		bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
@@ -57,7 +56,7 @@ namespace DuiLib {
 
 	protected:
 		CLSID m_clsid;
-		CDuiString m_sModuleName;
+		QkString m_sModuleName;
 		bool m_bCreated;
 		bool m_bDelayCreate;
 		bool m_bMFC;

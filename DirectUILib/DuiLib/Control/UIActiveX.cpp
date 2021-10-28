@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 
 namespace DuiLib {
-
+#undef m_bFocused
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 	//
@@ -754,6 +754,7 @@ namespace DuiLib {
 		if( m_pWindow != NULL ) return S_OK;
 		m_pWindow = new CActiveXWnd;
 		if( m_pWindow == NULL ) return E_OUTOFMEMORY;
+		if( !m_pOwner->GetManager() ) return E_ILLEGAL_METHOD_CALL;
 		m_pOwner->m_hwndHost = m_pWindow->Init(this, m_pOwner->GetManager()->GetPaintWindow());
 		return S_OK;
 	}
@@ -918,7 +919,7 @@ namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 	//
-	IMPLEMENT_DUICONTROL(CActiveXUI)
+	IMPLEMENT_QKCONTROL(CActiveXUI)
 
 	CActiveXUI::CActiveXUI() : m_pUnk(NULL), m_pControl(NULL), m_hwndHost(NULL), m_bCreated(false), m_bDelayCreate(true), m_bMFC(false)
 	{
@@ -964,13 +965,6 @@ namespace DuiLib {
 	void CActiveXUI::SetVisible(bool bVisible)
 	{
 		CControlUI::SetVisible(bVisible);
-		if( m_hwndHost != NULL && !m_pControl->m_bWindowless ) 
-			::ShowWindow(m_hwndHost, IsVisible() ? SW_SHOW : SW_HIDE);
-	}
-
-	void CActiveXUI::SetInternVisible(bool bVisible)
-	{
-		CControlUI::SetInternVisible(bVisible);
 		if( m_hwndHost != NULL && !m_pControl->m_bWindowless ) 
 			::ShowWindow(m_hwndHost, IsVisible() ? SW_SHOW : SW_HIDE);
 	}
@@ -1125,7 +1119,7 @@ namespace DuiLib {
 	void CActiveXUI::ReleaseControl()
 	{
 		// 移除消息链
-		if(m_pManager != NULL) m_pManager->RemoveMessageFilter(this);
+		if(_manager != NULL) _manager->RemoveMessageFilter(this);
 
 		if( m_pUnk != NULL ) {
 			IObjectWithSite* pSite = NULL;
@@ -1206,11 +1200,11 @@ namespace DuiLib {
 		if( FAILED(Hr) ) Hr = m_pUnk->QueryInterface(IID_IViewObject, (LPVOID*) &m_pControl->m_pViewObject);
 		// Activate and done...
 		m_pUnk->SetHostNames(OLESTR("UIActiveX"), NULL);
-		if( m_pManager != NULL ) m_pManager->SendNotify((CControlUI*)this, DUI_MSGTYPE_SHOWACTIVEX, 0, 0, false);
+		if( _manager != NULL ) _manager->SendNotify((CControlUI*)this, DUI_MSGTYPE_SHOWACTIVEX, 0, 0, false);
 		if( (dwMiscStatus & OLEMISC_INVISIBLEATRUNTIME) == 0 ) {
 			try
 			{
-				if(m_pManager != NULL) Hr = m_pUnk->DoVerb(OLEIVERB_INPLACEACTIVATE, NULL, pOleClientSite, 0, m_pManager->GetPaintWindow(), &m_rcItem);
+				if(_manager != NULL) Hr = m_pUnk->DoVerb(OLEIVERB_INPLACEACTIVATE, NULL, pOleClientSite, 0, _manager->GetPaintWindow(), &m_rcItem);
 			}
 			catch (...)
 			{
@@ -1239,7 +1233,7 @@ namespace DuiLib {
 		return m_clsid;
 	}
 
-	CDuiString CActiveXUI::GetModuleName() const
+	QkString CActiveXUI::GetModuleName() const
 	{
 		return m_sModuleName;
 	}
