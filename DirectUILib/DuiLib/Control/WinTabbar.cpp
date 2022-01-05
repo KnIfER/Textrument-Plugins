@@ -5,13 +5,13 @@
 extern void TAB_Register();
 
 namespace DuiLib {
-	IMPLEMENT_DUICONTROL(WinTabbar)
+	IMPLEMENT_QKCONTROL(WinTabbar)
 
 	WinTabbar::WinTabbar()
 		: CContainerUI()
 	{
 		m_dwBackColor = RGB(0, 0, 255);
-		_isDirectUI = true;
+		//_view_states &= ~VIEWSTATEMASK_IsDirectUI;
 	}
 
 	LPCTSTR WinTabbar::GetClass() const
@@ -37,7 +37,7 @@ namespace DuiLib {
 			if( ::PtInRect(&m_rcItem, event.ptMouse) && IsEnabled() ) {
 				m_uWndState |= UISTATE_PUSHED | UISTATE_CAPTURED;
 				Invalidate();
-				if(IsRichEvent()) m_pManager->SendNotify(this, DUI_MSGTYPE_BUTTONDOWN);
+				if(IsRichEvent()) _manager->SendNotify(this, DUI_MSGTYPE_BUTTONDOWN);
 			}
 			return;
 		}	
@@ -49,7 +49,7 @@ namespace DuiLib {
 				Invalidate();
 				//if( ::PtInRect(&m_rcItem, event.ptMouse) ) 
 				{
-					m_pManager->SendNotify(this, DUI_MSGTYPE_CLICK);
+					_manager->SendNotify(this, DUI_MSGTYPE_CLICK);
 				}			
 			}
 			return;
@@ -64,7 +64,7 @@ namespace DuiLib {
 		{
 			case WM_LBUTTONUP:
 			{
-				//tabbar->m_pManager->SendNotify(tabbar, L"click");
+				//tabbar->_manager->SendNotify(tabbar, L"click");
 
 				break;
 			}
@@ -74,7 +74,7 @@ namespace DuiLib {
 
 	void WinTabbar::Init()
 	{
-		_hParent = m_pParent->GetHWND();
+		_hParent = _parent->GetHWND();
 		//LogIs("_hParent::%d", _hParent);
 		TAB_Register();
 		DWORD style = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
@@ -187,6 +187,34 @@ namespace DuiLib {
 		}
 		SetWindowLong(GetHWND(), GWL_STYLE, style);
 		TabCtrl_SetMaxRows(GetHWND(), maxLns);
+	}
+
+	void WinTabbar::SetVerticle(bool enabled)
+	{
+		DWORD style = GetWindowLong(GetHWND(), GWL_STYLE);
+		if (enabled)
+		{
+			style |= TCS_VERTICAL;
+		}
+		else
+		{
+			style &= ~TCS_VERTICAL;
+		}
+		SetWindowLong(GetHWND(), GWL_STYLE, style);
+	}
+
+	void WinTabbar::SetBottom(bool enabled)
+	{
+		DWORD style = GetWindowLong(GetHWND(), GWL_STYLE);
+		if (enabled)
+		{
+			style |= TCS_BOTTOM;
+		}
+		else
+		{
+			style &= ~TCS_BOTTOM;
+		}
+		SetWindowLong(GetHWND(), GWL_STYLE, style);
 	}
 
 	bool WinTabbar::setTabFont(int fontSize, TCHAR* fontName)

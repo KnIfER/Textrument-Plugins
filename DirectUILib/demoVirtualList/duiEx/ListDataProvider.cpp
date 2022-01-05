@@ -4,7 +4,7 @@
 
 MVirtualDataProvider::MVirtualDataProvider(CPaintManagerUI* pPaint)
 {
-	m_pManager = pPaint;
+	_manager = pPaint;
 }
 
 DuiLib::CControlUI* MVirtualDataProvider::CreateControl(LPCTSTR pstrClass)
@@ -17,11 +17,11 @@ DuiLib::CControlUI* MVirtualDataProvider::CreateElement()
 	CListTextElementUI* pListItem = new CListTextElementUI();
 // 	if (!m_dlgBuilder.GetMarkup()->IsValid())
 // 	{
-// 		pCon = static_cast<CControlUI*>(m_dlgBuilder.Create(L"listitem.xml", (UINT)0, this, m_pManager));
+// 		pCon = static_cast<CControlUI*>(m_dlgBuilder.Create(L"listitem.xml", (UINT)0, this, _manager));
 // 	}
 // 	else
 // 	{
-// 		pCon = static_cast<CControlUI*>(m_dlgBuilder.Create(this, m_pManager));
+// 		pCon = static_cast<CControlUI*>(m_dlgBuilder.Create(this, _manager));
 // 	}
 	return pListItem;
 }

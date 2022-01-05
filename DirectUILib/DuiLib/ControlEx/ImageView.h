@@ -8,7 +8,7 @@ namespace DuiLib
 {
 	class UILIB_API ImageView : public CControlUI
 	{
-		DECLARE_DUICONTROL(ImageView)
+		DECLARE_QKCONTROL(ImageView)
 	public:
 		ImageView();
 

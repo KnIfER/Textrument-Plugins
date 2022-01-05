@@ -46,8 +46,8 @@ public:
 	~CRichListWnd(void);
 
 	virtual void OnFinalMessage( HWND );
-	virtual CDuiString GetSkinFolder();
-	virtual CDuiString GetSkinFile();
+	virtual QkString GetSkinFolder();
+	virtual QkString GetSkinFile();
 	virtual LPCTSTR GetWindowClassName( void ) const;
 	virtual void Notify( TNotifyUI &msg );
 	virtual LRESULT OnMouseWheel( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -56,7 +56,7 @@ public:
 	virtual LRESULT OnMouseHover( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	virtual LRESULT OnChar( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 	virtual UILIB_RESTYPE GetResourceType() const;
-	virtual CDuiString GetZIPFileName() const;
+	virtual QkString GetZIPFileName() const;
 
 	DUI_DECLARE_MESSAGE_MAP()
 	virtual void OnClick(TNotifyUI& msg);
@@ -64,10 +64,10 @@ public:
 	virtual void OnItemClick( TNotifyUI &msg );
 
 private:
-	CButtonUI* m_pCloseBtn;
-	CButtonUI* m_pMaxBtn;
-	CButtonUI* m_pRestoreBtn;
-	CButtonUI* m_pMinBtn;
+	Button* m_pCloseBtn;
+	Button* m_pMaxBtn;
+	Button* m_pRestoreBtn;
+	Button* m_pMinBtn;
 	CPage1 m_Page1;
 	CPage2 m_Page2;
 };

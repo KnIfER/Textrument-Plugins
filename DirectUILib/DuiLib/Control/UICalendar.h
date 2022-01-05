@@ -9,32 +9,32 @@ namespace DuiLib
 {
 	typedef struct tag_CalendarStyle
 	{
-		CDuiString	nCalenderBorderColor;		//日历边框颜色
-		CDuiString	nCalendarBkColor;			//日历背景颜色
-		CDuiString	nMainTitleBkColor;			//日历主标题背景颜色
-		CDuiString	nSubTitleBkColor;			//日历副标题背景颜色
-		CDuiString	nWeekendColorA;				//周末的日期隔行背景颜色
-		CDuiString	nWeekendColorB;				//周末的日期隔行背景颜色
-		CDuiString	nDayHotColor;				//日期获得焦点时背景颜色
-		CDuiString	nDayPushedColor;			//日期被按下时背景颜色
-		CDuiString	nDaySelectColor;			//日期被选中时背景颜色
-		CDuiString	nDayDisabledColor;			//日期被禁用时的背景色
-		CDuiString	nNoCurMonthDayColor;		//非本月日期的背景颜色
-		CDuiString	nWeekIntervalColorA;		//周隔行颜色A
-		CDuiString	nWeekIntervalColorB;		//周隔行颜色B
-		CDuiString	nStatusBkColor;				//底部信息栏背景色
+		QkString	nCalenderBorderColor;		//日历边框颜色
+		QkString	nCalendarBkColor;			//日历背景颜色
+		QkString	nMainTitleBkColor;			//日历主标题背景颜色
+		QkString	nSubTitleBkColor;			//日历副标题背景颜色
+		QkString	nWeekendColorA;				//周末的日期隔行背景颜色
+		QkString	nWeekendColorB;				//周末的日期隔行背景颜色
+		QkString	nDayHotColor;				//日期获得焦点时背景颜色
+		QkString	nDayPushedColor;			//日期被按下时背景颜色
+		QkString	nDaySelectColor;			//日期被选中时背景颜色
+		QkString	nDayDisabledColor;			//日期被禁用时的背景色
+		QkString	nNoCurMonthDayColor;		//非本月日期的背景颜色
+		QkString	nWeekIntervalColorA;		//周隔行颜色A
+		QkString	nWeekIntervalColorB;		//周隔行颜色B
+		QkString	nStatusBkColor;				//底部信息栏背景色
 	}TCalendarStyle;
 	
 	typedef struct tag_SubTitleString
 	{
-		CDuiString	nSundayStr;
-		CDuiString	nMondayStr;
-		CDuiString	nTuesdayStr;
-		CDuiString	nWednesdayStr;
-		CDuiString	nThursdayStr;
-		CDuiString	nFridayStr;
-		CDuiString	nSaturdayStr;
-		CDuiString	nToDayString;
+		QkString	nSundayStr;
+		QkString	nMondayStr;
+		QkString	nTuesdayStr;
+		QkString	nWednesdayStr;
+		QkString	nThursdayStr;
+		QkString	nFridayStr;
+		QkString	nSaturdayStr;
+		QkString	nToDayString;
 	}TSubTitleString;
 
 	typedef struct tag_CalendarInfo
@@ -67,7 +67,7 @@ namespace DuiLib
 	{
 		friend class CCalendarDlg;
 
-		DECLARE_DUICONTROL(CCalendarUI)
+		DECLARE_QKCONTROL(CCalendarUI)
 
 	public:
 		CCalendarUI(void);
@@ -93,9 +93,9 @@ namespace DuiLib
 		void InitCalendarDis(int _Year,int _Month);
 		void CalDateTime(TCalendarInfo* _TCalendarInfo);
 		void CalDateTime(int _Year,int _Mooth,int _Day);
-		CDuiString	GetCurSelDateTime();
+		QkString	GetCurSelDateTime();
 		void		SetComboTargetName(LPCTSTR pstrName);
-		CDuiString	GetComTargetName();
+		QkString	GetComTargetName();
 		CControlUI*	GetComTargetObj();
 	public:
 		void SetCallback(ICalendar* _ICalendar);
@@ -134,32 +134,32 @@ namespace DuiLib
 
 		static void ShowCalendarDlg(CControlUI* _pControl);
 	private:
-		CDuiString				m_sComboTargetName;
-		CDuiString				mDateTime;
+		QkString				m_sComboTargetName;
+		QkString				mDateTime;
 		CHorizontalLayoutUI*	pMainTitleHoriz;
-		CButtonUI*				pLastYearBtn;
-		CButtonUI*				pMoothSelectBtn;
-		CButtonUI*				pNextYearBtn;
+		Button*				pLastYearBtn;
+		Button*				pMoothSelectBtn;
+		Button*				pNextYearBtn;
 
 		CHorizontalLayoutUI*	pSubTitleHoriz;
-		CButtonUI*				pSundayBtn;
-		CButtonUI*				pMondayBtn;
-		CButtonUI*				pTuesdayBtn;
-		CButtonUI*				pWednesdayBtn;
-		CButtonUI*				pThursdayBtn;
-		CButtonUI*				pFridayBtn;
-		CButtonUI*				pSaturdayBtn;
+		Button*				pSundayBtn;
+		Button*				pMondayBtn;
+		Button*				pTuesdayBtn;
+		Button*				pWednesdayBtn;
+		Button*				pThursdayBtn;
+		Button*				pFridayBtn;
+		Button*				pSaturdayBtn;
 
-		CButtonUI*				pDateTimeBtn;
-		CButtonUI*				pToDayBtn;
+		Button*				pDateTimeBtn;
+		Button*				pToDayBtn;
 
 		CHorizontalLayoutUI*	pMoothPanelHorz;
 		CVerticalLayoutUI*		pWeekPanelVert;
 		CHorizontalLayoutUI*	pInfoPanelHorz;
 
-		CDuiString				mLastYearBtnString;
-		CDuiString				mMoothSelectBtnStrign;
-		CDuiString				mNextYearBtnString;
+		QkString				mLastYearBtnString;
+		QkString				mMoothSelectBtnStrign;
+		QkString				mNextYearBtnString;
 
 		int						mToday;
 		bool					pEnabledYearSel;
@@ -171,7 +171,7 @@ namespace DuiLib
 		TCalendarStyle			m_DefaultStyle;
 		TSubTitleString			mSubTitleString;
 		CStdPtrArray			mTCalendarInfoArray;
-		CStdStringPtrMap		mSubTitleStringArray;
+		QkStringPtrMap		mSubTitleStringArray;
 	};
 }
 

@@ -37,14 +37,16 @@ namespace DuiLib
 		es->text_length = ((QkString*)es->textObj)->RecalcSize();
 	}
 
-	InputBox::InputBox() : CControlUI()
+	InputBox::InputBox() 
+		: CContainerUI()
+		, _twinkleMark(false)
+		, m_uMaxChar(255)
 	{
-		_font = 0;
-		_twinkleMark = false;
 		_hCursor=::LoadCursor(NULL, MAKEINTRESOURCE(IDC_IBEAM));
-		m_uMaxChar = 255;
 		infoPtr = new EDITSTATE{};
-		infoPtr->rcDraw = &m_rcItem;
+		infoPtr->rcDraw = &_rcEdit;
+		infoPtr->clip_texts = &_clipchildren;
+		infoPtr->rcDrawMax = &_rcEditMax;
 		infoPtr->rcPadding = &m_rcInsetScaled;
 		infoPtr->textObj = (LONG_PTR)&m_sText;
 		if (!fnEDITOBJ_MakeFit)
@@ -65,6 +67,7 @@ namespace DuiLib
 	LPVOID InputBox::GetInterface(LPCTSTR pstrName)
 	{
 		if( _tcsicmp(pstrName, DUI_CTR_EDIT) == 0 ) return static_cast<InputBox*>(this);
+		if( _tcsicmp(pstrName, L"editor") == 0 ) return static_cast<InputBox*>(this);
 		return __super::GetInterface(pstrName);
 	}
 
@@ -94,18 +97,34 @@ namespace DuiLib
 
 			BOOL ret = _Create(_parent->GetHWND(), (WPARAM)infoPtr, 0);
 
-			_SetFont(infoPtr, _manager->GetFont(GetFont()), false);
+			SyncColors();
 
-			//if (false)
+			std::function<int(void*, UINT, WPARAM, LPARAM)> listener = [&](void* handle, UINT MSG, WPARAM wParam, LPARAM lParam) 
 			{
-				//SetType(0,  0
-				//	//|BS_AUTO3STATE
-				//	//|BS_GROUPBOX
-				//	//|BS_SPLITBUTTON
-				//	//|BS_3STATE
-				//	|BS_COMMANDLINK
-				//	//|BS_OWNERDRAW
-				//);
+				if (MSG==0x111)
+				{
+					scrollbars_set_cnt++;
+					if (scrollbars_set_cnt<2) ProcessScrollBar(_rcEdit, infoPtr->text_width, infoPtr->line_count*infoPtr->line_height);
+					scrollbars_set_cnt--;
+					if (m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible())
+					{
+						m_pVerticalScrollBar->SetScrollPos(infoPtr->y_offset * infoPtr->line_height);
+					}
+					if (m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible())
+					{
+						m_pHorizontalScrollBar->SetScrollPos(infoPtr->x_offset);
+					}
+				}
+				return 0;
+			};
+
+			infoPtr->_listener = listener;
+
+			EDITOBJ_SyncText(infoPtr);
+			EDIT_ResetText(infoPtr);
+
+			if (false)
+			{
 				EDIT_LockBuffer(infoPtr);
 				//_SetLimitText(infoPtr, 128);
 				//_SetText(infoPtr, L"深度\n搜索深\n度\n搜\n索\n深度搜\n索深度搜\n索");
@@ -116,42 +135,128 @@ namespace DuiLib
 		}
 	}
 
-	bool InputBox::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
+	void InputBox::SyncColors()
 	{
-		//infoPtr->dtStyle = m_uTextStyle;
-		//infoPtr->font = _manager->GetFont(GetFont());
-		__super::DoPaint(hDC, rcPaint, pStopControl);
+		DWORD flag;
+		if (!infoPtr->font || infoPtr->font!=_manager->GetFont(GetFont()))
+		{
+			_SetFont(infoPtr, _manager->GetFont(GetFont()), false);
+		}
+		infoPtr->bgrTextColor = RGB(GetBValue(m_dwTextColor), GetGValue(m_dwTextColor), GetRValue(m_dwTextColor));
+		VIEWSTATE_MARK_SYNCED(VIEW_INFO_DIRTY_COLORS);
+	}
 
+	void InputBox::PaintText(HDC hDC)
+	{
+		const RECT & rcPaint = m_rcPaint;
+		RECT rcTemp;
 		if (infoPtr->is_delegate)
 		{
+			CRenderClip clip;
+			RECT rcClip = _clipchildren?_rcEdit:_rcEditMax;
+			::IntersectRect(&rcTemp, &rcPaint, &rcClip);
+			CRenderClip::GenerateClip(hDC, rcTemp, clip);
+
+			if (m_bInfoDirtyColors) SyncColors();
+
 			EDITOBJ_SyncText(infoPtr);
 			if(!infoPtr->font)
 				_SetFont(infoPtr, _manager->GetFont(GetFont()), false);
-			//infoPtr->font = _manager->GetFont(GetFont());
-
-			//if( IsFocused() ) infoPtr->state |= BST_FOCUS;
-			//else infoPtr->state &= ~ BST_FOCUS;
 
 			infoPtr->bEnableState = IsEnabled();
-			//infoPtr->bgrTextColor = RGB(GetBValue(m_dwTextColor), GetGValue(m_dwTextColor), GetRValue(m_dwTextColor));
 
 			_Paint(infoPtr, hDC, &rcPaint);
 
 			ShowCaretIfVisible(true);
+		}
+	}
 
-			if(m_items.GetSize()) PaintChildren(hDC, rcPaint, pStopControl);
+	bool InputBox::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
+	{
+		//infoPtr->dtStyle = m_uTextStyle;
+		//infoPtr->font = _manager->GetFont(GetFont());
+		CControlUI::DoPaint(hDC, rcPaint, pStopControl);
+
+		RECT rcTemp;
+		bool vertScroll = m_pVerticalScrollBar != NULL && m_pVerticalScrollBar->IsVisible();
+		bool horScroll = m_pHorizontalScrollBar != NULL && m_pHorizontalScrollBar->IsVisible();
+
+		if(m_items.GetSize()) PaintChildren(hDC, rcPaint, pStopControl);
+
+		if(vertScroll) {
+			if( m_pVerticalScrollBar == pStopControl ) return false;
+			if( ::IntersectRect(&rcTemp, &rcPaint, &m_pVerticalScrollBar->GetPos()) ) {
+				if( !m_pVerticalScrollBar->Paint(hDC, rcPaint, pStopControl) ) return false;
+			}
+		}
+
+		if(horScroll) {
+			if( m_pHorizontalScrollBar == pStopControl ) return false;
+			if( ::IntersectRect(&rcTemp, &rcPaint, &m_pHorizontalScrollBar->GetPos()) ) {
+				if( !m_pHorizontalScrollBar->Paint(hDC, rcPaint, pStopControl) ) return false;
+			}
 		}
 
 		return true;
-
-		//return true;
 	}
 
+	void InputBox::DoScroll(int dx, int dy)
+	{
+		if (dy)
+		{
+			dy = ceil(m_pVerticalScrollBar->GetScrollPos()*1.f/infoPtr->line_height)  - infoPtr->y_offset;
+		}
+
+		if (dx)
+		{
+			INT fw = infoPtr->format_rect.right - infoPtr->format_rect.left;
+			/* check if we are going to move too far */
+			if(infoPtr->x_offset + dx + fw > infoPtr->text_width)
+				dx = infoPtr->text_width - fw - infoPtr->x_offset;
+		}
+		if(dx || dy)
+			EDIT_EM_LineScroll_internal(infoPtr, dx, dy);
+
+		Invalidate();
+	}
 
 	void InputBox::SetPos(RECT rc, bool bNeedInvalidate)
 	{
 		__super::SetPos(rc, bNeedInvalidate);
+		_rcEdit = m_rcItem;
+		short b1=0;
+		if (m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible())
+		{
+			_rcEdit.right -= m_pVerticalScrollBar->GetFixedWidth();
+			b1 |= 0x1;
+		}
+		if (m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible()) {
+			_rcEdit.bottom -= m_pHorizontalScrollBar->GetFixedHeight();
+			b1 |= 0x2;
+		}
+		_rcEditMax = _rcEdit;
+		if ((b1&0x1) && _vscrollEatInset)
+		{
+			int vScrollW = m_rcItem.right - _rcEdit.right;
+			if (m_rcInsetScaled.right<=vScrollW)
+				_rcEdit.right += m_rcInsetScaled.right;
+			else
+				_rcEdit.right += vScrollW;
+		}
+		if ((b1&0x2) && _hscrollEatInset)
+		{
+			int hScrollH = m_rcItem.bottom - _rcEdit.bottom;
+			if (m_rcInsetScaled.bottom<=hScrollH)
+				_rcEdit.bottom += m_rcInsetScaled.bottom;
+			else
+				_rcEdit.bottom += hScrollH;
+		}
+		ApplyInsetToRect(_rcEdit);
 
+		// Process the scrollbar
+		scrollbars_set_cnt++;
+		if (scrollbars_set_cnt<3) ProcessScrollBar(_rcEdit, infoPtr->text_width, infoPtr->line_count*infoPtr->line_height);
+		scrollbars_set_cnt--;
 	}
 
 	void InputBox::ShowCaretIfVisible(bool update)
@@ -207,6 +312,23 @@ namespace DuiLib
 			EDIT_UnlockBuffer(infoPtr, false);
 			return;
 		}
+		if( event.Type == UIEVENT_IME_REQUEST)
+		{
+			if (event.wParam == IMR_QUERYCHARPOSITION)
+			{
+				IMECHARPOSITION *chpos = (IMECHARPOSITION *)event.lParam;
+				LRESULT pos;
+
+				pos = EDIT_EM_PosFromChar(infoPtr, infoPtr->selection_start + chpos->dwCharPos, FALSE);
+				chpos->pt.x = LOWORD(pos);
+				chpos->pt.y = HIWORD(pos);
+				chpos->cLineHeight = infoPtr->line_height;
+				chpos->rcDocument = infoPtr->format_rect;
+				MapWindowPoints(GetHWND(), 0, &chpos->pt, 1);
+				MapWindowPoints(GetHWND(), 0, (POINT*)&chpos->rcDocument, 2);
+			}
+			return;
+		}
 		if( event.Type == UIEVENT_BUTTONDOWN)
 		{
 			_manager->SetCapture();
@@ -232,11 +354,11 @@ namespace DuiLib
 			}
 			return;
 		}
-		if( event.Type == UIEVENT_SCROLLWHEEL)
-		{
-			_MouseWheel(infoPtr, event.wParam, event.lParam);
-			return;
-		}
+		//if( event.Type == UIEVENT_SCROLLWHEEL)
+		//{
+		//	_MouseWheel(infoPtr, event.wParam, event.lParam);
+		//	return;
+		//}
 		if( event.Type == UIEVENT_KEYDOWN ) 
 		{
 			_KeyDown(infoPtr, (INT)event.wParam);
@@ -255,7 +377,7 @@ namespace DuiLib
 		}
 		if( event.Type == UIEVENT_SETFOCUS && IsEnabled() ) 
 		{
-			m_bFocused = true;
+			m_bFocused_YES;
 			infoPtr->flags |= EF_FOCUSED;
 			CreateCaret(_manager->GetPaintWindow(), 0, 1, infoPtr->line_height);
 			EDIT_SetCaretPos(infoPtr, infoPtr->selection_end, infoPtr->flags & EF_AFTER_WRAP);
@@ -269,7 +391,7 @@ namespace DuiLib
 			wsprintf(buffer,TEXT("UIEVENT_KILLFOCUS"), TEXT("GOGO"));
 			//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
 
-			m_bFocused = false;
+			m_bFocused_NO;
 			infoPtr->flags &= ~EF_FOCUSED;
 			//Invalidate();
 			ShowCaretIfVisible(false);
@@ -331,14 +453,6 @@ namespace DuiLib
 		__super::DoEvent(event);
 	}
 
-	void InputBox::SetEnabled(bool bEnable)
-	{
-		CControlUI::SetEnabled(bEnable);
-		if( !IsEnabled() ) {
-			m_uButtonState = 0;
-		}
-	}
-
 	void InputBox::SetText(LPCTSTR pstrText)
 	{
 		//_SetText(infoPtr, pstrText);
@@ -384,11 +498,6 @@ namespace DuiLib
 	bool InputBox::IsNumberOnly() const
 	{
 		return false;
-	}
-
-	int InputBox::GetWindowStyls() const 
-	{
-		return 0;
 	}
 
 	void InputBox::SetPasswordMode(bool bPasswordMode)
@@ -438,11 +547,7 @@ namespace DuiLib
 
 	void InputBox::SetTipValueColor( LPCTSTR pStrColor )
 	{
-		if( *pStrColor == _T('#')) pStrColor = ::CharNext(pStrColor);
-		LPTSTR pstr = NULL;
-		DWORD clrColor = _tcstoul(pStrColor, &pstr, 16);
-
-		m_dwTipValueColor = clrColor;
+		STR2ARGB(pStrColor, m_dwTipValueColor);
 	}
 
 	DWORD InputBox::GetTipValueColor()
@@ -483,43 +588,42 @@ namespace DuiLib
 		else if( _tcsicmp(pstrName, _T("tipvaluecolor")) == 0 ) SetTipValueColor(pstrValue);
 		//else if( _tcsicmp(pstrName, _T("nativetextcolor")) == 0 ) SetNativeEditTextColor(pstrValue);
 		else if( _tcsicmp(pstrName, _T("nativebkcolor")) == 0 ) {
-			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-			LPTSTR pstr = NULL;
-			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+			DWORD clrColor;
+			STR2ARGB(pstrValue, clrColor);
 			//SetNativeEditBkColor(clrColor);
 		}
+		else if( _tcsicmp(pstrName, _T("textcolor")) == 0 ) SetTextColor(m_dwTextColor, pstrValue);
 		else __super::SetAttribute(pstrName, pstrValue);
 	}
 
-	void InputBox::PaintStatusImage(HDC hDC)
+	void InputBox::SetTextColor(DWORD dwTextColor, LPCTSTR handyStr)
 	{
-		//if( IsFocused() ) m_uButtonState |= UISTATE_FOCUSED;
-		//else m_uButtonState &= ~ UISTATE_FOCUSED;
-		//if( !IsEnabled() ) m_uButtonState |= UISTATE_DISABLED;
-		//else m_uButtonState &= ~ UISTATE_DISABLED;
-		//
-		//if( (m_uButtonState & UISTATE_DISABLED) != 0 ) {
-		//	if( !m_sDisabledImage.IsEmpty() ) {
-		//		if( !DrawImage(hDC, (LPCTSTR)m_sDisabledImage) ) {}
-		//		else return;
-		//	}
-		//}
-		//else if( (m_uButtonState & UISTATE_FOCUSED) != 0 ) {
-		//	if( !m_sFocusedImage.IsEmpty() ) {
-		//		if( !DrawImage(hDC, (LPCTSTR)m_sFocusedImage) ) {}
-		//		else return;
-		//	}
-		//}
-		//else if( (m_uButtonState & UISTATE_HOT) != 0 ) {
-		//	if( !m_sHotImage.IsEmpty() ) {
-		//		if( !DrawImage(hDC, (LPCTSTR)m_sHotImage) ) {}
-		//		else return;
-		//	}
-		//}
-		//
-		//if( !m_sNormalImage.IsEmpty() ) {
-		//	if( !DrawImage(hDC, (LPCTSTR)m_sNormalImage) ) {}
-		//	else return;
-		//}
+		VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
+		if (handyStr)
+		{
+			STR2ARGB(handyStr, m_dwTextColor);
+		}
+		else
+		{
+			m_dwTextColor = dwTextColor;
+			Invalidate();
+		}
+	}
+
+	DWORD InputBox::GetTextColor() const
+	{
+		return m_dwTextColor;
+	}
+
+	void InputBox::SetDisabledTextColor(DWORD dwTextColor)
+	{
+		m_dwDisabledTextColor = dwTextColor;
+		VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
+		Invalidate();
+	}
+
+	DWORD InputBox::GetDisabledTextColor() const
+	{
+		return m_dwDisabledTextColor;
 	}
 }

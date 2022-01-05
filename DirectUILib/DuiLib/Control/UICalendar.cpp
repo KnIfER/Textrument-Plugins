@@ -10,7 +10,7 @@ namespace DuiLib
 	/* 日历窗口                                                             */
 	/************************************************************************/
 
-	IMPLEMENT_DUICONTROL(CCalendarUI)
+	IMPLEMENT_QKCONTROL(CCalendarUI)
 
 #ifndef UICalendarDlg_h__
 #define UICalendarDlg_h__
@@ -21,7 +21,7 @@ namespace DuiLib
 		CCalendarDlg(CControlUI* _pControl);
 		~CCalendarDlg();
 	public:
-		CDuiString GetSkinFile();
+		QkString GetSkinFile();
 		LPCTSTR GetWindowClassName() const;
 		LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT MessageHandler( UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled );
@@ -37,7 +37,7 @@ namespace DuiLib
 	private:
 		CCalendarUI*	pCalendar;
 		CControlUI*		pCControl;
-		CDuiString		ZipSkinPath;
+		QkString		ZipSkinPath;
 		CPaintManagerUI pm;
 	};
 
@@ -117,7 +117,7 @@ namespace DuiLib
 			if(!GetSkinFile().IsEmpty())
 				pm.SetResourcePath(GetSkinFile());
 
-			CDuiString nStrRoot;
+			QkString nStrRoot;
 			nStrRoot.Format(_T("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<Window size=\"220,168\" bktrans=\"false\"><Calendar name=\"CalendarDlg\" /></Window>"));
 
 			CControlUI* pRoot = builder.Create(nStrRoot.GetData(), (UINT)0, NULL, &pm);
@@ -364,11 +364,11 @@ namespace DuiLib
 	// Method:    GetSkinFile
 	// FullName:  CCalendarDlg::GetSkinFile
 	// Access:    public 
-	// Returns:   CDuiString
+	// Returns:   QkString
 	// Qualifier:
 	// Note:	  
 	//************************************
-	CDuiString CCalendarDlg::GetSkinFile()
+	QkString CCalendarDlg::GetSkinFile()
 	{
 		try
 		{
@@ -426,9 +426,9 @@ namespace DuiLib
 
 		//初始化日历主标题容器与元素
 		pMainTitleHoriz	= new CHorizontalLayoutUI();
-		pLastYearBtn	= new CButtonUI();
-		pMoothSelectBtn	= new CButtonUI();
-		pNextYearBtn	= new CButtonUI();
+		pLastYearBtn	= new Button();
+		pMoothSelectBtn	= new Button();
+		pNextYearBtn	= new Button();
 		pLastYearBtn->SetFixedWidth(60);
 		pNextYearBtn->SetFixedWidth(60);
 		pMainTitleHoriz->SetFixedHeight(22);
@@ -471,7 +471,7 @@ namespace DuiLib
 		for(int nMoothItem = 1;nMoothItem < 13;nMoothItem++)
 		{
 			wsprintf(TmpDef,_T("CalendMoothGroupName_%d"),pMoothPanelHorz);
-			COptionUI* pMooth = new COptionUI();
+			OptionBtn* pMooth = new OptionBtn();
 			pMooth->SetGroup(TmpDef);
 			wsprintf(TmpDef,_T("%d"),nMoothItem);
 			pMooth->SetText(TmpDef);
@@ -602,7 +602,7 @@ namespace DuiLib
 	{
 		try
 		{
-			CButtonUI* pWeek	= new CButtonUI();
+			Button* pWeek	= new Button();
 			_Panent->SetFixedHeight(22);
 			pWeek->SetMouseEnabled(false);
 			return pWeek;
@@ -627,7 +627,7 @@ namespace DuiLib
 	{
 		try
 		{
-			COptionUI*	pDay = new COptionUI();
+			OptionBtn*	pDay = new OptionBtn();
 			int heighta = pDay->GetHeight();
 			int hegithb = pDay->GetFixedHeight();
 			pDay->SetGroup(_GroupName);
@@ -724,14 +724,14 @@ namespace DuiLib
 			CVerticalLayoutUI* pMoothSubPanelA = static_cast<CVerticalLayoutUI*>(pMoothPanelHorz->GetItemAt(0));
 			for(int nMoothItem = 0;nMoothItem < 6;nMoothItem++)
 			{
-				COptionUI* pMooth = static_cast<COptionUI*>(pMoothSubPanelA->GetItemAt(nMoothItem));
+				OptionBtn* pMooth = static_cast<OptionBtn*>(pMoothSubPanelA->GetItemAt(nMoothItem));
 				pMooth->SetAttribute(_T("hotbkcolor"),_TCalendarStyle.nDayHotColor);
 				pMooth->SetAttribute(_T("selectedbkcolor"),_TCalendarStyle.nDaySelectColor);
 			}
 			CVerticalLayoutUI* pMoothSubPanelB = static_cast<CVerticalLayoutUI*>(pMoothPanelHorz->GetItemAt(1));
 			for(int nMoothItem = 0;nMoothItem < 6;nMoothItem++)
 			{
-				COptionUI* pMooth = static_cast<COptionUI*>(pMoothSubPanelB->GetItemAt(nMoothItem));
+				OptionBtn* pMooth = static_cast<OptionBtn*>(pMoothSubPanelB->GetItemAt(nMoothItem));
 				pMooth->SetAttribute(_T("hotbkcolor"),_TCalendarStyle.nDayHotColor);
 				pMooth->SetAttribute(_T("selectedbkcolor"),_TCalendarStyle.nDaySelectColor);
 			}
@@ -755,9 +755,9 @@ namespace DuiLib
 					else if(!(nWeekIndex%2) && (nDayIndex == 0 || nDayIndex == 6))
 						pDayParent->SetAttribute(_T("bkcolor"),_TCalendarStyle.nWeekendColorB);
 
-					COptionUI* pDay = static_cast<COptionUI*>(pDayParent->GetItemAt(0));
+					OptionBtn* pDay = static_cast<OptionBtn*>(pDayParent->GetItemAt(0));
 
-					if(!pDay || CDuiString(pDay->GetClass()) != CDuiString(_T("OptionUI")))
+					if(!pDay || QkString(pDay->GetClass()) != QkString(_T("OptionUI")))
 						continue;
 
 					pDay->SetAttribute(_T("hotbkcolor"),_TCalendarStyle.nDayHotColor);
@@ -908,10 +908,8 @@ namespace DuiLib
 	{
 		TSubTitleString* pSubTitleString = NULL;
 		for( int i = 0; i< mSubTitleStringArray.GetSize(); i++ ) {
-			if(LPCTSTR key = mSubTitleStringArray.GetAt(i)) {
-				pSubTitleString = static_cast<TSubTitleString*>(mSubTitleStringArray.Find(key));
-				delete pSubTitleString;
-			}
+			pSubTitleString = static_cast<TSubTitleString*>(mSubTitleStringArray.GetValueAt(i));
+			if(pSubTitleString) delete pSubTitleString;
 		}
 	}
 
@@ -1050,7 +1048,7 @@ namespace DuiLib
 					if(!pTCalendarInfo)
 						continue;
 
-					COptionUI* pDay = static_cast<COptionUI*>(pDayParent->GetItemAt(0));
+					OptionBtn* pDay = static_cast<OptionBtn*>(pDayParent->GetItemAt(0));
 
 					if(!(nWeek && nDayIndex < nWeek && nCalDay <= nDays))
 					{
@@ -1437,8 +1435,8 @@ namespace DuiLib
 	CControlUI* CCalendarUI::CreateInfoPanel()
 	{
 		CHorizontalLayoutUI* pControl	= new CHorizontalLayoutUI();
-		pDateTimeBtn					= new CButtonUI();
-		pToDayBtn						= new CButtonUI();
+		pDateTimeBtn					= new Button();
+		pToDayBtn						= new Button();
 
 		pDateTimeBtn->SetMouseEnabled(false);
 		pDateTimeBtn->SetFixedWidth(100);
@@ -1613,8 +1611,8 @@ namespace DuiLib
 	{
 		try
 		{
-			CDuiString sItem;
-			CDuiString sValue;
+			QkString sItem;
+			QkString sValue;
 			LPTSTR pstr = NULL;
 
 			TCalendarStyle* pCalendarInfo = _TCalendarStyle?_TCalendarStyle:&m_DefaultStyle;
@@ -1701,11 +1699,11 @@ namespace DuiLib
 	// Method:    GetCurSelDateTime
 	// FullName:  CCalendarUI::GetCurSelDateTime
 	// Access:    public 
-	// Returns:   CDuiString
+	// Returns:   QkString
 	// Qualifier:
 	// Note:	  
 	//************************************
-	CDuiString CCalendarUI::GetCurSelDateTime()
+	QkString CCalendarUI::GetCurSelDateTime()
 	{
 		return mDateTime;
 	}
@@ -1728,11 +1726,11 @@ namespace DuiLib
 	// Method:    GetComTargetName
 	// FullName:  CCalendarUI::GetComTargetName
 	// Access:    public 
-	// Returns:   CDuiString
+	// Returns:   QkString
 	// Qualifier:
 	// Note:	  
 	//************************************
-	CDuiString CCalendarUI::GetComTargetName()
+	QkString CCalendarUI::GetComTargetName()
 	{
 		return m_sComboTargetName;
 	}

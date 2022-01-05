@@ -44,8 +44,8 @@ namespace DuiLib
 	// Structure for notifications to the outside world
 	typedef struct tagTNotifyUI
 	{
-		CDuiString sType;
-		CDuiString sVirtualWnd;
+		QkString sType;
+		QkString sVirtualWnd;
 		CControlUI* pSender;
 		DWORD dwTimestamp;
 		POINT ptMouse;
@@ -135,8 +135,8 @@ namespace DuiLib
 	//结构定义
 	struct DUI_MSGMAP_ENTRY //定义一个结构体，来存放消息信息
 	{
-		CDuiString sMsgType;          // DUI消息类型
-		CDuiString sCtrlName;         // 控件名称
+		QkString sMsgType;          // DUI消息类型
+		QkString sCtrlName;         // 控件名称
 		UINT       nSig;              // 标记函数指针类型
 		DUI_PMSG   pfn;               // 指向函数的指针
 	};

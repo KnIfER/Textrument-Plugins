@@ -4,7 +4,7 @@
 #pragma warning( disable: 4251 )
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CTreeNodeUI)
+	IMPLEMENT_QKCONTROL(CTreeNodeUI)
 
 	//************************************
 	// 函数名称: CTreeNodeUI
@@ -29,7 +29,7 @@ namespace DuiLib
 		pFolderButton = new CCheckBoxUI();
 		pDottedLine = new CLabelUI();
 		pCheckBox = new CCheckBoxUI();
-		pItemButton = new COptionUI();
+		pItemButton = new OptionBtn();
 
 		this->SetFixedHeight(18);
 		this->SetFixedWidth(250);
@@ -105,7 +105,7 @@ namespace DuiLib
 		CListContainerElementUI::DoEvent(event);
 		if( event.Type == UIEVENT_DBLCLICK ) {
 			if( IsEnabled() ) {
-				m_pManager->SendNotify(this, DUI_MSGTYPE_TREEITEMDBCLICK);
+				_manager->SendNotify(this, DUI_MSGTYPE_TREEITEMDBCLICK);
 				Invalidate();
 			}
 			return;
@@ -170,7 +170,7 @@ namespace DuiLib
 						return;
 				}
 
-				if( m_pManager != NULL ) m_pManager->Invalidate(invalidateRc);
+				if( _manager != NULL ) _manager->Invalidate(invalidateRc);
 			}
 			else {
 				CContainerUI::Invalidate();
@@ -189,7 +189,7 @@ namespace DuiLib
 	//************************************
 	bool CTreeNodeUI::Select( bool bSelect /*= true*/ )
 	{
-		bool nRet = CListContainerElementUI::Select(bSelect);
+		bool nRet = false;//CListContainerElementUI::Select(bSelect);
 		if(m_bSelected)
 			pItemButton->SetTextColor(GetSelItemTextColor());
 		else 
@@ -200,7 +200,7 @@ namespace DuiLib
 
 	bool CTreeNodeUI::SelectMulti(bool bSelect)
 	{
-		bool nRet = CListContainerElementUI::SelectMulti(bSelect);
+		bool nRet = false;//CListContainerElementUI::SelectMulti(bSelect);
 		if(m_bSelected)
 			pItemButton->SetTextColor(GetSelItemTextColor());
 		else 
@@ -300,10 +300,10 @@ namespace DuiLib
 
 	//************************************
 	// 函数名称: GetItemText
-	// 返回类型: DuiLib::CDuiString
+	// 返回类型: DuiLib::QkString
 	// 函数说明: 
 	//************************************
-	CDuiString CTreeNodeUI::GetItemText()
+	QkString CTreeNodeUI::GetItemText()
 	{
 		return pItemButton->GetText();
 	}
@@ -480,27 +480,23 @@ namespace DuiLib
 		else if(_tcsicmp(pstrName, _T("itemattr")) == 0 )
 			pItemButton->ApplyAttributeList(pstrValue);
 		else if(_tcsicmp(pstrName, _T("itemtextcolor")) == 0 ){
-			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-			LPTSTR pstr = NULL;
-			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+			DWORD clrColor;
+			STR2ARGB(pstrValue, clrColor);
 			SetItemTextColor(clrColor);
 		}
 		else if(_tcsicmp(pstrName, _T("itemhottextcolor")) == 0 ){
-			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-			LPTSTR pstr = NULL;
-			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+			DWORD clrColor;
+			STR2ARGB(pstrValue, clrColor);
 			SetItemHotTextColor(clrColor);
 		}
 		else if(_tcsicmp(pstrName, _T("selitemtextcolor")) == 0 ){
-			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-			LPTSTR pstr = NULL;
-			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+			DWORD clrColor;
+			STR2ARGB(pstrValue, clrColor);
 			SetSelItemTextColor(clrColor);
 		}
 		else if(_tcsicmp(pstrName, _T("selitemhottextcolor")) == 0 ){
-			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-			LPTSTR pstr = NULL;
-			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+			DWORD clrColor;
+			STR2ARGB(pstrValue, clrColor);
 			SetSelItemHotTextColor(clrColor);
 		}
 		else CListContainerElementUI::SetAttribute(pstrName,pstrValue);
@@ -733,7 +729,7 @@ namespace DuiLib
 	/*****************************************************************************/
 	/*****************************************************************************/
 	/*****************************************************************************/
-	IMPLEMENT_DUICONTROL(CTreeViewUI)
+	IMPLEMENT_QKCONTROL(CTreeViewUI)
 	
 	//************************************
 	// 函数名称: CTreeViewUI
@@ -1244,27 +1240,23 @@ namespace DuiLib
 		else if(_tcsicmp(pstrName,_T("itemminwidth")) == 0)
 			SetItemMinWidth(_ttoi(pstrValue));
 		else if(_tcsicmp(pstrName, _T("itemtextcolor")) == 0 ){
-			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-			LPTSTR pstr = NULL;
-			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+			DWORD clrColor;
+			STR2ARGB(pstrValue, clrColor);
 			SetItemTextColor(clrColor);
 		}
 		else if(_tcsicmp(pstrName, _T("itemhottextcolor")) == 0 ){
-			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-			LPTSTR pstr = NULL;
-			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+			DWORD clrColor;
+			STR2ARGB(pstrValue, clrColor);
 			SetItemHotTextColor(clrColor);
 		}
 		else if(_tcsicmp(pstrName, _T("selitemtextcolor")) == 0 ){
-			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-			LPTSTR pstr = NULL;
-			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+			DWORD clrColor;
+			STR2ARGB(pstrValue, clrColor);
 			SetSelItemTextColor(clrColor);
 		}
 		else if(_tcsicmp(pstrName, _T("selitemhottextcolor")) == 0 ){
-			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-			LPTSTR pstr = NULL;
-			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+			DWORD clrColor;
+			STR2ARGB(pstrValue, clrColor);
 			SetSelItemHotTextColor(clrColor);
 		}
 		else CListUI::SetAttribute(pstrName,pstrValue);

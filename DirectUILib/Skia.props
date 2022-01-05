@@ -6,6 +6,7 @@
     <SKLib_STATIC_64>$(SKPA)\out\Release-x64</SKLib_STATIC_64>
     <SKLibs>d3d12allocator.lib;expat.lib;freetype2.lib;harfbuzz.lib;icu.lib;libjpeg.lib;libpng.lib;libwebp.lib;libwebp_sse41.lib;particles.lib;skia.lib;skottie.lib;skparagraph.lib;skresources.lib;sksg.lib;skshaper.lib;spirv_cross.lib;svg.lib;zlib.lib</SKLibs>
     <SKLib_STATIC_64D>$(SKPA)\out\Debug-x64</SKLib_STATIC_64D>
+    <skias>$(SKPA)\out\$(Configuration)-$(Platform)\</skias>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
@@ -15,6 +16,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(SKLibs);Opengl32.lib;Vfw32.lib;d3dcompiler.lib;D3D12.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(skias);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -29,6 +31,9 @@
     </BuildMacro>
     <BuildMacro Include="SKLib_STATIC_64D">
       <Value>$(SKLib_STATIC_64D)</Value>
+    </BuildMacro>
+    <BuildMacro Include="skias">
+      <Value>$(skias)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

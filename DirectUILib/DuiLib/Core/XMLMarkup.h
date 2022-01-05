@@ -15,7 +15,6 @@ namespace DuiLib {
 	class XMarkupParser;
 	class XMarkupNode;
 
-
 	class UILIB_API XMarkupParser
 	{
 		friend class XMarkupNode;
@@ -32,8 +31,8 @@ namespace DuiLib {
 		void Print();
 
 		void SetPreserveWhitespace(bool bPreserve = true);
-		void GetLastErrorMessage(LPTSTR pstrMessage, SIZE_T cchMax) const;
-		void GetLastErrorLocation(LPTSTR pstrSource, SIZE_T cchMax) const;
+		const QkString & GetLastErrorMessage() const;
+		const QkString & GetLastErrorLocation() const;
 
 		XMarkupNode GetRoot();
 
@@ -50,8 +49,6 @@ namespace DuiLib {
 
 		void SetDebug(){ _bIsDebug = true; };
 
-		TCHAR m_szErrorMsg[100];
-		TCHAR m_szErrorXML[50];
 	private:
 
 		LPTSTR m_pstrXML;
@@ -59,6 +56,9 @@ namespace DuiLib {
 		ULONG m_nElements;
 		ULONG m_nReservedElements;
 		bool m_bPreserveWhitespace;
+
+		QkString _ErrorMsg;
+		QkString _ErrorXML;
 
 		bool _bIsDebug;
 		bool _bShouldDeleteData;
@@ -123,7 +123,7 @@ namespace DuiLib {
 		bool GetAttributeValue(LPCTSTR pstrName, LPTSTR pstrValue, SIZE_T cchMax);
 
 		XMarkupParser* GetMarkUp() const {
-			return IsValid()?&m_pOwner[m_iPos]:NULL;
+			return IsValid()?m_pOwner:NULL;
 		};
 
 	private:

@@ -30,7 +30,7 @@ class WarnDlg;
 
 #define SELF_REFRESH WM_USER+9
 
-using namespace std;
+//using namespace std;
 
 const TCHAR sectionName[] = TEXT("Setting");
 const TCHAR strMarkColor[] = TEXT("MarkColor");
@@ -77,7 +77,7 @@ public :
 	};
 	void saveParameters();
 	void readParameters();
-	void  readExtensions(int channel, string * ret);
+	void  readExtensions(int channel, std::string * ret);
 	void destroyWebViews(bool exit=false);
 	void switchWebViewByIndex(int id);
 
@@ -111,7 +111,7 @@ protected :
 
 	std::vector<FuncItem> ZOOMER;
 	std::vector<FuncItem> EngineSwicther;
-	std::vector<wstring> MDEngines;
+	std::vector<std::wstring> MDEngines;
 	HMENU hMenuLocate=0;
 	std::vector<FuncItem> LocateScroll;
 
@@ -151,19 +151,19 @@ public :
 
 	void GlobalOnPvMnChecked(HMENU hMenu, int idx);
 
-	void setLanguageName(wstring & name, bool init=false);
+	void setLanguageName(std::wstring & name, bool init=false);
 
-	wstring getLanguageName() {
+	std::wstring getLanguageName() {
 		return currentLanguageFile;
 	};
 
 	bool localeSet;
 
-	wstring currentLanguageFile = L"zh_中文.ini";
+	std::wstring currentLanguageFile = L"zh_中文.ini";
 
 	std::map<std::string, std::string> & getLocaliseMap();
 
-	string * getLocalString(char* name);
+	std::string * getLocalString(char* name);
 
 	void localeTextToBuffer(TCHAR* buffer, int cchBuffer, char* name, TCHAR* defVal);
 

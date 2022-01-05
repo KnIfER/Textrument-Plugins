@@ -4,7 +4,7 @@ struct _EDIT_STATE;
 
 namespace DuiLib
 {
-	class UILIB_API InputBox : public CControlUI
+	class UILIB_API InputBox : public CContainerUI
 	{
 		DECLARE_QKCONTROL(InputBox)
 		friend class CEditWnd;
@@ -15,8 +15,7 @@ namespace DuiLib
 		LPVOID GetInterface(LPCTSTR pstrName);
 		UINT GetControlFlags() const;
 
-		void SetEnabled(bool bEnable = true);
-		void SetText(LPCTSTR pstrText);
+		void SetText(LPCTSTR pstrText) override;
 		void SetMaxChar(UINT uMax);
 		UINT GetMaxChar();
 		void SetReadOnly(bool bReadOnly);
@@ -27,7 +26,6 @@ namespace DuiLib
 		TCHAR GetPasswordChar() const;
 		void SetNumberOnly(bool bNumberOnly);
 		bool IsNumberOnly() const;
-		int GetWindowStyls() const;
 
 		//LPCTSTR GetNormalImage();
 		//void SetNormalImage(LPCTSTR pStrImage);
@@ -53,7 +51,8 @@ namespace DuiLib
 		void SetTipValueColor(LPCTSTR pStrColor);
 		DWORD GetTipValueColor();
 
-		HWND GetHWND();
+		//virtual void SetScrollPos(SIZE szPos, bool bMsg = true);
+		virtual void DoScroll(int x, int y);
 
 		void SetPos(RECT rc, bool bNeedInvalidate = true);
 		void Move(SIZE szOffset, bool bNeedInvalidate = true);
@@ -62,13 +61,25 @@ namespace DuiLib
 		SIZE EstimateSize(const SIZE & szAvailable);
 		void DoEvent(TEventUI& event);
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
+		void SetTextColor(DWORD dwTextColor, LPCTSTR handyStr=NULL);
+		DWORD GetTextColor() const;
+		void SetDisabledTextColor(DWORD dwTextColor);
+		DWORD GetDisabledTextColor() const;
 
-		void InputBox::Init();
+		void Init();
+
+		void SyncColors();
+
 		bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
-		void PaintStatusImage(HDC hDC);
+		virtual void PaintText(HDC hDC);
 
 		void ShowCaretIfVisible(bool update);
 	protected:
+		RECT _rcEdit;
+		RECT _rcEditMax;
+		DWORD	m_dwTextColor;
+		DWORD	m_dwDisabledTextColor;
+
 		bool _twinkleMark;
 
 		_EDIT_STATE* infoPtr;

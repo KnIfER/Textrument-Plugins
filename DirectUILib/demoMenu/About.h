@@ -22,15 +22,15 @@ public:
 
 	void SetBkColor(DWORD dwBackColor);
 
-	virtual CDuiString GetSkinFile();
+	virtual QkString GetSkinFile();
 
-	virtual CDuiString GetSkinFolder();
+	virtual QkString GetSkinFolder();
 
 	virtual UILIB_RESOURCETYPE GetResourceType() const;
 
 	virtual LPCTSTR GetResourceID() const;
 
-	CDuiString GetZIPFileName() const;
+	QkString GetZIPFileName() const;
 
 	virtual LRESULT OnKillFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
     

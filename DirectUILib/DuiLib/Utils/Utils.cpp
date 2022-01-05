@@ -168,14 +168,17 @@ namespace DuiLib
 
 	void CStdPtrArray::Empty()
 	{
-		if( m_ppVoid != NULL ) free(m_ppVoid);
-		m_ppVoid = NULL;
-		m_nCount = m_nAllocated = 0;
+		//if( m_ppVoid != NULL ) free(m_ppVoid);
+		//m_ppVoid = NULL;
+		//m_nCount = m_nAllocated = 0;
+		::ZeroMemory(m_ppVoid, m_nCount * sizeof(LPVOID));
+		m_nCount = 0;
 	}
 
 	void CStdPtrArray::Resize(int iSize)
 	{
 		Empty();
+		//todo fix
 		m_ppVoid = static_cast<LPVOID*>(malloc(iSize * sizeof(LPVOID)));
 		::ZeroMemory(m_ppVoid, iSize * sizeof(LPVOID));
 		m_nAllocated = iSize;
@@ -241,10 +244,40 @@ namespace DuiLib
 		if( iIndex < --m_nCount ) ::CopyMemory(m_ppVoid + iIndex, m_ppVoid + iIndex + 1, (m_nCount - iIndex) * sizeof(LPVOID));
 		return true;
 	}
+	
+	LPVOID CStdPtrArray::RemoveAt(int iIndex)
+	{
+		if( iIndex < 0 || iIndex >= m_nCount ) return NULL;
+		LPVOID ret = m_ppVoid[iIndex];
+		if( iIndex < --m_nCount ) ::CopyMemory(m_ppVoid + iIndex, m_ppVoid + iIndex + 1, (m_nCount - iIndex) * sizeof(LPVOID));
+		return ret;
+	}
 
 	int CStdPtrArray::Find(LPVOID pData) const
 	{
 		for( int i = 0; i < m_nCount; i++ ) if( m_ppVoid[i] == pData ) return i;
+		return -1;
+	}
+
+	int CStdPtrArray::FindEx(LPVOID pData, int findSt, int findCnt, bool reverse) const
+	{
+		int findEd = m_nCount;
+		if (findSt<0)
+			findSt = findEd + findSt;
+		if (findSt<0 || findSt>m_nCount)
+			return -1;
+		if (reverse)
+		{
+			findEd = findCnt>0?max(findSt - findCnt, -1):-1;
+			for( int i = findSt; i > findEd; i-- ) 
+				if( m_ppVoid[i] == pData ) return i;
+		}
+		else
+		{
+			findEd = findCnt>0?min(findSt + findCnt, findEd):findEd;
+			for( int i = findSt; i < findEd; i++ ) 
+				if( m_ppVoid[i] == pData ) return i;
+		}
 		return -1;
 	}
 
@@ -353,122 +386,264 @@ namespace DuiLib
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 	//
-	CDuiString CDuiString::_EmptyInstance = L"";
+	QkString QkString::_EmptyInstance = L"";
 
-	CDuiString::CDuiString() : m_pstr(m_szBuffer)
+	QkString::QkString() : m_pstr(m_szBuffer), _capacity(0), _isBuffer(0)
 	{
 		m_szBuffer[0] = '\0';
+		_size = 0;
 	}
 
-	CDuiString::CDuiString(const TCHAR ch) : m_pstr(m_szBuffer)
+	QkString::QkString(const TCHAR ch) : m_pstr(m_szBuffer), _capacity(0), _isBuffer(0)
 	{
 		m_szBuffer[0] = ch;
 		m_szBuffer[1] = '\0';
+		_size = 1;
 	}
 
-	CDuiString::CDuiString(LPCTSTR lpsz, int nLen) : m_pstr(m_szBuffer)
+	QkString::QkString(const CHAR* ch) : m_pstr(m_szBuffer), _capacity(0), _isBuffer(0)
+	{
+		_size = 0;
+		*this = ch;
+	}
+
+	QkString::QkString(LPCTSTR lpsz, int nLen) : m_pstr(m_szBuffer), _capacity(0), _isBuffer(0)
 	{      
 		ASSERT(!::IsBadStringPtr(lpsz,-1) || lpsz==NULL);
 		m_szBuffer[0] = '\0';
+		_size = 0;
 		Assign(lpsz, nLen);
 	}
 
-	CDuiString::CDuiString(const CDuiString& src) : m_pstr(m_szBuffer)
+	QkString::QkString(const QkString& src) : m_pstr(m_szBuffer), _capacity(0), _isBuffer(0)
 	{
 		m_szBuffer[0] = '\0';
-		Assign(src.m_pstr);
+		_size = 0;
+		Assign(src);
 	}
 
-	CDuiString::~CDuiString()
+	QkString::~QkString()
 	{
 		if( m_pstr != m_szBuffer ) free(m_pstr);
 	}
 
-	int CDuiString::GetLength() const
+	size_t QkString::GetLength() const
 	{ 
-		return (int) _tcslen(m_pstr); 
+		return _size; 
+		//return (int) _tcslen(m_pstr); 
 	}
 
-	CDuiString::operator LPCTSTR() const 
+	QkString::operator LPCTSTR() const 
 	{ 
 		return m_pstr; 
 	}
 
-	void CDuiString::Append(LPCTSTR pstr)
+	bool QkString::EnsureCapacity(size_t nNewLength, bool release)
 	{
-		int nNewLength = GetLength() + (int) _tcslen(pstr);
-		if( nNewLength >= MAX_LOCAL_STRING_LEN ) {
-			if( m_pstr == m_szBuffer ) {
+		if (_isBuffer && _capacity>=nNewLength) return true;
+		if( nNewLength > MAX_LOCAL_STRING_LEN ) 
+		{
+			if( m_pstr == m_szBuffer ) 
+			{
 				m_pstr = static_cast<LPTSTR>(malloc((nNewLength + 1) * sizeof(TCHAR)));
-				_tcscpy(m_pstr, m_szBuffer);
-				_tcscat(m_pstr, pstr);
+				if (m_pstr)
+				{
+					_tcsncpy(m_pstr, m_szBuffer, GetLength());
+					m_pstr[_size] = 0;
+					_capacity = nNewLength;
+					return true;
+				}
+				else
+				{
+					m_pstr = m_szBuffer;
+					// malloc failed
+				}
 			}
-			else {
-				m_pstr = static_cast<LPTSTR>(realloc(m_pstr, (nNewLength + 1) * sizeof(TCHAR)));
-				_tcscat(m_pstr, pstr);
+			else if(_capacity<nNewLength)
+			{
+				size_t newCapacity = nNewLength*2 + 1;
+				if (newCapacity<nNewLength)
+					newCapacity = nNewLength;
+				LPTSTR _pstr = static_cast<LPTSTR>(realloc(m_pstr, (newCapacity + 1) * sizeof(TCHAR)));
+				if (_pstr)
+				{
+					m_pstr = _pstr;
+					_capacity = newCapacity;
+					return true;
+				}
+				// realloc failed.
 			}
+			else return true;
 		}
 		else {
-			if( m_pstr != m_szBuffer ) {
+			if( m_pstr != m_szBuffer && release ) 
+			{
+				// never happen ? 
+				// will if Assign -> enssure cap -> ...
+				// _tcscpy(m_szBuffer, m_pstr); // dont bother
 				free(m_pstr);
+				_capacity = 0;
 				m_pstr = m_szBuffer;
 			}
-			_tcscat(m_szBuffer, pstr);
+			return true;
+		}
+		// ensure capacity failed.
+		return false;
+	}
+
+	size_t QkString::RecalcSize()
+	{
+		size_t ret = _size;
+		if(SUCCEEDED(StringCchLength(m_pstr, max(_capacity, MAX_LOCAL_STRING_LEN), &ret)))
+			_size = ret;
+		return ret;
+	}
+
+	void QkString::ReFit()
+	{
+		size_t sz = RecalcSize();
+		if (sz > MAX_LOCAL_STRING_LEN)
+		{
+			if (_capacity+MAX_LOCAL_STRING_LEN>sz)
+			{
+				LPTSTR _pstr = static_cast<LPTSTR>(realloc(m_pstr, (sz + 1) * sizeof(TCHAR)));
+				if (_pstr)
+				{
+					m_pstr = _pstr;
+					_capacity = sz;
+				}
+				// realloc failed.
+			}
+		}
+		else if (m_pstr!=m_szBuffer)
+		{
+			_tcsncpy(m_szBuffer, m_pstr, sz);
+			free(m_pstr);
+			_capacity = 0;
+			m_pstr = m_szBuffer;
 		}
 	}
 
-	void CDuiString::Assign(LPCTSTR pstr, int cchMax)
+	// https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/strcpy-wcscpy-mbscpy?view=msvc-160
+	
+	// https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/strncpy-strncpy-l-wcsncpy-wcsncpy-l-mbsncpy-mbsncpy-l?view=msvc-160
+	
+	// https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/strncat-strncat-l-wcsncat-wcsncat-l-mbsncat-mbsncat-l?view=msvc-160
+
+	void QkString::Prepend(LPCTSTR pstr, int nLength)
+	{
+		//QkString backup = *this;
+		//Assign(pstr);
+		//Append(backup, backup.GetLength());
+		if( !pstr ) return;
+		nLength = (nLength < 0 ? (int) _tcslen(pstr) : nLength);
+		int nNewLength = GetLength() + nLength;
+		if (EnsureCapacity(nNewLength, false))
+		{
+			wmemmove(m_pstr+nLength, m_pstr, GetLength());
+			//TCHAR backup = m_pstr[nLength];
+			_tcsncpy(m_pstr, pstr, nLength);
+			//m_pstr[nLength] = backup;
+			m_pstr[_size = nNewLength] = L'\0';
+		}
+	}
+
+	void QkString::Append(LPCTSTR pstr, int nLength)
+	{
+		nLength = (nLength < 0 ? (int) _tcslen(pstr) : nLength);
+		int nNewLength = GetLength() + nLength;
+		if (EnsureCapacity(nNewLength, false))
+		{
+			//todo
+			_tcsncat(m_pstr, pstr, nLength);
+			_size = nNewLength;
+		}
+	}
+
+	void QkString::Assign(LPCTSTR pstr, int cchMax)
 	{
 		if( pstr == NULL ) pstr = _T("");
 		cchMax = (cchMax < 0 ? (int) _tcslen(pstr) : cchMax);
-		if( cchMax < MAX_LOCAL_STRING_LEN ) {
-			if( m_pstr != m_szBuffer ) {
-				free(m_pstr);
-				m_pstr = m_szBuffer;
-			}
+		if (EnsureCapacity(cchMax, true))
+		{
+			_tcsncpy(m_pstr, pstr, cchMax);
+			m_pstr[cchMax] = '\0';
+			_size = cchMax;
 		}
-		else if( cchMax > GetLength() || m_pstr == m_szBuffer ) {
-			if( m_pstr == m_szBuffer ) m_pstr = NULL;
-			m_pstr = static_cast<LPTSTR>(realloc(m_pstr, (cchMax + 1) * sizeof(TCHAR)));
-		}
-		_tcsncpy(m_pstr, pstr, cchMax);
-		m_pstr[cchMax] = '\0';
 	}
 
-	bool CDuiString::IsEmpty() const 
+	bool QkString::IsEmpty() const 
 	{ 
 		return m_pstr[0] == '\0'; 
 	}
 
-	void CDuiString::Empty() 
+	void QkString::Empty() 
 	{ 
-		if( m_pstr != m_szBuffer ) free(m_pstr);
-		m_pstr = m_szBuffer;
-		m_szBuffer[0] = '\0'; 
+		if (_size)
+		{
+			_size = 0;
+			if (!_isBuffer)
+			{
+				if( m_pstr != m_szBuffer ) 
+				{
+					free(m_pstr);
+					_capacity = 0;
+					m_pstr = m_szBuffer;
+				}
+			}
+			m_pstr[0] = '\0'; 
+		}
 	}
 
-	LPCTSTR CDuiString::GetData() const
+	LPCTSTR QkString::GetData() const
 	{
 		return m_pstr;
 	}
 
-	TCHAR CDuiString::GetAt(int nIndex) const
+	LPCSTR QkString::GetData(std::string & buffer) const
+	{
+		size_t max_cap = GetLength()*2;
+		if (buffer.capacity()<max_cap)
+		{
+			buffer.resize(MAX(max_cap*1.2, max_cap));
+		}
+		CHAR* data = (CHAR*)buffer.c_str();
+		size_t len = ::WideCharToMultiByte(::GetACP(), 0, GetData(), GetLength(), data, max_cap, NULL, NULL);
+		data[len] = '\0';
+		return buffer.c_str();
+	}
+
+	LPCSTR QkString::GetData(std::string & buffer, LPCWSTR pStr)
+	{
+		size_t length = lstrlen(pStr);
+		size_t max_cap = length*2;
+		if (buffer.capacity()<max_cap)
+		{
+			buffer.resize(MAX(max_cap*1.2, max_cap));
+		}
+		CHAR* data = (CHAR*)buffer.c_str();
+		size_t len = ::WideCharToMultiByte(::GetACP(), 0, pStr, length, data, max_cap, NULL, NULL);
+		data[len] = '\0';
+		return data;
+	}
+
+	TCHAR QkString::GetAt(int nIndex) const
 	{
 		return m_pstr[nIndex];
 	}
 
-	TCHAR CDuiString::operator[] (int nIndex) const
+	TCHAR QkString::operator[] (int nIndex) const
 	{ 
 		return m_pstr[nIndex];
 	}   
 
-	const CDuiString& CDuiString::operator=(const CDuiString& src)
+	const QkString& QkString::operator=(const QkString& src)
 	{      
-		Assign(src);
+		Assign(src, src.GetLength());
 		return *this;
 	}
 
-	const CDuiString& CDuiString::operator=(LPCTSTR lpStr)
+	const QkString& QkString::operator=(LPCTSTR lpStr)
 	{      
 		if ( lpStr )
 		{
@@ -484,15 +659,16 @@ namespace DuiLib
 
 #ifdef _UNICODE
 
-	const CDuiString& CDuiString::operator=(LPCSTR lpStr)
+	const QkString& QkString::operator=(LPCSTR lpStr)
 	{
 		if ( lpStr )
 		{
 			ASSERT(!::IsBadStringPtrA(lpStr,-1));
 			int cchStr = (int) strlen(lpStr) + 1;
-			LPWSTR pwstr = (LPWSTR) _alloca(cchStr);
+			LPWSTR pwstr = (LPWSTR) _malloca(cchStr*sizeof(TCHAR));
 			if( pwstr != NULL ) ::MultiByteToWideChar(::GetACP(), 0, lpStr, -1, pwstr, cchStr) ;
 			Assign(pwstr);
+			_freea(pwstr);
 		}
 		else
 		{
@@ -501,15 +677,16 @@ namespace DuiLib
 		return *this;
 	}
 
-	const CDuiString& CDuiString::operator+=(LPCSTR lpStr)
+	const QkString& QkString::operator+=(LPCSTR lpStr)
 	{
 		if ( lpStr )
 		{
 			ASSERT(!::IsBadStringPtrA(lpStr,-1));
 			int cchStr = (int) strlen(lpStr) + 1;
-			LPWSTR pwstr = (LPWSTR) _alloca(cchStr);
+			LPWSTR pwstr = (LPWSTR) _malloca(cchStr*sizeof(TCHAR));
 			if( pwstr != NULL ) ::MultiByteToWideChar(::GetACP(), 0, lpStr, -1, pwstr, cchStr) ;
 			Append(pwstr);
+			_freea(pwstr);
 		}
 		
 		return *this;
@@ -517,7 +694,7 @@ namespace DuiLib
 
 #else
 
-	const CDuiString& CDuiString::operator=(LPCWSTR lpwStr)
+	const QkString& QkString::operator=(LPCWSTR lpwStr)
 	{      
 		if ( lpwStr )
 		{
@@ -535,7 +712,7 @@ namespace DuiLib
 		return *this;
 	}
 
-	const CDuiString& CDuiString::operator+=(LPCWSTR lpwStr)
+	const QkString& QkString::operator+=(LPCWSTR lpwStr)
 	{
 		if ( lpwStr )
 		{
@@ -551,7 +728,7 @@ namespace DuiLib
 
 #endif // _UNICODE
 
-	const CDuiString& CDuiString::operator=(const TCHAR ch)
+	const QkString& QkString::operator=(const TCHAR ch)
 	{
 		Empty();
 		m_szBuffer[0] = ch;
@@ -559,19 +736,19 @@ namespace DuiLib
 		return *this;
 	}
 
-	CDuiString CDuiString::operator+(const CDuiString& src) const
+	QkString QkString::operator+(const QkString& src) const
 	{
-		CDuiString sTemp = *this;
+		QkString sTemp = *this;
 		sTemp.Append(src);
 		return sTemp;
 	}
 
-	CDuiString CDuiString::operator+(LPCTSTR lpStr) const
+	QkString QkString::operator+(LPCTSTR lpStr) const
 	{
 		if ( lpStr )
 		{
 			ASSERT(!::IsBadStringPtr(lpStr,-1));
-			CDuiString sTemp = *this;
+			QkString sTemp = *this;
 			sTemp.Append(lpStr);
 			return sTemp;
 		}
@@ -579,13 +756,13 @@ namespace DuiLib
 		return *this;
 	}
 
-	const CDuiString& CDuiString::operator+=(const CDuiString& src)
+	const QkString& QkString::operator+=(const QkString& src)
 	{      
 		Append(src);
 		return *this;
 	}
 
-	const CDuiString& CDuiString::operator+=(LPCTSTR lpStr)
+	const QkString& QkString::operator+=(LPCTSTR lpStr)
 	{      
 		if ( lpStr )
 		{
@@ -596,72 +773,89 @@ namespace DuiLib
 		return *this;
 	}
 
-	const CDuiString& CDuiString::operator+=(const TCHAR ch)
+	const QkString& QkString::operator+=(const TCHAR ch)
 	{      
 		TCHAR str[] = { ch, '\0' };
 		Append(str);
 		return *this;
 	}
 
-	bool CDuiString::operator == (LPCTSTR str) const { return (Compare(str) == 0); };
-	bool CDuiString::operator != (LPCTSTR str) const { return (Compare(str) != 0); };
-	bool CDuiString::operator <= (LPCTSTR str) const { return (Compare(str) <= 0); };
-	bool CDuiString::operator <  (LPCTSTR str) const { return (Compare(str) <  0); };
-	bool CDuiString::operator >= (LPCTSTR str) const { return (Compare(str) >= 0); };
-	bool CDuiString::operator >  (LPCTSTR str) const { return (Compare(str) >  0); };
+	bool QkString::operator == (LPCTSTR str) const { return (Compare(str) == 0); };
+	bool QkString::operator != (LPCTSTR str) const { return (Compare(str) != 0); };
+	bool QkString::operator == (const QkString & str) const{ return _size==str._size && _tcsncmp(m_pstr, str, _size) == 0; };
+	bool QkString::operator != (const QkString & str) const{ return _size!=str._size || _tcsncmp(m_pstr, str, _size) != 0; };
+	bool QkString::operator <= (LPCTSTR str) const { return (Compare(str) <= 0); };
+	bool QkString::operator <  (LPCTSTR str) const { return (Compare(str) <  0); };
+	bool QkString::operator >= (LPCTSTR str) const { return (Compare(str) >= 0); };
+	bool QkString::operator >  (LPCTSTR str) const { return (Compare(str) >  0); };
 
-	void CDuiString::SetAt(int nIndex, TCHAR ch)
+	void QkString::SetAt(int nIndex, TCHAR ch)
 	{
 		ASSERT(nIndex>=0 && nIndex<GetLength());
 		m_pstr[nIndex] = ch;
 	}
 
-	int CDuiString::Compare(LPCTSTR lpsz) const 
+	int QkString::Compare(LPCTSTR lpsz) const 
 	{ 
 		return _tcscmp(m_pstr, lpsz); 
 	}
 
-	int CDuiString::CompareNoCase(LPCTSTR lpsz) const 
+	int QkString::CompareNoCase(LPCTSTR lpsz) const 
 	{ 
 		return _tcsicmp(m_pstr, lpsz); 
 	}
 
-	void CDuiString::MakeUpper() 
+	void QkString::MakeUpper() 
 	{ 
 		_tcsupr(m_pstr); 
 	}
 
-	void CDuiString::MakeLower() 
+	void QkString::MakeLower() 
 	{ 
 		_tcslwr(m_pstr); 
 	}
 
-	CDuiString CDuiString::Left(int iLength) const
+	QkString QkString::Left(int iLength) const
 	{
 		if( iLength < 0 ) iLength = 0;
 		if( iLength > GetLength() ) iLength = GetLength();
-		return CDuiString(m_pstr, iLength);
+		return QkString(m_pstr, iLength);
 	}
 
-	CDuiString CDuiString::Mid(int iPos, int iLength) const
+	void QkString::MidFast(int iPos, int iLength)
 	{
 		if( iLength < 0 ) iLength = GetLength() - iPos;
 		if( iPos + iLength > GetLength() ) iLength = GetLength() - iPos;
-		if( iLength <= 0 ) return CDuiString();
-		return CDuiString(m_pstr + iPos, iLength);
+		if (iLength<GetLength())
+		{
+			if (iPos>0)
+			{
+				wmemmove(m_pstr, m_pstr+iPos, iLength);
+			}
+			m_pstr[iLength] = '\0';
+			_size = iLength;
+		}
 	}
 
-	CDuiString CDuiString::Right(int iLength) const
+	QkString QkString::Mid(int iPos, int iLength) const
+	{
+		if( iLength < 0 ) iLength = GetLength() - iPos;
+		if( iPos + iLength > GetLength() ) iLength = GetLength() - iPos;
+		if( iLength <= 0 ) return QkString();
+		return QkString(m_pstr + iPos, iLength);
+	}
+
+	QkString QkString::Right(int iLength) const
 	{
 		int iPos = GetLength() - iLength;
 		if( iPos < 0 ) {
 			iPos = 0;
 			iLength = GetLength();
 		}
-		return CDuiString(m_pstr + iPos, iLength);
+		return QkString(m_pstr + iPos, iLength);
 	}
 
-	int CDuiString::Find(TCHAR ch, int iPos /*= 0*/) const
+	int QkString::Find(TCHAR ch, int iPos /*= 0*/) const
 	{
 		ASSERT(iPos>=0 && iPos<=GetLength());
 		if( iPos != 0 && (iPos < 0 || iPos >= GetLength()) ) return -1;
@@ -670,7 +864,7 @@ namespace DuiLib
 		return (int)(p - m_pstr);
 	}
 
-	int CDuiString::Find(LPCTSTR pstrSub, int iPos /*= 0*/) const
+	int QkString::Find(LPCTSTR pstrSub, int iPos /*= 0*/) const
 	{
 		ASSERT(!::IsBadStringPtr(pstrSub,-1));
 		ASSERT(iPos>=0 && iPos<=GetLength());
@@ -680,33 +874,114 @@ namespace DuiLib
 		return (int)(p - m_pstr);
 	}
 
-	int CDuiString::ReverseFind(TCHAR ch) const
+	int QkString::ReverseFind(TCHAR ch) const
 	{
 		LPCTSTR p = _tcsrchr(m_pstr, ch);
 		if( p == NULL ) return -1;
 		return (int)(p - m_pstr);
 	}
 
-	int CDuiString::Replace(LPCTSTR pstrFrom, LPCTSTR pstrTo)
+	int QkString::Replace(LPCTSTR pstrFrom, LPCTSTR pstrTo)
 	{
-		CDuiString sTemp;
+		//QkString sTemp;
+		//int nCount = 0;
+		//int iPos = Find(pstrFrom);
+		//if( iPos < 0 ) return 0;
+		//int cchFrom = (int) _tcslen(pstrFrom);
+		//int cchTo = (int) _tcslen(pstrTo);
+		//while( iPos >= 0 ) {
+		//	sTemp = Left(iPos);
+		//	sTemp += pstrTo;
+		//	sTemp += Mid(iPos + cchFrom);
+		//	Assign(sTemp);
+		//	iPos = Find(pstrFrom, iPos + cchTo);
+		//	nCount++;
+		//}
+		//return nCount;
+		QkString sTemp;
+		int last_find_start = 0;
 		int nCount = 0;
 		int iPos = Find(pstrFrom);
 		if( iPos < 0 ) return 0;
 		int cchFrom = (int) _tcslen(pstrFrom);
 		int cchTo = (int) _tcslen(pstrTo);
 		while( iPos >= 0 ) {
-			sTemp = Left(iPos);
-			sTemp += pstrTo;
-			sTemp += Mid(iPos + cchFrom);
-			Assign(sTemp);
-			iPos = Find(pstrFrom, iPos + cchTo);
+			sTemp.Append(m_pstr+last_find_start, iPos-last_find_start);
+			sTemp.Append(pstrTo, cchTo);
+			iPos = Find(pstrFrom, last_find_start = iPos + cchFrom);
 			nCount++;
+		}
+		if (nCount)
+		{
+			sTemp.Append(m_pstr+last_find_start, iPos-last_find_start);
+			Assign(sTemp);
 		}
 		return nCount;
 	}
+
+	void QkString::Trim()
+	{
+		int st = 0;
+		int ed = GetLength();
+		while (st < ed && m_pstr[st] == L' ') st++;
+		// todo skip other empty chars
+		while (st < ed && m_pstr[ed - 1] == L' ') ed--;
+		// todo skip other empty chars
+		if (st > 0 || ed < GetLength())
+		{
+			//Assign(Mid(st, len-st));
+			if (st)
+			{
+				wmemmove(m_pstr, m_pstr+st, ed-st);
+			}
+			m_pstr[ed-st] = 0;
+			_size = ed-st;
+		}
+	}
+
+	bool QkString::StartWith(const QkString & other, bool ignoreCase, int offset)
+	{
+		int pos = offset;
+		int pos1 = 0;
+		int len = GetLength();
+		int len1 = other.GetLength();
+		if (pos==-1) pos=len-len1; // end with
+		if (pos < 0 || pos+len1 > len) return false;
+		LPCTSTR data = GetData();
+		LPCTSTR data1 = other.GetData();
+		if (ignoreCase) 
+		{
+			while (--len1 >= 0) 
+				if (_totlower(data[pos++]) != _totlower(data1[pos1++])) 
+					return false;
+		}
+		else while (--len1 >= 0)
+			if (data[pos++] != data1[pos1++])
+				return false;
+		return true;
+	}
+
+	bool QkString::EndWith(const QkString & other, bool ignoreCase)
+	{
+		return StartWith(other, ignoreCase, -1);
+	}
+
+	void QkString::Split(const QkString & delim, std::vector<QkString> & ret)
+	{
+		int last = 0;  
+		int index=Find(delim, last);  
+		while (index!=-1)  
+		{  
+			ret.push_back(Mid(last,index-last));
+			index=Find(delim, last=index+delim.GetLength());  
+		}  
+		if (GetLength()>last+1)  
+		{  
+			ret.push_back(Mid(last,GetLength()-last));  
+		}  
+	}
 	
-	int CDuiString::Format(LPCTSTR pstrFormat, ...)
+	int QkString::Format(LPCTSTR pstrFormat, ...)
 	{
 		int nRet;
 		va_list Args;
@@ -716,12 +991,11 @@ namespace DuiLib
 		va_end(Args);
 
 		return nRet;
-
 	}
 
-	int CDuiString::SmallFormat(LPCTSTR pstrFormat, ...)
+	int QkString::SmallFormat(LPCTSTR pstrFormat, ...)
 	{
-		CDuiString sFormat = pstrFormat;
+		QkString sFormat = pstrFormat;
 		TCHAR szBuffer[64] = { 0 };
 		va_list argList;
 		va_start(argList, pstrFormat);
@@ -731,7 +1005,7 @@ namespace DuiLib
 		return iRet;
 	}
 	
-	int CDuiString::InnerFormat(LPCTSTR pstrFormat, va_list Args)
+	int QkString::InnerFormat(LPCTSTR pstrFormat, va_list Args)
 	{
 #if _MSC_VER <= 1400
 		TCHAR *szBuffer = NULL;
@@ -787,12 +1061,16 @@ namespace DuiLib
 		return i;
 	}
 
-	static UINT HashKey(const CDuiString& Key)
+	static UINT HashKey(const QkString& Key)
 	{
-		return HashKey((LPCTSTR)Key);
+		UINT i = 0;
+		SIZE_T len = Key.GetLength();
+		LPCTSTR KeyData = Key;
+		while( len-- > 0 ) i = (i << 5) + i + KeyData[len];
+		return i;
 	};
 
-	CStdStringPtrMap::CStdStringPtrMap(int nSize) : m_nCount(0)
+	QkStringPtrMap::QkStringPtrMap(int nSize) : m_nCount(0)
 	{
 		if( nSize < 16 ) nSize = 16;
 		m_nBuckets = nSize;
@@ -800,7 +1078,7 @@ namespace DuiLib
 		memset(m_aT, 0, nSize * sizeof(TITEM*));
 	}
 
-	CStdStringPtrMap::~CStdStringPtrMap()
+	QkStringPtrMap::~QkStringPtrMap()
 	{
 		if( m_aT ) {
 			int len = m_nBuckets;
@@ -817,12 +1095,12 @@ namespace DuiLib
 		}
 	}
 
-	void CStdStringPtrMap::RemoveAll()
+	void QkStringPtrMap::RemoveAll()
 	{
 		this->Resize(m_nBuckets);
 	}
 
-	void CStdStringPtrMap::Resize(int nSize)
+	void QkStringPtrMap::Resize(int nSize)
 	{
 		if( m_aT ) {
 			int len = m_nBuckets;
@@ -847,7 +1125,32 @@ namespace DuiLib
 		m_nCount = 0;
 	}
 
-	LPVOID CStdStringPtrMap::Find(LPCTSTR key, bool optimize) const
+	LPVOID QkStringPtrMap::FindIntern(UINT hash, const QkString & key, bool optimize) const
+	{
+		if( m_nBuckets == 0 || GetSize() == 0 ) return NULL;
+
+		UINT slot = hash % m_nBuckets;
+		for( TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext ) {
+			if( pItem->Key == key ) {
+				if (optimize && pItem != m_aT[slot]) {
+					if (pItem->pNext) {
+						pItem->pNext->pPrev = pItem->pPrev;
+					}
+					pItem->pPrev->pNext = pItem->pNext;
+					pItem->pPrev = NULL;
+					pItem->pNext = m_aT[slot];
+					pItem->pNext->pPrev = pItem;
+					//将item移动至链条头部
+					m_aT[slot] = pItem;
+				}
+				return pItem->Data;
+			}        
+		}
+
+		return NULL;
+	}
+
+	LPVOID QkStringPtrMap::Find(LPCTSTR key, bool optimize) const
 	{
 		if( m_nBuckets == 0 || GetSize() == 0 ) return NULL;
 
@@ -872,7 +1175,27 @@ namespace DuiLib
 		return NULL;
 	}
 
-	bool CStdStringPtrMap::Insert(LPCTSTR key, LPVOID pData)
+	bool QkStringPtrMap::Insert(const QkString & key, LPVOID pData)
+	{
+		if( m_nBuckets == 0 ) return false;
+		UINT hash = HashKey(key);
+		if( FindIntern(hash, key) ) return false;
+
+		// Add first in bucket
+		UINT slot = hash % m_nBuckets;
+		TITEM* pItem = new TITEM;
+		pItem->Key = key;
+		pItem->Data = pData;
+		pItem->pPrev = NULL;
+		pItem->pNext = m_aT[slot];
+		if (pItem->pNext)
+			pItem->pNext->pPrev = pItem;
+		m_aT[slot] = pItem;
+		m_nCount++;
+		return true;
+	}
+
+	bool QkStringPtrMap::Insert(LPCTSTR key, LPVOID pData)
 	{
 		if( m_nBuckets == 0 ) return false;
 		if( Find(key) ) return false;
@@ -891,7 +1214,7 @@ namespace DuiLib
 		return true;
 	}
 
-	LPVOID CStdStringPtrMap::Set(LPCTSTR key, LPVOID pData)
+	LPVOID QkStringPtrMap::Set(LPCTSTR key, LPVOID pData)
 	{
 		if( m_nBuckets == 0 ) return pData;
 
@@ -911,7 +1234,7 @@ namespace DuiLib
 		return NULL;
 	}
 
-	bool CStdStringPtrMap::Remove(LPCTSTR key)
+	bool QkStringPtrMap::Remove(LPCTSTR key)
 	{
 		if( m_nBuckets == 0 || GetSize() == 0 ) return false;
 
@@ -933,7 +1256,7 @@ namespace DuiLib
 		return false;
 	}
 
-	int CStdStringPtrMap::GetSize() const
+	int QkStringPtrMap::GetSize() const
 	{
 #if 0//def _DEBUG
 		int nCount = 0;
@@ -946,7 +1269,24 @@ namespace DuiLib
 		return m_nCount;
 	}
 
-	LPCTSTR CStdStringPtrMap::GetAt(int iIndex) const
+	const TITEM* QkStringPtrMap::GetSlotAt(int iIndex) const
+	{
+		if( m_nBuckets == 0 || GetSize() == 0 ) return NULL;
+
+		int pos = 0;
+		int len = m_nBuckets;
+		while( len-- ) {
+			for( TITEM* pItem = m_aT[len]; pItem; pItem = pItem->pNext ) {
+				if( pos++ == iIndex ) {
+					return pItem;
+				}
+			}
+		}
+
+		return NULL;
+	}
+
+	LPCTSTR QkStringPtrMap::GetKeyAt(int iIndex) const
 	{
 		if( m_nBuckets == 0 || GetSize() == 0 ) return false;
 
@@ -963,9 +1303,45 @@ namespace DuiLib
 		return NULL;
 	}
 
-	LPCTSTR CStdStringPtrMap::operator[] (int nIndex) const
+	LPVOID QkStringPtrMap::GetValueAt(int iIndex) const
 	{
-		return GetAt(nIndex);
+		if( m_nBuckets == 0 || GetSize() == 0 ) return false;
+
+		int pos = 0;
+		int len = m_nBuckets;
+		while( len-- ) {
+			for( TITEM* pItem = m_aT[len]; pItem; pItem = pItem->pNext ) {
+				if( pos++ == iIndex ) {
+					return pItem->Data;
+				}
+			}
+		}
+
+		return NULL;
+	}
+
+	bool QkStringPtrMap::GetKeyValueAt(int iIndex, LPCTSTR & key, LPVOID & value) const
+	{
+		if( m_nBuckets == 0 || GetSize() == 0 ) return false;
+
+		int pos = 0;
+		int len = m_nBuckets;
+		while( len-- ) {
+			for( TITEM* pItem = m_aT[len]; pItem; pItem = pItem->pNext ) {
+				if( pos++ == iIndex ) {
+					key = pItem->Key.GetData();
+					value = pItem->Data;
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	LPCTSTR QkStringPtrMap::operator[] (int nIndex) const
+	{
+		return GetKeyAt(nIndex);
 	}
 
 
@@ -1027,7 +1403,7 @@ namespace DuiLib
 
 	//}
 
-	//const CDuiString& CImageString::GetAttributeString() const
+	//const QkString& CImageString::GetAttributeString() const
 	//{
 	//	return m_sImageAttribute;
 	//}
@@ -1121,8 +1497,8 @@ namespace DuiLib
 	//	// 1、aaa.jpg
 	//	// 2、file='aaa.jpg' res='' restype='0' dest='0,0,0,0' source='0,0,0,0' corner='0,0,0,0' 
 	//	// mask='#FF0000' fade='255' hole='false' xtiled='false' ytiled='false'
-	//	CDuiString sItem;
-	//	CDuiString sValue;
+	//	QkString sItem;
+	//	QkString sValue;
 	//	LPTSTR pstr = NULL;
 
 	//	while (*pStrImage != _T('\0'))
@@ -1232,4 +1608,136 @@ namespace DuiLib
 	//{
 	//	return m_imageInfo;
 	//}
+
+	LPCTSTR STR2ARGB(LPCTSTR STR, DWORD & ARGB)
+	{
+		bool intOpened=false;
+		int index=0;
+		ARGB = 0;
+		while(index<16) {
+			const char & intVal = *(STR++);
+			//if (intVal>'\0' && intVal<=' ') continue;
+			if (intVal>='0' && intVal<='9')
+			{
+				ARGB = ARGB*16+(intVal - '0');
+				if(!intOpened && intVal) intOpened=true;
+			}
+			else if (intVal>='A' && intVal<='F')
+			{
+				ARGB = ARGB*16+(10 + intVal - 'A');
+				if(!intOpened && intVal) intOpened=true;
+			}
+			else if (intVal>='a' && intVal<='f')
+			{
+				ARGB = ARGB*16+(10 + intVal - 'a');
+				if(!intOpened && intVal) intOpened=true;
+			}
+			else if (intOpened || intVal=='\0')
+			{
+				break;
+			}
+			if (intOpened)
+			{
+				index++;
+			}
+		}
+		if (index==3)
+		{
+			ARGB = (ARGB&0xF)<<4 | (ARGB&0xF0)<<8 | (ARGB&0xF00)<<12;
+			ARGB = ARGB | ARGB>>4 | 0xFF000000;
+		}
+		if (!intOpened)
+		{
+
+		}
+		//DWORD val = _tcstoul(STR, 0, 16);
+		//assert(ARGB==val);
+		//ARGB = _tcstoul(STR, 0, 16);
+		return STR;
+	}
+
+	int ParseInt(LPCTSTR STR)
+	{
+		long value=0;
+		STR2Decimal(STR, value);
+		return value;
+	}
+
+	LPCTSTR STR2Decimal(LPCTSTR STR, long & value)
+	{
+		//long val = _tcstol(STR, 0, 10);
+		bool intOpened=false;
+		int index=0;
+		bool negative = false;
+		value = 0;
+		while(index<1024) {
+			const char & intVal = *(STR++);
+			if (intVal>='0' && intVal<='9')
+			{
+				value = value*10+(intVal - '0');
+				if(!intOpened && intVal) intOpened=true;
+			}
+			else if (!intOpened && intVal=='-')
+			{
+				negative = !negative;
+			}
+			else if (intOpened || intVal=='\0')
+			{
+				if (intVal=='\0')
+				{
+					STR--;
+				}
+				break;
+			}
+			index++;
+		}
+		if (negative)
+		{
+			value = -value;
+		}
+		//assert(value==val);
+
+		//ARGB = _tcstoul(STR, 0, 16);
+		return STR;
+	}
+
+	LPCTSTR STR2Rect(LPCTSTR STR, RECT & rc)
+	{
+		STR = STR2Decimal(STR, rc.left);
+		STR = STR2Decimal(STR, rc.top);
+		if (!*STR)
+		{
+			rc.right = rc.left;
+			rc.bottom = rc.top;
+		}
+		else
+		{
+			STR = STR2Decimal(STR, rc.right);
+			STR = STR2Decimal(STR, rc.bottom);
+		}
+		return STR;
+	}
+
+	LPCTSTR STR2Size(LPCTSTR STR, SIZE & sz)
+	{
+		STR = STR2Decimal(STR, sz.cx);
+		if (!*STR)
+		{
+			sz.cy = sz.cx;
+		}
+		else
+		{
+			STR = STR2Decimal(STR, sz.cy);
+		}
+		return STR;
+	}
+
+	void SetRectInt(RECT & rc, int value)
+	{
+		rc.left = value;
+		rc.top = value;
+		rc.right = value;
+		rc.bottom = value;
+	}
+
 } // namespace DuiLib

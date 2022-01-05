@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window caption="0,0,0,30"  inset="0,0,0,0" roundcorner="5,5,5,5"  inset="10,10,10,10" sizebox="4,4,4,4" showdirty="false" layered="false">
+ <Font id="0" name="宋体" size="50" bold="false"/>
+ <Font id="1" name="宋体" size="22"/>
+ <Font id="2" name="宋体" size="18"/>
+ 
+	<EffectsStyles>
+		<EffectsStyle name="sysMenu" value="anim='zoom+' offset='80' " />
+		<EffectsStyle name="clickeffect" value="anim='zoom-' offset='80' " />
+		<EffectsStyle name="fx_1" value="anim='left2right' offset='180'" />
+	</EffectsStyles>
+	
+	<style>
+		 <Button
+			id="btn_style"
+			apply="true"
+			shared="true"
+			textcolor="#FFFFFF"
+			hottextcolor="#FFFFFF" 
+			focusedtextcolor="#000000" 
+			pushedtextcolor="#77a8de" 
+			hotimage="file='Button/btn.png' corner='5,11,5,11' source='0,24,96,48'" 
+			normalimage="file='Button/btn.png' corner='5,11,5,11' source='0,24,96,48'" 
+			pushedimage="file='Button/btn.png' corner='5,11,5,11' source='0,48,96,72'"
+		 />
+		 <Default 
+			id="btn_style_1"
+			shared="true"
+			textcolor="#FFFFFF"
+			hottextcolor="#FFFFFF" 
+			focusedtextcolor="#000000" 
+			pushedtextcolor="#77a8de" 
+			hotimage="file='Button/btn.png' corner='5,11,5,11' source='0,24,96,48'" 
+			normalimage="file='Button/btn.png' corner='5,11,5,11' source='0,24,96,48'" 
+			pushedimage="file='Button/btn.png' corner='5,11,5,11' source='0,48,96,72'"
+		 />
+	</style>
+ 
+<VerticalLayout bkcolor="#FFFFFFFF"
+	clipchild="false" 
+	inset="5,5,5,5"
+	>
+	
+
+		<WebBrowser height="500" homepage="http://chartjs.cn/" autonavi="true"/>	
+			
+		<Ring height="100"/>	
+		
+		<control height="10"/>	
+		
+		
+		 <RichEdit name="at_run" wanttab="false" bkcolor="#0000FFFF" font="2" password="false" mutiline="false" rich="false" text="启动时自动运行" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="a" padding="2,2.8,0,0"/>
+					
+		<Button  
+				width="300" 
+				height="50"
+				text=" WinQkUI 界面测试 123 " 
+				name="Run" 
+				align="vcenter"
+				valign="vcenter"
+				wordbreak="false"
+				textpadding="5,5,5,5"
+				
+				textcolor="#FF0"
+				
+				bkcolor="#FF238ef9"
+				hotbkcolor="#FF3399fe"
+				
+				bordersize="2" 
+				bordercolor="#7700FFFF"
+				borderround="20,20"
+				roundclip="true"
+				font="1"   
+				enabled="true"
+					/>
+					
+		<control height="10"/>	
+		
+		<Button  font="1"   
+		 fx_do="true" fx_clk="fx_1"
+					type="push"
+					width="200" 
+					height="50"
+					text=" WinQkUI 界面测试 " 
+					name="Run" 
+					align="vcenter"
+					valign="vcenter"
+					wordbreak="false"
+					textpadding="5,5,5,5"
+					
+					textcolor="#FF000000"
+					
+					bkcolor="#FF238ef9"
+					hotbkcolor="#FF3399fe"
+					
+					bordersize="2" 
+					bordercolor="#7700FFFF"
+					borderround="20,20"
+					roundclip="true"
+					/>
+			
+		<control height="10"/>	
+		
+		<VerticalLayout  
+			vscrollbar="true"  
+			hscrollbar="true"   
+			inset="50,0,0,0" 
+			childpadding="8"
+			
+			bordersize="10" 
+			bordercolor="#7700FFFF"  
+			borderround="15,15"
+			>
+			
+			
+			<control height="10"/>	
+			
+			<Edit  textcolor="#00FFFFFF" font="1"   
+				
+					bkcolor="#FF238ef9"
+				
+				
+					bordercolor="#7700FFFF"
+					bordersize="10,4" 
+					borderround="8,8"
+					borderinset="0"
+
+					inset="10,4"
+
+					width="550" 
+					height="500"
+					text="从来散之必有其统也，
+分之必有其合也，
+以故天壤间四面八方，
+纷纷者各有所属，
+千头万绪，
+攘攘者自有其源。
+盖一本散为万殊，
+而万殊咸归于一本，
+事有必然者。
+且武事之论，
+亦甚繁矣。
+而要之，千变万变，无往非势，即无往非气，势虽不类，而气归于一。
+夫所谓一者，从上至足底，内而有脏腑筋骨，
+外而有肌肉皮肤五官百骸相联而为一贯者也。
+破之而不开，撞之而不散，上欲动而下自随之：下欲动而上自领之。
+上下动而中节攻之，中节动而上下和之，内外相连，前后相需，
+所谓一贯者，其斯之谓欤。而要非勉强以致之，袭焉而为这也。
+当时而静，寂然湛然，居其所而稳如山岳。当时而动，如雷如塌，
+出乎尔而疾如闪电。且静无不静，表里上下，全无参差牵挂之意。
+动无不动，左右前后，并无抽扯游移之形。
+洵乎若水之就下，沛然而莫之能御，若火之内攻，发之而不及掩耳。
+不假思索，不烦拟议，诚不期然而然，莫之至而至，是岂无所自而云然乎。
+盖气以日积而有益，功以久练而始成。观圣门一贯之传，必俟多闻强识之后，
+豁然之境，不废格物致知之功，是知事无难易，功惟自尽，不可躐等，
+不可争遽，按步就步，循次而进，夫而后官骸肢节，自有通贯上下表里，
+不难联络，庶乎散者统之，分者合之，四体百骸，终归于一气而已。" 
+				type="check"
+				name="Run" 
+				valign="vcenter"
+				wordbreak="true"
+				vscrollbar="true"
+				hscrollbar="true"
+				/>
+			
+			<Button  textcolor="#FFF" 
+				
+					bkcolor="#FF238ef9"
+				
+					autocalcwidth= "true" 
+					autocalcheight="true"
+					text="暗金设计" 
+					
+					name="Run" 
+					valign="vcenter"
+					wordbreak="true"
+					
+					inset="25" 
+					bordercolor="#FF0"
+					bordersize="2"
+					borderinset="7"
+					
+					vscrollbar="true"
+					hscrollbar="true"
+					
+					font="1"   
+					/>
+			
+			<control height="10"/>	
+		
+		</VerticalLayout>
+		
+	
+</VerticalLayout>
+</Window>

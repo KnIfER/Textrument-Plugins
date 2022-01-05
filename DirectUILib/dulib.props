@@ -2,64 +2,43 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <DULib_STATIC_32D>$(DUPA)\Build\Bin\Win32\Debug</DULib_STATIC_32D>
     <DULib_STATIC_32>$(DUPA)\Build\Bin\Win32\Release</DULib_STATIC_32>
     <DULib_STATIC_64D>$(DUPA)\Build\Bin\Win64\Debug</DULib_STATIC_64D>
-    <ROOT>D:\Code\FigureOut\Textrument\plugins\DirectUILib</ROOT>
-    <DUPA>$(ROOT)\DuiLib</DUPA>
-    <DU_Lib_s64>$(DUPA)\Build\Bin\Win64\Release</DU_Lib_s64>
-    <DULib_STATIC_64>$(DUPA)\Build\Bin\Win64\Release</DULib_STATIC_64>
-    <SCITE_INC>$(ROOT)\Scintilla\lexilla\include;$(ROOT)\Scintilla\lexilla\access;$(ROOT)\Scintilla\lexilla\lexlib;$(ROOT)\Scintilla\scintilla\include;$(ROOT)\Scintilla\scintilla\src;$(ROOT)\Scintilla\scite\lua\src;</SCITE_INC>
-    <RTO_x64>$(ROOT)\x64\Release</RTO_x64>
-    <DU_Lib_s64D>$(DUPA)\Build\Bin\Win64\Debug</DU_Lib_s64D>
-    <RTO_x64D>$(ROOT)\x64\Debug</RTO_x64D>
-    <DUILib_STATIC_32>$(DUPA)\Build\Bin\Win32\Release</DUILib_STATIC_32>
-    <DUILib_STATIC_32D>$(DUPA)\Build\Bin\Win32\Debug</DUILib_STATIC_32D>
+    <SCITE_INC>$(direct_path)\Scintilla\lexilla\include;$(direct_path)\Scintilla\lexilla\access;$(direct_path)\Scintilla\lexilla\lexlib;$(direct_path)\Scintilla\scintilla\include;$(direct_path)\Scintilla\scintilla\src;$(direct_path)\Scintilla\scite\lua\src;</SCITE_INC>
+    <direct_output>$(direct_path)\build\$(Configuration)_$(Platform)\</direct_output>
+    <direct_intermediate>$(Configuration)_$(Platform)\</direct_intermediate>
+    <direct_bin>$(direct_path)\bin\$(TargetName)$(TargetExt)</direct_bin>
+    <direct_includes>$(direct_path)\DuiLib</direct_includes>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>DuiLib.lib;UxTheme.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(RTO_x64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DuiLib.lib;WindowsEx.lib;WindowsEx.res;UxTheme.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(direct_output);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(DU_Lib_s64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ClCompile>
       <PreprocessorDefinitions>UILIB_STATIC;_VC80_UPGRADE=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(DUPA);$(SCITE_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(direct_includes);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <BuildMacro Include="ROOT">
-      <Value>$(ROOT)</Value>
-    </BuildMacro>
-    <BuildMacro Include="DUPA">
-      <Value>$(DUPA)</Value>
-    </BuildMacro>
-    <BuildMacro Include="DU_Lib_s64">
-      <Value>$(DU_Lib_s64)</Value>
-    </BuildMacro>
-    <BuildMacro Include="DULib_STATIC_64">
-      <Value>$(DULib_STATIC_64)</Value>
-    </BuildMacro>
     <BuildMacro Include="SCITE_INC">
       <Value>$(SCITE_INC)</Value>
     </BuildMacro>
-    <BuildMacro Include="RTO_x64">
-      <Value>$(RTO_x64)</Value>
+    <BuildMacro Include="direct_output">
+      <Value>$(direct_output)</Value>
     </BuildMacro>
-    <BuildMacro Include="DU_Lib_s64D">
-      <Value>$(DU_Lib_s64D)</Value>
+    <BuildMacro Include="direct_intermediate">
+      <Value>$(direct_intermediate)</Value>
     </BuildMacro>
-    <BuildMacro Include="RTO_x64D">
-      <Value>$(RTO_x64D)</Value>
+    <BuildMacro Include="direct_bin">
+      <Value>$(direct_bin)</Value>
     </BuildMacro>
-    <BuildMacro Include="DUILib_STATIC_32">
-      <Value>$(DUILib_STATIC_32)</Value>
-    </BuildMacro>
-    <BuildMacro Include="DUILib_STATIC_32D">
-      <Value>$(DUILib_STATIC_32D)</Value>
+    <BuildMacro Include="direct_includes">
+      <Value>$(direct_includes)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

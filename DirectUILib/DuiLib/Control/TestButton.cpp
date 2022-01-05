@@ -3,9 +3,9 @@
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(TestButton)
+	IMPLEMENT_QKCONTROL(TestButton)
 
-	TestButton::TestButton() : CButtonUI()
+	TestButton::TestButton() : Button()
 	{
 		m_uTextStyle = DT_SINGLELINE | DT_VCENTER | DT_CENTER;
 	}

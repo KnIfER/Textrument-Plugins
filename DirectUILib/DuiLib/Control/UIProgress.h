@@ -7,7 +7,7 @@ namespace DuiLib
 {
 	class UILIB_API CProgressUI : public CLabelUI
 	{
-		DECLARE_DUICONTROL(CProgressUI)
+		DECLARE_QKCONTROL(CProgressUI)
 	public:
 		CProgressUI();
 
@@ -39,7 +39,7 @@ namespace DuiLib
 		int m_nMin;
 		int m_nValue;
 
-		CDuiString m_sForeImageModify;
+		QkString m_sForeImageModify;
 	};
 
 } // namespace DuiLib

@@ -7,12 +7,13 @@ struct _BUTTON_INFO;
 
 namespace DuiLib
 {
-	class UILIB_API CButtonUI : public CLabelUI
+	class UILIB_API Button : public CLabelUI
 	{
-		DECLARE_DUICONTROL(CButtonUI)
+		DECLARE_QKCONTROL(Button)
 
 	public:
-		CButtonUI();
+		Button();
+		CControlUI* Duplicate();
 
 		LPCTSTR GetClass() const;
 		LPVOID GetInterface(LPCTSTR pstrName);
@@ -74,23 +75,25 @@ namespace DuiLib
 
 		SIZE EstimateSize(const SIZE & szAvailable);
 
+		void SyncColors();
 		bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
 
 		void PaintText(HDC hDC);
 
-		void PaintBkColor(HDC hDC);
+		virtual void GetBkFillColor(DWORD & color);
 		void PaintStatusImage(HDC hDC);
 		void PaintForeImage(HDC hDC);
 
 
-		// |pstrText| = convenient string to set the type, only the two three chars are used :
+		// |handyStr| = convenient string to set the type, only the two three chars are used :
 		//	"P"==BS_PUSHBUTTON, "push"==BS_PUSHBUTTON, "C"==BS_CHECKBOX, "_CHECK"==BS_AUTOCHECKBOX,
 		//	BS_DEFPUSHBUTTON, BS_[AUTO]RADIOBUTTON, BS_[AUTO]3STATE, BS_GROUPBOX, BS_OWNERDRAW...
 		// |type| = Button Control Styles. (BS_PUSHBUTTON, ...)
 		//	see https://docs.microsoft.com/en-us/windows/win32/controls/button-styles
-		void SetType(LPCTSTR pstrText=0, int type=BS_OWNERDRAW);
+		void SetType(LPCTSTR handyStr=0, int type=BS_OWNERDRAW);
+		int GetType();
 
-		CDuiString & CButtonUI::GetNote() { 
+		QkString & Button::GetNote() { 
 			return _note; 
 		}
 
@@ -117,21 +120,21 @@ namespace DuiLib
 		DWORD m_dwPushedTextColor;
 		DWORD m_dwFocusedTextColor;
 
-		CDuiString m_sNormalImage;
-		CDuiString m_sHotImage;
-		CDuiString m_sHotForeImage;
-		CDuiString m_sPushedImage;
-		CDuiString m_sPushedForeImage;
-		CDuiString m_sFocusedImage;
-		CDuiString m_sDisabledImage;
+		QkString m_sNormalImage;
+		QkString m_sHotImage;
+		QkString m_sHotForeImage;
+		QkString m_sPushedImage;
+		QkString m_sPushedForeImage;
+		QkString m_sFocusedImage;
+		QkString m_sDisabledImage;
 		int m_nStateCount;
-		CDuiString m_sStateImage;
+		QkString m_sStateImage;
 
 		int			m_iBindTabIndex;
-		CDuiString	m_sBindTabLayoutName;
+		QkString	m_sBindTabLayoutName;
 
 		_BUTTON_INFO* infoPtr;
-		CDuiString _note;
+		QkString _note;
 		bool _hotTrack;
 	};
 

@@ -3,10 +3,10 @@
 namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
-
+	// Depreacated. Test-Only.
 	class UILIB_API WinButton : public CControlUI
 	{
-		DECLARE_DUICONTROL(WinButton)
+		DECLARE_QKCONTROL(WinButton)
 	public:
 		WinButton();
 
@@ -16,10 +16,14 @@ namespace DuiLib {
 		void Init() override;
 		void SetPos(RECT rc, bool bNeedInvalidate = true) override;
 
-		void resize();
+		void SetText( LPCTSTR pstrText ) override;
+		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue) override;
+
+		void SetType(LPCTSTR pstrText);
 
 	private:
 		HWND __hParent;
+		int _type;
 	};
 
 } // namespace DuiLib

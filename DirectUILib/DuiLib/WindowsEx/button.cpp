@@ -74,14 +74,7 @@ namespace Button{
 #define BUTTON_UNKNOWN2        0x20
 #define BUTTON_UNKNOWN3        0x10
 
-inline void BUTTON_NOTIFY_PARENT(HWND hWnd, DWORD code)
-{
-    /* Notify parent which has created this button control */
-    TRACE("notification %ld sent to hwnd=%p\n", code, GetParent(hWnd));
-    SendMessageW(GetParent(hWnd), WM_COMMAND,
-        MAKEWPARAM(GetWindowLongPtrW((hWnd),GWLP_ID), (code)),
-        (LPARAM)(hWnd));
-}
+#define ENABLE_TRANSPARENT_PARENT_DRAW FALSE
 
 static UINT BUTTON_CalcLayoutRects( const BUTTON_INFO *infoPtr, HDC hdc, RECT *labelRc, RECT *imageRc, RECT *textRc );
 static void PB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action );
@@ -305,30 +298,6 @@ static void init_custom_draw(NMCUSTOMDRAW *nmcd, const BUTTON_INFO *infoPtr, HDC
     /* FIXME: Handle it properly when we support keyboard cues? */
 }
 
-// https://github.com/wine-mirror/wine/blob/e909986e6ea5ecd49b2b847f321ad89b2ae4f6f1/dlls/gdi32/region.c
-// https://github.com/wine-mirror/wine/blob/e909986e6ea5ecd49b2b847f321ad89b2ae4f6f1/dlls/gdi32/clipping.c
-// CombineRgn & GetClipRgn
-HRGN _hrgn = CreateRectRgn( 0, 0, 0, 0 );
-
-HRGN set_control_clipping( HDC hdc, const RECT *rect )
-{
-    RECT rc = *rect;
-    HRGN hrgn = _hrgn;
-    
-    if (GetClipRgn( hdc, hrgn ) != 1)
-    {
-        hrgn = 0;
-    }
-    DPtoLP( hdc, (POINT *)&rc, 2 );
-    if (GetLayout( hdc ) & LAYOUT_RTL)  /* compensate for the shifting done by IntersectClipRect */
-    {
-        rc.left++;
-        rc.right++;
-    }
-    IntersectClipRect( hdc, rc.left, rc.top, rc.right, rc.bottom );
-    return hrgn;
-}
-
 static WCHAR *heap_strndupW(const WCHAR *src, size_t length)
 {
     size_t size = (length + 1) * sizeof(WCHAR);
@@ -502,6 +471,7 @@ LRESULT _Paint(BUTTON_INFO* infoPtr, WPARAM wParam, HWND hWnd)
         hWnd = hDelegate;
     HTHEME theme = GetWindowTheme( hWnd );
     hdc = wParam ? (HDC)wParam : BeginPaint( hWnd, &ps );
+    //theme = 0;
     //infoPtr->bgrTextColor = 0xFF0000FF;
     infoPtr->bgrBackground = 0xFF0000FF;
     infoPtr->tintFlag = 0;
@@ -602,12 +572,16 @@ static LRESULT CALLBACK BUTTON_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
     case WM_NCDESTROY:
         SetWindowLongPtrW( hWnd, 0, 0 );
-        if (infoPtr->image_type == IMAGE_BITMAP)
-            DeleteObject(infoPtr->u.bitmap);
-        else if (infoPtr->image_type == IMAGE_ICON)
-            DestroyIcon(infoPtr->u.icon);
-        heap_free(infoPtr->note);
-        heap_free(infoPtr);
+        if (!infoPtr->is_delegate)
+        {
+            //_Destroy(infoPtr);
+            if (infoPtr->image_type == IMAGE_BITMAP)
+                DeleteObject(infoPtr->u.bitmap);
+            else if (infoPtr->image_type == IMAGE_ICON)
+                DestroyIcon(infoPtr->u.icon);
+            heap_free(infoPtr->note);
+            heap_free(infoPtr);
+        }
         break;
 
     case WM_CREATE:
@@ -676,7 +650,7 @@ static LRESULT CALLBACK BUTTON_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
            btn_type == BS_USERBUTTON ||
            btn_type == BS_OWNERDRAW)
         {
-            BUTTON_NOTIFY_PARENT(hWnd, BN_DOUBLECLICKED);
+            NOTIFY_PARENT(hWnd, BN_DOUBLECLICKED);
             break;
         }
         /* fall through */
@@ -726,7 +700,7 @@ static LRESULT CALLBACK BUTTON_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                 break;
             }
             ReleaseCapture();
-            BUTTON_NOTIFY_PARENT(hWnd, BN_CLICKED);
+            NOTIFY_PARENT(hWnd, BN_CLICKED);
         }
         else
         {
@@ -919,7 +893,7 @@ static LRESULT CALLBACK BUTTON_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
             InvalidateRect(hWnd, NULL, FALSE);
 
         if (style & BS_NOTIFY)
-            BUTTON_NOTIFY_PARENT(hWnd, BN_SETFOCUS);
+            NOTIFY_PARENT(hWnd, BN_SETFOCUS);
         break;
 
     case WM_KILLFOCUS:
@@ -929,7 +903,7 @@ static LRESULT CALLBACK BUTTON_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
         if ((infoPtr->state & BUTTON_BTNPRESSED) && GetCapture() == hWnd)
             ReleaseCapture();
         if (style & BS_NOTIFY)
-            BUTTON_NOTIFY_PARENT(hWnd, BN_KILLFOCUS);
+            NOTIFY_PARENT(hWnd, BN_KILLFOCUS);
 
         InvalidateRect( hWnd, NULL, FALSE );
         break;
@@ -1071,7 +1045,7 @@ static LRESULT CALLBACK BUTTON_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                 state &= ~BST_PUSHED;
 
             if (btn_type == BS_USERBUTTON)
-                BUTTON_NOTIFY_PARENT( hWnd, (state & BST_PUSHED) ? BN_HILITE : BN_UNHILITE );
+                NOTIFY_PARENT( hWnd, (state & BST_PUSHED) ? BN_HILITE : BN_UNHILITE );
             infoPtr->state = state;
 
             InvalidateRect( hWnd, NULL, FALSE );
@@ -1978,6 +1952,7 @@ static void PB_Paint( const BUTTON_INFO *infoPtr, HDC hDC, UINT action )
     SetBkMode(hDC, oldBkMode);
     SelectClipRgn( hDC, hrgn );
     DeleteObject( hpen );
+    SelectClipRgn( hDC, hrgn );
 }
 
 /**********************************************************************
@@ -2330,11 +2305,11 @@ notify:
     switch (action)
     {
     case ODA_FOCUS:
-        BUTTON_NOTIFY_PARENT( infoPtr->hwnd, (state & BST_FOCUS) ? BN_SETFOCUS : BN_KILLFOCUS );
+        NOTIFY_PARENT( infoPtr->hwnd, (state & BST_FOCUS) ? BN_SETFOCUS : BN_KILLFOCUS );
         break;
 
     case ODA_SELECT:
-        BUTTON_NOTIFY_PARENT( infoPtr->hwnd, (state & BST_PUSHED) ? BN_HILITE : BN_UNHILITE );
+        NOTIFY_PARENT( infoPtr->hwnd, (state & BST_PUSHED) ? BN_HILITE : BN_UNHILITE );
         break;
 
     default:
@@ -2871,8 +2846,12 @@ static void PB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
     }
     HRGN hrgn = set_control_clipping( hDC, &bgRect );
 
-    if (IsThemeBackgroundPartiallyTransparent(theme, BP_PUSHBUTTON, state))
-        DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
+    if (ENABLE_TRANSPARENT_PARENT_DRAW)
+    {
+        if (IsThemeBackgroundPartiallyTransparent(theme, BP_PUSHBUTTON, state))
+            DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
+    }
+
     //if (infoPtr->tintFlag&USE_COLOR_BACK)
     //{ // https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/ns-uxtheme-dtbgopts
     //    DTBGOPTS* opts = (DTBGOPTS*)infoPtr->bg_opts;
@@ -2894,16 +2873,19 @@ static void PB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
         DrawThemeBackground(theme, hDC, BP_PUSHBUTTON, state, &bgRect, NULL);  // 绘制按钮背景色与边框
     //}
 
-    if (cdrf & CDRF_NOTIFYPOSTERASE)
+    if (parent)
     {
-        nmcd.dwDrawStage = CDDS_POSTERASE;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    }
+        if (cdrf & CDRF_NOTIFYPOSTERASE)
+        {
+            nmcd.dwDrawStage = CDDS_POSTERASE;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
 
-    /* Send paint notifications */
-    nmcd.dwDrawStage = CDDS_PREPAINT;
-    cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
-    if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+        /* Send paint notifications */
+        nmcd.dwDrawStage = CDDS_PREPAINT;
+        cdrf = SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
+    }
 
 
     if (!(cdrf & CDRF_DOERASE) && (text = get_button_text(infoPtr)))
@@ -2923,16 +2905,20 @@ static void PB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
             }
             else
             {
-                // 自行计算高度
+                // 无自适应高度数据，自行计算。
                 RECT rcCacl = textRect;
-                DrawText(hDC, text, -1, &rcCacl, (dtFlags & ~(DT_VCENTER | DT_BOTTOM)) | DT_CALCRECT);
+                // (dtFlags & ~(DT_VCENTER | DT_BOTTOM))  // 不知为何，这样修改dt后会增加cpu%
+                DrawText(hDC, text, lstrlenW(text), &rcCacl,  dtFlags | DT_CALCRECT); 
                 dh += rcCacl.bottom-rcCacl.top;
             }
             dh = (bgRect.bottom-bgRect.top-dh)/2;
             textRect.top += dh;
             textRect.bottom += dh;
         }
-
+        if ((dtFlags&DT_WORDBREAK) && textRect.bottom-textRect.top < infoPtr->lineHeight*2)
+        { // 特殊优化：单行绘制，去除 DT_WORDBREAK
+            dtFlags = dtFlags & (~DT_WORDBREAK);
+        }
         if(infoPtr->tintFlag&USE_COLOR_TEXT)
         {
             DTTOPTS* opts = (DTTOPTS*)infoPtr->opts;
@@ -2947,12 +2933,15 @@ static void PB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
         if(!infoPtr->is_delegate)heap_free(text);
     }
 
-    if (cdrf & CDRF_NOTIFYPOSTPAINT)
+    if (parent)
     {
-        nmcd.dwDrawStage = CDDS_POSTPAINT;
-        SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        if (cdrf & CDRF_NOTIFYPOSTPAINT)
+        {
+            nmcd.dwDrawStage = CDDS_POSTPAINT;
+            SendMessageW(parent, WM_NOTIFY, nmcd.hdr.idFrom, (LPARAM)&nmcd);
+        }
+        if (cdrf & CDRF_SKIPPOSTPAINT) goto cleanup;
     }
-    if (cdrf & CDRF_SKIPPOSTPAINT) goto cleanup;
 
     if (focused)
     {
@@ -3023,7 +3012,10 @@ static void CB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
     bgRect.bottom = bgRect.top + sz.cy;
     bgRect.right = bgRect.left + sz.cx;
     textRect.left = bgRect.right + 6;
-    DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
+    if (ENABLE_TRANSPARENT_PARENT_DRAW)
+    {
+        DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
+    }
     DrawThemeBackground(theme, hDC, part, state, &bgRect, NULL); // 绘制了选择框
     bgRect = focusRect;
 
@@ -3081,7 +3073,7 @@ static void CB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
             {
                 // 自行计算高度
                 RECT rcCacl = textRect;
-                DrawText(hDC, text, -1, &rcCacl, (dtFlags & ~(DT_VCENTER | DT_BOTTOM)) | DT_CALCRECT);
+                DrawText(hDC, text, -1, &rcCacl, dtFlags | DT_CALCRECT);
                 dh += rcCacl.bottom-rcCacl.top;
             }
             dh = (bgRect.bottom-bgRect.top-dh)/2;
@@ -3132,30 +3124,28 @@ static void GB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
         GetClientRect(infoPtr->hwnd, &bgRect);
     }
     textRect = bgRect;
+    HRGN hrgn = set_control_clipping( hDC, &bgRect );
 
     if (text)
     {
         SIZE textExtent;
         GetTextExtentPoint32W(hDC, text, lstrlenW(text), &textExtent);
         bgRect.top += (textExtent.cy / 2);
-        textRect.left += 10;
+        if (infoPtr->dtStyle & DT_CENTER)
+        {
+            textRect.left += ((textRect.right-textRect.left)-textExtent.cx)/2;
+            textRect.right = textRect.left + textExtent.cx + 4;
+        }
+        else
+        {
+            textRect.left += 10;
+            textRect.right = textRect.left + textExtent.cx + 4;
+        }
         textRect.bottom = textRect.top + textExtent.cy;
-        textRect.right = textRect.left + textExtent.cx + 4;
 
-        ExcludeClipRect(hDC, textRect.left, textRect.top, textRect.right, textRect.bottom);
-    }
-
-    GetThemeBackgroundContentRect(theme, hDC, BP_GROUPBOX, state, &bgRect, &contentRect);
-    ExcludeClipRect(hDC, contentRect.left, contentRect.top, contentRect.right, contentRect.bottom);
-
-    if (IsThemeBackgroundPartiallyTransparent(theme, BP_GROUPBOX, state))
-        DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
-    DrawThemeBackground(theme, hDC, BP_GROUPBOX, state, &bgRect, NULL);
-
-    SelectClipRgn(hDC, NULL);
-
-    if (text)
-    {
+        // 绘制文本
+        //SelectClipRgn(hDC, hrgn);
+        //IntersectClipRect(hDC, textRect.left, textRect.top, textRect.right, textRect.bottom);
         InflateRect(&textRect, -2, 0);
         if(infoPtr->tintFlag&USE_COLOR_TEXT)
         {
@@ -3169,9 +3159,24 @@ static void GB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
             DrawThemeText(theme, hDC, BP_GROUPBOX, state, text, lstrlenW(text), 0, 0, &textRect);
         }
         if(!infoPtr->is_delegate) heap_free(text);
+
+
+        // 排除文本区域（不绘制）
+        ExcludeClipRect(hDC, textRect.left, textRect.top, textRect.right, textRect.bottom);
     }
 
+    GetThemeBackgroundContentRect(theme, hDC, BP_GROUPBOX, state, &bgRect, &contentRect);
+    //ExcludeClipRect(hDC, contentRect.left, contentRect.top, contentRect.right, contentRect.bottom);
+
+    if (ENABLE_TRANSPARENT_PARENT_DRAW)
+    {
+        if (IsThemeBackgroundPartiallyTransparent(theme, BP_GROUPBOX, state))
+            DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
+    }
+    DrawThemeBackground(theme, hDC, BP_GROUPBOX, state, &bgRect, NULL);
+
     if (hPrevFont) SelectObject(hDC, hPrevFont);
+    SelectClipRgn(hDC, hrgn);
 }
 
 void BUTTON_QueryPreempterSize(BUTTON_INFO* infoPtr, WPARAM _preSizeX)
@@ -3261,8 +3266,11 @@ static void SB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
         if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
     }
 
-    if (IsThemeBackgroundPartiallyTransparent(theme, BP_PUSHBUTTON, state))
-        DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
+    if (ENABLE_TRANSPARENT_PARENT_DRAW)
+    {
+        if (IsThemeBackgroundPartiallyTransparent(theme, BP_PUSHBUTTON, state))
+            DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
+    }
 
     /* The zone outside the content is ignored for the dropdown (draws over) */
     if (!infoPtr->is_delegate) GetThemeBackgroundContentRect(theme, hDC, BP_PUSHBUTTON, state, &bgRect, &textRect);
@@ -3342,7 +3350,7 @@ static void SB_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
                 {
                     // 自行计算高度
                     RECT rcCacl = textRect;
-                    DrawText(hDC, text, -1, &rcCacl, (dtFlags & ~(DT_VCENTER | DT_BOTTOM)) | DT_CALCRECT);
+                    DrawText(hDC, text, -1, &rcCacl, dtFlags | DT_CALCRECT);
                     dh += rcCacl.bottom-rcCacl.top;
                 }
                 dh = (bgRect.bottom-bgRect.top-dh)/2;
@@ -3427,8 +3435,11 @@ static void CL_ThemedPaint(HTHEME theme, const BUTTON_INFO *infoPtr, HDC hDC, in
         if (cdrf & CDRF_SKIPDEFAULT) goto cleanup;
     }
 
-    if (IsThemeBackgroundPartiallyTransparent(theme, BP_COMMANDLINK, state))
-        DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
+    if (ENABLE_TRANSPARENT_PARENT_DRAW)
+    {
+        if (IsThemeBackgroundPartiallyTransparent(theme, BP_COMMANDLINK, state))
+            DrawThemeParentBackground(infoPtr->hwnd, hDC, NULL);
+    }
     DrawThemeBackground(theme, hDC, BP_COMMANDLINK, state, &bgRect, NULL);
 
     if (parent)

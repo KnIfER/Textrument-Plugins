@@ -17,7 +17,7 @@ namespace DuiLib
 		void DeleteTrayIcon();
 		bool SetTooltipText(LPCTSTR _ToolTipText);
 		bool SetTooltipText(UINT _IDResource);
-		CDuiString GetTooltipText() const;
+		QkString GetTooltipText() const;
 
 		bool SetIcon(HICON _Hicon);
 		bool SetIcon(LPCTSTR _IconFile);
@@ -26,8 +26,8 @@ namespace DuiLib
 		void SetHideIcon();
 		void SetShowIcon();
 		void RemoveIcon();
-		bool Enabled(){return m_bEnabled;};
-		bool IsVisible(){return !m_bVisible;};
+		bool Enabled(){ return m_bEnabled; };
+		bool IsVisible(){ return !m_bVisible; };
 
 	private:
 		bool m_bEnabled;

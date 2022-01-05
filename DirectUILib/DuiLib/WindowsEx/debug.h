@@ -67,7 +67,7 @@ inline void nothing(const CHAR* msg, ...){}
 
 #define TRACE(MSG,...) LogIs(3,MSG,__VA_ARGS__) 
 //#define TRACE nothing
-//#define TRACE(MSG,...) /##/## MSG
+//#define TRACE(MSG,...) /##/## MSG __VA_ARGS__
 
 #define FIXME TRACE
 #define WARN TRACE
@@ -80,6 +80,14 @@ inline int Free(void* ptr) {
 
 static CHAR buffer[512];
 
+inline void NOTIFY_PARENT(HWND hWnd, DWORD code)
+{
+    /* Notify parent which has created this button control */
+    TRACE("notification %ld sent to hwnd=%p\n", code, GetParent(hWnd));
+    SendMessageW(GetParent(hWnd), WM_COMMAND,
+        MAKEWPARAM(GetWindowLongPtrW((hWnd),GWLP_ID), (code)),
+        (LPARAM)(hWnd));
+}
 
 #define wine_dbgstr_rect(rect) _wine_dbgstr_rect(rect).c_str()
 

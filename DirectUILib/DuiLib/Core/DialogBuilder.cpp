@@ -18,7 +18,6 @@ namespace DuiLib {
 				xml = xmlpath;
 			}
 		}
-
 		if( HIWORD(xml.m_lpstr) != NULL  ) {
 			int isMemFile = 0;
 			if (type)
@@ -78,7 +77,8 @@ namespace DuiLib {
 			LPTSTR pstr = NULL;
 			for( XMarkupNode node = root.GetChild() ; node.IsValid(); node = node.GetSibling() ) {
 				pstrClass = node.GetName();
-				if( _tcsicmp(pstrClass, _T("Image")) == 0 ) {
+				if( _tcsicmp(pstrClass, _T("Image")) == 0 ) 
+				{
 					nAttributes = node.GetAttributeCount();
 					LPCTSTR pImageName = NULL;
 					LPCTSTR pImageResType = NULL;
@@ -94,8 +94,7 @@ namespace DuiLib {
 							pImageResType = pstrValue;
 						}
 						else if( _tcsicmp(pstrName, _T("mask")) == 0 ) {
-							if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-							mask = _tcstoul(pstrValue, &pstr, 16);
+							STR2ARGB(pstrValue, mask);
 						}
 						else if( _tcsicmp(pstrName, _T("shared")) == 0 ) {
 							shared = (_tcsicmp(pstrValue, _T("true")) == 0);
@@ -103,7 +102,8 @@ namespace DuiLib {
 					}
 					if( pImageName ) pManager->AddImage(pImageName, pImageResType, mask, false, shared);
 				}
-				else if( _tcsicmp(pstrClass, _T("Font")) == 0 ) {
+				else if( _tcsicmp(pstrClass, _T("Font")) == 0 ) 
+				{
 					nAttributes = node.GetAttributeCount();
 					int id = -1;
 					LPCTSTR pFontName = NULL;
@@ -146,16 +146,25 @@ namespace DuiLib {
 						if( defaultfont ) pManager->SetDefaultFont(pFontName, size, bold, underline, italic, shared);
 					}
 				}
-				else if( _tcsicmp(pstrClass, _T("Default")) == 0 ) {
+				else if( _tcsicmp(pstrClass, _T("Default")) == 0 ) 
+				{
 					nAttributes = node.GetAttributeCount();
 					LPCTSTR pControlName = NULL;
+					LPCTSTR pStyleId = NULL;
 					LPCTSTR pControlValue = NULL;
 					bool shared = false;
 					for( int i = 0; i < nAttributes; i++ ) {
 						pstrName = node.GetAttributeName(i);
 						pstrValue = node.GetAttributeValue(i);
 						if( _tcsicmp(pstrName, _T("name")) == 0 ) {
-							pControlName = pstrValue;
+							if (_tcsicmp(pstrClass, _T("Default")) == 0)
+							{
+								pControlName = pstrValue;
+							}
+							else
+							{
+								pStyleId = pstrValue;
+							}
 						}
 						else if( _tcsicmp(pstrName, _T("value")) == 0 ) {
 							pControlValue = pstrValue;
@@ -164,33 +173,50 @@ namespace DuiLib {
 							shared = (_tcsicmp(pstrValue, _T("true")) == 0);
 						}
 					}
-					if( pControlName ) {
-						pManager->AddDefaultAttributeList(pControlName, pControlValue, shared);
+					
+					if( pControlName || pStyleId ) {
+						pManager->AddDefaultAttributeList(pControlName, pStyleId, pControlValue, shared);
 					}
 				}
-				else if( _tcsicmp(pstrClass, _T("Style")) == 0 ) {
-					nAttributes = node.GetAttributeCount();
-					LPCTSTR pName = NULL;
-					LPCTSTR pStyle = NULL;
-					bool shared = false;
-					for( int i = 0; i < nAttributes; i++ ) {
-						pstrName = node.GetAttributeName(i);
-						pstrValue = node.GetAttributeValue(i);
-						if( _tcsicmp(pstrName, _T("name")) == 0 ) {
-							pName = pstrValue;
+				else if( _tcsicmp(pstrClass, _T("Style")) == 0 ) 
+				{ // <style>  <button textcolor=.../>  </style>
+					XMarkupNode child = node.GetChild();
+					while(child.IsValid())
+					{
+						bool shared = false;
+						Style* style = new Style{};
+						if( _tcsicmp(child.GetName(), _T("Default")) != 0 ) {
+							style->name = child.GetName();
 						}
-						else if( _tcsicmp(pstrName, _T("value")) == 0 ) {
-							pStyle = pstrValue;
+						size_t i = 0, length=child.GetAttributeCount();
+						style->styles.reserve(length);
+						int index=0;
+						for (; i < length; i++)
+						{
+							pstrName = child.GetAttributeName(i);
+							pstrValue = child.GetAttributeValue(i);
+							if( _tcsicmp(pstrName, _T("id")) == 0 ) {
+								style->id = pstrValue;
+							}
+							else if( _tcsicmp(pstrName, _T("apply")) == 0 ) {
+							}
+							else if( _tcsicmp(pstrName, _T("shared")) == 0 ) {
+								shared = (_tcsicmp(pstrValue, _T("true")) == 0);
+							}
+							else
+							{
+								style->styles.resize(++index);
+								StyleDefine & styleDef = style->styles[index-1];
+								styleDef.name = pstrName;
+								styleDef.value = pstrValue;
+							}
 						}
-						else if( _tcsicmp(pstrName, _T("shared")) == 0 ) {
-							shared = (_tcsicmp(pstrValue, _T("true")) == 0);
-						}
-					}
-					if( pName ) {
-						pManager->AddStyle(pName, pStyle, shared);
+						pManager->AddStyle(style, shared); // 添加样式
+						child = child.GetSibling();
 					}
 				}
-				else if (_tcsicmp(pstrClass, _T("Import")) == 0) {
+				else if (_tcsicmp(pstrClass, _T("Import")) == 0) 
+				{
 					nAttributes = node.GetAttributeCount();
 					LPCTSTR pstrPath = NULL;
 					for (int i = 0; i < nAttributes; i++) {
@@ -313,15 +339,13 @@ namespace DuiLib {
 							} 
 
 							else if( _tcsicmp(pstrName, _T("linkfontcolor")) == 0 ) {
-								if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-								LPTSTR pstr = NULL;
-								DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+								DWORD clrColor;
+								STR2ARGB(pstrValue, clrColor);
 								pManager->SetDefaultLinkFontColor(clrColor);
 							} 
 							else if( _tcsicmp(pstrName, _T("linkhoverfontcolor")) == 0 ) {
-								if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-								LPTSTR pstr = NULL;
-								DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+								DWORD clrColor;
+								STR2ARGB(pstrValue, clrColor);
 								pManager->SetDefaultLinkHoverFontColor(clrColor);
 							} 
 							else if( _tcscmp(pstrName, _T("layeredopacity")) == 0 ) {
@@ -339,15 +363,13 @@ namespace DuiLib {
 								pManager->SetNoActivate(_tcsicmp(pstrValue, _T("true")) == 0);
 							}
 							else if( _tcsicmp(pstrName, _T("disabledfontcolor")) == 0 ) {
-								if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-								LPTSTR pstr = NULL;
-								DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+								DWORD clrColor;
+								STR2ARGB(pstrValue, clrColor);
 								pManager->SetDefaultDisabledColor(clrColor);
 							} 
 							else if( _tcsicmp(pstrName, _T("defaultfontcolor")) == 0 ) {
-								if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-								LPTSTR pstr = NULL;
-								DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+								DWORD clrColor;
+								STR2ARGB(pstrValue, clrColor);
 								pManager->SetDefaultFontColor(clrColor);
 							}
 
@@ -376,9 +398,8 @@ namespace DuiLib {
 								pManager->SetShowUpdateRect(_tcsicmp(pstrValue, _T("true")) == 0);
 							} 
 							else if( _tcsicmp(pstrName, _T("selectedcolor")) == 0 ) {
-								if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-								LPTSTR pstr = NULL;
-								DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+								DWORD clrColor;
+								STR2ARGB(pstrValue, clrColor);
 								pManager->SetDefaultSelectedBkColor(clrColor);
 							} 
 							else if( _tcsicmp(pstrName, _T("shadowsize")) == 0 ) {
@@ -397,9 +418,8 @@ namespace DuiLib {
 								pManager->GetShadow()->SetPosition(cx, cy);
 							}
 							else if( _tcsicmp(pstrName, _T("shadowcolor")) == 0 ) {
-								if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
-								LPTSTR pstr = NULL;
-								DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+								DWORD clrColor;
+								STR2ARGB(pstrValue, clrColor);
 								pManager->GetShadow()->SetColor(clrColor);
 							}
 							else if( _tcsicmp(pstrName, _T("shadowcorner")) == 0 ) {
@@ -428,7 +448,8 @@ namespace DuiLib {
 				}
 			}
 		}
-		return _Parse(&root, pParent, pManager);
+		QkString tagNameBuffer;
+		return _Parse(&root, tagNameBuffer, pParent, pManager);
 	}
 
 	XMarkupParser* CDialogBuilder::GetMarkup()
@@ -436,29 +457,32 @@ namespace DuiLib {
 		return &m_xml;
 	}
 
-	void CDialogBuilder::GetLastErrorMessage(LPTSTR pstrMessage, SIZE_T cchMax) const
+	const QkString & CDialogBuilder::GetLastErrorMessage() const
 	{
-		return m_xml.GetLastErrorMessage(pstrMessage, cchMax);
+		return m_xml.GetLastErrorMessage();
 	}
 
-	void CDialogBuilder::GetLastErrorLocation(LPTSTR pstrSource, SIZE_T cchMax) const
+	const QkString & CDialogBuilder::GetLastErrorLocation() const
 	{
-		return m_xml.GetLastErrorLocation(pstrSource, cchMax);
+		return m_xml.GetLastErrorLocation();
 	}
 
 	// 递归分析xml建立控件树
-	CControlUI* CDialogBuilder::_Parse(XMarkupNode* pRoot, CControlUI* pParent, CPaintManagerUI* pManager)
+	CControlUI* CDialogBuilder::_Parse(XMarkupNode* pRoot, QkString & tagNameBuffer, CControlUI* pParent, CPaintManagerUI* pManager)
 	{
 		IContainerUI* pContainer = NULL;
 		CControlUI* pReturn = NULL;
+		LPCWSTR pstrClass;
 		for( XMarkupNode node = pRoot->GetChild() ; node.IsValid(); node = node.GetSibling() ) {
-			LPCTSTR pstrClass = node.GetName();
-			if( _tcsicmp(pstrClass, _T("Image")) == 0 || _tcsicmp(pstrClass, _T("Font")) == 0 \
-				|| _tcsicmp(pstrClass, _T("Default")) == 0 || _tcsicmp(pstrClass, _T("Style")) == 0 ) continue;
+			tagNameBuffer = node.GetName();
+			tagNameBuffer.MakeLower();
+			pstrClass = tagNameBuffer;
+			if( _tcscmp(pstrClass, _T("image")) == 0 || _tcscmp(pstrClass, _T("font")) == 0 \
+				|| _tcscmp(pstrClass, _T("default")) == 0 || _tcscmp(pstrClass, _T("style")) == 0 ) continue;
 
 			CControlUI* pControl = NULL;
-			if (_tcsicmp(pstrClass, _T("Import")) == 0) continue;
-			if( _tcsicmp(pstrClass, _T("Include")) == 0 ) {
+			if (_tcscmp(pstrClass, _T("import")) == 0) continue;
+			if( _tcscmp(pstrClass, _T("include")) == 0 ) {
 				if( !node.HasAttributes() ) continue;
 				int count = 1;
 				LPTSTR pstr = NULL;
@@ -482,9 +506,9 @@ namespace DuiLib {
 			}
 			else {
 				//CDuiString strClass; strClass.Format(_T("C%sUI"), pstrClass);
-				pControl = dynamic_cast<CControlUI*>(CControlFactory::GetInstance()->CreateControl(pstrClass));
+				pControl = dynamic_cast<CControlUI*>(CControlFactory::GetInstance()->CreateControl(tagNameBuffer));
 
-				// 检查插件
+				// 检查插件和回调
 				if( pControl == NULL ) {
 					CStdPtrArray* pPlugins = CPaintManagerUI::GetPlugins();
 					LPCREATECONTROL lpCreateControl = NULL;
@@ -496,7 +520,6 @@ namespace DuiLib {
 						}
 					}
 				}
-				// 回掉创建
 				if( pControl == NULL && m_pCallback != NULL ) {
 					pControl = m_pCallback->CreateControl(pstrClass);
 				}
@@ -512,7 +535,7 @@ namespace DuiLib {
 
 			// Add children
 			if( node.HasChildren() ) {
-				_Parse(&node, pControl, pManager);
+				_Parse(&node, tagNameBuffer, pControl, pManager);
 			}
 			// Attach to parent
 			// 因为某些属性和父窗口相关，比如selected，必须先Add到父窗口
@@ -570,7 +593,7 @@ namespace DuiLib {
 				else {
 					pControl->SetManager(pManager, NULL, false);
 				}
-				LPCTSTR pDefaultAttributes = pManager->GetDefaultAttributeList(pstrClass);
+				Style* pDefaultAttributes = pManager->GetDefaultAttributeList(node.GetName());
 				if( pDefaultAttributes ) {
 					pControl->ApplyAttributeList(pDefaultAttributes);
 				}

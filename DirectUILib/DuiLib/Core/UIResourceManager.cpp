@@ -84,9 +84,9 @@ namespace DuiLib {
 					}
 				}
 				if( pstrId == NULL ||  pstrPath == NULL) continue;
-				CDuiString * pstrFind = static_cast<CDuiString *>(m_mImageHashMap.Find(pstrId));
+				QkString * pstrFind = static_cast<QkString *>(m_mImageHashMap.Find(pstrId));
 				if(pstrFind != NULL) continue;
-				m_mImageHashMap.Insert(pstrId, (LPVOID)new CDuiString(pstrPath));
+				m_mImageHashMap.Insert(pstrId, (LPVOID)new QkString(pstrPath));
 			}
 			else if( _tcsicmp(pstrClass,_T("Xml")) == 0 && node.HasAttributes()) {
 				//加载XML配置文件
@@ -106,57 +106,48 @@ namespace DuiLib {
 					}
 				}
 				if( pstrId == NULL ||  pstrPath == NULL) continue;
-				CDuiString * pstrFind = static_cast<CDuiString *>(m_mXmlHashMap.Find(pstrId));
+				QkString * pstrFind = static_cast<QkString *>(m_mXmlHashMap.Find(pstrId));
 				if(pstrFind != NULL) continue;
-				m_mXmlHashMap.Insert(pstrId, (LPVOID)new CDuiString(pstrPath));
+				m_mXmlHashMap.Insert(pstrId, (LPVOID)new QkString(pstrPath));
 			}
 			else continue;
 		}
 		return TRUE;
 	}
 
-	LPCTSTR CResourceManager::GetImagePath(LPCTSTR lpstrId)
+	LPCTSTR CResourceManager::MapImagePath(LPCTSTR lpstrId)
 	{
-		CDuiString * lpStr = static_cast<CDuiString *>(m_mImageHashMap.Find(lpstrId));
-		return lpStr == NULL? NULL:lpStr->GetData();
+		QkString * lpStr = static_cast<QkString *>(m_mImageHashMap.Find(lpstrId));
+		return lpStr ? lpStr->GetData():lpstrId;
 	}
 
 	LPCTSTR CResourceManager::GetXmlPath(LPCTSTR lpstrId)
 	{
-		CDuiString * lpStr = static_cast<CDuiString *>(m_mXmlHashMap.Find(lpstrId));
+		QkString * lpStr = static_cast<QkString *>(m_mXmlHashMap.Find(lpstrId));
 		return lpStr == NULL? NULL:lpStr->GetData();
 	}
 
 	void CResourceManager::ResetResourceMap()
 	{
-		CDuiString* lpStr;
+		QkString* lpStr;
 		for( int i = 0; i< m_mImageHashMap.GetSize(); i++ )
 		{
-			if(LPCTSTR key = m_mImageHashMap.GetAt(i))
-			{
-				lpStr = static_cast<CDuiString *>(m_mImageHashMap.Find(key));
-				delete lpStr;
-				lpStr = NULL;
-			}
+			lpStr = static_cast<QkString *>(m_mImageHashMap.GetValueAt(i));
+			if(lpStr) delete lpStr;
 		}
+		m_mImageHashMap.RemoveAll();
 		for( int i = 0; i< m_mXmlHashMap.GetSize(); i++ )
 		{
-			if(LPCTSTR key = m_mXmlHashMap.GetAt(i))
-			{
-				lpStr = static_cast<CDuiString *>(m_mXmlHashMap.Find(key));
-				delete lpStr;
-				lpStr = NULL;
-			}
+			lpStr = static_cast<QkString *>(m_mXmlHashMap.GetValueAt(i));
+			if(lpStr) delete lpStr;
 		}
+		m_mXmlHashMap.RemoveAll();
 		for( int i = 0; i< m_mTextResourceHashMap.GetSize(); i++ )
 		{
-			if(LPCTSTR key = m_mTextResourceHashMap.GetAt(i))
-			{
-				lpStr = static_cast<CDuiString *>(m_mTextResourceHashMap.Find(key));
-				delete lpStr;
-				lpStr = NULL;
-			}
+			lpStr = static_cast<QkString *>(m_mTextResourceHashMap.GetValueAt(i));
+			if(lpStr) delete lpStr;
 		}
+		m_mTextResourceHashMap.RemoveAll();
 	}
 
 	BOOL CResourceManager::LoadLanguage(LPCTSTR pstrXml)
@@ -203,12 +194,12 @@ namespace DuiLib {
 				}
 				if( pstrId == NULL ||  pstrText == NULL) continue;
 
-				CDuiString *lpstrFind = static_cast<CDuiString *>(m_mTextResourceHashMap.Find(pstrId));
+				QkString *lpstrFind = static_cast<QkString *>(m_mTextResourceHashMap.Find(pstrId));
 				if(lpstrFind != NULL) {
 					lpstrFind->Assign(pstrText);
 				}
 				else {
-					m_mTextResourceHashMap.Insert(pstrId, (LPVOID)new CDuiString(pstrText));
+					m_mTextResourceHashMap.Insert(pstrId, (LPVOID)new QkString(pstrText));
 				}
 			}
 			else continue;
@@ -217,22 +208,22 @@ namespace DuiLib {
 		return TRUE;
 	}
 
-	CDuiString & CResourceManager::GetText(LPCTSTR lpstrId, LPCTSTR lpstrType)
+	QkString & CResourceManager::GetText(LPCTSTR lpstrId, LPCTSTR lpstrType)
 	{
-		if(lpstrId == NULL) return CDuiString::EmptyInstance();
+		if(lpstrId == NULL) return QkString::EmptyInstance();
 
-		CDuiString *lpstrFind = static_cast<CDuiString *>(m_mTextResourceHashMap.Find(lpstrId));
+		QkString *lpstrFind = static_cast<QkString *>(m_mTextResourceHashMap.Find(lpstrId));
 		if (lpstrFind == NULL && m_pQuerypInterface)
 		{
 			LPCTSTR lpText = m_pQuerypInterface->QueryControlText(lpstrId, lpstrType);
 			if(lpText != NULL) {
-				lpstrFind = new CDuiString(lpText);
+				lpstrFind = new QkString(lpText);
 				m_mTextResourceHashMap.Insert(lpstrId, (LPVOID)lpstrFind);
 			}
 		}
 		if (!lpstrFind)
 		{
-			return CDuiString::EmptyInstance(lpstrId);
+			return QkString::EmptyInstance(lpstrId);
 		}
 		return *lpstrFind;
 	}
@@ -245,26 +236,26 @@ namespace DuiLib {
 		LPCTSTR lpstrText;
 		for( int i = 0; i < m_mTextResourceHashMap.GetSize(); i++ )
 		{
-			lpstrId = m_mTextResourceHashMap.GetAt(i);
-			if (lpstrId == NULL) continue;
-			lpstrText = m_pQuerypInterface->QueryControlText(lpstrId, NULL);
-			if(lpstrText != NULL) {
-				CDuiString * lpStr = static_cast<CDuiString *>(m_mTextResourceHashMap.Find(lpstrId));
-				lpStr->Assign(lpstrText);
+			const TITEM* key = m_mTextResourceHashMap.GetSlotAt(i);
+			if (key) 
+			{
+				lpstrText = m_pQuerypInterface->QueryControlText(key->Key, NULL);
+				if(lpstrText) 
+				{
+					static_cast<QkString *>(key->Data)->Assign(lpstrText);
+				}
 			}
 		}
 	}
 	void CResourceManager::ResetTextMap()
 	{
-		CDuiString * lpStr;
+		QkString * lpStr;
 		for( int i = 0; i< m_mTextResourceHashMap.GetSize(); i++ )
 		{
-			if(LPCTSTR key = m_mTextResourceHashMap.GetAt(i))
-			{
-				lpStr = static_cast<CDuiString *>(m_mTextResourceHashMap.Find(key));
-				delete lpStr;
-			}
+			lpStr = static_cast<QkString *>(m_mTextResourceHashMap.GetValueAt(i));
+			if(lpStr) delete lpStr;
 		}
+		m_mTextResourceHashMap.RemoveAll();
 	}
 
 	

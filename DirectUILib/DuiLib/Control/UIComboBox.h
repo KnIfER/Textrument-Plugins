@@ -10,7 +10,7 @@ namespace DuiLib
 	/// <Default name="ComboBox" value="arrowimage=&quot;file='sys_combo_btn.png' source='0,0,16,16'&quot; "/>
 	class UILIB_API CComboBoxUI : public CComboUI
 	{
-		DECLARE_DUICONTROL(CComboBoxUI)
+		DECLARE_QKCONTROL(CComboBoxUI)
 	public:
 		CComboBoxUI();
 		LPCTSTR GetClass() const;
@@ -21,7 +21,7 @@ namespace DuiLib
 		void PaintStatusImage(HDC hDC);
 
 	protected:
-		CDuiString m_sArrowImage;
+		QkString m_sArrowImage;
 		int        m_nArrowWidth;
 	};
 }

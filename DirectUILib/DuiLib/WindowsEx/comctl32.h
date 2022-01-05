@@ -245,6 +245,8 @@ HTHEME ThemeForDpi(HWND hWnd, LPCWSTR pszClassList);
 LONG WINAPI GdiGetCharDimensions(HDC hdc, LPTEXTMETRICW lptm, LONG *height);
 DWORD WINAPI GdiGetCodePage( HDC hdc );
 
+HRGN set_control_clipping( HDC hdc, const RECT *rect );
+
 struct char_width_info {
     INT min_lsb, min_rsb, unknown;
 };

@@ -155,7 +155,7 @@ namespace DuiLib
 	}
 	//////////////////////////////////////////////////////////////////////////
 	//
-	IMPLEMENT_DUICONTROL(CDateTimeUI)
+	IMPLEMENT_QKCONTROL(CDateTimeUI)
 
 	CDateTimeUI::CDateTimeUI()
 	{
@@ -223,7 +223,7 @@ namespace DuiLib
 			SetText(_T(""));
 		}
 		else if (m_nDTUpdateFlag == DT_UPDATE) {
-			CDuiString sText;
+			QkString sText;
 			if(IsShowTime()) {
 				sText.SmallFormat(_T("%4d-%02d-%02d %02d:%02d:%02d"), m_sysTime.wYear, m_sysTime.wMonth, m_sysTime.wDay, m_sysTime.wHour, m_sysTime.wMinute, m_sysTime.wSecond);
 			}
@@ -237,14 +237,14 @@ namespace DuiLib
 	void CDateTimeUI::DoEvent(TEventUI& event)
 	{
 		if( !IsMouseEnabled() && event.Type > UIEVENT__MOUSEBEGIN && event.Type < UIEVENT__MOUSEEND ) {
-			if( m_pParent != NULL ) m_pParent->DoEvent(event);
+			if( _parent != NULL ) _parent->DoEvent(event);
 			else CLabelUI::DoEvent(event);
 			return;
 		}
 
 		if( event.Type == UIEVENT_WINDOWSIZE )
 		{
-			if( m_pWindow != NULL ) m_pManager->SetFocusNeeded(this);
+			if( m_pWindow != NULL ) _manager->SetFocusNeeded(this);
 		}
 		if( event.Type == UIEVENT_SCROLLWHEEL )
 		{

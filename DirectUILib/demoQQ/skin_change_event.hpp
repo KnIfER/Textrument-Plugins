@@ -4,7 +4,7 @@
 struct SkinChangedParam
 {
 	DWORD bkcolor;
-	CDuiString bgimage;
+	QkString bgimage;
 };
 
 typedef class ObserverImpl<BOOL, SkinChangedParam> SkinChangedObserver;

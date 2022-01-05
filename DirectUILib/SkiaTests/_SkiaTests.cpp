@@ -18,7 +18,7 @@ class SkiaTestBox : public WindowImplBase, public INotifyUI
 {
 public:
     SkiaTestBox() { 
-        _isWindowLess = false;
+        _windowless = false;
     };     
 
     LPCTSTR GetWindowClassName() const override
@@ -31,7 +31,7 @@ public:
         return CS_HREDRAW | CS_VREDRAW; 
     }
 
-    CDuiString GetSkinFile() override
+    QkString GetSkinFile() override
     {
         return _T("SkiaTestBox.xml");
     }

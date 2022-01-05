@@ -108,8 +108,8 @@ void CFriendsUI::DoEvent(TEventUI& event)
 {
 	if (!IsMouseEnabled() && event.Type > UIEVENT__MOUSEBEGIN && event.Type < UIEVENT__MOUSEEND)
 	{
-		if (m_pParent != NULL)
-			m_pParent->DoEvent(event);
+		if (_parent != NULL)
+			_parent->DoEvent(event);
 		else
 			CVerticalLayoutUI::DoEvent(event);
 		return;
@@ -132,7 +132,7 @@ void CFriendsUI::DoEvent(TEventUI& event)
 		delay_deltaY_ = 0;
 		delay_number_ = 0;
 		delay_left_ = 0;
-		m_pManager->KillTimer(this, SCROLL_TIMERID);
+		_manager->KillTimer(this, SCROLL_TIMERID);
 		return;
 	}
 	if (event.Type == UIEVENT_SCROLLWHEEL)
@@ -162,7 +162,7 @@ void CFriendsUI::DoEvent(TEventUI& event)
 
 		delay_number_ = (DWORD)sqrt((double)abs(delay_deltaY_)) * 5;
 		delay_left_ = delay_number_;
-		m_pManager->SetTimer(this, SCROLL_TIMERID, 50U);
+		_manager->SetTimer(this, SCROLL_TIMERID, 50U);
 		return;
 	}
 
@@ -238,7 +238,7 @@ Node* CFriendsUI::AddNode(const FriendListItemInfo& item, Node* parent)
 	}
 	pListElement->SetPadding(rcPadding);
 
-	CButtonUI* log_button = static_cast<CButtonUI*>(paint_manager_.FindSubControlByName(pListElement, kLogoButtonControlName));
+	Button* log_button = static_cast<Button*>(paint_manager_.FindSubControlByName(pListElement, kLogoButtonControlName));
 	if (log_button != NULL)
 	{
 		if (!item.folder && !item.logo.IsEmpty())
@@ -260,7 +260,7 @@ Node* CFriendsUI::AddNode(const FriendListItemInfo& item, Node* parent)
         log_button->OnEvent += MakeDelegate(&OnLogoButtonEvent);
 	}
 
-	CDuiString html_text;
+	QkString html_text;
 	if (node->data().has_child_)
 	{
 		if (node->data().child_visible_)
@@ -369,7 +369,7 @@ void CFriendsUI::SetChildVisible(Node* node, bool visible)
 	node->data().child_visible_ = visible;
 
 	TCHAR szBuf[MAX_PATH] = {0};
-	CDuiString html_text;
+	QkString html_text;
 	if (node->data().has_child_)
 	{
 		if (node->data().child_visible_)

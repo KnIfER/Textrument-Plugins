@@ -25,9 +25,9 @@ public:
 
 	~CMainWnd() { }
 
-	CDuiString GetSkinFile()
+	QkString GetSkinFile()
 	{
-		return CDuiString(_T("MainSkin.xml"));
+		return QkString(_T("MainSkin.xml"));
 	}
 
 	LPCTSTR GetWindowClassName() const
@@ -72,10 +72,10 @@ public:
 	{
 		pAnimWnd	= static_cast<CHorizontalLayoutUI*>(m_pm.FindControl(_T("AnimWnd")));
 
-		mpCloseBtn					= static_cast<CButtonUI*>(m_pm.FindControl(_T("SysCloseBtn")));
-		mpMaxBtn					= static_cast<CButtonUI*>(m_pm.FindControl(_T("SysMaxBtn")));
-		mpRestoreBtn				= static_cast<CButtonUI*>(m_pm.FindControl(_T("SysRestoreBtn")));
-		mpMinBtn					= static_cast<CButtonUI*>(m_pm.FindControl(_T("SysMinBtn")));
+		mpCloseBtn					= static_cast<Button*>(m_pm.FindControl(_T("SysCloseBtn")));
+		mpMaxBtn					= static_cast<Button*>(m_pm.FindControl(_T("SysMaxBtn")));
+		mpRestoreBtn				= static_cast<Button*>(m_pm.FindControl(_T("SysRestoreBtn")));
+		mpMinBtn					= static_cast<Button*>(m_pm.FindControl(_T("SysMinBtn")));
 
 		nid.cbSize				= (DWORD)sizeof(NOTIFYICONDATA);
 		nid.hWnd				= m_hWnd;
@@ -182,10 +182,10 @@ public:
 	NOTIFYICONDATA	nid;
 
 
-	CButtonUI*		mpCloseBtn;
-	CButtonUI*		mpMaxBtn;
-	CButtonUI*		mpRestoreBtn;
-	CButtonUI*		mpMinBtn;
+	Button*		mpCloseBtn;
+	Button*		mpMaxBtn;
+	Button*		mpRestoreBtn;
+	Button*		mpMinBtn;
 };
 
 
@@ -193,7 +193,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 {
 	CPaintManagerUI::SetInstance(hInstance);
 	CPaintManagerUI::SetResourceType(UILIB_FILE);
-	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath()+L"//Skins");
+	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath()+L"\\Skins\\");
 
 	GdiplusStartupInput   gdiplusStartupInput;
 	ULONG_PTR             gdiplusToken;

@@ -20,7 +20,7 @@ void UILIB_API DUI__Trace(LPCTSTR pstrFormat, ...)
 	_vsntprintf(szBuffer, 2048, pstrFormat, args); 
 	va_end(args);
 	
-	CDuiString strMsg = szBuffer;
+	QkString strMsg = szBuffer;
 	strMsg += _T("\n");
 	OutputDebugString(strMsg.GetData());
 
@@ -100,8 +100,8 @@ DUI_END_MESSAGE_MAP()
 
 static const DUI_MSGMAP_ENTRY* DuiFindMessageEntry(const DUI_MSGMAP_ENTRY* lpEntry,TNotifyUI& msg )
 {
-	CDuiString sMsgType = msg.sType;
-	CDuiString sCtrlName = msg.pSender?msg.pSender->GetName():TEXT("");
+	QkString sMsgType = msg.sType;
+	QkString sCtrlName = msg.pSender?msg.pSender->GetName():TEXT("");
 	const DUI_MSGMAP_ENTRY* pMsgTypeEntry = NULL;
 	while (lpEntry->nSig != DuiSig_end)
 	{
@@ -124,7 +124,7 @@ static const DUI_MSGMAP_ENTRY* DuiFindMessageEntry(const DUI_MSGMAP_ENTRY* lpEnt
 	return pMsgTypeEntry;
 }
 
-bool CNotifyPump::AddVirtualWnd(CDuiString strName,CNotifyPump* pObject)
+bool CNotifyPump::AddVirtualWnd(QkString strName,CNotifyPump* pObject)
 {
 	if( m_VirtualWndMap.Find(strName) == NULL )
 	{
@@ -134,7 +134,7 @@ bool CNotifyPump::AddVirtualWnd(CDuiString strName,CNotifyPump* pObject)
 	return false;
 }
 
-bool CNotifyPump::RemoveVirtualWnd(CDuiString strName)
+bool CNotifyPump::RemoveVirtualWnd(QkString strName)
 {
 	if( m_VirtualWndMap.Find(strName) != NULL )
 	{
@@ -195,12 +195,12 @@ void CNotifyPump::NotifyPump(TNotifyUI& msg)
 {
 	///遍历虚拟窗口
 	if( !msg.sVirtualWnd.IsEmpty() ){
+		const TITEM* key;
 		for( int i = 0; i< m_VirtualWndMap.GetSize(); i++ ) {
-			if( LPCTSTR key = m_VirtualWndMap.GetAt(i) ) {
-				if( _tcsicmp(key, msg.sVirtualWnd.GetData()) == 0 ){
-					CNotifyPump* pObject = static_cast<CNotifyPump*>(m_VirtualWndMap.Find(key, false));
-					if( pObject && pObject->LoopDispatch(msg) )
-						return;
+			if( key = m_VirtualWndMap.GetSlotAt(i) ) {
+				if( _tcsicmp(key->Key, msg.sVirtualWnd.GetData()) == 0 ){
+					CNotifyPump* pObject = static_cast<CNotifyPump*>(key->Data);
+					if( pObject && pObject->LoopDispatch(msg) ) return;
 				}
 			}
 		}
@@ -250,16 +250,23 @@ HWND CWindowWnd::Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD 
 	return Create(hwndParent, pstrName, dwStyle, dwExStyle, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, hMenu);
 }
 
-HWND CWindowWnd::Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD dwExStyle, int x, int y, int cx, int cy, HMENU hMenu)
+HWND CWindowWnd::Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD dwExStyle, int x, int y, int cx, int cy, bool center, HMENU hMenu)
 {
 	// 调整窗口样式
 	WindowImplBase* _this = dynamic_cast<WindowImplBase*>(this);
 	if (_this)
 	{
 		if(_this->IsWindowLess()) dwStyle &= ~WS_CAPTION;
+		else _this = NULL;
 		dwStyle |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 	}
-
+	if (center && x==0 && y==0)
+	{
+		RECT rect;
+		GetClientRect(::GetDesktopWindow(), &rect);
+		x += (rect.right-rect.left-cx)/2;
+		y += (rect.bottom-rect.top-cy)/2;
+	}
 	if( GetSuperClassName() != NULL && !RegisterSuperclass() ) return NULL;
 	if( GetSuperClassName() == NULL && !RegisterWindowClass() ) return NULL;
 	if(m_bUnicode) {
@@ -279,6 +286,13 @@ HWND CWindowWnd::Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD 
 	else {
 		m_hWnd = ::CreateWindowEx(dwExStyle, GetWindowClassName(), pstrName, dwStyle, x, y, cx, cy, hwndParent, hMenu, CPaintManagerUI::GetInstance(), this);
 	}
+
+	if (_this)
+	{
+		LONG styleValue = ::GetWindowLong(*this, GWL_STYLE);
+		::SetWindowLong(*this, GWL_STYLE, styleValue & ~WS_CAPTION);
+	}
+
 	ASSERT(m_hWnd!=NULL);
 	m_hParent = hwndParent;
 	return m_hWnd;

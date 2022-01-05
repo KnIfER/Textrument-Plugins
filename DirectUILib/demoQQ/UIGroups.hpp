@@ -9,10 +9,10 @@ struct GroupsListItemInfo
 {
 	bool folder;
 	bool empty;
-	CDuiString id;
-	CDuiString logo;
-	CDuiString nick_name;
-	CDuiString description;
+	QkString id;
+	QkString logo;
+	QkString nick_name;
+	QkString description;
 };
 
 class CGroupsUI : public CListUI
@@ -53,8 +53,8 @@ private:
 	DWORD	delay_left_;
 	CDuiRect	text_padding_;
 	int level_text_start_pos_;
-	CDuiString level_expand_image_;
-	CDuiString level_collapse_image_;
+	QkString level_expand_image_;
+	QkString level_collapse_image_;
 	CPaintManagerUI& paint_manager_;
 
     CDialogBuilder m_dlgBuilder;

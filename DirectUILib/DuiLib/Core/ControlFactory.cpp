@@ -5,64 +5,66 @@ namespace DuiLib
 {
 	CControlFactory::CControlFactory()
 	{
-		INNER_REGISTER_DUICONTROL(CControlUI);
-		INNER_REGISTER_DUICONTROL(CContainerUI);
-		INNER_REGISTER_DUICONTROL(CButtonUI);
-		INNER_REGISTER_DUICONTROL(CComboUI);
-		INNER_REGISTER_DUICONTROL(CComboBoxUI);
-		INNER_REGISTER_DUICONTROL(CDateTimeUI);
-		INNER_REGISTER_DUICONTROL(CEditUI);
-		INNER_REGISTER_DUICONTROL(CActiveXUI);
-		INNER_REGISTER_DUICONTROL(CFlashUI);
-		INNER_REGISTER_DUICONTROL(CGifAnimUI);
-#ifdef USE_XIMAGE_EFFECT
-		INNER_REGISTER_DUICONTROL(CGifAnimExUI);
-#endif
-		INNER_REGISTER_DUICONTROL(CGroupBoxUI);
-		INNER_REGISTER_DUICONTROL(CIPAddressUI);
-		INNER_REGISTER_DUICONTROL(CIPAddressExUI);
-		INNER_REGISTER_DUICONTROL(CLabelUI);
-		INNER_REGISTER_DUICONTROL(CListUI);
-		INNER_REGISTER_DUICONTROL(CListHeaderUI);
-		INNER_REGISTER_DUICONTROL(CListHeaderItemUI);
-		INNER_REGISTER_DUICONTROL(CListLabelElementUI);
-		INNER_REGISTER_DUICONTROL(CListTextElementUI);
-		INNER_REGISTER_DUICONTROL(CListContainerElementUI);
-		INNER_REGISTER_DUICONTROL(CMenuUI);
-		INNER_REGISTER_DUICONTROL(CMenuElementUI);
-		INNER_REGISTER_DUICONTROL(COptionUI);
-		INNER_REGISTER_DUICONTROL(CCheckBoxUI);
-		INNER_REGISTER_DUICONTROL(CProgressUI);
-		INNER_REGISTER_DUICONTROL(CRichEditUI);
-		INNER_REGISTER_DUICONTROL(CScrollBarUI);
-		INNER_REGISTER_DUICONTROL(CSliderUI);
-		INNER_REGISTER_DUICONTROL(CTextUI);
-		INNER_REGISTER_DUICONTROL(CTreeNodeUI);
-		INNER_REGISTER_DUICONTROL(CTreeViewUI);
-		INNER_REGISTER_DUICONTROL(CWebBrowserUI);
-		INNER_REGISTER_DUICONTROL(CAnimationTabLayoutUI);
-		INNER_REGISTER_DUICONTROL(CChildLayoutUI);
-		INNER_REGISTER_DUICONTROL(CHorizontalLayoutUI);
-		INNER_REGISTER_DUICONTROL(CTabLayoutUI);
-		INNER_REGISTER_DUICONTROL(CTileLayoutUI);
-		INNER_REGISTER_DUICONTROL(CVerticalLayoutUI);
-		INNER_REGISTER_DUICONTROL(CRollTextUI);
-		INNER_REGISTER_DUICONTROL(CColorPaletteUI);
-		INNER_REGISTER_DUICONTROL(CListExUI);
-		INNER_REGISTER_DUICONTROL(CListContainerHeaderItemUI);
-		INNER_REGISTER_DUICONTROL(CListTextExtElementUI);
-		INNER_REGISTER_DUICONTROL(CHotKeyUI);
-		INNER_REGISTER_DUICONTROL(CFadeButtonUI);
-		INNER_REGISTER_DUICONTROL(CRingUI);
-		INNER_REGISTER_DUICONTROL(CCalendarUI);
+		QkString factoryBuffer;
+		factoryBuffer.AsBuffer();
+		#define FACTORY_REGISTER_QKCONTROL(class_name)\
+			factoryBuffer = _T(#class_name);\
+			RegistControl(factoryBuffer, (CreateClass)class_name::CreateControl);
+		#define FACTORY_REGISTER_ALIAS(name, class_name)\
+			factoryBuffer = _T(#name);\
+			RegistControl(factoryBuffer, (CreateClass)class_name::CreateControl);
 
-		INNER_REGISTER_DUICONTROL(ListView);
-		//INNER_REGISTER_DUICONTROL(ImageView);
+		FACTORY_REGISTER_QKCONTROL(CControlUI);
+		FACTORY_REGISTER_QKCONTROL(CContainerUI);
+		FACTORY_REGISTER_QKCONTROL(Button);
+		FACTORY_REGISTER_QKCONTROL(CComboUI);
+		FACTORY_REGISTER_QKCONTROL(CComboBoxUI);
+		FACTORY_REGISTER_QKCONTROL(CDateTimeUI);
+		//FACTORY_REGISTER_QKCONTROL(CEditUI);
+		FACTORY_REGISTER_ALIAS(WinEdit, CEditUI);
+		FACTORY_REGISTER_QKCONTROL(InputBox);
+		FACTORY_REGISTER_ALIAS(Edit, InputBox);
+		FACTORY_REGISTER_ALIAS(Input, InputBox);
+		FACTORY_REGISTER_QKCONTROL(CActiveXUI);
+		FACTORY_REGISTER_QKCONTROL(CGifAnimUI);
+		FACTORY_REGISTER_QKCONTROL(CLabelUI);
+		FACTORY_REGISTER_QKCONTROL(CListUI);
+		FACTORY_REGISTER_QKCONTROL(CListHeaderUI);
+		FACTORY_REGISTER_QKCONTROL(CListHeaderItemUI);
+		FACTORY_REGISTER_QKCONTROL(CListLabelElementUI);
+		FACTORY_REGISTER_QKCONTROL(CListTextElementUI);
+		FACTORY_REGISTER_QKCONTROL(CListContainerElementUI);
+		FACTORY_REGISTER_QKCONTROL(CMenuUI);
+		FACTORY_REGISTER_QKCONTROL(CMenuElementUI);
+		FACTORY_REGISTER_ALIAS(Option, OptionBtn);
+		FACTORY_REGISTER_QKCONTROL(CCheckBoxUI);
+		FACTORY_REGISTER_QKCONTROL(CProgressUI);
+		FACTORY_REGISTER_QKCONTROL(CRichEditUI);
+		FACTORY_REGISTER_QKCONTROL(CScrollBarUI);
+		FACTORY_REGISTER_QKCONTROL(CSliderUI);
+		FACTORY_REGISTER_QKCONTROL(CTextUI);
+		FACTORY_REGISTER_QKCONTROL(CTreeNodeUI);
+		FACTORY_REGISTER_QKCONTROL(CTreeViewUI);
+		FACTORY_REGISTER_QKCONTROL(CWebBrowserUI);
+		FACTORY_REGISTER_QKCONTROL(CChildLayoutUI);
+		FACTORY_REGISTER_QKCONTROL(CHorizontalLayoutUI);
+		FACTORY_REGISTER_ALIAS(HBox, CHorizontalLayoutUI);
+		FACTORY_REGISTER_ALIAS(HorBox, CHorizontalLayoutUI);
+		FACTORY_REGISTER_QKCONTROL(CTabLayoutUI);
+		FACTORY_REGISTER_ALIAS(AnimationTabLayout, CTabLayoutUI);
+		FACTORY_REGISTER_QKCONTROL(CTileLayoutUI);
+		FACTORY_REGISTER_QKCONTROL(CVerticalLayoutUI);
+		FACTORY_REGISTER_ALIAS(VBox, CVerticalLayoutUI);
+		FACTORY_REGISTER_ALIAS(VertBox, CVerticalLayoutUI);
+		FACTORY_REGISTER_QKCONTROL(CCalendarUI);
 
-		INNER_REGISTER_DUICONTROL(WinFrame);
-		INNER_REGISTER_DUICONTROL(WinButton);
-		INNER_REGISTER_DUICONTROL(WinTabbar);
-		INNER_REGISTER_DUICONTROL(WinSplitter);
+		FACTORY_REGISTER_QKCONTROL(ListView);
+		//FACTORY_REGISTER_QKCONTROL(ImageView);
+
+		FACTORY_REGISTER_QKCONTROL(WinFrame);
+		FACTORY_REGISTER_QKCONTROL(WinButton);
+		FACTORY_REGISTER_QKCONTROL(WinTabbar);
+		FACTORY_REGISTER_QKCONTROL(WinSplitter);
 
 	}
 
@@ -70,29 +72,27 @@ namespace DuiLib
 	{
 	}
 
-	CControlUI* CControlFactory::CreateControl(CDuiString strClassName)
+	CControlUI* CControlFactory::CreateControl(const QkString & strClassName)
 	{
-		strClassName.MakeLower();
-		MAP_DUI_CTRATECLASS::iterator iter = m_mapControl.find(strClassName);
-		if ( iter == m_mapControl.end()) {
-			return NULL;
-		}
-		else {
-			return (CControlUI*) (iter->second());
-		}
+		CreateClass pFunc = static_cast<CreateClass>(m_mapControl.Find(strClassName));
+		return pFunc?(CControlUI*) (pFunc()):NULL;
 	}
 
-	void CControlFactory::RegistControl(CDuiString strClassName, CreateClass pFunc)
+	void CControlFactory::RegistControl(QkString & strClassName, CreateClass pFunc)
 	{
 		strClassName.MakeLower();
 		int len = strClassName.GetLength();
 		if (len>3 && strClassName[0]==TCHAR('c') && strClassName[len-2]==TCHAR('u') && strClassName[len-1]==TCHAR('i'))
 		{
-			strClassName.SetAt(len-2, '\0');
-			strClassName = strClassName.GetData()+1;
+			strClassName.MidFast(1, len-3);
 		}
-		//m_mapControl.insert(MAP_DUI_CTRATECLASS::value_type(strClassName, pFunc));
-		m_mapControl[strClassName] = pFunc;
+		m_mapControl.Set(strClassName, pFunc);
+	}
+
+	void CControlFactory::RegistControl(LPCTSTR strClassName, CreateClass pFunc)
+	{
+		QkString buffer = strClassName;
+		RegistControl(buffer, pFunc);
 	}
 
 	CControlFactory* CControlFactory::GetInstance()  

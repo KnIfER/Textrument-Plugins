@@ -54,6 +54,7 @@ namespace DuiLib {
 		UIEVENT_WINDOWSIZE,
 		UIEVENT_SETCURSOR,
 		UIEVENT_TIMER,
+		UIEVENT_IME_REQUEST,
 		UIEVENT__LAST,
 	};
 
@@ -202,7 +203,19 @@ namespace DuiLib {
 #define UISTATE_READONLY     0x00000020
 #define UISTATE_CAPTURED     0x00000040
 
+	typedef struct _StyleDefine
+	{
+		QkString name;
+		QkString value;
+	} StyleDefine;
 
+	typedef struct _Style
+	{
+		QkString id; // 样式名
+		QkString name; // 控件名
+		CControlUI* control;
+		std::vector<StyleDefine> styles;
+	} Style;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -221,7 +234,7 @@ namespace DuiLib {
 	typedef struct UILIB_API tagTFontInfo
 	{
 		HFONT hFont;
-		CDuiString sFontName;
+		QkString sFontName;
 		int iSize;
 		bool bBold;
 		bool bUnderline;
@@ -238,8 +251,9 @@ namespace DuiLib {
 		int nY;
 		bool bAlpha;
 		bool bUseHSL;
-		CDuiString sResType;
+		QkString sResType;
 		DWORD dwMask;
+		LPBYTE pBmBits;
 
 	} TImageInfo;
 
@@ -260,10 +274,10 @@ namespace DuiLib {
 		void Parse(LPCTSTR pStrImage, LPCTSTR pStrModify, CPaintManagerUI *pManager);
 		void Clear();
 
-		CDuiString sDrawString;
-		CDuiString sDrawModify;
-		CDuiString sImageName;
-		CDuiString sResType;
+		QkString sDrawString;
+		QkString sDrawModify;
+		QkString sImageName;
+		QkString sResType;
 		RECT rcDest;
 		RECT rcSource;
 		RECT rcCorner;
@@ -276,7 +290,7 @@ namespace DuiLib {
 
 		CDuiSize szImage;
 		RECT rcPadding;
-		CDuiString sAlign;
+		QkString sAlign;
 	} TDrawInfo;
 
 	typedef struct UILIB_API tagTPercentInfo
@@ -295,11 +309,13 @@ namespace DuiLib {
 		DWORD m_dwDefaultLinkHoverFontColor;
 		DWORD m_dwDefaultSelectedBkColor;
 		TFontInfo m_DefaultFontInfo;
-		CStdStringPtrMap m_CustomFonts;
-		CStdStringPtrMap m_ImageHash;
-		CStdStringPtrMap m_AttrHash;
-		CStdStringPtrMap m_StyleHash;
-		CStdStringPtrMap m_DrawInfoHash;
+		QkStringPtrMap m_CustomFonts;
+		QkStringPtrMap m_ImageHash;
+		//QkStringPtrMap m_AttrHash;
+		//QkStringPtrMap m_StyleHash;
+		QkStringPtrMap m_DrawInfoHash;
+		QkStringPtrMap m_StyleIdHash; // 样式名 - 样式 映射
+		QkStringPtrMap m_StyleControlHash; // 控件名 - 样式 映射
 	} TResInfo;
 
 	// Structure for notifications from the system
@@ -359,6 +375,7 @@ namespace DuiLib {
 
 		void reInit(CPaintManagerUI* as);
 
+		void SetParent(CPaintManagerUI* parent);
 	public:
 		void Init(HWND hWnd, LPCTSTR pstrName = NULL);
 		bool IsUpdateNeeded() const;
@@ -412,12 +429,12 @@ namespace DuiLib {
 		int GetGdiplusTextRenderingHint() const;
 
 		static HINSTANCE GetInstance();
-		static CDuiString GetInstancePath();
-		static CDuiString GetCurrentPath();
+		static QkString GetInstancePath();
+		static QkString GetCurrentPath();
 		static HINSTANCE GetResourceDll();
-		static const CDuiString& GetResourcePath();
-		static const CDuiString& GetResourceZip();
-		static const CDuiString& GetResourceZipPwd();
+		static const QkString& GetResourcePath();
+		static const QkString& GetResourceZip();
+		static const QkString& GetResourceZipPwd();
 		static bool IsCachedResourceZip();
 		static bool ExtractItem(const TCHAR* name, CHAR** outData, DWORD & dataLen);
 		static HANDLE GetResourceZipHandle();
@@ -482,8 +499,11 @@ namespace DuiLib {
 		void RemoveDrawInfo(LPCTSTR pStrImage, LPCTSTR pStrModify);
 		void RemoveAllDrawInfos();
 
-		void AddDefaultAttributeList(LPCTSTR pStrControlName, LPCTSTR pStrControlAttrList, bool bShared = false);
-		LPCTSTR GetDefaultAttributeList(LPCTSTR pStrControlName) const;
+		void AddStyle(Style* style, bool bShared);
+		Style* GetStyleForId(LPCTSTR pName) const;
+
+		void AddDefaultAttributeList(LPCTSTR pStrControlName, LPCTSTR pStyleId, LPCTSTR pStrControlAttrList, bool bShared = false);
+		Style* GetDefaultAttributeList(LPCTSTR pStrControlName) const;
 		bool RemoveDefaultAttributeList(LPCTSTR pStrControlName, bool bShared = false);
 		void RemoveAllDefaultAttributeList(bool bShared = false);
 
@@ -491,13 +511,6 @@ namespace DuiLib {
 		LPCTSTR GetWindowCustomAttribute(LPCTSTR pstrName) const;
 		bool RemoveWindowCustomAttribute(LPCTSTR pstrName);
 		void RemoveAllWindowCustomAttribute();
-
-		// 样式管理
-		void AddStyle(LPCTSTR pName, LPCTSTR pStyle, bool bShared = false);
-		LPCTSTR GetStyle(LPCTSTR pName) const;
-		BOOL RemoveStyle(LPCTSTR pName, bool bShared = false);
-		const CStdStringPtrMap& GetStyles(bool bShared = false) const;
-		void RemoveAllStyle(bool bShared = false);
 
 		const TImageInfo* GetImageString(LPCTSTR pStrImage, LPCTSTR pStrModify = NULL);
 
@@ -594,13 +607,27 @@ namespace DuiLib {
 		bool GetThemeColorPair(UITYPE_COLOR Index, COLORREF& clr1, COLORREF& clr2) const;
 
 		bool AddEffectsStyle(LPCTSTR pStrStyleName,LPCTSTR pStrStyleValue);
-		CDuiString GetEffectsStyle(LPCTSTR pStrStyleName);
-		const CStdStringPtrMap& GetEffectsStyles() const;
+		QkString GetEffectsStyle(LPCTSTR pStrStyleName);
+		const QkStringPtrMap& GetEffectsStyles() const;
 		bool RemoveEffectStyle(LPCTSTR pStrStyleName);
 		void RemoveAllEffectStyle();
+		//const RECT & GetPaintRect() {return _rcPaint;};
+
+#ifdef SKIA_RENDERER
+		SkCanvas* GetSkiaCanvas(){ return _skCanvas; };
+		SkPaint & GetSkiaFillPaint(){ return _fillpaint; };
+#endif
 
 		bool _SIZING;
 		bool _bIsLayoutOnly = false;
+
+		static HCURSOR hCursorArrow;
+		static HCURSOR hCursorHand;
+
+		std::list<CControlUI*> _UpdateList;
+		std::list<CControlUI*> _WNDList;
+
+		POINT m_ptLastMousePos;
 	private:
 		CStdPtrArray* GetFoundControls();
 		static CControlUI* CALLBACK __FindControlFromNameHash(CControlUI* pThis, LPVOID pData);
@@ -618,7 +645,7 @@ namespace DuiLib {
 		void PostAsyncNotify();
 
 	private:
-		CDuiString m_sName;
+		QkString m_sName;
 		HWND m_hWndPaint;	//所附加的窗体的句柄
 		HDC m_hDcPaint;
 		HDC m_hDcOffscreen;
@@ -643,7 +670,6 @@ namespace DuiLib {
 		CControlUI* m_pEventKey;
 		CControlUI* m_pLastToolTip;
 		//
-		POINT m_ptLastMousePos;
 		SIZE m_szMinWindow;
 		SIZE m_szMaxWindow;
 		SIZE m_szInitWindowSize;
@@ -661,6 +687,7 @@ namespace DuiLib {
 		RECT m_rcLayeredInset;
 		bool m_bLayeredChanged;
 		RECT m_rcLayeredUpdate;
+		RECT _rcPaint;
 		TDrawInfo m_diLayered;
 
 		bool m_bMouseTracking;
@@ -683,13 +710,14 @@ namespace DuiLib {
 		CStdPtrArray m_aFoundControls;
 		CStdPtrArray m_aFonts;
 		CStdPtrArray m_aNeedMouseLeaveNeeded;
-		CStdStringPtrMap m_mNameHash;
-		CStdStringPtrMap m_mWindowCustomAttrHash;
-		CStdStringPtrMap m_mOptionGroup;
-		CStdStringPtrMap m_mEffectsStyle;
+		QkStringPtrMap m_mNameHash;
+		QkStringPtrMap m_mWindowCustomAttrHash;
+		QkStringPtrMap m_mOptionGroup;
+		QkStringPtrMap m_mEffectsStyle;
 		
 		bool m_bForceUseSharedRes;
 		TResInfo m_ResInfo;
+		CPaintManagerUI* _parent;
 		
 		// 窗口阴影
 		CShadowUI m_shadow;
@@ -712,9 +740,9 @@ namespace DuiLib {
 		//
 		static HINSTANCE m_hInstance;
 		static HINSTANCE m_hResourceInstance;
-		static CDuiString m_pStrResourcePath;
-		static CDuiString m_pStrResourceZip;
-		static CDuiString m_pStrResourceZipPwd;
+		static QkString m_pStrResourcePath;
+		static QkString m_pStrResourceZip;
+		static QkString m_pStrResourceZipPwd;
 		static HANDLE m_hResourceZip;
 		static bool m_bCachedResourceZip;
 		static int m_nResType;
@@ -725,6 +753,12 @@ namespace DuiLib {
 		static short m_L;
 		static CStdPtrArray m_aPreMessages;
 		static CStdPtrArray m_aPlugins;
+
+#ifdef SKIA_RENDERER
+		sk_sp<SkSurface> _skSurf;
+		SkCanvas* _skCanvas;
+		SkPaint _fillpaint;
+#endif
 	};
 
 } // namespace DuiLib

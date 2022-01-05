@@ -75,7 +75,7 @@ protected:
 	
 	static bool s_bHasInit;
 
-	CPaintManagerUI	*m_pManager;		// 父窗体的CPaintManagerUI，用来获取素材资源和父窗体句柄
+	CPaintManagerUI	*_manager;		// 父窗体的CPaintManagerUI，用来获取素材资源和父窗体句柄
 	HWND			 m_hWnd;			// 阴影窗体的句柄
 	LONG_PTR		 m_OriParentProc;	// 子类化父窗体
 	BYTE			 m_Status;
@@ -101,7 +101,7 @@ protected:
 	COLORREF m_Color;	// Color of shadow
 
 	// 图片阴影成员变量
-	CDuiString	m_sShadowImage;
+	QkString	m_sShadowImage;
 	RECT		m_rcShadowCorner;
 };
 

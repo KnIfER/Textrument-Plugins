@@ -3,11 +3,10 @@
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CHorizontalLayoutUI)
-	CHorizontalLayoutUI::CHorizontalLayoutUI() : m_iSepWidth(0), m_uButtonState(0), m_bImmMode(false)
+	IMPLEMENT_QKCONTROL(CHorizontalLayoutUI)
+
+	CHorizontalLayoutUI::CHorizontalLayoutUI() : CContainerUI()
 	{
-		ptLastMouse.x = ptLastMouse.y = 0;
-		::ZeroMemory(&m_rcNewPos, sizeof(m_rcNewPos));
 	}
 
 	LPCTSTR CHorizontalLayoutUI::GetClass() const
@@ -21,10 +20,66 @@ namespace DuiLib
 		return CContainerUI::GetInterface(pstrName);
 	}
 
-	UINT CHorizontalLayoutUI::GetControlFlags() const
+	SIZE CHorizontalLayoutUI::EstimateSize(const SIZE & szAvailable)
 	{
-		if( IsEnabled() && m_iSepWidth != 0 ) return UIFLAG_SETCURSOR;
-		else return 0;
+		if (_manager && _LastScaleProfile!=_manager->GetDPIObj()->ScaleProfile())
+			OnDPIChanged();
+		const RECT & rcInnerPadding = m_rcInsetScaled;
+
+		UINT availWidth = szAvailable.cx - rcInnerPadding.left - rcInnerPadding.right;
+		UINT availHeight = szAvailable.cy - rcInnerPadding.top - rcInnerPadding.bottom;
+		if( m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible() ) availHeight -= m_pVerticalScrollBar->GetFixedWidth();
+		if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible() ) availWidth -= m_pHorizontalScrollBar->GetFixedHeight();
+
+		m_cxyFixedLast = GetFixedSize();
+		if(_manager != NULL)
+			_manager->GetDPIObj()->Scale(&m_cxyFixedLast);
+		if (m_bAutoCalcHeight || m_bAutoCalcWidth)
+		{
+			int cyNeeded = 0;
+			int nAdjustables = 0;
+			int cxFixed = 0;
+			int nEstimateNum = 0;
+			SIZE szControlAvailable;
+			int iControlMaxWidth = 0;
+			int iControlMaxHeight = 0;
+			for( int it1 = 0; it1 < m_items.GetSize(); it1++ ) {
+				CControlUI* pControl = static_cast<CControlUI*>(m_items[it1]);
+				if( !pControl->IsVisible() ) continue;
+				if( pControl->IsFloat() ) continue;
+				szControlAvailable = szAvailable;
+				RECT rcPadding = pControl->GetPadding();
+				szControlAvailable.cy -= rcPadding.top + rcPadding.bottom;
+				iControlMaxWidth = pControl->GetFixedWidth();
+				iControlMaxHeight = pControl->GetFixedHeight();
+				if (iControlMaxWidth <= 0) iControlMaxWidth = pControl->GetMaxWidth(); 
+				if (iControlMaxHeight <= 0) iControlMaxHeight = pControl->GetMaxHeight();
+				if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
+				if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
+				SIZE sz = pControl->EstimateSize(szControlAvailable);
+				if( sz.cx == 0 ) {
+					nAdjustables++;
+				}
+				else {
+					if( sz.cx < pControl->GetMinWidth() ) sz.cx = pControl->GetMinWidth();
+					if( sz.cx > pControl->GetMaxWidth() ) sz.cx = pControl->GetMaxWidth();
+				}
+				cxFixed += sz.cx + pControl->GetPadding().left + pControl->GetPadding().right;
+
+				sz.cy = MAX(sz.cy, 0);
+				if( sz.cy < pControl->GetMinHeight() ) sz.cy = pControl->GetMinHeight();
+				if( sz.cy > pControl->GetMaxHeight() ) sz.cy = pControl->GetMaxHeight();
+				cyNeeded = MAX(cyNeeded, sz.cy + rcPadding.top + rcPadding.bottom);
+				nEstimateNum++;
+			}
+			cxFixed += (nEstimateNum - 1) * m_iChildPadding;
+			cyNeeded += rcInnerPadding.top + rcInnerPadding.bottom;
+			cxFixed += rcInnerPadding.left + rcInnerPadding.right;
+			m_cxyFixedLast.cy = m_bAutoCalcHeight?cyNeeded:MAX(cyNeeded, availHeight);
+			m_cxyFixedLast.cx = m_bAutoCalcWidth?cxFixed:MAX(cxFixed, availWidth);
+
+		}
+		return m_cxyFixedLast;
 	}
 
 	void CHorizontalLayoutUI::SetPos(RECT rc, bool bNeedInvalidate)
@@ -33,16 +88,12 @@ namespace DuiLib
 		rc = m_rcItem;
 
 		// Adjust for inset
-		RECT m_rcInset = CHorizontalLayoutUI::m_rcInset;
-		GetManager()->GetDPIObj()->Scale(&m_rcInset);
-		rc.left += m_rcInset.left;
-		rc.top += m_rcInset.top;
-		rc.right -= m_rcInset.right;
-		rc.bottom -= m_rcInset.bottom;
+		ApplyInsetToRect(rc);
+
 		if( m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible() ) rc.right -= m_pVerticalScrollBar->GetFixedWidth();
 		if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible() ) rc.bottom -= m_pHorizontalScrollBar->GetFixedHeight();
 
-		if( m_items.GetSize() == 0) {
+		if( m_items.GetSize() == 0 || _bSupressingChildLayout ) {
 			ProcessScrollBar(rc, 0, 0);
 			return;
 		}
@@ -140,7 +191,9 @@ namespace DuiLib
 			if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
 			cxFixedRemaining = cxFixedRemaining - (rcPadding.left + rcPadding.right);
 			if (iEstimate > 1) cxFixedRemaining = cxFixedRemaining - m_iChildPadding;
+
 			SIZE sz = pControl->EstimateSize(szControlAvailable);
+
 			if( sz.cx == 0 ) {
 				iAdjustable++;
 				sz.cx = cxExpand;
@@ -157,7 +210,8 @@ namespace DuiLib
 				cxFixedRemaining -= sz.cx;
 			}
 
-			sz.cy = pControl->GetMaxHeight();
+			//sz.cy = pControl->GetMaxHeight();
+
 			if( sz.cy == 0 ) sz.cy = szAvailable.cy - rcPadding.top - rcPadding.bottom;
 			if( sz.cy < 0 ) sz.cy = 0;
 			if( sz.cy > szControlAvailable.cy ) sz.cy = szControlAvailable.cy;
@@ -182,12 +236,16 @@ namespace DuiLib
 				RECT rcCtrl = { iPosX + rcPadding.left, iPosY - rcPadding.bottom - sz.cy, iPosX + sz.cx + rcPadding.left, iPosY - rcPadding.bottom };
 				pControl->SetPos(rcCtrl, false);
 			}
-			else {
+			else 
+			{
 				int iPosY = rc.top;
 				if( m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible() ) {
 					iPosY -= m_pVerticalScrollBar->GetScrollPos();
 				}
-				RECT rcCtrl = { iPosX + rcPadding.left, iPosY + rcPadding.top, iPosX + sz.cx + rcPadding.left, iPosY + sz.cy + rcPadding.top };
+				RECT rcCtrl = { iPosX + rcPadding.left
+					, iPosY + rcPadding.top
+					, iPosX + sz.cx + rcPadding.left
+					, iPosY + (iChildAlign==DT_INTERNAL?szAvailable:sz).cy + rcPadding.top };
 				pControl->SetPos(rcCtrl, false);
 			}
 
@@ -198,143 +256,15 @@ namespace DuiLib
 		cxNeeded += (nEstimateNum - 1) * m_iChildPadding;
 
 		// Process the scrollbar
-		ProcessScrollBar(rc, cxNeeded, cyNeeded);
+		scrollbars_set_cnt++;
+		if (scrollbars_set_cnt<3) ProcessScrollBar(rc, cxNeeded, cyNeeded);
+		scrollbars_set_cnt--;
 	}
 
-	void CHorizontalLayoutUI::DoPostPaint(HDC hDC, const RECT& rcPaint)
-	{
-		if( (m_uButtonState & UISTATE_CAPTURED) != 0 && !m_bImmMode ) {
-			RECT rcSeparator = GetThumbRect(true);
-			CRenderEngine::DrawColor(hDC, rcSeparator, 0xAA000000);
-		}
-	}
-
-	void CHorizontalLayoutUI::SetSepWidth(int iWidth)
-	{
-		m_iSepWidth = iWidth;
-	}
-
-	int CHorizontalLayoutUI::GetSepWidth() const
-	{
-		return m_iSepWidth;
-	}
-
-	void CHorizontalLayoutUI::SetSepImmMode(bool bImmediately)
-	{
-		if( m_bImmMode == bImmediately ) return;
-		if( (m_uButtonState & UISTATE_CAPTURED) != 0 && !m_bImmMode && m_pManager != NULL ) {
-			m_pManager->RemovePostPaint(this);
-		}
-
-		m_bImmMode = bImmediately;
-	}
-
-	bool CHorizontalLayoutUI::IsSepImmMode() const
-	{
-		return m_bImmMode;
-	}
-
-	void CHorizontalLayoutUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
-	{
-		if( _tcsicmp(pstrName, _T("sepwidth")) == 0 ) SetSepWidth(_ttoi(pstrValue));
-		else if( _tcsicmp(pstrName, _T("sepimm")) == 0 ) SetSepImmMode(_tcsicmp(pstrValue, _T("true")) == 0);
-		else CContainerUI::SetAttribute(pstrName, pstrValue);
-	}
-
-	void CHorizontalLayoutUI::DoEvent(TEventUI& event)
-	{
-		if( m_iSepWidth != 0 ) {
-			if( event.Type == UIEVENT_BUTTONDOWN && IsEnabled() )
-			{
-				RECT rcSeparator = GetThumbRect(false);
-				if( ::PtInRect(&rcSeparator, event.ptMouse) ) {
-					m_uButtonState |= UISTATE_CAPTURED;
-					ptLastMouse = event.ptMouse;
-					m_rcNewPos = m_rcItem;
-					if( !m_bImmMode && m_pManager ) m_pManager->AddPostPaint(this);
-					return;
-				}
-			}
-			if( event.Type == UIEVENT_BUTTONUP )
-			{
-				if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
-					m_uButtonState &= ~UISTATE_CAPTURED;
-					m_rcItem = m_rcNewPos;
-					if( !m_bImmMode && m_pManager ) m_pManager->RemovePostPaint(this);
-					NeedParentUpdate();
-					return;
-				}
-			}
-			if( event.Type == UIEVENT_MOUSEMOVE )
-			{
-				if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
-					LONG cx = event.ptMouse.x - ptLastMouse.x;
-					ptLastMouse = event.ptMouse;
-					RECT rc = m_rcNewPos;
-					if( m_iSepWidth >= 0 ) {
-						if( cx > 0 && event.ptMouse.x < m_rcNewPos.right - m_iSepWidth ) return;
-						if( cx < 0 && event.ptMouse.x > m_rcNewPos.right ) return;
-						rc.right += cx;
-						if( rc.right - rc.left <= GetMinWidth() ) {
-							if( m_rcNewPos.right - m_rcNewPos.left <= GetMinWidth() ) return;
-							rc.right = rc.left + GetMinWidth();
-						}
-						if( rc.right - rc.left >= GetMaxWidth() ) {
-							if( m_rcNewPos.right - m_rcNewPos.left >= GetMaxWidth() ) return;
-							rc.right = rc.left + GetMaxWidth();
-						}
-					}
-					else {
-						if( cx > 0 && event.ptMouse.x < m_rcNewPos.left ) return;
-						if( cx < 0 && event.ptMouse.x > m_rcNewPos.left - m_iSepWidth ) return;
-						rc.left += cx;
-						if( rc.right - rc.left <= GetMinWidth() ) {
-							if( m_rcNewPos.right - m_rcNewPos.left <= GetMinWidth() ) return;
-							rc.left = rc.right - GetMinWidth();
-						}
-						if( rc.right - rc.left >= GetMaxWidth() ) {
-							if( m_rcNewPos.right - m_rcNewPos.left >= GetMaxWidth() ) return;
-							rc.left = rc.right - GetMaxWidth();
-						}
-					}
-
-					CDuiRect rcInvalidate = GetThumbRect(true);
-					m_rcNewPos = rc;
-					m_cxyFixed.cx = m_rcNewPos.right - m_rcNewPos.left;
-
-					if( m_bImmMode ) {
-						m_rcItem = m_rcNewPos;
-						NeedParentUpdate();
-					}
-					else {
-						rcInvalidate.Join(GetThumbRect(true));
-						rcInvalidate.Join(GetThumbRect(false));
-						if( m_pManager ) m_pManager->Invalidate(rcInvalidate);
-					}
-					return;
-				}
-			}
-			if( event.Type == UIEVENT_SETCURSOR )
-			{
-				RECT rcSeparator = GetThumbRect(false);
-				if( IsEnabled() && ::PtInRect(&rcSeparator, event.ptMouse) ) {
-					::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
-					return;
-				}
-			}
-		}
-		CContainerUI::DoEvent(event);
-	}
-
-	RECT CHorizontalLayoutUI::GetThumbRect(bool bUseNew) const
-	{
-		if( (m_uButtonState & UISTATE_CAPTURED) != 0 && bUseNew) {
-			if( m_iSepWidth >= 0 ) return CDuiRect(m_rcNewPos.right - m_iSepWidth, m_rcNewPos.top, m_rcNewPos.right, m_rcNewPos.bottom);
-			else return CDuiRect(m_rcNewPos.left, m_rcNewPos.top, m_rcNewPos.left - m_iSepWidth, m_rcNewPos.bottom);
-		}
-		else {
-			if( m_iSepWidth >= 0 ) return CDuiRect(m_rcItem.right - m_iSepWidth, m_rcItem.top, m_rcItem.right, m_rcItem.bottom);
-			else return CDuiRect(m_rcItem.left, m_rcItem.top, m_rcItem.left - m_iSepWidth, m_rcItem.bottom);
-		}
-	}
+	//void CHorizontalLayoutUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
+	//{
+	//	if( _tcsicmp(pstrName, _T("sepwidth")) == 0 ) SetSepWidth(_ttoi(pstrValue));
+	//	else if( _tcsicmp(pstrName, _T("sepimm")) == 0 ) SetSepImmMode(_tcsicmp(pstrValue, _T("true")) == 0);
+	//	else CContainerUI::SetAttribute(pstrName, pstrValue);
+	//}
 }

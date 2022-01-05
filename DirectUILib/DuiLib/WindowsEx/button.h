@@ -97,6 +97,7 @@ typedef struct _BUTTON_INFO
     LONG             dtStyle;
     LONG             exStyle;
     COLORREF         bgrTextColor;
+    COLORREF         bgrTextColorDisabled;
     COLORREF         bgrBackground;
     LONG             state;
     HFONT            font;
@@ -123,6 +124,7 @@ typedef struct _BUTTON_INFO
     int tintFlag;
     LONG textAutoWidth;
     LONG textAutoHeight;
+    LONG lineHeight;
 
     void* opts;
     void* bg_opts;

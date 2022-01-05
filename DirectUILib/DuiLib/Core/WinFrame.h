@@ -6,7 +6,7 @@ namespace DuiLib {
 
 	class UILIB_API WinFrame : public CContainerUI
 	{
-		DECLARE_DUICONTROL(WinFrame)
+		DECLARE_QKCONTROL(WinFrame)
 	public:
 		WinFrame();
 		~WinFrame();

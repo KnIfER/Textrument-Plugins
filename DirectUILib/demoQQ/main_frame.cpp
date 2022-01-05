@@ -81,18 +81,18 @@ void MainFrame::OnFinalMessage(HWND hWnd)
 	delete this;
 }
 
-CDuiString MainFrame::GetSkinType()
+QkString MainFrame::GetSkinType()
 {
 	return _T("");
 	//return _T("xml");
 }
 
-CDuiString MainFrame::GetSkinFile()
+QkString MainFrame::GetSkinFile()
 {
 	return _T("main_frame.xml");
 }
 
-CDuiString MainFrame::GetSkinFolder()
+QkString MainFrame::GetSkinFolder()
 {
 	return  _T("skin\\");
 }

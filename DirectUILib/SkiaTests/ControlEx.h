@@ -6,7 +6,7 @@
 
 class CCircleProgressUI : public CProgressUI
 {
-	DECLARE_DUICONTROL(CCircleProgressUI)
+	DECLARE_QKCONTROL(CCircleProgressUI)
 public:
 	CCircleProgressUI()
 	{
@@ -51,7 +51,7 @@ public:
 			//	//判断是否在圆形按钮内点击
 			//	if(IsPointInBtn(event.ptMouse)&& GetEnabledEffect()) //判断按钮是否处于启用状态
 			isChecked=!isChecked;
-					m_pManager->SendNotify(this, DUI_MSGTYPE_CLICK, event.wParam, event.lParam);
+					_manager->SendNotify(this, DUI_MSGTYPE_CLICK, event.wParam, event.lParam);
 
 					Invalidate();
 
@@ -160,7 +160,7 @@ private:
 
 class CMyComboUI : public CComboUI
 {
-	DECLARE_DUICONTROL(CMyComboUI)
+	DECLARE_QKCONTROL(CMyComboUI)
 public:
 	CMyComboUI()
 	{
@@ -186,7 +186,7 @@ public:
 
 typedef struct tagCHARTITEM
 {
-	CDuiString name;
+	QkString name;
 	double value;
 } CHARTITEM, *PCHARTITEM;
 
@@ -194,7 +194,7 @@ class CChartViewUI :
 	public CControlUI
 {
 public:
-	DECLARE_DUICONTROL(CChartViewUI)
+	DECLARE_QKCONTROL(CChartViewUI)
 public:
 	CChartViewUI(void);
 	~CChartViewUI(void);
@@ -210,9 +210,9 @@ public:
 private:
 	vector<CHARTITEM> m_items;
 	int m_ViewStyle;
-	CDuiString m_sShadowImage;
+	QkString m_sShadowImage;
 	int m_ShadowImageHeight;
-	CDuiString m_sPillarImage;
+	QkString m_sPillarImage;
 	int m_PillarImageWidth;
 	DWORD m_dwTextColor;
 	DWORD m_dwDisabledTextColor;
@@ -223,7 +223,7 @@ private:
 
 class CCircleProgressExUI : public CProgressUI
 {
-	DECLARE_DUICONTROL(CCircleProgressExUI)
+	DECLARE_QKCONTROL(CCircleProgressExUI)
 public:
 	CCircleProgressExUI()
 	{
@@ -268,7 +268,7 @@ public:
 
 class CWndUI : public CControlUI
 {
-	DECLARE_DUICONTROL(CWndUI)
+	DECLARE_QKCONTROL(CWndUI)
 public:
 	CWndUI()
 	{
@@ -314,11 +314,11 @@ public:
 	void AdjustPos()
 	{
 		if(::IsWindow(m_hWnd)) {
-			if(m_pManager) {
+			if(_manager) {
 				RECT rcItem = m_rcItem;
-				if(!::IsChild(m_pManager->GetPaintWindow(), m_hWnd)) {
+				if(!::IsChild(_manager->GetPaintWindow(), m_hWnd)) {
 					RECT rcWnd = {0};
-					::GetWindowRect(m_pManager->GetPaintWindow(), &rcWnd);
+					::GetWindowRect(_manager->GetPaintWindow(), &rcWnd);
 					::OffsetRect(&rcItem, rcWnd.left, rcWnd.top);
 				}
 				SetWindowPos(m_hWnd, NULL, rcItem.left, rcItem.top, rcItem.right - rcItem.left, rcItem.bottom - rcItem.top, SWP_NOACTIVATE | SWP_NOZORDER);

@@ -74,7 +74,7 @@
 			输出...Ed
 			" textcolor="#FFFFFFFF" font="1"/> 
 			<Container width="100" padding="25,25,25,25">
-			<WinButton  textcolor="#FF0000FF" font="1"/>
+			<WinButton  textcolor="#FF0000FF" font="1" text="TEST" align="left" type="group"/>
 			</Container>
 			<Container width="100" padding="25,25,25,25">
 			<Button  textcolor="#FF000000" font="1" text="Run" name="Run" bordersize="5" bordercolor="#77FFFFFF" bkcolor3="#ffffff5f" bkcolor1="#ffffee00" bkcolor2="#ffffff00"/>

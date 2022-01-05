@@ -7,7 +7,7 @@ namespace DuiLib
 {
 	class UILIB_API CSliderUI : public CProgressUI
 	{
-		DECLARE_DUICONTROL(CSliderUI)
+		DECLARE_QKCONTROL(CSliderUI)
 	public:
 		CSliderUI();
 
@@ -40,11 +40,11 @@ namespace DuiLib
 		UINT m_uButtonState;
 		int m_nStep;
 
-		CDuiString m_sThumbImage;
-		CDuiString m_sThumbHotImage;
-		CDuiString m_sThumbPushedImage;
+		QkString m_sThumbImage;
+		QkString m_sThumbHotImage;
+		QkString m_sThumbPushedImage;
 
-		CDuiString m_sImageModify;
+		QkString m_sImageModify;
 		bool	   m_bSendMove;
 	};
 }

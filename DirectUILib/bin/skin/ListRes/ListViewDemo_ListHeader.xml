@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window caption="0,0,0,30" roundcorner="5,5,5,5" showdirty="false">
+ 	
+	<ListHeader height="30" menu="true"
+		bkcolor="#FFFFFFFF"
+	>
+			<ListHeaderItem text="No" font="2" width="30" 
+				hotimage="file='list_header_hot.png'" 
+				pushedimage="file='list_header_pushed.png'" 
+				sepimage="file='list_header_sep.png'" sepwidth="2"
+					
+				bordersize="2" 
+				bordercolor="#7700FFFF"  
+				borderround="10,10"
+				
+				
+				dragable="true"
+			/>
+			<ListHeaderItem text="Domain" font="2" width="260" 
+				hotimage="file='list_header_hot.png'" 
+				pushedimage="file='list_header_pushed.png'" 
+				sepimage="file='list_header_sep.png'" sepwidth="2"
+				
+				align="left"
+				inset="10,0,10,0"
+				dragable="true"
+			/>
+			<ListHeaderItem text="Description" font="2" width="240" 
+				hotimage="file='list_header_hot.png'" 
+				pushedimage="file='list_header_pushed.png'" 
+				sepimage="file='list_header_sep.png'" sepwidth="2"
+				dragable="true"
+				/>
+	</ListHeader>
+	
+</Window>

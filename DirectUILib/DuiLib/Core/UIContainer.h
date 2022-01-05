@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <list>
-
 namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -12,7 +10,7 @@ namespace DuiLib {
 
 	class UILIB_API CContainerUI : public CControlUI
 	{
-		DECLARE_DUICONTROL(CContainerUI)
+		DECLARE_QKCONTROL(CContainerUI)
 
 	public:
 		CContainerUI();
@@ -24,12 +22,12 @@ namespace DuiLib {
 
 		void DoEvent(TEventUI& event);
 		void SetVisible(bool bVisible = true);
-		void SetInternVisible(bool bVisible = true);
 		void SetEnabled(bool bEnabled);
 		void SetMouseEnabled(bool bEnable = true);
 
 		virtual int GetChildPadding() const;
 		virtual void SetChildPadding(int iPadding);
+		virtual void SetClipChildren(bool value, LPCTSTR handyStr);
 		virtual UINT GetChildAlign() const;
 		virtual void SetChildAlign(UINT iAlign);
 		virtual UINT GetChildVAlign() const;
@@ -54,25 +52,26 @@ namespace DuiLib {
 		bool SetSubControlFixedWdith(LPCTSTR pstrSubControlName,int cx);
 		bool SetSubControlUserData(LPCTSTR pstrSubControlName,LPCTSTR pstrText);
 
-		CDuiString GetSubControlText(LPCTSTR pstrSubControlName);
+		QkString GetSubControlText(LPCTSTR pstrSubControlName);
 		int GetSubControlFixedHeight(LPCTSTR pstrSubControlName);
 		int GetSubControlFixedWdith(LPCTSTR pstrSubControlName);
-		const CDuiString GetSubControlUserData(LPCTSTR pstrSubControlName);
+		const QkString GetSubControlUserData(LPCTSTR pstrSubControlName);
 		CControlUI* FindSubControl(LPCTSTR pstrSubControlName);
 
 		virtual SIZE GetScrollPos() const;
 		virtual SIZE GetScrollRange() const;
-		virtual void SetScrollPos(SIZE szPos, bool bMsg = true);
+		virtual bool SetScrollPos(SIZE szPos, bool bMsg = true);
+		virtual void DoScroll(int x, int y);
 		virtual void SetScrollStepSize(int nSize);
 		virtual int GetScrollStepSize() const;
-		virtual void LineUp();
-		virtual void LineDown();
+		virtual bool LineUp();
+		virtual bool LineDown();
+		virtual bool LineLeft();
+		virtual bool LineRight();
 		virtual void PageUp();
 		virtual void PageDown();
 		virtual void HomeUp();
 		virtual void EndDown();
-		virtual void LineLeft();
-		virtual void LineRight();
 		virtual void PageLeft();
 		virtual void PageRight();
 		virtual void HomeLeft();
@@ -85,23 +84,39 @@ namespace DuiLib {
 			return vertical?m_pVerticalScrollBar:m_pHorizontalScrollBar;
 		}
 
-		std::list<CControlUI*> _UpdateList;
-		std::list<CControlUI*> _WNDList;
+		void SupressChildLayouts(bool value) {
+			_bSupressingChildLayout = value;
+		}
 	protected:
 		virtual void SetFloatPos(int iIndex);
 		virtual void ProcessScrollBar(RECT rc, int cxRequired, int cyRequired);
 
 	protected:
 		int m_iChildPadding;
+		bool _clipchildren;
 		UINT m_iChildAlign;
 		UINT m_iChildVAlign;
 		bool m_bMouseChildEnabled;
 		int	 m_nScrollStepSize;
 
+		int scrollbars_set_cnt;
+
 		CScrollBarUI* m_pVerticalScrollBar;
 		CScrollBarUI* m_pHorizontalScrollBar;
-		CDuiString	m_sVerticalScrollBarStyle;
-		CDuiString	m_sHorizontalScrollBarStyle;
+		QkString	m_sVerticalScrollBarStyle;
+		QkString	m_sHorizontalScrollBarStyle;
+
+		int _scrollSpeed;
+		int _scrollTarget;
+		bool _bUseSmoothScroll;
+		bool _smoothScrolling;
+		int _scrollY;
+		int _scrollX;
+
+		bool _vscrollEatInset;
+		bool _hscrollEatInset;
+
+		bool _bSupressingChildLayout;
 	};
 
 } // namespace DuiLib

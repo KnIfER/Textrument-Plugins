@@ -6,7 +6,7 @@ namespace DuiLib {
 
 	class UILIB_API WinSplitter : public CContainerUI
 	{
-		DECLARE_DUICONTROL(WinSplitter)
+		DECLARE_QKCONTROL(WinSplitter)
 	public:
 		WinSplitter();
 
@@ -34,6 +34,7 @@ namespace DuiLib {
 		long _dragSt;
 		int _dragStSz;
 		int _dragStItSz;
+		HWND _hSplitter;
 	};
 
 } // namespace DuiLib

@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\PowerEditor\src\DarkMode\DarkMode.cpp" />
     <ClCompile Include="..\..\PowerEditor\src\NppDarkMode.cpp" />
+    <ClCompile Include="..\..\PowerEditor\src\WinControls\InsituDebug.cpp" />
     <ClCompile Include="..\..\PowerEditor\src\WinControls\StaticDialog\StaticDialog.cpp" />
     <ClCompile Include="..\CPPCommon\common_patch.cpp" />
     <ClCompile Include="AboutDlg.cpp" />

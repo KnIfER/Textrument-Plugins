@@ -295,6 +295,28 @@ BOOL WINAPI GetCharWidthInfo(HDC hdc, struct char_width_info *info)
 	//release_dc_ptr(dc);
 	return false;
 }
+
+// https://github.com/wine-mirror/wine/blob/e909986e6ea5ecd49b2b847f321ad89b2ae4f6f1/dlls/gdi32/region.c
+// https://github.com/wine-mirror/wine/blob/e909986e6ea5ecd49b2b847f321ad89b2ae4f6f1/dlls/gdi32/clipping.c
+// CombineRgn & GetClipRgn
+static HRGN _hrgnEraser = CreateRectRgn( 0, 0, 0, 0 );
+static HRGN _hrgn = CreateRectRgn( 0, 0, 0, 0 );
+
+HRGN set_control_clipping( HDC hdc, const RECT *rect )
+{
+	RECT rc = *rect;
+	HRGN hrgn = _hrgn;
+	if (GetClipRgn( hdc, hrgn ) != 1) hrgn = 0;
+	DPtoLP( hdc, (POINT *)&rc, 2 );
+	if (GetLayout( hdc ) & LAYOUT_RTL)  /* compensate for the shifting done by IntersectClipRect */
+	{
+		rc.left++;
+		rc.right++;
+	}
+	IntersectClipRect( hdc, rc.left, rc.top, rc.right, rc.bottom );
+	return hrgn;
+}
+
 }
 
 void InitWindowsEx(HINSTANCE hInst)

@@ -26,7 +26,7 @@ namespace DuiLib {
             if( pDxAnimationJob == NULL ) return false;
             //m_anim.CancelJobs();
             ::InvalidateRect(m_hWndPaint, NULL, FALSE);
-            bool nRet = m_anim.AddJob(pDxAnimationJob);
+            bool nRet = m_anim.AddAnimationJob(pDxAnimationJob);
             return nRet;
         }
         catch (...)
@@ -152,7 +152,7 @@ namespace DuiLib {
 
     bool CPaintManagerUI::AddEffectsStyle( LPCTSTR pStrStyleName,LPCTSTR pStrStyleValue )
     {
-        CDuiString* pEffectsStyleValue = new CDuiString(pStrStyleValue);
+        QkString* pEffectsStyleValue = new QkString(pStrStyleValue);
 
         if(pEffectsStyleValue != NULL)
         {
@@ -166,23 +166,23 @@ namespace DuiLib {
         return false;
     }
 
-    CDuiString CPaintManagerUI::GetEffectsStyle( LPCTSTR pStrStyleName )
+    QkString CPaintManagerUI::GetEffectsStyle( LPCTSTR pStrStyleName )
     {
-        CDuiString* pEffectsStyleValue = static_cast<CDuiString*>(m_mEffectsStyle.Find(pStrStyleName));
+        QkString* pEffectsStyleValue = static_cast<QkString*>(m_mEffectsStyle.Find(pStrStyleName));
         // todo fix  if( !pEffectsStyleValue && m_pParentResourcePM ) return m_pParentResourcePM->GetEffectsStyle(pStrStyleName);
 
         if( pEffectsStyleValue ) return pEffectsStyleValue->GetData();
-        else return CDuiString(_T(""));
+        else return QkString(_T(""));
     }
 
-    const CStdStringPtrMap& CPaintManagerUI::GetEffectsStyles() const
+    const QkStringPtrMap& CPaintManagerUI::GetEffectsStyles() const
     {
         return m_mEffectsStyle;
     }
 
     bool CPaintManagerUI::RemoveEffectStyle( LPCTSTR pStrStyleName )
     {
-        CDuiString* pEffectsStyleValue = static_cast<CDuiString*>(m_mEffectsStyle.Find(pStrStyleName));
+        QkString* pEffectsStyleValue = static_cast<QkString*>(m_mEffectsStyle.Find(pStrStyleName));
         if( !pEffectsStyleValue ) return false;
 
         delete pEffectsStyleValue;
@@ -191,13 +191,12 @@ namespace DuiLib {
 
     void CPaintManagerUI::RemoveAllEffectStyle()
     {
-        CDuiString* pEffectsStyleValue;
+        QkString* pEffectsStyleValue;
         for( int i = 0; i< m_mEffectsStyle.GetSize(); i++ ) {
-            if(LPCTSTR key = m_mEffectsStyle.GetAt(i)) {
-                pEffectsStyleValue = static_cast<CDuiString*>(m_mEffectsStyle.Find(key));
-                delete pEffectsStyleValue;
-            }
+            pEffectsStyleValue = static_cast<QkString*>(m_mEffectsStyle.GetValueAt(i));
+            if(pEffectsStyleValue) delete pEffectsStyleValue;
         }
+        m_mEffectsStyle.RemoveAll();
     }
 
 

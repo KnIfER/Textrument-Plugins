@@ -6,7 +6,7 @@ namespace DuiLib {
 
 	class UILIB_API WinTabbar : public CContainerUI
 	{
-		DECLARE_DUICONTROL(WinTabbar)
+		DECLARE_QKCONTROL(WinTabbar)
 	public:
 		WinTabbar();
 
@@ -42,6 +42,8 @@ namespace DuiLib {
 		LPARAM GetTabDataAt(int position);
 
 		void SetMultiLine(bool enabled, int maxLns=3);
+		void SetVerticle(bool enabled);
+		void SetBottom(bool enabled);
 	private:
 		static LRESULT CALLBACK TabWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 		HIMAGELIST _hImageList = 0;

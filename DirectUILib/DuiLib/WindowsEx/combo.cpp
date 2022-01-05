@@ -785,13 +785,13 @@ static LRESULT COMBO_ThemedPaint(HTHEME theme, HEADCOMBO *lphc, HDC hdc)
     DrawThemeBackground(theme, hdc, 0, IsWindowEnabled(lphc->self) ? CBXS_NORMAL : CBXS_DISABLED, &frame, NULL);
 
     //RECT frame = frame;
-    //DrawThemeBackground(theme, hdc, CP_BACKGROUND, CBXS_NORMAL, &frame, NULL);
-    //DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTON, CBXS_NORMAL, &frame, NULL);
-    //DrawThemeBackground(theme, hdc, CP_TRANSPARENTBACKGROUND, CBXS_NORMAL, &frame, NULL);
-    //DrawThemeBackground(theme, hdc, CP_BORDER, CBXS_PRESSED, &frame, NULL);
-    ////DrawThemeBackground(theme, hdc, CP_READONLY, CBXS_NORMAL, &frame, NULL);
-    //// DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTONRIGHT, CBXS_NORMAL, &frame, NULL);
-    // // DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTONLEFT, CBXS_NORMAL, &frame, NULL);
+    DrawThemeBackground(theme, hdc, CP_BACKGROUND, CBXS_NORMAL, &frame, NULL);
+    DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTON, CBXS_NORMAL, &frame, NULL);
+    DrawThemeBackground(theme, hdc, CP_TRANSPARENTBACKGROUND, CBXS_NORMAL, &frame, NULL);
+    DrawThemeBackground(theme, hdc, CP_BORDER, CBXS_PRESSED, &frame, NULL);
+    //DrawThemeBackground(theme, hdc, CP_READONLY, CBXS_NORMAL, &frame, NULL);
+    // DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTONRIGHT, CBXS_NORMAL, &frame, NULL);
+     // DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTONLEFT, CBXS_NORMAL, &frame, NULL);
 
 
    ///* Paint button */
@@ -805,7 +805,7 @@ static LRESULT COMBO_ThemedPaint(HTHEME theme, HEADCOMBO *lphc, HDC hdc)
            button_state = CBXS_HOT;
        else
            button_state = CBXS_NORMAL;
-       DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTON, button_state, &lphc->buttonRect, NULL);
+       DrawThemeBackground(theme, hdc, CP_DROPDOWNBUTTONRIGHT, button_state, &lphc->buttonRect, NULL);
    }
    
    if ((lphc->dwStyle & CBS_DROPDOWNLIST) == CBS_DROPDOWNLIST)

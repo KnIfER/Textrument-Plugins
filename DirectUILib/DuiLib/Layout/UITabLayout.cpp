@@ -3,7 +3,7 @@
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CTabLayoutUI)
+	IMPLEMENT_QKCONTROL(CTabLayoutUI)
 	CTabLayoutUI::CTabLayoutUI() : m_iCurSel(-1)
 	{
 	}
@@ -114,9 +114,9 @@ namespace DuiLib
 		}
 		NeedParentUpdate();
 
-		if( m_pManager != NULL ) {
-			m_pManager->SetNextTabControl();
-			m_pManager->SendNotify(this, DUI_MSGTYPE_TABSELECT, m_iCurSel, iOldSel);
+		if( _manager != NULL ) {
+			_manager->SetNextTabControl();
+			_manager->SendNotify(this, DUI_MSGTYPE_TABSELECT, m_iCurSel, iOldSel);
 		}
 		return true;
 	}

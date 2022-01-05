@@ -439,8 +439,14 @@ LRESULT OptionsDlg::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         CControlUI* pRoot = builder.Create(TEXT("settings.xml"), (UINT)0, 0, &m_pm);
 
         ASSERT(pRoot && "Failed to parse XML");
+
+        m_pm.SetAllowAutoFocus(false);
+
         m_pm.AttachDialog(pRoot);
         m_pm.AddNotifier(this);
+
+
+        m_pm.SetFocus(NULL);
 
         TranslateUI(m_pm, _MDText.getLocaliseMap());
 

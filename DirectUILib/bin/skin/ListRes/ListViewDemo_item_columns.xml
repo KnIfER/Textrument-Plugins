@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window caption="0,0,0,30" roundcorner="5,5,5,5" showdirty="false">
+ 	
+	<HorBox 
+		height="30"
+		>
+		
+		<Button 
+			text="column_1"
+			type="push"
+			name="vList" 
+			bkcolor="#FFFFFFFF" 
+			inset="0,0,0,0"
+			
+			height="30"
+			autocalcwidth="true"
+			wordbreak="false"
+			multiline="true"
+			font="2"
+			align="left"
+			/>
+		
+		<Button 
+			text="column_2"
+			type="push"
+			name="vList" 
+			bkcolor="#FFFFFFFF" 
+			inset="0,0,0,0"
+			
+			height="30"
+			autocalcwidth="true"
+			wordbreak="false"
+			multiline="true"
+			font="2"
+			align="left"
+			/>
+		
+		
+	</HorBox>
+		
+
+</Window>

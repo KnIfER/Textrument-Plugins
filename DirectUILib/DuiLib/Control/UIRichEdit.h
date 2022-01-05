@@ -9,7 +9,7 @@ namespace DuiLib {
 
 	class UILIB_API CRichEditUI : public CContainerUI, public IMessageFilterUI
 	{
-		DECLARE_DUICONTROL(CRichEditUI)
+		DECLARE_QKCONTROL(CRichEditUI)
 	public:
 		CRichEditUI();
 		~CRichEditUI();
@@ -45,7 +45,7 @@ namespace DuiLib {
 		int GetLimitText();
 		void SetLimitText(int iChars);
 		long GetTextLength(DWORD dwFlags = GTL_DEFAULT) const;
-		CDuiString & GetText();
+		QkString & GetText();
 		void SetText(LPCTSTR pstrText);
 		bool IsModify() const;
 		void SetModify(bool bModified = true) const;
@@ -55,7 +55,7 @@ namespace DuiLib {
 		int SetSel(long nStartChar, long nEndChar);
 		void ReplaceSel(LPCTSTR lpszNewText, bool bCanUndo);
 		void ReplaceSelW(LPCWSTR lpszNewText, bool bCanUndo = false);
-		CDuiString GetSelText() const;
+		QkString GetSelText() const;
 		int SetSelAll();
 		int SetSelNone();
 		WORD GetSelectionType() const;
@@ -66,7 +66,7 @@ namespace DuiLib {
 		bool SetAutoURLDetect(bool bAutoDetect = true);
 		DWORD GetEventMask() const;
 		DWORD SetEventMask(DWORD dwEventMask);
-		CDuiString GetTextRange(long nStartChar, long nEndChar) const;
+		QkString GetTextRange(long nStartChar, long nEndChar) const;
 		void HideSelection(bool bHide = true, bool bChangeStyle = false);
 		void ScrollCaret();
 		int InsertText(long nInsertAfterChar, LPCTSTR lpstrText, bool bCanUndo = false);
@@ -88,7 +88,7 @@ namespace DuiLib {
 		void Cut();
 		void Paste();
 		int GetLineCount() const;
-		CDuiString GetLine(int nIndex, int nMaxLength) const;
+		QkString GetLine(int nIndex, int nMaxLength) const;
 		int LineIndex(int nLine = -1) const;
 		int LineLength(int nLine = -1) const;
 		bool LineScroll(int nLines, int nChars = 0);
@@ -131,15 +131,15 @@ namespace DuiLib {
 		virtual bool OnTxViewChanged();
 		virtual void OnTxNotify(DWORD iNotify, void *pv);
 
-		void SetScrollPos(SIZE szPos, bool bMsg = true);
-		void LineUp();
-		void LineDown();
+		bool SetScrollPos(SIZE szPos, bool bMsg = true);
+		bool LineUp();
+		bool LineDown();
+		bool LineLeft();
+		bool LineRight();
 		void PageUp();
 		void PageDown();
 		void HomeUp();
 		void EndDown();
-		void LineLeft();
-		void LineRight();
 		void PageLeft();
 		void PageRight();
 		void HomeLeft();
@@ -170,7 +170,7 @@ namespace DuiLib {
 		bool m_bReadOnly;
 		bool m_bWordWrap;
 		DWORD m_dwTextColor;
-		int m_iFont;
+		int _font;
 		int m_iLimitText;
 		LONG m_lTwhStyle;
 		bool m_bDrawCaret;
@@ -182,11 +182,11 @@ namespace DuiLib {
 
 		RECT m_rcTextPadding;
 		UINT m_uButtonState;
-		CDuiString m_sNormalImage;
-		CDuiString m_sHotImage;
-		CDuiString m_sFocusedImage;
-		CDuiString m_sDisabledImage;
-		CDuiString m_sTipValue;
+		QkString m_sNormalImage;
+		QkString m_sHotImage;
+		QkString m_sFocusedImage;
+		QkString m_sDisabledImage;
+		QkString m_sTipValue;
 		DWORD m_dwTipValueColor;
 		UINT m_uTipValueAlign;
 	};

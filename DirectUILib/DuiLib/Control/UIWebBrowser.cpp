@@ -9,7 +9,7 @@ namespace DuiLib
 {
 	////////////////////////////////////////////////////////////////////////
 	//
-	IMPLEMENT_DUICONTROL(CWebBrowserUI)
+	IMPLEMENT_QKCONTROL(CWebBrowserUI)
 
 		CWebBrowserUI::CWebBrowserUI()
 		: m_pWebBrowser2(NULL)
@@ -40,7 +40,8 @@ namespace DuiLib
 	void CWebBrowserUI::ReleaseControl()
 	{
 		m_bCreated=false;
-		GetManager()->RemoveTranslateAccelerator(this);
+		if(GetManager()) 
+			GetManager()->RemoveTranslateAccelerator(this);
 		RegisterEventHandler(FALSE);
 	}
 

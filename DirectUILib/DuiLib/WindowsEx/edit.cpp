@@ -1518,31 +1518,36 @@ static void EDIT_UpdateScrollInfo(EDITSTATE *es)
 {
     if ((es->style & WS_VSCROLL) && !(es->flags & EF_VSCROLL_TRACK))
     {
-	SCROLLINFO si;
-	si.cbSize	= sizeof(SCROLLINFO);
-	si.fMask	= SIF_PAGE | SIF_POS | SIF_RANGE | SIF_DISABLENOSCROLL;
-	si.nMin		= 0;
-	si.nMax		= es->line_count - 1;
-	si.nPage	= es->line_height ? (es->format_rect.bottom - es->format_rect.top) / es->line_height : 0;
-	si.nPos		= es->y_offset;
-	TRACE("SB_VERT, nMin=%d, nMax=%d, nPage=%d, nPos=%d\n",
-		si.nMin, si.nMax, si.nPage, si.nPos);
-	SetScrollInfo(es->hwndSelf, SB_VERT, &si, TRUE);
+		SCROLLINFO si;
+		si.cbSize	= sizeof(SCROLLINFO);
+		si.fMask	= SIF_PAGE | SIF_POS | SIF_RANGE | SIF_DISABLENOSCROLL;
+		si.nMin		= 0;
+		si.nMax		= es->line_count - 1;
+		si.nPage	= es->line_height ? (es->format_rect.bottom - es->format_rect.top) / es->line_height : 0;
+		si.nPos		= es->y_offset;
+		TRACE("SB_VERT, nMin=%d, nMax=%d, nPage=%d, nPos=%d\n",
+			si.nMin, si.nMax, si.nPage, si.nPos);
+		SetScrollInfo(es->hwndSelf, SB_VERT, &si, TRUE);
     }
 
     if ((es->style & WS_HSCROLL) && !(es->flags & EF_HSCROLL_TRACK))
     {
-	SCROLLINFO si;
-	si.cbSize	= sizeof(SCROLLINFO);
-	si.fMask	= SIF_PAGE | SIF_POS | SIF_RANGE | SIF_DISABLENOSCROLL;
-	si.nMin		= 0;
-	si.nMax		= es->text_width - 1;
-	si.nPage	= es->format_rect.right - es->format_rect.left;
-	si.nPos		= es->x_offset;
-	TRACE("SB_HORZ, nMin=%d, nMax=%d, nPage=%d, nPos=%d\n",
-		si.nMin, si.nMax, si.nPage, si.nPos);
-	SetScrollInfo(es->hwndSelf, SB_HORZ, &si, TRUE);
+		SCROLLINFO si;
+		si.cbSize	= sizeof(SCROLLINFO);
+		si.fMask	= SIF_PAGE | SIF_POS | SIF_RANGE | SIF_DISABLENOSCROLL;
+		si.nMin		= 0;
+		si.nMax		= es->text_width - 1;
+		si.nPage	= es->format_rect.right - es->format_rect.left;
+		si.nPos		= es->x_offset;
+		TRACE("SB_HORZ, nMin=%d, nMax=%d, nPage=%d, nPos=%d\n",
+			si.nMin, si.nMax, si.nPage, si.nPos);
+		SetScrollInfo(es->hwndSelf, SB_HORZ, &si, TRUE);
     }
+
+	if (es->_listener)
+	{
+		(es->_listener)(es->hwndParent, 0x111, 0, 0);
+	}
 }
 
 
@@ -1555,7 +1560,7 @@ static void EDIT_UpdateScrollInfo(EDITSTATE *es)
  *	dx is in pixels, dy - in lines.
  *
  */
-static BOOL EDIT_EM_LineScroll_internal(EDITSTATE *es, INT dx, INT dy)
+BOOL EDIT_EM_LineScroll_internal(EDITSTATE *es, INT dx, INT dy)
 {
 	INT nyoff;
 	INT x_offset_in_pixels;
@@ -1596,14 +1601,21 @@ static BOOL EDIT_EM_LineScroll_internal(EDITSTATE *es, INT dx, INT dy)
 		    es->x_offset += dx / es->char_width;
 		if (es->is_delegate)
 		{
-			rc1 = *es->rcDraw;
-			//rc1 = es->rcLastDraw;
-			if (es->style&WS_BORDER) InflateRect(&rc, -1, -1);
-			//IntersectRect(&rc, &rc1, &es->format_rect);
-			//IntersectRect(&rc, &rc1, &es->rcLastDraw);
-			//ScrollWindowEx(es->hwndParent, -dx, dy,
-			//	&rc1, &rc, NULL, NULL, SW_INVALIDATE);
-			InvalidateRect(es->hwndParent, &rc1, FALSE);
+			if (*es->clip_texts)
+			{
+				rc1 = *es->rcDraw;
+				//rc1 = es->rcLastDraw;
+				if (es->style&WS_BORDER) InflateRect(&rc, -1, -1);
+				//IntersectRect(&rc, &rc1, &es->format_rect);
+				//IntersectRect(&rc, &rc1, &es->rcLastDraw);
+				//ScrollWindowEx(es->hwndParent, -dx, dy,
+				//	&rc1, &rc, NULL, NULL, SW_INVALIDATE);
+				InvalidateRect(es->hwndParent, &rc1, FALSE);
+			}
+			else
+			{
+				InvalidateRect(es->hwndParent, es->rcDrawMax, FALSE);
+			}
 		}
 		else
 		{
@@ -1632,7 +1644,7 @@ static BOOL EDIT_EM_LineScroll_internal(EDITSTATE *es, INT dx, INT dy)
  *	NOTE: dx is in average character widths, dy - in lines;
  *
  */
-static BOOL EDIT_EM_LineScroll(EDITSTATE *es, INT dx, INT dy)
+BOOL EDIT_EM_LineScroll(EDITSTATE *es, INT dx, INT dy)
 {
 	if (!(es->style & ES_MULTILINE))
 		return FALSE;
@@ -3568,7 +3580,7 @@ LRESULT _LButtonDblClk(EDITSTATE *es)
 	if (es->is_delegate)
 	{
 		tEditState = es;
-		_timerID = SetTimer(0, 0, 100, EDIT_TimerProc);
+		_timerID = SetTimer(0, 0, 100, (TIMERPROC)EDIT_TimerProc);
 	}
 	else
 	{
@@ -3598,7 +3610,7 @@ LRESULT _LButtonDown(EDITSTATE *es, DWORD keys, INT x, INT y)
 	if (es->is_delegate)
 	{
 		tEditState = es;
-		_timerID = SetTimer(0, 0, 90, EDIT_TimerProc);
+		_timerID = SetTimer(0, 0, 90, (TIMERPROC)EDIT_TimerProc);
 	}
 	else
 	{
@@ -3728,7 +3740,7 @@ void _Paint(EDITSTATE *es, HDC hdc, const RECT* rcPaint)
 	brush = EDIT_NotifyCtlColor(es, dc);
 
 	/* paint the border and the background */
-	IntersectClipRect(dc, rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
+	if(!es->is_delegate) IntersectClipRect(dc, rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
 
 	if(es->style & WS_BORDER) 
 	{
@@ -3749,13 +3761,15 @@ void _Paint(EDITSTATE *es, HDC hdc, const RECT* rcPaint)
 		SelectObject(dc, old_brush);
 
 		/* Keep the border clean */
-		IntersectClipRect(dc, rc.left+bw, rc.top+bh, max(rc.right-bw, rc.left+bw), max(rc.bottom-bh, rc.top+bh));
+		if(es->is_delegate) IntersectClipRect(dc, rc.left+bw, rc.top+bh, max(rc.right-bw, rc.left+bw), max(rc.bottom-bh, rc.top+bh));
 
 		if (es->is_delegate)
 		{
 			InflateRect(&rcClient, -2, -2);
 			es->format_rect = rcClient;
 		}
+
+		//SelectClipRgn( dc, hrgn );
 	}
 
 	GetClipBox(dc, &rc);
@@ -3768,7 +3782,7 @@ void _Paint(EDITSTATE *es, HDC hdc, const RECT* rcPaint)
 
 	if (es->style & ES_MULTILINE) {
 		rc = rcClient;
-		IntersectClipRect(dc, rc.left, rc.top, rc.right, rc.bottom);
+		if(!es->is_delegate) IntersectClipRect(dc, rc.left, rc.top, rc.right, rc.bottom);
 	}
 	if (es->font)
 		old_font = (HFONT)SelectObject(dc, es->font);
@@ -3776,6 +3790,8 @@ void _Paint(EDITSTATE *es, HDC hdc, const RECT* rcPaint)
 
 	if (!es->bEnableState)
 		SetTextColor(dc, GetSysColor(COLOR_GRAYTEXT));
+	else if (es->is_delegate)
+		SetTextColor(hdc, es->bgrTextColor&0x00FFFFFF);
 	//rcRgn = rcClient;
 	GetClipBox(dc, &rcRgn);
 	SetBkMode(dc, TRANSPARENT);

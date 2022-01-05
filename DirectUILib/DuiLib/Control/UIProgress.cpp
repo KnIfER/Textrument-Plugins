@@ -3,7 +3,7 @@
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CProgressUI)
+	IMPLEMENT_QKCONTROL(CProgressUI)
 
 	CProgressUI::CProgressUI() : m_bShowText(false), m_bHorizontal(true), m_nMin(0), m_nMax(100), m_nValue(0), m_bStretchForeImage(true)
 	{
@@ -166,7 +166,7 @@ namespace DuiLib
 	void CProgressUI::UpdateText()
 	{
 		if(m_bShowText) {
-			CDuiString sText;
+			QkString sText;
 			sText.Format(_T("%.0f%%"), (m_nValue - m_nMin) * 100.0f / (m_nMax - m_nMin));
 			SetText(sText);
 		}

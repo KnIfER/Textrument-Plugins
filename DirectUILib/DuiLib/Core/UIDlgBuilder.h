@@ -23,13 +23,13 @@ namespace DuiLib {
 
 		XMarkupParser* GetMarkup();
 
-		void GetLastErrorMessage(LPTSTR pstrMessage, SIZE_T cchMax) const;
-		void GetLastErrorLocation(LPTSTR pstrSource, SIZE_T cchMax) const;
+		const QkString & GetLastErrorMessage() const;
+		const QkString & GetLastErrorLocation() const;
 	    void SetInstance(HINSTANCE instance){ m_instance = instance;};
 
 		XMarkupParser m_xml;
 	private:
-		CControlUI* _Parse(XMarkupNode* parent, CControlUI* pParent = NULL, CPaintManagerUI* pManager = NULL);
+		CControlUI* _Parse(XMarkupNode* parent, QkString & tagNameBuffer, CControlUI* pParent, CPaintManagerUI* pManager);
 
 		IDialogBuilderCallback* m_pCallback;
 		LPCTSTR m_pstrtype;

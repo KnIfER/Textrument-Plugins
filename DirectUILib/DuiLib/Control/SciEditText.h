@@ -18,7 +18,7 @@ namespace DuiLib {
 
 	class UILIB_API SciEditText : public CControlUI, public Scintilla::ScintillaCall
 	{
-		DECLARE_DUICONTROL(SciEditText)
+		DECLARE_QKCONTROL(SciEditText)
 	public:
 		SciEditText();
 

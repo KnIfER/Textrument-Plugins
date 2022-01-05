@@ -2,9 +2,9 @@
 
 namespace DuiLib
 {
-	class UILIB_API TestButton : public CButtonUI
+	class UILIB_API TestButton : public Button
 	{
-		DECLARE_DUICONTROL(TestButton)
+		DECLARE_QKCONTROL(TestButton)
 
 	public:
 		TestButton();
@@ -19,10 +19,10 @@ namespace DuiLib
 
 	protected:
 
-		CDuiString	m_sSalendarValDest;
-		CDuiString	m_sCalendarName;
-		CDuiString	m_sCalendarStyle;
-		CDuiString	m_sCalendarProfile;
+		QkString	m_sSalendarValDest;
+		QkString	m_sCalendarName;
+		QkString	m_sCalendarStyle;
+		QkString	m_sCalendarProfile;
 
 	};
 

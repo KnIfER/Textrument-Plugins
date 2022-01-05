@@ -11,15 +11,19 @@
     <LocalDebuggerEnvironment>$(SolutionDir)\Common\$(Configuration)\ $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommand>bin/$(targetName)$(targetExt)</LocalDebuggerCommand>
+    <LocalDebuggerCommand>$(projectdir)bin\$(projectname)$(targetext)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommand>bin/$(targetName)$(targetExt)</LocalDebuggerCommand>
+    <LocalDebuggerCommand>$(projectdir)bin\$(projectname)$(targetext)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommand>bin/$(targetName)$(targetExt)</LocalDebuggerCommand>
+    <LocalDebuggerCommand>$(projectdir)bin\$(projectname)$(targetext)</LocalDebuggerCommand>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommand>$(projectdir)bin\$(projectname)$(targetext)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

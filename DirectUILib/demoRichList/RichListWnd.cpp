@@ -58,7 +58,7 @@ void CPage1::OnClick(TNotifyUI& msg)
 		//new_h_lay->SetAttributeList(_T("float=\"false\" ")\
 		//	_T("childpadding=\"10\" inset=\"3,5,3,5\""));
 
-		CButtonUI *new_btn_1 = new CButtonUI;
+		Button *new_btn_1 = new Button;
 		//new_btn_1->SetAttributeList(
 		//	_T("name=\"down_ico\" float=\"false\" ")\
 		//	_T("bordersize=\"0\" width=\"32\" maxheight=\"26\" ")\
@@ -175,7 +175,7 @@ void CRichListWnd::OnFinalMessage( HWND hWnd)
 	delete this;
 }
 
-CDuiString CRichListWnd::GetSkinFolder()
+QkString CRichListWnd::GetSkinFolder()
 {
 #ifdef _DEBUG
 	return _T("skin\\RichListRes\\");
@@ -185,7 +185,7 @@ CDuiString CRichListWnd::GetSkinFolder()
 	
 }
 
-CDuiString CRichListWnd::GetSkinFile()
+QkString CRichListWnd::GetSkinFile()
 {
 	return _T("duilib.xml");
 }
@@ -199,7 +199,7 @@ UILIB_RESTYPE CRichListWnd::GetResourceType() const
 #endif
 }
 
-CDuiString CRichListWnd::GetZIPFileName() const
+QkString CRichListWnd::GetZIPFileName() const
 {
 	return _T("RichListRes.zip");
 }
@@ -332,10 +332,10 @@ LRESULT CRichListWnd::OnSysCommand( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 void CRichListWnd::InitWindow()
 {
-	m_pCloseBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("closebtn")));
-	m_pMaxBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("maxbtn")));
-	m_pRestoreBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("restorebtn")));
-	m_pMinBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("minbtn")));
+	m_pCloseBtn = static_cast<Button*>(m_pm.FindControl(_T("closebtn")));
+	m_pMaxBtn = static_cast<Button*>(m_pm.FindControl(_T("maxbtn")));
+	m_pRestoreBtn = static_cast<Button*>(m_pm.FindControl(_T("restorebtn")));
+	m_pMinBtn = static_cast<Button*>(m_pm.FindControl(_T("minbtn")));
 }
 
 LRESULT CRichListWnd::OnMouseHover(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -347,7 +347,7 @@ LRESULT CRichListWnd::OnMouseHover(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	if(pHover->GetName() == _T("down_ico"))
 	{
 		MessageBox(NULL, _T("鼠标在某控件例如按钮上悬停后，对目标控件操作，这里改变了状态图标大小"), _T("DUILIB DEMO"), MB_OK);
-		((CButtonUI *)pHover)->ApplyAttributeList(
+		((Button *)pHover)->ApplyAttributeList(
 			_T("normalimage=\"file='downlist_pause.png' dest='15,9,32,26'\""));                
 	}
 	return 0;

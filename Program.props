@@ -2,11 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <GL_LTCG>Use Link Time Code Generation</GL_LTCG>
-    <GL_NONE>No Whole Program Optimization; /LTCG:OFF</GL_NONE>
     <DIS_WARN>4996</DIS_WARN>
     <GL>No</GL>
     <LG>/LTCG:OFF</LG>
+    <direct_path>$(SolutionDir)</direct_path>
+    <dir_output>$(direct_path)\build\$(Configuration)_$(Platform)\</dir_output>
+    <dir_intermediate>$(Configuration)_$(Platform)\</dir_intermediate>
+    <dir_bin>$(direct_path)\bin\$(TargetName)$(TargetExt)</dir_bin>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
@@ -19,12 +21,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <BuildMacro Include="GL_LTCG">
-      <Value>$(GL_LTCG)</Value>
-    </BuildMacro>
-    <BuildMacro Include="GL_NONE">
-      <Value>$(GL_NONE)</Value>
-    </BuildMacro>
     <BuildMacro Include="DIS_WARN">
       <Value>$(DIS_WARN)</Value>
     </BuildMacro>
@@ -33,6 +29,18 @@
     </BuildMacro>
     <BuildMacro Include="LG">
       <Value>$(LG)</Value>
+    </BuildMacro>
+    <BuildMacro Include="direct_path">
+      <Value>$(direct_path)</Value>
+    </BuildMacro>
+    <BuildMacro Include="dir_intermediate">
+      <Value>$(dir_intermediate)</Value>
+    </BuildMacro>
+    <BuildMacro Include="dir_output">
+      <Value>$(dir_output)</Value>
+    </BuildMacro>
+    <BuildMacro Include="dir_bin">
+      <Value>$(dir_bin)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

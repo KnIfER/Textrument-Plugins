@@ -129,14 +129,14 @@ void ColorSkinWindow::InitWindow()
 	MoveWindow(m_hWnd, parent_window_rect_.right - size.cx, parent_window_rect_.top, size.cx, size.cy, FALSE);
 }
 
-CDuiString ColorSkinWindow::GetSkinFile()
+QkString ColorSkinWindow::GetSkinFile()
 {
 	return _T("ColorWnd.xml");
 }
 
-CDuiString ColorSkinWindow::GetSkinFolder()
+QkString ColorSkinWindow::GetSkinFolder()
 {
-	return CDuiString(CPaintManagerUI::GetInstancePath()) + _T("skin\\");
+	return QkString(CPaintManagerUI::GetInstancePath()) + _T("skin\\");
 }
 
 LRESULT ColorSkinWindow::OnKillFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)

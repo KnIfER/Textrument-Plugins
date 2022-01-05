@@ -112,11 +112,11 @@ void CListDemoWnd::Notify(TNotifyUI& msg)
 //	//m_pm.AddNotifier(this);
 //	////Init();
 //	//
-//	////m_pCloseBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("closebtn")));
-//	////m_pMaxBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("maxbtn")));
-//	////m_pRestoreBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("restorebtn")));
-//	////m_pMinBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("minbtn")));
-//	////m_pSearch = static_cast<CButtonUI*>(m_pm.FindControl(_T("btn")));
+//	////m_pCloseBtn = static_cast<Button*>(m_pm.FindControl(_T("closebtn")));
+//	////m_pMaxBtn = static_cast<Button*>(m_pm.FindControl(_T("maxbtn")));
+//	////m_pRestoreBtn = static_cast<Button*>(m_pm.FindControl(_T("restorebtn")));
+//	////m_pMinBtn = static_cast<Button*>(m_pm.FindControl(_T("minbtn")));
+//	////m_pSearch = static_cast<Button*>(m_pm.FindControl(_T("btn")));
 //	//return 0;
 //
 //	return __super::OnCreate(uMsg, wParam, lParam, bHandled);

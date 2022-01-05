@@ -11,7 +11,7 @@ namespace DuiLib {
 
 	class UILIB_API CComboUI : public CContainerUI, public IListOwnerUI
 	{
-		DECLARE_DUICONTROL(CComboUI)
+		DECLARE_QKCONTROL(CComboUI)
 		friend class CComboWnd;
 	public:
 		CComboUI();
@@ -22,7 +22,7 @@ namespace DuiLib {
 		void DoInit();
 		UINT GetControlFlags() const;
 
-		CDuiString & GetText();
+		QkString & GetText();
 		void SetEnabled(bool bEnable = true);
 
 		void SetTextStyle(UINT uStyle);
@@ -31,8 +31,6 @@ namespace DuiLib {
 		DWORD GetTextColor() const;
 		void SetDisabledTextColor(DWORD dwTextColor);
 		DWORD GetDisabledTextColor() const;
-		void SetFont(int index);
-		int GetFont() const;
 		RECT GetTextPadding() const;
 		void SetTextPadding(RECT rc);
 		bool IsShowHtml();
@@ -40,7 +38,7 @@ namespace DuiLib {
 		bool IsShowShadow();
 		void SetShowShadow(bool bShow = true);
 
-		CDuiString GetDropBoxAttributeList();
+		QkString GetDropBoxAttributeList();
 		void SetDropBoxAttributeList(LPCTSTR pstrList);
 		SIZE GetDropBoxSize() const;
 		void SetDropBoxSize(SIZE szDropBox);
@@ -129,21 +127,21 @@ namespace DuiLib {
 		int m_iCurSel;
 		DWORD	m_dwTextColor;
 		DWORD	m_dwDisabledTextColor;
-		int		m_iFont;
+		int		_font;
 		UINT	m_uTextStyle;
 		RECT	m_rcTextPadding;
 		bool	m_bShowHtml;
 		bool	m_bShowShadow;
-		CDuiString m_sDropBoxAttributes;
+		QkString m_sDropBoxAttributes;
 		SIZE m_szDropBox;
 		RECT m_rcDropBox;
 		UINT m_uButtonState;
 
-		CDuiString m_sNormalImage;
-		CDuiString m_sHotImage;
-		CDuiString m_sPushedImage;
-		CDuiString m_sFocusedImage;
-		CDuiString m_sDisabledImage;
+		QkString m_sNormalImage;
+		QkString m_sHotImage;
+		QkString m_sPushedImage;
+		QkString m_sFocusedImage;
+		QkString m_sDisabledImage;
 
 		bool m_bScrollSelect;
 		TListInfoUI m_ListInfo;

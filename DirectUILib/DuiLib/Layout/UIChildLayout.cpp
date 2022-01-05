@@ -3,7 +3,7 @@
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CChildLayoutUI)
+	IMPLEMENT_QKCONTROL(CChildLayoutUI)
 
 	CChildLayoutUI::CChildLayoutUI()
 	{
@@ -15,7 +15,7 @@ namespace DuiLib
 		if (!m_pstrXMLFile.IsEmpty())
 		{
 			CDialogBuilder builder;
-			CContainerUI* pChildWindow = static_cast<CContainerUI*>(builder.Create(m_pstrXMLFile.GetData(), (UINT)0, NULL, m_pManager));
+			CContainerUI* pChildWindow = static_cast<CContainerUI*>(builder.Create(m_pstrXMLFile.GetData(), (UINT)0, NULL, _manager));
 			if (pChildWindow)
 			{
 				this->Add(pChildWindow);
@@ -35,12 +35,12 @@ namespace DuiLib
 			CContainerUI::SetAttribute(pstrName,pstrValue);
 	}
 
-	void CChildLayoutUI::SetChildLayoutXML( DuiLib::CDuiString pXML )
+	void CChildLayoutUI::SetChildLayoutXML( DuiLib::QkString pXML )
 	{
 		m_pstrXMLFile=pXML;
 	}
 
-	DuiLib::CDuiString CChildLayoutUI::GetChildLayoutXML()
+	DuiLib::QkString CChildLayoutUI::GetChildLayoutXML()
 	{
 		return m_pstrXMLFile;
 	}

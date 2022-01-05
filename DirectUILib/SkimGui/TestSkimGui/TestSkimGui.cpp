@@ -66,7 +66,7 @@ namespace SkimGuiHello{
 	// true=limit 60FPS; false=unlimited framerate.
 	bool vsync_on = false;
 	// use another thread to loop-invalidate the window.
-	bool benchmark = true;
+	bool benchmark = false;
 	// is running or not.
 	bool bAPPRunning = true;
 

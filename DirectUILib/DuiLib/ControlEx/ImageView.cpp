@@ -21,7 +21,7 @@
 #include "ImageView.h"
 
 namespace DuiLib {
-	IMPLEMENT_DUICONTROL(ImageView)
+	IMPLEMENT_QKCONTROL(ImageView)
 	
 //#define USEDDBLT
 
@@ -283,7 +283,7 @@ namespace DuiLib {
 #ifdef 调试图片控件
 			int fontHeight = 20;
 			int lnCnt=0;
-			CDuiString text;
+			QkString text;
 			text.Format(L"scale=%f", _scale);
 			TextOut(hDC, 5, 5+fontHeight*(lnCnt++), text.GetData(), text.GetLength());
 			text.Format(L"translation= %d, %d", _translationX, _translationY);

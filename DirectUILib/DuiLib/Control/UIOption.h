@@ -5,12 +5,12 @@
 
 namespace DuiLib
 {
-	class UILIB_API COptionUI : public CButtonUI
+	class UILIB_API OptionBtn : public Button
 	{
-		DECLARE_DUICONTROL(COptionUI)
+		DECLARE_QKCONTROL(OptionBtn)
 	public:
-		COptionUI();
-		~COptionUI();
+		OptionBtn();
+		~OptionBtn();
 
 		LPCTSTR GetClass() const;
 		LPVOID GetInterface(LPCTSTR pstrName);
@@ -60,25 +60,25 @@ namespace DuiLib
 
 	protected:
 		bool			m_bSelected;
-		CDuiString		m_sGroupName;
+		QkString		m_sGroupName;
 
 		int				m_iSelectedFont;
 
 		DWORD			m_dwSelectedBkColor;
 		DWORD			m_dwSelectedTextColor;
 
-		CDuiString		m_sSelectedImage;
-		CDuiString		m_sSelectedHotImage;
-		CDuiString		m_sSelectedPushedImage;
-		CDuiString		m_sSelectedForeImage;
+		QkString		m_sSelectedImage;
+		QkString		m_sSelectedHotImage;
+		QkString		m_sSelectedPushedImage;
+		QkString		m_sSelectedForeImage;
 
 		int m_nSelectedStateCount;
-		CDuiString m_sSelectedStateImage;
+		QkString m_sSelectedStateImage;
 	};
 
-	class UILIB_API CCheckBoxUI : public COptionUI
+	class UILIB_API CCheckBoxUI : public OptionBtn
 	{
-		DECLARE_DUICONTROL(CCheckBoxUI)
+		DECLARE_QKCONTROL(CCheckBoxUI)
 	public:
 		CCheckBoxUI();
 

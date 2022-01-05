@@ -49,9 +49,12 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 }
 
 
+HWND mainAppWnd;
+
 extern "C" __declspec(dllexport) void setInfo(NppData notpadPlusData)
 {
 	nppData = notpadPlusData;
+	mainAppWnd = nppData._nppHandle;
 	commandMenuInit();
 	loadOption(nppData._nppHandle, struOptions);
 }

@@ -5,8 +5,8 @@ class EditorDemo : public WindowImplBase, public ExtensionAPI
 {
 public:
     EditorDemo() { 
-       _isRoundedRgn = false;
-       _isWindowLess = false;
+       _roundwnd = false;
+       _windowless = false;
     };     
 
     LPCTSTR GetWindowClassName() const override
@@ -140,7 +140,7 @@ public:
                     if (demoTxt)
                     {
                         static int cc;
-                        CDuiString txt;
+                        QkString txt;
                         //txt.Format(L"demo %s %d %d", demoTxt->GetText().GetData(), cc++, demoTxt->GetManager()->GetRoot());
                         txt.Format(L"demo %d %d %d", cc++, demoTxt->GetWidth(), rc.right);
                         demoTxt->SetText(txt);
@@ -307,6 +307,9 @@ public:
             // see http://lua-users.org/wiki/UsingLuaWithScite
             LuaExtension::Instance().OnExecute("print (\"Hello, World!\")");
         }
+        tabbar->SetVerticle(true);
+        tabbar_1->SetMultiLine(true);
+        tabbar_2->SetBottom(true);
         RECT rc;GetClientRect(GetHWND(), &rc);
         LogIs("GetClientRect, %ld %ld", rc.right, rc.bottom);
     }
@@ -319,7 +322,7 @@ public:
         }
     }
 
-    CDuiString GetSkinFile() override
+    QkString GetSkinFile() override
     {
         return _T("TextrumentDemo.xml");
     }
@@ -330,14 +333,37 @@ public:
         {
             if (msg.sType==L"click")
             {
-                CButtonUI* button = dynamic_cast<CButtonUI*>(msg.pSender);
+                Button* button = dynamic_cast<Button*>(msg.pSender);
                 if (button)
                 {
                     button->Toggle();
                 }
                 if (msg.pSender->GetName()==L"Run")
                 {
-                    LuaExtension::Instance().OnExecute("dostring dostring(editor:GetText())");
+                    //LuaExtension::Instance().OnExecute("dostring dostring(editor:GetText())");
+
+
+
+                   HMODULE user32 = ::GetModuleHandleW(L"user32.dll");
+                   FARPROC function = ::GetProcAddress(user32, "USER_ScrollBarDraw");
+                   //
+                   //
+                   //user32 = ::GetModuleHandleW(L"UxTheme.dll");
+                   //function = ::GetProcAddress(user32, "ScrollBarDraw");
+                   //
+                   TCHAR buffer[100]={0};
+                   wsprintf(buffer,TEXT("position=%d"), function);
+                   ::MessageBox(NULL, buffer, TEXT(""), MB_OK);
+
+
+
+
+                }
+                if (false)
+                {
+                    msg.pSender->SetAnimEffects(true);
+                    msg.pSender->SetAttribute(_T("fx_adv"),_T("anim='left2right' offset='180'"));
+                    msg.pSender->TriggerEffects();
                 }
             }
         }
@@ -475,7 +501,7 @@ public:
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)
 {
-    REGIST_DUICONTROL(SciEditText);
+    REGIST_QKCONTROL(SciEditText);
 
     CPaintManagerUI::SetInstance(hInstance);
     //CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin"));

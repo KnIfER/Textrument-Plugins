@@ -17,12 +17,12 @@ CSkinSetting::~CSkinSetting(void)
 {
 }
 
-CDuiString CSkinSetting::GetSkinFile()
+QkString CSkinSetting::GetSkinFile()
 {
 	return m_SkinFile;
 }
 
-CDuiString CSkinSetting::GetSkinFolder()
+QkString CSkinSetting::GetSkinFolder()
 {
 	return m_SkinFolder;
 }
@@ -37,7 +37,7 @@ LPCTSTR CSkinSetting::GetResourceID() const
 	return m_ResourceID;
 }
 
-CDuiString CSkinSetting::GetZIPFileName() const
+QkString CSkinSetting::GetZIPFileName() const
 {
 	return m_ZIPFileName;
 }

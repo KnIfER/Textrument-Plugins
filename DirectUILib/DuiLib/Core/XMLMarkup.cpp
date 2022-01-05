@@ -362,9 +362,13 @@ bool XMarkupParser::LoadFromMem(BYTE* pByte, DWORD dwSize, int encoding)
 bool XMarkupParser::LoadFromFile(LPCTSTR pstrFilename, int encoding)
 {
 	Release();
-	CDuiString sFile = CPaintManagerUI::GetResourcePath();
+	QkString sFile = pstrFilename;
 	if( CPaintManagerUI::GetResourceZip().IsEmpty() ) {
-		sFile += pstrFilename;
+		if (sFile.GetLength()<3 || sFile[1]!=':' && sFile[1]!='/')
+		{
+			sFile.Prepend(CPaintManagerUI::GetResourcePath());
+		}
+		//sFile += pstrFilename;
 		HANDLE hFile = ::CreateFile(sFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if( hFile == INVALID_HANDLE_VALUE ) return _Failed(_T("Error opening file"));
 		DWORD dwSize = ::GetFileSize(hFile, NULL);
@@ -395,7 +399,7 @@ bool XMarkupParser::LoadFromFile(LPCTSTR pstrFilename, int encoding)
 		HZIP hz = NULL;
 		if( CPaintManagerUI::IsCachedResourceZip() ) hz = (HZIP)CPaintManagerUI::GetResourceZipHandle();
 		else {
-			CDuiString sFilePwd = CPaintManagerUI::GetResourceZipPwd();
+			QkString sFilePwd = CPaintManagerUI::GetResourceZipPwd();
 #ifdef UNICODE
 			char* pwd = w2a((wchar_t*)sFilePwd.GetData());
 			hz = OpenZip(sFile.GetData(), pwd);
@@ -407,7 +411,7 @@ bool XMarkupParser::LoadFromFile(LPCTSTR pstrFilename, int encoding)
 		if( hz == NULL ) return _Failed(_T("Error opening zip file"));
 		ZIPENTRY ze; 
 		int i = 0; 
-		CDuiString key = pstrFilename;
+		QkString key = pstrFilename;
 		key.Replace(_T("\\"), _T("/"));
 		if( FindZipItem(hz, key, true, &i, &ze) != 0 ) return _Failed(_T("Could not find ziped file"));
 		DWORD dwSize = ze.unc_size;
@@ -432,26 +436,31 @@ bool XMarkupParser::LoadFromFile(LPCTSTR pstrFilename, int encoding)
 	}
 }
 
+void printNodes(XMarkupNode & node)
+{
+	if (node.IsValid())
+	{
+		::OutputDebugStringA("printNodes:: ");
+		for (size_t i = 0; i < node.GetLevel(); i++)
+		{
+			::OutputDebugStringA("-");
+		}
+		::OutputDebugString(node.GetName());
+		::OutputDebugStringA("\n");
+		XMarkupNode cv = node.GetChild();
+		while (cv.IsValid())
+		{
+			printNodes(cv);
+			cv = cv.GetSibling();
+		}
+	}
+}
 
 void XMarkupParser::Print()
 {
-	auto rootNode = GetRoot();
-
-	auto child = rootNode.GetChild();
-
-	auto nxt = child.GetSibling();
-
-	nxt.IsValid();
-
-	nxt.GetParent();
-
-	child.GetChild();
-
-
-
-
+	XMarkupNode rootNode = GetRoot();
+	printNodes(rootNode);
 }
-
 
 void XMarkupParser::Release()
 {
@@ -470,14 +479,14 @@ void XMarkupParser::Release()
 	m_nElements = 0;
 }
 
-void XMarkupParser::GetLastErrorMessage(LPTSTR pstrMessage, SIZE_T cchMax) const
+const QkString & XMarkupParser::GetLastErrorMessage() const
 {
-	_tcsncpy(pstrMessage, m_szErrorMsg, cchMax);
+	return _ErrorMsg;
 }
 
-void XMarkupParser::GetLastErrorLocation(LPTSTR pstrSource, SIZE_T cchMax) const
+const QkString & XMarkupParser::GetLastErrorLocation() const
 {
-	_tcsncpy(pstrSource, m_szErrorXML, cchMax);
+	return _ErrorXML;
 }
 
 XMarkupNode XMarkupParser::GetRoot()
@@ -495,8 +504,8 @@ XMarkupNode XMarkupParser::GetNodeAt(int pos)
 bool XMarkupParser::_Parse()
 {
 	_ReserveElement(); // Reserve index 0 for errors
-	::ZeroMemory(m_szErrorMsg, sizeof(m_szErrorMsg));
-	::ZeroMemory(m_szErrorXML, sizeof(m_szErrorXML));
+	_ErrorMsg.Empty();
+	_ErrorXML.Empty();
 	LPTSTR pstrXML = m_pstrXML;
 	return _Parse(pstrXML, 0);
 }
@@ -699,8 +708,8 @@ bool XMarkupParser::_Failed(LPCTSTR pstrError, LPCTSTR pstrLocation)
 	// Register last error
 	TRACE(_T("XML Error: %s"), pstrError);
 	if( pstrLocation != NULL ) TRACE(pstrLocation);
-	_tcsncpy(m_szErrorMsg, pstrError, (sizeof(m_szErrorMsg) / sizeof(m_szErrorMsg[0])) - 1);
-	_tcsncpy(m_szErrorXML, pstrLocation != NULL ? pstrLocation : _T(""), lengthof(m_szErrorXML) - 1);
+	_ErrorMsg = pstrError;
+	_ErrorXML = pstrLocation;
 	return false; // Always return 'false'
 }
 

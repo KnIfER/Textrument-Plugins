@@ -7,7 +7,7 @@ namespace DuiLib
 {
 	class UILIB_API CScrollBarUI : public CControlUI
 	{
-		DECLARE_DUICONTROL(CScrollBarUI)
+		DECLARE_QKCONTROL(CScrollBarUI)
 	public:
 		CScrollBarUI();
 
@@ -23,6 +23,7 @@ namespace DuiLib
 
 		bool IsHorizontal();
 		void SetHorizontal(bool bHorizontal = true);
+		void SetScrollRangeAndPos(int nRange, int nPos);
 		int GetScrollRange() const;
 		void SetScrollRange(int nRange);
 		int GetScrollPos() const;
@@ -91,6 +92,12 @@ namespace DuiLib
 		void PaintThumb(HDC hDC);
 		void PaintRail(HDC hDC);
 
+		void SetMouseBias(int bias) {
+			_lastMouseBias = bias;
+		}
+
+		LONG GetThumbPosition();
+
 	protected:
 
 		enum
@@ -107,42 +114,43 @@ namespace DuiLib
 		POINT m_ptLastMouse;
 		int m_nLastScrollPos;
 		int m_nLastScrollOffset;
+		int _lastMouseBias;
 		int m_nScrollRepeatDelay;
 
-		CDuiString m_sBkNormalImage;
-		CDuiString m_sBkHotImage;
-		CDuiString m_sBkPushedImage;
-		CDuiString m_sBkDisabledImage;
+		QkString m_sBkNormalImage;
+		QkString m_sBkHotImage;
+		QkString m_sBkPushedImage;
+		QkString m_sBkDisabledImage;
 
 		bool m_bShowButton1;
 		RECT m_rcButton1;
 		UINT m_uButton1State;
-		CDuiString m_sButton1NormalImage;
-		CDuiString m_sButton1HotImage;
-		CDuiString m_sButton1PushedImage;
-		CDuiString m_sButton1DisabledImage;
+		QkString m_sButton1NormalImage;
+		QkString m_sButton1HotImage;
+		QkString m_sButton1PushedImage;
+		QkString m_sButton1DisabledImage;
 
 		bool m_bShowButton2;
 		RECT m_rcButton2;
 		UINT m_uButton2State;
-		CDuiString m_sButton2NormalImage;
-		CDuiString m_sButton2HotImage;
-		CDuiString m_sButton2PushedImage;
-		CDuiString m_sButton2DisabledImage;
+		QkString m_sButton2NormalImage;
+		QkString m_sButton2HotImage;
+		QkString m_sButton2PushedImage;
+		QkString m_sButton2DisabledImage;
 
 		RECT m_rcThumb;
 		UINT m_uThumbState;
-		CDuiString m_sThumbNormalImage;
-		CDuiString m_sThumbHotImage;
-		CDuiString m_sThumbPushedImage;
-		CDuiString m_sThumbDisabledImage;
+		QkString m_sThumbNormalImage;
+		QkString m_sThumbHotImage;
+		QkString m_sThumbPushedImage;
+		QkString m_sThumbDisabledImage;
 
-		CDuiString m_sRailNormalImage;
-		CDuiString m_sRailHotImage;
-		CDuiString m_sRailPushedImage;
-		CDuiString m_sRailDisabledImage;
+		QkString m_sRailNormalImage;
+		QkString m_sRailHotImage;
+		QkString m_sRailPushedImage;
+		QkString m_sRailDisabledImage;
 
-		CDuiString m_sImageModify;
+		QkString m_sImageModify;
 	};
 }
 

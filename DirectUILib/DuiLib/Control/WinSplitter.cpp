@@ -5,16 +5,17 @@
 extern void TAB_Register();
 
 namespace DuiLib {
-	IMPLEMENT_DUICONTROL(WinSplitter)
+	IMPLEMENT_QKCONTROL(WinSplitter)
 
 		WinSplitter::WinSplitter()
 		: CContainerUI()
 	{
 		m_dwBackColor = RGB(0, 0, 255);
-		_isDirectUI = true;
+		//_view_states &= ~VIEWSTATEMASK_IsDirectUI;
 		_ratio = 0.5f;
 		_horizontal = false;
 		_isDragging = false;
+		_hSplitter = 0;
 	}
 
 	LPCTSTR WinSplitter::GetClass() const
@@ -121,46 +122,49 @@ namespace DuiLib {
 
 	void WinSplitter::Init()
 	{
-		_hParent = m_pParent->GetHWND();
-
+		if (!_hSplitter && _parent->GetHWND())
 		{
-			WNDCLASSW wndClass;
+			_hParent = _parent->GetHWND();
+			{
+				WNDCLASSW wndClass;
 
-			ZeroMemory (&wndClass, sizeof(WNDCLASSW));
-			wndClass.style         = CS_GLOBALCLASS | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-			wndClass.lpfnWndProc   = SplitterWndProc;
-			wndClass.cbClsExtra    = 0;
-			wndClass.cbWndExtra    = 0;
-			wndClass.hCursor       = LoadCursorW (0, (LPWSTR)IDC_SIZEWE);
-			wndClass.hbrBackground = (HBRUSH)(COLOR_BTNFACE+1);
-			wndClass.lpszClassName = wndClassName;
+				ZeroMemory (&wndClass, sizeof(WNDCLASSW));
+				wndClass.style         = CS_GLOBALCLASS | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+				wndClass.lpfnWndProc   = SplitterWndProc;
+				wndClass.cbClsExtra    = 0;
+				wndClass.cbWndExtra    = 0;
+				wndClass.hCursor       = LoadCursorW (0, (LPWSTR)IDC_SIZEWE);
+				wndClass.hbrBackground = (HBRUSH)(COLOR_BTNFACE+1);
+				wndClass.lpszClassName = wndClassName;
 
-			RegisterClassW (&wndClass);
+				RegisterClassW (&wndClass);
+			}
+
+			//LogIs("_hParent::%d", _hParent);
+			DWORD style = WS_CHILD | WS_VISIBLE 
+				//| WS_THICKFRAME // 0x40000L  resizable
+				;
+
+			_hSplitter = ::CreateWindowEx(
+				0,
+				wndClassName,
+				TEXT("sep"),
+				style,
+				0, 0, 0, 0,
+				_hParent,
+				NULL,
+				CPaintManagerUI::GetInstance(),
+				0);
+
+			SetWindowLongPtr(_hSplitter, GWLP_USERDATA, (LONG_PTR)this);
 		}
-
-		//LogIs("_hParent::%d", _hParent);
-		DWORD style = WS_CHILD | WS_VISIBLE 
-			//| WS_THICKFRAME // 0x40000L  resizable
-			;
-
-		_hWnd = ::CreateWindowEx(
-			0,
-			wndClassName,
-			TEXT("sep"),
-			style,
-			0, 0, 0, 0,
-			_hParent,
-			NULL,
-			CPaintManagerUI::GetInstance(),
-			0);
-
-		SetWindowLongPtr(_hWnd, GWLP_USERDATA, (LONG_PTR)this);
 	}
 	 
 	void WinSplitter::SetPos(RECT rc, bool bNeedInvalidate) 
 	{
 		int sepWidth = 10;
 		m_rcItem = rc;
+		ApplyInsetToRect(rc);
 		if (m_items.GetSize()>=2)
 		{
 			if (_horizontal)
@@ -174,8 +178,8 @@ namespace DuiLib {
 				{
 					rc.bottom = bottom-sepWidth;
 				}
-				::MoveWindow(_hWnd, rc.left, rc.bottom, rc.right-rc.left, sepWidth, TRUE);
-				::UpdateWindow(_hWnd);
+				::MoveWindow(_hSplitter, rc.left, rc.bottom, rc.right-rc.left, sepWidth, TRUE);
+				::UpdateWindow(_hSplitter);
 				pControl_A->SetPos(rc, bNeedInvalidate);
 				
 				rc.top = rc.bottom + sepWidth;
@@ -193,10 +197,10 @@ namespace DuiLib {
 				{
 					rc.right = right-sepWidth;
 				}
-				//BringWindowToTop(_hWnd);
-				//ShowWindow(_hWnd, SW_HIDE);
-				::MoveWindow(_hWnd, rc.right, rc.top, sepWidth, rc.bottom-rc.top, TRUE);
-				::UpdateWindow(_hWnd);
+				//BringWindowToTop(hSplitter);
+				//ShowWindow(hSplitter, SW_HIDE);
+				::MoveWindow(_hSplitter, rc.right, rc.top, sepWidth, rc.bottom-rc.top, TRUE);
+				::UpdateWindow(_hSplitter);
 
 				pControl_A->SetPos(rc, bNeedInvalidate);
 				rc.left = rc.right + sepWidth;

@@ -37,6 +37,6 @@ public:
 	virtual int GetElementtCount();
 	
 protected:
-	CPaintManagerUI* m_pManager;
+	CPaintManagerUI* _manager;
 	CDialogBuilder m_dlgBuilder;
 };

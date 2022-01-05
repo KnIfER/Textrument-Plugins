@@ -2,7 +2,16 @@
 <Window>
   <Font id="0" name="微软雅黑" size="12" bold="false" default="true" />
   <Font id="1" name="微软雅黑" size="12" bold="true"/>
-  <Default name="Menu" value="inset=&quot;2,2,2,2&quot; itemtextpadding=&quot;30,0,0,0&quot; bkimage=&quot;res='121' restype='png' corner='30,8,8,8'&quot; hole=&quot;false&quot;" />
+  
+  <Style>
+    <Menu name="Menu" 
+		inset="2,2,2,2" 
+		itemtextpadding="30,0,0,0" 
+		bkimage="res='121' restype='png' corner='30,8,8,8'" 
+		hole="false" />
+  
+  </Style>
+  
   <Menu>
     <MenuElement height="95" padding="30,0,0,0">
       <HorizontalLayout>
@@ -14,7 +23,7 @@
             <Slider bordersize="0" height="13" width="90" thumbsize="13,13" max="360" value="180" bkimage="res='130' restype='png' corner='9,0,9,0'" fgimage="res='131' restype='png'  corner='4,2,1,2'" thumbimage="res='132' restype='png' " thumbhotimage="res='132' restype='png' " />
           </VerticalLayout>
         </VerticalLayout>
-        <VerticalLayout width="20">
+        <VerticalLayout width="20" height="20">
           <Label />
           <Label width="20"  bkimage="res='122' restype='png' source='0,0,16,16' dest='0,5,15,20'"/>
           <Label />
@@ -90,10 +99,6 @@
         <Label width="20"  bkimage="res='122' restype='png' source='0,0,16,16' dest='0,5,15,20'"/>
       </HorizontalLayout>
       <MenuElement text="     菜单测试11        " />
-      <HorizontalLayout>
-        <Label />
-        <Label width="20"  bkimage="res='122' restype='png' source='0,0,16,16' dest='0,5,15,20'"/>
-      </HorizontalLayout>
       <MenuElement text="     菜单测试12        ">
         <HorizontalLayout>
           <Label />

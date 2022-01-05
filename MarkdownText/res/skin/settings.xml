@@ -8,7 +8,7 @@
 	<VerticalLayout inset="20,15,20,6" bkcolor="#FFFFFFFF" colorhsl="true" vscrollbar="true" autovscroll="true" 	>
 
 		<HorizontalLayout minheight="30" maxheight="80">
-            <RichEdit name="at_run" bkcolor="#0000FFFF" font="2" password="false" mutiline="false" rich="false" text="启动时自动运行" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="true" padding="2,2.8,0,0"/>
+            <RichEdit name="at_run" wanttab="false" bkcolor="#0000FFFF" font="2" password="false" mutiline="false" rich="false" text="启动时自动运行" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="true" padding="2,2.8,0,0"/>
 			<BSwitch name="sw1" ud="-5" textcolor="#FF333333" valign="vcenter" height="30" width="60" bkcolor="#FF888888" forecolor="#FFFF0000" value="50" min="0" max="100"/>
 		    <Control width="5" />
 		</HorizontalLayout>

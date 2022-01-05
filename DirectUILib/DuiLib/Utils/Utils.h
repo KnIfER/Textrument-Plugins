@@ -3,7 +3,6 @@
 
 #pragma once
 #include "OAIdl.h"
-#include <vector>
 
 namespace DuiLib
 {
@@ -83,11 +82,13 @@ namespace DuiLib
 		void Empty();
 		void Resize(int iSize);
 		bool IsEmpty() const;
-		int Find(LPVOID iIndex) const;
+		int Find(LPVOID pData) const;
+		int FindEx(LPVOID pData, int findSt=0, int findCnt=-1, bool reverse=false) const;
 		bool Add(LPVOID pData);
 		bool SetAt(int iIndex, LPVOID pData);
 		bool InsertAt(int iIndex, LPVOID pData);
 		bool Remove(int iIndex);
+		LPVOID RemoveAt(int iIndex);
 		int GetSize() const;
 		LPVOID* GetData();
 
@@ -131,18 +132,19 @@ namespace DuiLib
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 
-	class UILIB_API CDuiString
+	class UILIB_API QkString
 	{
 	public:
-		enum { MAX_LOCAL_STRING_LEN = 63 };
+		enum { MAX_LOCAL_STRING_LEN = 15 };
 
-		CDuiString();
-		CDuiString(const TCHAR ch);
-		CDuiString(const CDuiString& src);
-		CDuiString(LPCTSTR lpsz, int nLen = -1);
-		~CDuiString();
+		QkString();
+		QkString(const TCHAR ch);
+		QkString(const CHAR* ch);
+		QkString(const QkString& src);
+		QkString(LPCTSTR lpsz, int nLen = -1);
+		~QkString();
 
-		static CDuiString & EmptyInstance(LPCTSTR lpstrId=0)
+		static QkString & EmptyInstance(LPCTSTR lpstrId=0)
 		{
 			if (!lpstrId)
 			{
@@ -159,35 +161,64 @@ namespace DuiLib
 			return _EmptyInstance;
 		};
 		void Empty();
-		int GetLength() const;
+		size_t GetLength() const;
 		bool IsEmpty() const;
 		TCHAR GetAt(int nIndex) const;
-		void Append(LPCTSTR pstr);
+
+		bool EnsureCapacity(size_t newSz, bool release=false);
+		void AsBuffer(bool isBuffer=true){
+			_isBuffer = isBuffer;
+		}
+		size_t Capacity(){
+			return m_pstr==m_szBuffer?MAX_LOCAL_STRING_LEN:_capacity;
+		};
+		size_t RecalcSize();
+		void ReFit();
+
+		void Prepend(QkString & other) {
+			Prepend(other, other.GetLength());
+		};
+		void Prepend(LPCTSTR pstr, int nLength = -1);
+		void Append(QkString & other) {
+			Append(other, other.GetLength());
+		};
+		void Append(LPCTSTR pstr, int nLength = -1);
+		void Assign(QkString & other) {
+			Assign(other, other.GetLength());
+		};
 		void Assign(LPCTSTR pstr, int nLength = -1);
+		//QkString& AssignThenReturn(LPCTSTR pstr, int nLength = -1) {
+		//	Assign(pstr, nLength);
+		//	return *this;
+		//};
 		LPCTSTR GetData() const;
+		LPCSTR GetData(std::string & buffer) const;
+		static LPCSTR GetData(std::string & buffer, LPCWSTR pStr);
 
 		void SetAt(int nIndex, TCHAR ch);
 		operator LPCTSTR() const;
 
 		TCHAR operator[] (int nIndex) const;
-		const CDuiString& operator=(const CDuiString& src);
-		const CDuiString& operator=(const TCHAR ch);
-		const CDuiString& operator=(LPCTSTR pstr);
+		const QkString& operator=(const QkString& src);
+		const QkString& operator=(const TCHAR ch);
+		const QkString& operator=(LPCTSTR pstr);
 #ifdef _UNICODE
-		const CDuiString& operator=(LPCSTR lpStr);
-		const CDuiString& operator+=(LPCSTR lpStr);
+		const QkString& operator=(LPCSTR lpStr);
+		const QkString& operator+=(LPCSTR lpStr);
 #else
-		const CDuiString& operator=(LPCWSTR lpwStr);
-		const CDuiString& operator+=(LPCWSTR lpwStr);
+		const QkString& operator=(LPCWSTR lpwStr);
+		const QkString& operator+=(LPCWSTR lpwStr);
 #endif
-		CDuiString operator+(const CDuiString& src) const;
-		CDuiString operator+(LPCTSTR pstr) const;
-		const CDuiString& operator+=(const CDuiString& src);
-		const CDuiString& operator+=(LPCTSTR pstr);
-		const CDuiString& operator+=(const TCHAR ch);
+		QkString operator+(const QkString& src) const;
+		QkString operator+(LPCTSTR pstr) const;
+		const QkString& operator+=(const QkString& src);
+		const QkString& operator+=(LPCTSTR pstr);
+		const QkString& operator+=(const TCHAR ch);
 
 		bool operator == (LPCTSTR str) const;
 		bool operator != (LPCTSTR str) const;
+		bool operator == (const QkString & str) const;
+		bool operator != (const QkString & str) const;
 		bool operator <= (LPCTSTR str) const;
 		bool operator <  (LPCTSTR str) const;
 		bool operator >= (LPCTSTR str) const;
@@ -199,14 +230,20 @@ namespace DuiLib
 		void MakeUpper();
 		void MakeLower();
 
-		CDuiString Left(int nLength) const;
-		CDuiString Mid(int iPos, int nLength = -1) const;
-		CDuiString Right(int nLength) const;
+		QkString Left(int nLength) const;
+		QkString Mid(int iPos, int nLength = -1) const;
+		void MidFast(int iPos, int nLength = -1);
+		QkString Right(int nLength) const;
 
 		int Find(TCHAR ch, int iPos = 0) const;
 		int Find(LPCTSTR pstr, int iPos = 0) const;
 		int ReverseFind(TCHAR ch) const;
 		int Replace(LPCTSTR pstrFrom, LPCTSTR pstrTo);
+		void Trim();
+		void Split(const QkString & delim, std::vector<QkString> & ret);
+
+		bool StartWith(const QkString & prefix, bool ignoreCase=false, int toffset=0);
+		bool EndWith(const QkString & other, bool ignoreCase=false);
 
 		int __cdecl Format(LPCTSTR pstrFormat, ...);
 		int __cdecl SmallFormat(LPCTSTR pstrFormat, ...);
@@ -217,51 +254,59 @@ namespace DuiLib
 	protected:
 		LPTSTR m_pstr;
 		TCHAR m_szBuffer[MAX_LOCAL_STRING_LEN + 1];
-		static CDuiString _EmptyInstance;
+		size_t _size;
+		size_t _capacity;
+		bool _isBuffer;
+		static QkString _EmptyInstance;
 	};
 
-	static std::vector<CDuiString> StrSplit(CDuiString text, CDuiString sp)
+	static std::vector<QkString> StrSplit(QkString text, QkString sp)
 	{
-		std::vector<CDuiString> vResults;
+		std::vector<QkString> vResults;
 		int pos = text.Find(sp, 0);
 		while (pos >= 0)
 		{
-			CDuiString t = text.Left(pos);
+			QkString t = text.Left(pos);
 			vResults.push_back(t);
 			text = text.Right(text.GetLength() - pos - sp.GetLength());
 			pos = text.Find(sp);
 		}
 		vResults.push_back(text);
 		return vResults;
-}
+    }
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 
 	struct TITEM
 	{
-		CDuiString Key;
+		QkString Key;
 		LPVOID Data;
 		struct TITEM* pPrev;
 		struct TITEM* pNext;
 	};
 
-	class UILIB_API CStdStringPtrMap
+	class UILIB_API QkStringPtrMap
 	{
 	public:
-		CStdStringPtrMap(int nSize = 83);
-		~CStdStringPtrMap();
+		QkStringPtrMap(int nSize = 83);
+		~QkStringPtrMap();
 
 		void Resize(int nSize = 83);
 		LPVOID Find(LPCTSTR key, bool optimize = true) const;
+		bool Insert(const QkString & key, LPVOID pData);
 		bool Insert(LPCTSTR key, LPVOID pData);
 		LPVOID Set(LPCTSTR key, LPVOID pData);
 		bool Remove(LPCTSTR key);
 		void RemoveAll();
 		int GetSize() const;
-		LPCTSTR GetAt(int iIndex) const;
+		const TITEM* GetSlotAt(int iIndex) const;
+		LPCTSTR GetKeyAt(int iIndex) const;
+		LPVOID GetValueAt(int iIndex) const;
+		bool GetKeyValueAt(int iIndex, LPCTSTR & key, LPVOID & value) const;
 		LPCTSTR operator[] (int nIndex) const;
 
 	protected:
+		LPVOID FindIntern(UINT hash, const QkString & key, bool optimize = true) const;
 		TITEM** m_aT;
 		int m_nBuckets;
 		int m_nCount;
@@ -367,7 +412,7 @@ namespace DuiLib
 	//	const CImageString& operator=(const CImageString&);
 	//	virtual ~CImageString();
 
-	//	const CDuiString& GetAttributeString() const;
+	//	const QkString& GetAttributeString() const;
 	//	void SetAttributeString(LPCTSTR pStrImageAttri);
 	//	void ModifyAttribute(LPCTSTR pStrModify);
 	//	bool LoadImage(CPaintManagerUI* pManager);
@@ -384,10 +429,10 @@ namespace DuiLib
 
 	//protected:
 	//	friend class CRenderEngine;
-	//	CDuiString	m_sImageAttribute;
+	//	QkString	m_sImageAttribute;
 
-	//	CDuiString	m_sImage;
-	//	CDuiString	m_sResType;
+	//	QkString	m_sImage;
+	//	QkString	m_sResType;
 	//	TImageInfo	*m_imageInfo;
 	//	bool		m_bLoadSuccess;
 
@@ -400,6 +445,24 @@ namespace DuiLib
 	//	bool	m_bTiledX;
 	//	bool	m_bTiledY;
 	//};
+
+	// 转换十六进制字符串如#FFF,#FFFFFF,#FFFFFFFF,0xFFF,0xFFFFFF,0xFFFFFFFF 为 ARGB 数值。
+	LPCTSTR STR2ARGB(LPCTSTR STR, DWORD & ARGB);
+
+	// 转换十进制字符串为整型数值。
+	int ParseInt(LPCTSTR STR);
+
+	// 转换十进制字符串为整型数值。
+	LPCTSTR STR2Decimal(LPCTSTR STR, long & value);
+
+	// 转换十进制字符串如“整数,整数,整数,整数”,“整数,整数”为矩形。
+	LPCTSTR STR2Rect(LPCTSTR STR, RECT & rc);
+
+	// 转换十进制字符串如“整数,整数”,“整数”为SIZE。
+	LPCTSTR STR2Size(LPCTSTR STR, SIZE & sz);
+
+	void SetRectInt(RECT & rc, int value);
+
 }// namespace DuiLib
 
 #endif // __UTILS_H__

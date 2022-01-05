@@ -7,10 +7,34 @@
 
 <WinFrame inset="0,0,0,0">
 
-	<HorizontalLayout inset="10,10,0,0" bkcolor="#ffffffff" >
+	<HorizontalLayout bkcolor="#ffffffff" >
 	
-		<VerticalLayout  vscrollbar="true">
-		
+		<VerticalLayout  vscrollbar="true"  hscrollbar="true"  inset="10,0,0,0">
+			<Control height="10"/>
+			
+			<RichEdit 
+			height="100" 
+			textcolor="#FF0000FF" font="1" text="haha 仁者无敌 ABC DEFG
+lala "
+			
+			autocalcwidth="true" 
+			autocalcheight="true" 
+			multiline="false"
+/>
+			
+			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+				text="以上按钮，均无窗口句柄。是由UIButton，调用WINE的方法绘制的，模拟了win32的原生控件。" 
+				name="Run" 
+				width="500" 
+				height="100" 
+				autocalcwidth="false" 
+				autocalcheight="false" 
+				valign="vcenter"
+				wordbreak="true"
+				textpadding="5,15,5,15"
+				
+				 bordersize="5" bordercolor="#77FFFFFF" bkcolor3="#ffffff5f" bkcolor1="#ffffee00" bkcolor2="#ffffff00"
+				/>
 			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
 				text="多种自适应文本宽高的按钮控件" 
 				type="push"
@@ -133,7 +157,7 @@
 			<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
 				text="以上按钮，均无窗口句柄。是由UIButton，调用WINE的方法绘制的，模拟了win32的原生控件。" 
 				name="Run" 
-				autocalcwidth="true" 
+				width="500" 
 				autocalcheight="true" 
 				valign="vcenter"
 				wordbreak="true"

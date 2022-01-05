@@ -3,7 +3,7 @@
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CComboBoxUI)
+	IMPLEMENT_QKCONTROL(CComboBoxUI)
 
 	CComboBoxUI::CComboBoxUI()
 	{
@@ -46,7 +46,7 @@ namespace DuiLib
 				nIndex = 3;
 
 			// make modify string
-			CDuiString sModify = m_sArrowImage;
+			QkString sModify = m_sArrowImage;
 
 			int nPos1 = sModify.Find(_T("source"));
 			int nPos2 = sModify.Find(_T("'"), nPos1 + 7);
@@ -69,8 +69,8 @@ namespace DuiLib
 			rcDest.Deflate(GetBorderSize(), GetBorderSize());
 			rcDest.left = rcDest.right - m_nArrowWidth;
 
-			CDuiString sSource = sModify.Mid(nPos1, nPos3 + 1 - nPos1);
-			CDuiString sReplace;
+			QkString sSource = sModify.Mid(nPos1, nPos3 + 1 - nPos1);
+			QkString sReplace;
 			sReplace.SmallFormat(_T("source='%d,%d,%d,%d' dest='%d,%d,%d,%d'"),
 				rcBmpPart.left, rcBmpPart.top, rcBmpPart.right, rcBmpPart.bottom,
 				rcDest.left, rcDest.top, rcDest.right, rcDest.bottom);

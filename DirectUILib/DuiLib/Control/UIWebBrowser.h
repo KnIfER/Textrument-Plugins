@@ -18,7 +18,7 @@ namespace DuiLib
 		, public ITranslateAccelerator
 		, public IInternetSecurityManager 
 	{
-		DECLARE_DUICONTROL(CWebBrowserUI)
+		DECLARE_QKCONTROL(CWebBrowserUI)
 	public:
 		/// 构造函数
 		CWebBrowserUI();
@@ -54,7 +54,7 @@ namespace DuiLib
 		virtual void ReleaseControl();
 		HRESULT RegisterEventHandler(BOOL inAdvise);
 		virtual void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
-		CDuiString m_sHomePage;	// 默认页面
+		QkString m_sHomePage;	// 默认页面
 		bool m_bAutoNavi;	// 是否启动时打开默认页面
 		CWebBrowserEventHandler* m_pWebBrowserEventHandler;	//浏览器事件处理
 

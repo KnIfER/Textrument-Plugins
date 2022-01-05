@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XMLDesigner", "XMLDesigner\
 		{E106ACD7-4E53-4AEE-942B-D0DD426DB34E} = {E106ACD7-4E53-4AEE-942B-D0DD426DB34E}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsEx", "DirectUILib\DuiLib\WindowsEx.vcxproj", "{0371208C-B635-405E-86C6-4EEA745786E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -86,6 +88,14 @@ Global
 		{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}.Release|Win32.Build.0 = Release|Win32
 		{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}.Release|x64.ActiveCfg = Release|x64
 		{37DD50BB-35A2-4C88-9716-34EB4C4EF40F}.Release|x64.Build.0 = Release|x64
+		{0371208C-B635-405E-86C6-4EEA745786E8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0371208C-B635-405E-86C6-4EEA745786E8}.Debug|Win32.Build.0 = Debug|Win32
+		{0371208C-B635-405E-86C6-4EEA745786E8}.Debug|x64.ActiveCfg = Debug|x64
+		{0371208C-B635-405E-86C6-4EEA745786E8}.Debug|x64.Build.0 = Debug|x64
+		{0371208C-B635-405E-86C6-4EEA745786E8}.Release|Win32.ActiveCfg = Release|Win32
+		{0371208C-B635-405E-86C6-4EEA745786E8}.Release|Win32.Build.0 = Release|Win32
+		{0371208C-B635-405E-86C6-4EEA745786E8}.Release|x64.ActiveCfg = Release|x64
+		{0371208C-B635-405E-86C6-4EEA745786E8}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

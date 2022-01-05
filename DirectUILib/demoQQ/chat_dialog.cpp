@@ -36,7 +36,7 @@ const TCHAR* const kSendButtonControlName = _T("sendbtn");
 const int kEmotionRefreshTimerId = 1001;
 const int kEmotionRefreshInterval = 150;
 
-ChatDialog::ChatDialog(const CDuiString& bgimage, DWORD bkcolor, const FriendListItemInfo& myselft_info, const FriendListItemInfo& friend_info)
+ChatDialog::ChatDialog(const QkString& bgimage, DWORD bkcolor, const FriendListItemInfo& myselft_info, const FriendListItemInfo& friend_info)
 : bgimage_(bgimage)
 , bkcolor_(bkcolor)
 , myselft_(myselft_info)
@@ -98,14 +98,14 @@ BOOL ChatDialog::Receive(SkinChangedParam param)
 	return TRUE;
 }
 
-CDuiString ChatDialog::GetSkinFile()
+QkString ChatDialog::GetSkinFile()
 {
 	return _T("chatbox.xml");
 }
 
-CDuiString ChatDialog::GetSkinFolder()
+QkString ChatDialog::GetSkinFolder()
 {
-	return CDuiString(CPaintManagerUI::GetInstancePath()) + _T("skin\\");
+	return QkString(CPaintManagerUI::GetInstancePath()) + _T("skin\\");
 }
 
 LRESULT ChatDialog::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -194,7 +194,7 @@ void ChatDialog::OnPrepare(TNotifyUI& msg)
 		background->SetBkColor(bkcolor_);
 	}
 
-	CButtonUI* log_button = static_cast<CButtonUI*>(m_PaintManager.FindControl(kLogoButtonControlName));
+	Button* log_button = static_cast<Button*>(m_PaintManager.FindControl(kLogoButtonControlName));
 	if (log_button != NULL)
 	{
 #if defined(UNDER_WINCE)
@@ -218,7 +218,7 @@ void ChatDialog::OnPrepare(TNotifyUI& msg)
 		pFontbar->SetVisible(!pFontbar->IsVisible());
 }
 
-CDuiString GetCurrentTimeString()
+QkString GetCurrentTimeString()
 {
 	SYSTEMTIME time = {0};
 	TCHAR szTime[MAX_PATH] = {0};
@@ -237,7 +237,7 @@ void ChatDialog::SendMsg()
     CRichEditUI* pRichEdit = static_cast<CRichEditUI*>(m_PaintManager.FindControl(kInputRichEditControlName));
     if( pRichEdit == NULL ) return;
     pRichEdit->SetFocus();
-    CDuiString sText = pRichEdit->GetTextRange(0, pRichEdit->GetTextLength());
+    QkString sText = pRichEdit->GetTextRange(0, pRichEdit->GetTextLength());
     if( sText.IsEmpty() ) return;
     pRichEdit->SetText(_T(""));
 
@@ -400,7 +400,7 @@ void ChatDialog::Notify(TNotifyUI& msg)
 		}
 		else if (_tcsicmp(msg.pSender->GetName(), kBoldButtonControlName) == 0)
 		{
-			COptionUI* bold_button = static_cast<COptionUI*>(msg.pSender);
+			OptionBtn* bold_button = static_cast<OptionBtn*>(msg.pSender);
 			if (bold_button != NULL)
 			{
 				bold_ = bold_button->IsSelected();
@@ -409,7 +409,7 @@ void ChatDialog::Notify(TNotifyUI& msg)
 		}
 		else if (_tcsicmp(msg.pSender->GetName(), kItalicButtonControlName) == 0)
 		{
-			COptionUI* italic_button = static_cast<COptionUI*>(msg.pSender);
+			OptionBtn* italic_button = static_cast<OptionBtn*>(msg.pSender);
 			if (italic_button != NULL)
 			{
 				italic_ = italic_button->IsSelected();
@@ -418,7 +418,7 @@ void ChatDialog::Notify(TNotifyUI& msg)
 		}
 		else if (_tcsicmp(msg.pSender->GetName(), KUnderlineButtonControlName) == 0)
 		{
-			COptionUI* underline_button = static_cast<COptionUI*>(msg.pSender);
+			OptionBtn* underline_button = static_cast<OptionBtn*>(msg.pSender);
 			if (underline_button != NULL)
 			{
 				underline_ = underline_button->IsSelected();
@@ -451,7 +451,7 @@ void ChatDialog::Notify(TNotifyUI& msg)
 
 void ChatDialog::SetTextColor(DWORD dwColor)
 {
-	COptionUI* color_button = static_cast<COptionUI*>(m_PaintManager.FindControl(kColorButtonControlName));
+	OptionBtn* color_button = static_cast<OptionBtn*>(m_PaintManager.FindControl(kColorButtonControlName));
 	if (color_button != NULL)
 	{
 		color_button->Selected(false);

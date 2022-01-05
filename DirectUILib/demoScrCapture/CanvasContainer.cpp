@@ -58,7 +58,7 @@ LPTSTR CCanvasContainerUI::GetSizerCursor(POINT& pt, int& iCursor)
 {
 	LONG SIZER_WIDTH = m_rcInset.left*2;
 	LONG SIZER_TO_ROOT = 20;	
-	RECT rcRoot = m_pManager->GetRoot()->GetPos();
+	RECT rcRoot = _manager->GetRoot()->GetPos();
 
 	iCursor = -1;
 	for( int i = 8; i >= 0; --i ) {

@@ -12,13 +12,13 @@ namespace DuiLib
 	class CComboEditWnd;
 	class UILIB_API CComboEditUI : public CComboUI
 	{
-		DECLARE_DUICONTROL(CComboEditUI)
+		DECLARE_QKCONTROL(CComboEditUI)
 	public:
 		CComboEditUI();
 		LPCTSTR GetClass() const;
 		LPVOID GetInterface(LPCTSTR pstrName);
 
-		CDuiString & GetText();
+		QkString & GetText();
 
 
 		void DoEvent(TEventUI& event);
@@ -37,7 +37,7 @@ namespace DuiLib
 		void PaintText(HDC hDC);
 		int GetCurSel() const;
 	public:
-		CDuiString m_sText;
+		QkString m_sText;
 		CComboEditWnd* m_pEditWnd;
 
 		int m_iMaxChar;

@@ -3,6 +3,8 @@
 
 namespace DuiLib
 {
+#undef m_bVisible
+#undef m_bEnabled
 	CTrayIcon::CTrayIcon(void)
 	{
 		memset(&m_trayData, 0, sizeof(m_trayData));
@@ -59,7 +61,7 @@ namespace DuiLib
 		return SetTooltipText(mbuf);
 	}
 
-	DuiLib::CDuiString CTrayIcon::GetTooltipText() const
+	DuiLib::QkString CTrayIcon::GetTooltipText() const
 	{
 		return m_trayData.szTip;
 	}

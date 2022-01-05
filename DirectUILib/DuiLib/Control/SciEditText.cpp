@@ -1,4 +1,11 @@
-#include "StdAfx.h"
+//#include "StdAfx.h"
+//#include "UILib.h"
+
+#define UILIB_API
+
+#include "Core\UICore.h"
+
+#include "SciEditText.h"
 #include "Core\InsituDebug.h"
 #include "Core\ControlFactory.h"
 #include "WindowsEx\comctl32.h"
@@ -6,14 +13,14 @@
 using namespace Scintilla;
 
 namespace DuiLib {
-	IMPLEMENT_DUICONTROL(SciEditText)
+	IMPLEMENT_QKCONTROL(SciEditText)
 
 	SciEditText::SciEditText()
 		: CControlUI()
 		, ScintillaCall()
 	{
 		m_dwBackColor = RGB(0, 0, 255);
-		_isDirectUI = false;
+		SetDirectUI(false);
 	}
 
 	LPCTSTR SciEditText::GetClass() const
@@ -36,9 +43,9 @@ namespace DuiLib {
 
 	void SciEditText::Init()
 	{
-		if (!_hWnd && m_pParent->GetHWND())
+		if (!_hWnd && _parent->GetHWND())
 		{
-			_hParent = m_pParent->GetHWND();
+			_hParent = _parent->GetHWND();
 			// see SciTEWin.cxx
 			//Lexilla::SetDefaultDirectory(GetSciTEPath(FilePath()).AsUTF8());
 
@@ -64,7 +71,7 @@ namespace DuiLib {
 
 			//::ShowWindow(_hWnd, TRUE);
 			//::SetWindowText(_hWnd, TEXT("TEST"));
-			//if (!dynamic_cast<WinFrame*>(m_pParent))
+			//if (!dynamic_cast<WinFrame*>(_parent))
 			//{
 			//	GetRoot()->_WNDList.push_back(this);
 			//}

@@ -29,7 +29,7 @@ void InitResource()
 	CPaintManagerUI::SetResourceType(UILIB_ZIPRESOURCE);
 #endif
 	// 资源路径
-	CDuiString strResourcePath = CPaintManagerUI::GetInstancePath();
+	QkString strResourcePath = CPaintManagerUI::GetInstancePath();
 	// 加载资源
 	switch(CPaintManagerUI::GetResourceType())
 	{

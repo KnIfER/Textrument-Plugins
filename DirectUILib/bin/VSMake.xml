@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window caption="0,0,0,30"  inset="0,0,0,30" roundcorner="5,5,5,5"  inset="0,0,0,0" sizebox="4,4,4,4" showdirty="false" layered="false">
+ <Font id="0" name="宋体" size="50" bold="false"/>
+ <Font id="1" name="宋体" size="22"/>
+ <Font id="2" name="宋体" size="18"/>
+ 
+<Container bkcolor="#FFFFFFFF">
+	
+	<WinSplitter height="-1" horizon="true" ratio="0.2" >
+		<SciEditText bkcolor="#FF313C00" name="edittext" />
+		
+		<VerticalLayout  
+			vscrollbar="true"  
+			hscrollbar="true"  
+			inset="50,0,0,0" 
+			childpadding="8"
+			>
+			<HorizontalLayout  
+					autocalcwidth="true" 			
+					autocalcheight="true" 			
+					childpadding="12"
+					bordersize="0" 
+					bordercolor="#7700FFFF"  
+					roundcorner="5,5,5,5"
+					inset="-10,0,0,0"
+					clipchild="false"
+					>
+					<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+						text="深度搜索" 
+						type="check"
+						name="Run" 
+						autocalcwidth="true" 
+						autocalcheight="true" 
+						valign="vcenter"
+						wordbreak="true"
+						textpadding="5,15,5,15"
+						/>
+					<Button  textcolor="#FF000000" font="1"  bkcolor="#ff00ffff"
+						text="智能过滤" 
+						type="check"
+						name="Run" 
+						autocalcwidth="true" 
+						autocalcheight="true" 
+						valign="vcenter"
+						wordbreak="true"
+						textpadding="5,15,5,15"
+						/>
+						
+						
+				<Button textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+					text="" 
+					type="group"
+					name="Run" 
+					autocalcwidth="true" 
+					autocalcheight="true"
+					align="center" 
+					inset="8,0,8,0"
+					>
+					<HorizontalLayout
+						autocalcwidth="true" 
+						autocalcheight="true"
+						bordersize="0" 
+						bordercolor="#7700FFFF"  
+						roundcorner="5,5,5,5"
+						childvalign="vcenter" 
+						>
+						<Button  textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+							text="预编译头文件：" 
+							type="check"
+							name="Run" 
+							autocalcwidth="true"
+							autocalcheight="true"
+							textpadding="5,15,5,15"
+							/>
+						<RichEdit 
+							name="ttt"
+							textcolor="#FF000000" font="1" text="stdafx.cpp"
+							autocalcheight="true"
+							autocalcwidth="true"
+							align="left"
+							valign="vcenter"
+							multiline="false"
+							wordbreak="false"
+							bordersize="1" 
+							bordercolor="#ffcfcfcf"   
+							textpadding="1,2,1,2"
+							minwidth="100"
+							maxwidth="200"
+							maxheight="200"
+							autohscroll="true"
+							autovscroll="true"
+							vscrollbar="false" hscrollbar="false"
+							/>
+					</HorizontalLayout> 
+				</Button> 
+			</HorizontalLayout>
+				 
+				 
+				 
+			<HorizontalLayout
+				autocalcheight="true"
+				bordersize="0" 
+				bordercolor="#7700FFFF"  
+				roundcorner="5,5,5,5"
+				childvalign="vcenter" 
+				childpadding="10"
+				>
+				<Button textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+					text="选择编译类型" 
+					type="group"
+					name="Run" 
+					autocalcwidth="true" 
+					autocalcheight="true"
+					align="center" 
+					inset="15,20,5,8"
+					minwidth="200"
+					>
+					<VerticalLayout
+						autocalcwidth="true" 
+						autocalcheight="true"
+						bordersize="0" 
+						bordercolor="#7700FFFF"  
+						roundcorner="5,5,5,5"
+						childalign="fit"
+						>
+						<Button  textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+							text="静态库" 
+							type="radio"
+							name="Run" 
+							autocalcwidth="true"
+							autocalcheight="true"
+							textpadding="5,15,5,15"
+							/>
+						<Button  textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+							text="动态库" 
+							type="radio"
+							name="Run" 
+							autocalcwidth="true"
+							autocalcheight="true"
+							textpadding="5,15,5,15"
+							/>
+						<Button  textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+							text="应用程序" 
+							type="radio"
+							name="Run" 
+							autocalcwidth="true"
+							autocalcheight="true"
+							textpadding="5,15,5,15"
+							/>
+					</VerticalLayout> 
+				</Button> 
+				
+				<control maxwidth="55"/>
+				
+				<Button textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+					text="代码生成方式" 
+					type="group"
+					name="Run" 
+					autocalcwidth="true" 
+					autocalcheight="true"
+					align="center" 
+					inset="15,20,5,8"
+					minwidth="200"
+					>
+					<VerticalLayout
+						autocalcwidth="true" 
+						autocalcheight="true"
+						bordersize="0" 
+						bordercolor="#7700FFFF"  
+						roundcorner="5,5,5,5"
+						childalign="fit"
+						>
+						<Button  textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+							text="自动选择" 
+							type="check"
+							name="Run" 
+							autocalcwidth="true"
+							autocalcheight="true"
+							textpadding="5,15,5,15"
+							/>
+						<Button  textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+							text="静态链接" 
+							type="radio"
+							name="Run" 
+							autocalcwidth="true"
+							autocalcheight="true"
+							textpadding="5,15,5,15"
+							/>
+						<Button  textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+							text="动态链接" 
+							type="radio"
+							name="Run" 
+							autocalcwidth="true"
+							autocalcheight="true"
+							textpadding="5,15,5,15"
+							/>
+					</VerticalLayout> 
+				</Button> 
+				
+				<control maxwidth="55"/>
+				
+				<Button textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+					text="项目模板" 
+					type="group"
+					name="Run" 
+					autocalcwidth="true" 
+					autocalcheight="true"
+					align="center" 
+					inset="15,20,5,8"
+					minwidth="200"
+					>
+					<VerticalLayout
+						autocalcwidth="true" 
+						autocalcheight="true"
+						bordersize="0" 
+						bordercolor="#7700FFFF"  
+						roundcorner="5,5,5,5"
+						childalign="fit"
+						>
+						<Button  textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+							text="使用内置模板" 
+							type="check"
+							name="Run" 
+							autocalcwidth="true"
+							autocalcheight="true"
+							textpadding="5,15,5,15"
+							/>
+						<Button  textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+							text="拷贝内置模板" 
+							type="radio"
+							name="Run" 
+							autocalcwidth="true"
+							autocalcheight="true"
+							textpadding="5,15,5,15"
+							/>
+						<Button  textcolor="#FF000000" font="2"  bkcolor="#ff00ffff"
+							text="选择模板…" 
+							type="radio"
+							name="Run" 
+							autocalcwidth="true"
+							autocalcheight="true"
+							textpadding="5,15,5,15"
+							/>
+					</VerticalLayout> 
+				</Button> 
+				
+				<control width="25"/>
+			</HorizontalLayout>
+			
+			
+			
+		</VerticalLayout>
+		
+	</WinSplitter>
+	
+</Container>
+</Window>

@@ -69,8 +69,8 @@ void CShadowUI::Create(CPaintManagerUI* pPaintManager)
 	// Already initialized
 	_ASSERT(CPaintManagerUI::GetInstance() != INVALID_HANDLE_VALUE);
 	_ASSERT(pPaintManager != NULL);
-	m_pManager = pPaintManager;
-	HWND hParentWnd = m_pManager->GetPaintWindow();
+	_manager = pPaintManager;
+	HWND hParentWnd = _manager->GetPaintWindow();
 	// Add parent window - shadow pair to the map
 	_ASSERT(GetShadowMap().find(hParentWnd) == GetShadowMap().end());	// Only one shadow for each window
 	GetShadowMap()[hParentWnd] = this;
@@ -315,7 +315,7 @@ void CShadowUI::Update(HWND hParent)
 	if (m_bIsImageMode)
 	{
 		RECT rcPaint = {0, 0, nShadWndWid, nShadWndHei};
-		const TImageInfo* data = m_pManager->GetImageEx((LPCTSTR)m_sShadowImage, NULL, 0);
+		const TImageInfo* data = _manager->GetImageEx((LPCTSTR)m_sShadowImage, NULL, 0);
 		if( !data ) return;    
 		RECT rcBmpPart = {0};
 		rcBmpPart.right = data->nX;

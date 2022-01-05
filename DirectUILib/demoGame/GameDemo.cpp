@@ -10,6 +10,23 @@ CMiniDumper g_miniDumper( true );
 
 #include "ControlEx.h"
 
+class CDialogBuilderCallbackEx : public IDialogBuilderCallback
+{
+public:
+    CControlUI* CreateControl(LPCTSTR pstrClass) 
+    {
+        if( _tcsicmp(pstrClass, _T("GameList")) == 0 ) 
+        {
+            return new GameListUI;
+        }
+        else if( _tcsicmp(pstrClass, _T("DeskList")) == 0 ) 
+        {
+            return new DeskListUI;
+        }
+        return NULL;
+    }
+};
+
 class CLoginFrameWnd : public CWindowWnd, public INotifyUI, public IMessageFilterUI
 {
 public:
@@ -168,17 +185,18 @@ public:
     void OnFinalMessage(HWND /*hWnd*/) { delete this; };
 
     void Init() {
-        m_pCloseBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("closebtn")));
-        m_pMaxBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("maxbtn")));
-        m_pRestoreBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("restorebtn")));
-        m_pMinBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("minbtn")));
+        m_pCloseBtn = static_cast<Button*>(m_pm.FindControl(_T("closebtn")));
+        m_pMaxBtn = static_cast<Button*>(m_pm.FindControl(_T("maxbtn")));
+        m_pRestoreBtn = static_cast<Button*>(m_pm.FindControl(_T("restorebtn")));
+        m_pMinBtn = static_cast<Button*>(m_pm.FindControl(_T("minbtn")));
 
         CActiveXUI* pActiveXUI = static_cast<CActiveXUI*>(m_pm.FindControl(_T("ie")));
         if( pActiveXUI ) {
             IWebBrowser2* pWebBrowser = NULL;
             pActiveXUI->GetControl(IID_IWebBrowser2, (void**)&pWebBrowser);
             if( pWebBrowser != NULL ) {
-                pWebBrowser->Navigate(L"https://github.com/duilib/duilib",NULL,NULL,NULL,NULL);  
+                //pWebBrowser->Navigate(L"https://github.com/duilib/duilib",NULL,NULL,NULL,NULL);  
+                pWebBrowser->Navigate(L"http://chartjs.cn/",NULL,NULL,NULL,NULL);  
                 //pWebBrowser->Navigate(L"about:blank",NULL,NULL,NULL,NULL); 
                 pWebBrowser->Release();
             }
@@ -282,7 +300,7 @@ public:
         if( msg.sType == _T("windowinit") ) OnPrepare();
         else if( msg.sType == _T("click") ) {
             if( msg.pSender == m_pCloseBtn ) { 
-                COptionUI* pControl = static_cast<COptionUI*>(m_pm.FindControl(_T("hallswitch")));
+                OptionBtn* pControl = static_cast<OptionBtn*>(m_pm.FindControl(_T("hallswitch")));
                 if( pControl && pControl->IsSelected() == false ) {
                     CControlUI* pFadeControl = m_pm.FindControl(_T("fadeEffect"));
                     if( pFadeControl ) pFadeControl->SetVisible(true);
@@ -295,7 +313,7 @@ public:
             else if( msg.pSender == m_pMinBtn ) { SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, 0); return; }
             else if( msg.pSender == m_pMaxBtn ) { SendMessage(WM_SYSCOMMAND, SC_MAXIMIZE, 0); return; }
             else if( msg.pSender == m_pRestoreBtn ) { SendMessage(WM_SYSCOMMAND, SC_RESTORE, 0); return; }
-            CDuiString name = msg.pSender->GetName();
+            QkString name = msg.pSender->GetName();
             if( name == _T("quitbtn") ) {
                 /*Close()*/PostQuitMessage(0); // 因为activex的原因，使用close可能会出现错误
             }
@@ -303,9 +321,9 @@ public:
                 CControlUI* pFadeControl = m_pm.FindControl(_T("fadeEffect"));
                 if( pFadeControl ) pFadeControl->SetVisible(false); 
 
-                COptionUI* pControl = static_cast<COptionUI*>(m_pm.FindControl(_T("hallswitch")));
+                OptionBtn* pControl = static_cast<OptionBtn*>(m_pm.FindControl(_T("hallswitch")));
                 pControl->Activate();
-                pControl = static_cast<COptionUI*>(m_pm.FindControl(_T("roomswitch")));
+                pControl = static_cast<OptionBtn*>(m_pm.FindControl(_T("roomswitch")));
                 if( pControl ) pControl->SetVisible(false);
             }
             else if( name == _T("fontswitch") ) {
@@ -323,10 +341,10 @@ public:
                 m_pm.GetRoot()->NeedUpdate();
             }
             else if( name == _T("leaveBtn")  || name == _T("roomclosebtn") ) {
-                COptionUI* pControl = static_cast<COptionUI*>(m_pm.FindControl(_T("hallswitch")));
+                OptionBtn* pControl = static_cast<OptionBtn*>(m_pm.FindControl(_T("hallswitch")));
                 if( pControl ) {
                     pControl->Activate();
-                    pControl = static_cast<COptionUI*>(m_pm.FindControl(_T("roomswitch")));
+                    pControl = static_cast<OptionBtn*>(m_pm.FindControl(_T("roomswitch")));
                     if( pControl ) pControl->SetVisible(false);
                 }
             }
@@ -335,7 +353,7 @@ public:
             }
         }
         else if( msg.sType == _T("selectchanged") ) {
-            CDuiString name = msg.pSender->GetName();
+            QkString name = msg.pSender->GetName();
             if( name == _T("hallswitch") ) {
                 CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_pm.FindControl(_T("switch")));
                 if( pControl && pControl->GetCurSel() != 0 ) pControl->SelectItem(0);
@@ -388,7 +406,7 @@ public:
                     GameListUI::Node* node = (GameListUI::Node*)msg.pSender->GetTag();
                     pGameList->ExpandNode(node, !node->data()._expand);
                     if( node->data()._level == 3 ) {
-                        COptionUI* pControl = static_cast<COptionUI*>(m_pm.FindControl(_T("roomswitch")));
+                        OptionBtn* pControl = static_cast<OptionBtn*>(m_pm.FindControl(_T("roomswitch")));
                         if( pControl ) {
                             pControl->SetVisible(true);
                             pControl->SetText(node->parent()->parent()->data()._text);
@@ -610,10 +628,10 @@ public:
     CPaintManagerUI m_pm;
 
 private:
-    CButtonUI* m_pCloseBtn;
-    CButtonUI* m_pMaxBtn;
-    CButtonUI* m_pRestoreBtn;
-    CButtonUI* m_pMinBtn;
+    Button* m_pCloseBtn;
+    Button* m_pMaxBtn;
+    Button* m_pRestoreBtn;
+    Button* m_pMinBtn;
     //...
 };
 

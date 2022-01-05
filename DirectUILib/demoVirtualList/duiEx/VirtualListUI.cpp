@@ -249,7 +249,7 @@ void CVirtualListUI::EnableScrollBar(bool bEnableVertical /*= true*/, bool bEnab
 void CVirtualListUI::DoEvent(TEventUI& event)
 {
 	if (!IsMouseEnabled() && event.Type > UIEVENT__MOUSEBEGIN && event.Type < UIEVENT__MOUSEEND) {
-		if (m_pParent != NULL) m_pParent->DoEvent(event);
+		if (_parent != NULL) _parent->DoEvent(event);
 		else CVerticalLayoutUI::DoEvent(event);
 		return;
 	}

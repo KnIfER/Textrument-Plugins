@@ -14,98 +14,39 @@ namespace DuiLib {
 	CEffectLock mEffectLock;
 
 
-
-	//************************************
-	// Method:    GetEffectStyle
-	// FullName:  CControlUI::GetEffectStyle
-	// Access:    virtual public 
-	// Returns:   CDuiString
-	// Qualifier: const
-	// Note:	  
-	//************************************
-	CDuiString CControlUI::GetEffectStyle() const
+	QkString CControlUI::GetEffectStyle()
 	{
 		return m_strEffectStyle;
 	}
 
-	//************************************
-	// Method:    SetAnimEffects
-	// FullName:  CControlUI::SetAnimEffects
-	// Access:    virtual public 
-	// Returns:   void
-	// Qualifier:
-	// Parameter: bool bEnableEffect
-	// Note:	  
-	//************************************
 	void CControlUI::SetAnimEffects( bool bEnableEffect )
 	{
-		m_bEnabledEffect = bEnableEffect;
+		VIEWSTATEMASK_APPLY(VIEWSTATEMASK_EnabledEffect, bEnableEffect);
 	}
 
-	//************************************
-	// Method:    GetAnimEffects
-	// FullName:  CControlUI::GetAnimEffects
-	// Access:    virtual public 
-	// Returns:   bool
-	// Qualifier: const
-	// Note:	  
-	//************************************
-	bool CControlUI::GetAnimEffects() const
+	bool CControlUI::GetAnimEffects()
 	{
 		return m_bEnabledEffect;
 	}
-	//************************************
-	// Method:    SetEffectsZoom
-	// FullName:  CControlUI::SetEffectsZoom
-	// Access:    virtual public 
-	// Returns:   void
-	// Qualifier:
-	// Parameter: int iZoom
-	// Note:	  
-	//************************************
+
 	void CControlUI::SetEffectsZoom( int iZoom )
 	{
-		m_tCurEffects.m_iZoom = iZoom;
+		GetCurrentEffect().m_iZoom = iZoom;
 	}
 
-	//************************************
-	// Method:    GetEffectsZoom
-	// FullName:  CControlUI::GetEffectsZoom
-	// Access:    virtual public 
-	// Returns:   int
-	// Qualifier: const
-	// Note:	  
-	//************************************
-	int CControlUI::GetEffectsZoom() const
+	int CControlUI::GetEffectsZoom()
 	{
-		return m_tCurEffects.m_iZoom;
+		return GetCurrentEffect().m_iZoom;
 	}
 
-	//************************************
-	// Method:    SetEffectsFillingBK
-	// FullName:  CControlUI::SetEffectsFillingBK
-	// Access:    virtual public 
-	// Returns:   void
-	// Qualifier:
-	// Parameter: DWORD dFillingBK
-	// Note:	  
-	//************************************
 	void CControlUI::SetEffectsFillingBK( DWORD dFillingBK )
 	{
-		m_tCurEffects.m_dFillingBK = dFillingBK;
+		GetCurrentEffect().m_dFillingBK = dFillingBK;
 	}
 
-	//************************************
-	// Method:    GetEffectsFillingBK
-	// FullName:  CControlUI::GetEffectsFillingBK
-	// Access:    virtual public 
-	// Returns:   DWORD
-	// Qualifier: const
-	// Note:	  
-	//************************************
-	DWORD CControlUI::GetEffectsFillingBK() const
+	DWORD CControlUI::GetEffectsFillingBK()
 	{
-		return m_tCurEffects.m_dFillingBK;
+		return GetCurrentEffect().m_dFillingBK;
 	}
 
 	//************************************
@@ -119,193 +60,111 @@ namespace DuiLib {
 	//************************************
 	void CControlUI::SetEffectsOffectX( int iOffectX )
 	{
-		m_tCurEffects.m_iOffectX = iOffectX;
+		GetCurrentEffect().m_iOffectX = iOffectX;
 	}
 
-	//************************************
-	// Method:    GetEffectsOffectX
-	// FullName:  CControlUI::GetEffectsOffectX
-	// Access:    virtual public 
-	// Returns:   int
-	// Qualifier: const
-	// Note:	  
-	//************************************
-	int CControlUI::GetEffectsOffectX() const
+
+	int CControlUI::GetEffectsOffectX()
 	{
-		return m_tCurEffects.m_iOffectX;
+		return GetCurrentEffect().m_iOffectX;
 	}
 
-	//************************************
-	// Method:    SetEffectsOffectY
-	// FullName:  CControlUI::SetEffectsOffectY
-	// Access:    virtual public 
-	// Returns:   void
-	// Qualifier:
-	// Parameter: int iOffectY
-	// Note:	  
-	//************************************
 	void CControlUI::SetEffectsOffectY( int iOffectY )
 	{
-		m_tCurEffects.m_iOffectY = iOffectY;
+		GetCurrentEffect().m_iOffectY = iOffectY;
 	}
 
-	//************************************
-	// Method:    GetEffectsOffectY
-	// FullName:  CControlUI::GetEffectsOffectY
-	// Access:    virtual public 
-	// Returns:   int
-	// Qualifier: const
-	// Note:	  
-	//************************************
-	int CControlUI::GetEffectsOffectY() const
+
+	int CControlUI::GetEffectsOffectY()
 	{
-		return m_tCurEffects.m_iOffectY;
+		return GetCurrentEffect().m_iOffectY;
 	}
 
-	//************************************
-	// Method:    SetEffectsAlpha
-	// FullName:  CControlUI::SetEffectsAlpha
-	// Access:    virtual public 
-	// Returns:   void
-	// Qualifier:
-	// Parameter: int iAlpha
-	// Note:	  
-	//************************************
+
 	void CControlUI::SetEffectsAlpha( int iAlpha )
 	{
-		m_tCurEffects.m_iAlpha = iAlpha;
+		GetCurrentEffect().m_iAlpha = iAlpha;
 	}
 
-	//************************************
-	// Method:    GetEffectsAlpha
-	// FullName:  CControlUI::GetEffectsAlpha
-	// Access:    virtual public 
-	// Returns:   int
-	// Qualifier: const
-	// Note:	  
-	//************************************
-	int CControlUI::GetEffectsAlpha() const
+
+	int CControlUI::GetEffectsAlpha()
 	{
-		return m_tCurEffects.m_iAlpha;
+		return GetCurrentEffect().m_iAlpha;
 	}
 
-	//************************************
-	// Method:    SetEffectsRotation
-	// FullName:  CControlUI::SetEffectsRotation
-	// Access:    virtual public 
-	// Returns:   void
-	// Qualifier:
-	// Parameter: float fRotation
-	// Note:	  
-	//************************************
+
 	void CControlUI::SetEffectsRotation( float fRotation )
 	{
-		m_tCurEffects.m_fRotation = fRotation;
+		GetCurrentEffect().m_fRotation = fRotation;
 	}
 
-	//************************************
-	// Method:    GetEffectRotation
-	// FullName:  CControlUI::GetEffectsRotation
-	// Access:    virtual public 
-	// Returns:   float
-	// Qualifier: 
-	// Note:	  
-	//************************************
+
 	float CControlUI::GetEffectsRotation()
 	{
-		return m_tCurEffects.m_fRotation;
+		return GetCurrentEffect().m_fRotation;
 	}
 
-	//************************************
-	// Method:    SetEffectsNeedTimer
-	// FullName:  CControlUI::SetEffectsNeedTimer
-	// Access:    virtual public 
-	// Returns:   void
-	// Qualifier:
-	// Parameter: int iNeedTimer
-	// Note:	  
-	//************************************
+
 	void CControlUI::SetEffectsNeedTimer( int iNeedTimer )
 	{
-		m_tCurEffects.m_iNeedTimer = iNeedTimer;
+		GetCurrentEffect().m_iNeedTimer = iNeedTimer;
 	}
 
-	//************************************
-	// Method:    GetEffectsNeedTimer
-	// FullName:  CControlUI::GetEffectsNeedTimer
-	// Access:    virtual public 
-	// Returns:   int
-	// Qualifier:
-	// Note:	  
-	//************************************
+
 	int CControlUI::GetEffectsNeedTimer()
 	{
-		return m_tCurEffects.m_iNeedTimer;
+		return GetCurrentEffect().m_iNeedTimer;
 	}
 
-
-	//************************************
-	// Method:    GetCurEffects
-	// FullName:  CControlUI::GetCurEffects
-	// Access:    virtual public 
-	// Returns:   TEffectAge*
-	// Qualifier:
-	// Note:	  
-	//************************************
-	TEffectAge* CControlUI::GetCurEffects()
+	bool CControlUI::GetEffectEnabled(int fx_section)
 	{
-		return &m_tCurEffects;
+		return effects.size()>fx_section && effects[fx_section].m_bEnableEffect;
 	}
 
-	//************************************
-	// Method:    GetMouseInEffect
-	// FullName:  CControlUI::GetMouseInEffect
-	// Access:    virtual public 
-	// Returns:   TEffectAge*
-	// Qualifier:
-	// Note:	  
-	//************************************
+	vector<TEffectAge> & CControlUI::GetEffects()
+	{
+		if (!effects.size())
+		{
+			effects.resize(5); // only resize once.
+			TEffectAge& m_tCurEffects = effects[0];
+			m_tCurEffects.m_bEnableEffect	= false;
+			m_tCurEffects.m_iZoom			= -1;
+			m_tCurEffects.m_dFillingBK		= 0xffffffff;
+			m_tCurEffects.m_iOffectX		= 0;
+			m_tCurEffects.m_iOffectY		= 0;
+			m_tCurEffects.m_iAlpha			= -255;
+			m_tCurEffects.m_fRotation		= 0.0;
+			m_tCurEffects.m_iNeedTimer		= 350;
+
+			memcpy(&effects[1],&m_tCurEffects,sizeof(TEffectAge));
+			memcpy(&effects[2],&m_tCurEffects,sizeof(TEffectAge));
+			memcpy(&effects[3],&m_tCurEffects,sizeof(TEffectAge));
+		}
+		return effects;
+	}
+
+	TEffectAge & CControlUI::GetCurrentEffect()
+	{
+		return GetEffects()[0];
+	}
+
 	TEffectAge* CControlUI::GetMouseInEffect()
 	{
-		return &m_tMouseInEffects;
+		return &GetEffects()[1];
 	}
 
-	//************************************
-	// Method:    GetMouseOutEffect
-	// FullName:  CControlUI::GetMouseOutEffect
-	// Access:    virtual public 
-	// Returns:   TEffectAge*
-	// Qualifier:
-	// Note:	  
-	//************************************
+
 	TEffectAge* CControlUI::GetMouseOutEffect()
 	{
-		return &m_tMouseOutEffects;
+		return &GetEffects()[2];
 	}
 
-	//************************************
-	// Method:    GetClickInEffect
-	// FullName:  CControlUI::GetClickInEffect
-	// Access:    virtual public 
-	// Returns:   TEffectAge*
-	// Qualifier:
-	// Note:	  
-	//************************************
+
 	TEffectAge* CControlUI::GetClickInEffect()
 	{
-		return &m_tMouseClickEffects;
+		return &GetEffects()[3];
 	}
 
-	//************************************
-	// Method:    SetEffectsStyle
-	// FullName:  CControlUI::SetEffectsStyle
-	// Access:    virtual public 
-	// Returns:   void
-	// Qualifier:
-	// Parameter: LPCTSTR pstrEffectStyle
-	// Parameter: TEffectAge * pTEffectAge
-	// Note:	  
-	//************************************
 	void CControlUI::SetEffectsStyle( LPCTSTR pstrEffectStyle,TEffectAge* pTEffectAge /*= NULL*/ )
 	{
 		try
@@ -329,24 +188,15 @@ namespace DuiLib {
 		}
 	}
 
-	//************************************
-	// Method:    AnyEffectsAdvProfiles
-	// FullName:  CControlUI::AnyEffectsAdvProfiles
-	// Access:    public 
-	// Returns:   void
-	// Qualifier:
-	// Parameter: LPCTSTR pstrEffects
-	// Parameter: TEffectAge * pTEffectAge
-	//************************************
 	void CControlUI::AnyEffectsAdvProfiles( LPCTSTR pstrEffects,TEffectAge* pTEffectAge /*= NULL*/ )
 	{
 		try
 		{
-			CDuiString sItem;
-			CDuiString sValue;
-			LPTSTR pstr = NULL;
+			QkString sItem;
+			QkString sValue;
+			LPCTSTR pstr = NULL;
 
-			TEffectAge* pcTEffectAge = pTEffectAge?pTEffectAge:&m_tCurEffects;
+			TEffectAge* pcTEffectAge = pTEffectAge?pTEffectAge:&GetCurrentEffect();
 
 			while( *pstrEffects != _T('\0') ) {
 				sItem.Empty();
@@ -390,7 +240,7 @@ namespace DuiLib {
 						if( *sValue.GetData() == _T('#'))
 							sValue = ::CharNext(sValue.GetData());
 
-						pcTEffectAge->m_dFillingBK = (_tcstoul(sValue.GetData(),&pstr,16));
+						pstr = STR2ARGB(sValue.GetData(), pcTEffectAge->m_dFillingBK);
 						ASSERT(pstr);
 					}
 					else if( sItem == _T("offsetx") ) pcTEffectAge->m_iOffectX = (_ttoi(sValue.GetData()));
@@ -410,25 +260,16 @@ namespace DuiLib {
 	}
 
 
-	//************************************
-	// Method:    AnyEasyEffectsPorfiles
-	// FullName:  CControlUI::AnyEasyEffectsPorfiles
-	// Access:    public 
-	// Returns:   void
-	// Qualifier:
-	// Parameter: LPCTSTR pstrEffects
-	// Parameter: TEffectAge * pTEffectAge
-	//************************************
 	void CControlUI::AnyEasyEffectsPorfiles( LPCTSTR pstrEffects,TEffectAge* pTEffectAge /*= NULL*/ )
 	{
 		try
 		{
-			CDuiString sItem;
-			CDuiString sValue;
-			CDuiString sAnim;
-			LPTSTR pstr = NULL;
+			QkString sItem;
+			QkString sValue;
+			QkString sAnim;
+			LPCTSTR pstr = NULL;
 
-			TEffectAge* pcTEffectAge = pTEffectAge?pTEffectAge:&m_tCurEffects;
+			TEffectAge* pcTEffectAge = pTEffectAge?pTEffectAge:&GetCurrentEffect();
 
 			while( *pstrEffects != _T('\0') ) {
 				sItem.Empty();
@@ -529,7 +370,7 @@ namespace DuiLib {
 						if( *sValue.GetData() == _T('#'))
 							sValue = ::CharNext(sValue.GetData());
 
-						pcTEffectAge->m_dFillingBK = _tcstoul(sValue.GetData(),&pstr,16);
+						pstr = STR2ARGB(sValue.GetData(), pcTEffectAge->m_dFillingBK);
 						ASSERT(pstr);
 					}
 				}
@@ -543,15 +384,7 @@ namespace DuiLib {
 		}
 	}
 
-	//************************************
-	// Method:    TriggerEffects
-	// FullName:  CControlUI::TriggerEffects
-	// Access:    virtual public 
-	// Returns:   void
-	// Qualifier:
-	// Parameter: TEffectAge * pTEffectAge
-	// Note:	  
-	//************************************
+
 	void CControlUI::TriggerEffects( TEffectAge* pTEffectAge /*= NULL*/ )
 	{
 		try
@@ -559,7 +392,7 @@ namespace DuiLib {
 			try
 			{
 				//mEffectLock.Lock();
-				TEffectAge* pcTEffect = pTEffectAge?pTEffectAge:&m_tCurEffects;
+				TEffectAge* pcTEffect = pTEffectAge?pTEffectAge:&GetCurrentEffect();
 
 				if(GetManager() && m_bEnabledEffect && pcTEffect->m_bEnableEffect)
 				{

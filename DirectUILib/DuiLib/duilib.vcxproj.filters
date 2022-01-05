@@ -57,9 +57,6 @@
     <ClInclude Include="Utils\WinImplBase.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Layout\UIAnimationTabLayout.h">
-      <Filter>Layout</Filter>
-    </ClInclude>
     <ClInclude Include="Layout\UIChildLayout.h">
       <Filter>Layout</Filter>
     </ClInclude>
@@ -105,16 +102,10 @@
     <ClInclude Include="Core\UIResourceManager.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Control\UIActiveX.h">
-      <Filter>Control</Filter>
-    </ClInclude>
     <ClInclude Include="Control\UIAnimation.h">
       <Filter>Control</Filter>
     </ClInclude>
     <ClInclude Include="Control\UIButton.h">
-      <Filter>Control</Filter>
-    </ClInclude>
-    <ClInclude Include="Control\UIColorPalette.h">
       <Filter>Control</Filter>
     </ClInclude>
     <ClInclude Include="Control\UICombo.h">
@@ -129,31 +120,13 @@
     <ClInclude Include="Control\UIEdit.h">
       <Filter>Control</Filter>
     </ClInclude>
-    <ClInclude Include="Control\UIFadeButton.h">
-      <Filter>Control</Filter>
-    </ClInclude>
-    <ClInclude Include="Control\UIFlash.h">
-      <Filter>Control</Filter>
-    </ClInclude>
     <ClInclude Include="Control\UIGifAnim.h">
-      <Filter>Control</Filter>
-    </ClInclude>
-    <ClInclude Include="Control\UIGifAnimEx.h">
-      <Filter>Control</Filter>
-    </ClInclude>
-    <ClInclude Include="Control\UIGroupBox.h">
-      <Filter>Control</Filter>
-    </ClInclude>
-    <ClInclude Include="Control\UIHotKey.h">
       <Filter>Control</Filter>
     </ClInclude>
     <ClInclude Include="Control\UILabel.h">
       <Filter>Control</Filter>
     </ClInclude>
     <ClInclude Include="Control\UIList.h">
-      <Filter>Control</Filter>
-    </ClInclude>
-    <ClInclude Include="Control\UIListEx.h">
       <Filter>Control</Filter>
     </ClInclude>
     <ClInclude Include="Control\UIMenu.h">
@@ -166,9 +139,6 @@
       <Filter>Control</Filter>
     </ClInclude>
     <ClInclude Include="Control\UIRichEdit.h">
-      <Filter>Control</Filter>
-    </ClInclude>
-    <ClInclude Include="Control\UIRollText.h">
       <Filter>Control</Filter>
     </ClInclude>
     <ClInclude Include="Control\UIScrollBar.h">
@@ -218,14 +188,26 @@
     <ClInclude Include="Control\WinSplitter.h">
       <Filter>Control</Filter>
     </ClInclude>
-    <ClInclude Include="Control\UIRing.h">
+    <ClInclude Include="Core\UICore.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\InputBox.h">
       <Filter>Control</Filter>
     </ClInclude>
-    <ClInclude Include="Control\UIIPAddress.h">
+    <ClInclude Include="Control\ListHeader.h">
       <Filter>Control</Filter>
     </ClInclude>
-    <ClInclude Include="Control\UIIPAddressEx.h">
+    <ClInclude Include="Control\ListHeaderItem.h">
       <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\UIActiveX.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\ListBasicItem.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\DemoUitls.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -252,9 +234,6 @@
     </ClCompile>
     <ClCompile Include="Utils\WinImplBase.cpp">
       <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Layout\UIAnimationTabLayout.cpp">
-      <Filter>Layout</Filter>
     </ClCompile>
     <ClCompile Include="Layout\UIChildLayout.cpp">
       <Filter>Layout</Filter>
@@ -298,16 +277,10 @@
     <ClCompile Include="Core\UIResourceManager.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Control\UIActiveX.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
     <ClCompile Include="Control\UIAnimation.cpp">
       <Filter>Control</Filter>
     </ClCompile>
     <ClCompile Include="Control\UIButton.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
-    <ClCompile Include="Control\UIColorPalette.cpp">
       <Filter>Control</Filter>
     </ClCompile>
     <ClCompile Include="Control\UICombo.cpp">
@@ -322,31 +295,13 @@
     <ClCompile Include="Control\UIEdit.cpp">
       <Filter>Control</Filter>
     </ClCompile>
-    <ClCompile Include="Control\UIFadeButton.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
-    <ClCompile Include="Control\UIFlash.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
     <ClCompile Include="Control\UIGifAnim.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
-    <ClCompile Include="Control\UIGifAnimEx.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
-    <ClCompile Include="Control\UIGroupBox.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
-    <ClCompile Include="Control\UIHotKey.cpp">
       <Filter>Control</Filter>
     </ClCompile>
     <ClCompile Include="Control\UILabel.cpp">
       <Filter>Control</Filter>
     </ClCompile>
     <ClCompile Include="Control\UIList.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
-    <ClCompile Include="Control\UIListEx.cpp">
       <Filter>Control</Filter>
     </ClCompile>
     <ClCompile Include="Control\UIMenu.cpp">
@@ -359,9 +314,6 @@
       <Filter>Control</Filter>
     </ClCompile>
     <ClCompile Include="Control\UIRichEdit.cpp">
-      <Filter>Control</Filter>
-    </ClCompile>
-    <ClCompile Include="Control\UIRollText.cpp">
       <Filter>Control</Filter>
     </ClCompile>
     <ClCompile Include="Control\UIScrollBar.cpp">
@@ -414,14 +366,26 @@
     <ClCompile Include="Control\WinSplitter.cpp">
       <Filter>Control</Filter>
     </ClCompile>
-    <ClCompile Include="Control\UIRing.cpp">
+    <ClCompile Include="Control\InputBox.cpp">
       <Filter>Control</Filter>
     </ClCompile>
-    <ClCompile Include="Control\UIIPAddress.cpp">
+    <ClCompile Include="Utils\PathUtils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\ListHeader.cpp">
       <Filter>Control</Filter>
     </ClCompile>
-    <ClCompile Include="Control\UIIPAddressEx.cpp">
+    <ClCompile Include="Control\ListHeaderItem.cpp">
       <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\UIActiveX.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\ListBasicItem.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\DemoUitls.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

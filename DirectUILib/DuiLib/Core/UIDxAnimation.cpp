@@ -222,7 +222,7 @@ namespace DuiLib
 		m_bIsInitialized = false;
 	}
 
-	bool CAnimationSpooler::AddJob(CDxAnimationUI* pJob)
+	bool CAnimationSpooler::AddAnimationJob(CDxAnimationUI* pJob)
 	{
 		return m_aJobs.Add(pJob);
 	}

@@ -9,7 +9,7 @@ namespace DuiLib
 
 	class UILIB_API CEditUI : public CLabelUI
 	{
-		DECLARE_DUICONTROL(CEditUI)
+		DECLARE_QKCONTROL(CEditUI)
 		friend class CEditWnd;
 	public:
 		CEditUI();
@@ -61,7 +61,6 @@ namespace DuiLib
 		void SetPos(RECT rc, bool bNeedInvalidate = true);
 		void Move(SIZE szOffset, bool bNeedInvalidate = true);
 		void SetVisible(bool bVisible = true);
-		void SetInternVisible(bool bVisible = true);
 		SIZE EstimateSize(const SIZE & szAvailable);
 		void DoEvent(TEventUI& event);
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
@@ -78,11 +77,11 @@ namespace DuiLib
 		bool m_bAutoSelAll;
 		TCHAR m_cPasswordChar;
 		UINT m_uButtonState;
-		CDuiString m_sNormalImage;
-		CDuiString m_sHotImage;
-		CDuiString m_sFocusedImage;
-		CDuiString m_sDisabledImage;
-		CDuiString m_sTipValue;
+		QkString m_sNormalImage;
+		QkString m_sHotImage;
+		QkString m_sFocusedImage;
+		QkString m_sDisabledImage;
+		QkString m_sTipValue;
 		DWORD m_dwTipValueColor;
 		DWORD m_dwEditbkColor;
 		DWORD m_dwEditTextColor;

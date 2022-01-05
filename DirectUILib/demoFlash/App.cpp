@@ -2,7 +2,8 @@
 //
 
 #include "stdafx.h"
-#include "flash10a.tlh"
+//#include "flash10a.tlh"
+#include "Utils/flash11.tlh"
 
 class CFrameWnd : public CWindowWnd, public INotifyUI
 {

@@ -16,6 +16,7 @@
     <PowerExec>$(PowerExecDir)\Textrument.exe</PowerExec>
     <PowerExec1>$(PowerExecDir1)\notepad++.exe</PowerExec1>
     <DUPA>..\DirectUILib\DuiLib</DUPA>
+    <direct_path>..\DirectUILib</direct_path>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>16.0.28916.169</_ProjectFileVersion>
@@ -66,6 +67,9 @@
     </BuildMacro>
     <BuildMacro Include="DUPA">
       <Value>$(DUPA)</Value>
+    </BuildMacro>
+    <BuildMacro Include="direct_path">
+      <Value>$(direct_path)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

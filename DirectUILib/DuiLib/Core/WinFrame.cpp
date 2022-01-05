@@ -2,7 +2,7 @@
 #include "Core\InsituDebug.h"
 
 namespace DuiLib {
-	IMPLEMENT_DUICONTROL(WinFrame)
+	IMPLEMENT_QKCONTROL(WinFrame)
 
 	class WndBase : public CWindowWnd, public INotifyUI, public IMessageFilterUI
 	{
@@ -96,7 +96,7 @@ namespace DuiLib {
 		: CContainerUI()
 	{
 		m_dwBackColor = RGB(0, 0, 255);
-		_isDirectUI = false;
+		_view_states &= ~VIEWSTATEMASK_IsDirectUI;
 		wEmbedded = 0;
 	}
 

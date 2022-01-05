@@ -75,19 +75,19 @@ namespace DuiLib
 #if defined(WIN32) && !defined(UNDER_CE)
 	LRESULT WindowImplBase::OnNcActivate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if( ::IsIconic(*this)||!_isWindowLess ) bHandled = FALSE;
+		if( ::IsIconic(*this)||!_windowless ) bHandled = FALSE;
 		return (wParam == 0) ? TRUE : FALSE;
 	}
 
 	LRESULT WindowImplBase::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if(!_isWindowLess ) bHandled = FALSE;
+		if(!_windowless ) bHandled = FALSE;
 		return 0;
 	}
 
 	LRESULT WindowImplBase::OnNcPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if(!_isWindowLess ) bHandled = FALSE;
+		if(!_windowless ) bHandled = FALSE;
 		return 0;
 	}
 
@@ -100,8 +100,8 @@ namespace DuiLib
 			return bRet;
 		}
 
-		CDuiString strClassName;
-		std::vector<CDuiString> vctStaticName;
+		QkString strClassName;
+		std::vector<QkString> vctStaticName;
 
 		strClassName = pControl->GetClass();
 		strClassName.MakeLower();
@@ -115,7 +115,7 @@ namespace DuiLib
 		vctStaticName.push_back(_T("childlayoutui"));
 		vctStaticName.push_back(_T("dialoglayoutui"));
 		vctStaticName.push_back(_T("progresscontainerui"));
-		std::vector<CDuiString>::iterator it = std::find(vctStaticName.begin(), vctStaticName.end(), strClassName);
+		std::vector<QkString>::iterator it = std::find(vctStaticName.begin(), vctStaticName.end(), strClassName);
 		if (vctStaticName.end() != it)
 		{
 			CControlUI* pParent = pControl->GetParent();
@@ -140,7 +140,7 @@ namespace DuiLib
 
 	LRESULT WindowImplBase::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if(!_isWindowLess ) {
+		if(!_windowless ) {
 			bHandled = FALSE;
 			return false;
 		}
@@ -279,7 +279,7 @@ namespace DuiLib
 		// 创建主窗口
 		CControlUI* pRoot=NULL;
 		CDialogBuilder builder;
-		CDuiString sSkinType = GetSkinType();
+		QkString sSkinType = GetSkinType();
 		if (!sSkinType.IsEmpty()) {
 			STRINGorID xml(_ttoi(GetSkinFile().GetData()));
 			pRoot = builder.Create(xml, sSkinType, this, &m_pm);
@@ -289,14 +289,14 @@ namespace DuiLib
 		}
 
 		if (pRoot == NULL) {
-			CDuiString sError = _T("加载皮肤失败：");
+			QkString sError = _T("加载皮肤失败：");
 			sError += sSkinType;
 			sError += GetSkinFile();
 			sError += "\n\n";
-			sError += builder.m_xml.m_szErrorMsg;
+			sError += builder.m_xml.GetLastErrorMessage();
 			sError += "\n\n";
-			sError += builder.m_xml.m_szErrorXML;
-			MessageBox(NULL, sError, _T("Duilib") ,MB_OK|MB_ICONERROR);
+			sError += builder.m_xml.GetLastErrorLocation();
+			MessageBox(NULL, sError, _T("WinQkUI") ,MB_OK|MB_ICONERROR);
 			ExitProcess(1);
 			return 0;
 		}
@@ -380,7 +380,11 @@ namespace DuiLib
 
 		if (m_pm.MessageHandler(uMsg, wParam, lParam, lRes)) {
 #if defined(WIN32) && !defined(UNDER_CE)
-			if (uMsg==WM_PAINT && _isRoundedRgn && _isWindowLess && !::IsIconic(*this))
+			if (uMsg==WM_PAINT 
+				&& _roundwnd 
+				&& _windowless 
+				&& !::IsIconic(*this)
+				)
 			{
 				SIZE szRoundCorner = m_pm.GetRoundCorner();
 				CDuiRect rcWnd;
@@ -413,7 +417,7 @@ namespace DuiLib
 
 	void WindowImplBase::OnClick(TNotifyUI& msg)
 	{
-		CDuiString sCtrlName = msg.pSender->GetName();
+		QkString sCtrlName = msg.pSender->GetName();
 		if( sCtrlName == _T("closebtn") ) {
 			Close();
 			return; 

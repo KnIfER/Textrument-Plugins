@@ -16,9 +16,9 @@ public:
 
 	void InitWindow();
 
-	virtual CDuiString GetSkinFile();
+	virtual QkString GetSkinFile();
 
-	virtual CDuiString GetSkinFolder();
+	virtual QkString GetSkinFolder();
 
 	virtual LRESULT OnKillFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 

@@ -28,7 +28,7 @@ namespace DuiLib {
 		BOOL LoadResource(STRINGorID xml, LPCTSTR type = NULL);
 		BOOL LoadResource(XMarkupNode Root);
 		void ResetResourceMap();
-		LPCTSTR GetImagePath(LPCTSTR lpstrId);
+		LPCTSTR MapImagePath(LPCTSTR lpstrId);
 		LPCTSTR GetXmlPath(LPCTSTR lpstrId);
 
 	public:
@@ -38,18 +38,18 @@ namespace DuiLib {
 		
 	public:
 		void SetTextQueryInterface(IQueryControlText* pInterface) { m_pQuerypInterface = pInterface; }
-		CDuiString & GetText(LPCTSTR lpstrId, LPCTSTR lpstrType = NULL);
+		QkString & GetText(LPCTSTR lpstrId, LPCTSTR lpstrType = NULL);
 		void ReloadText();
 		void ResetTextMap();
 
 	private:
-		CStdStringPtrMap m_mTextResourceHashMap;
+		QkStringPtrMap m_mTextResourceHashMap;
 		IQueryControlText*	m_pQuerypInterface;
-		CStdStringPtrMap m_mImageHashMap;
-		CStdStringPtrMap m_mXmlHashMap;
+		QkStringPtrMap m_mImageHashMap;
+		QkStringPtrMap m_mXmlHashMap;
 		XMarkupParser m_xml;
-		CDuiString m_sLauguage;
-		CStdStringPtrMap m_mTextHashMap;
+		QkString m_sLauguage;
+		QkStringPtrMap m_mTextHashMap;
 	};
 
 } // namespace DuiLib

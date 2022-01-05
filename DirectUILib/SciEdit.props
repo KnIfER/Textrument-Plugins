@@ -7,6 +7,10 @@
     <Link>
       <AdditionalDependencies>SciEdit.lib;LibScintilla.lib;LibLexilla.lib;Msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>UILIB_STATIC;SCI_EDITTEXT;_VC80_UPGRADE=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SCITE_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

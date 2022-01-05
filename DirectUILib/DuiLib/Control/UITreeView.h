@@ -11,11 +11,11 @@ namespace DuiLib
 	class CTreeViewUI;
 	class CCheckBoxUI;
 	class CLabelUI;
-	class COptionUI;
+	class OptionBtn;
 
 	class UILIB_API CTreeNodeUI : public CListContainerElementUI
 	{
-		DECLARE_DUICONTROL(CTreeNodeUI)
+		DECLARE_QKCONTROL(CTreeNodeUI)
 	public:
 		CTreeNodeUI(CTreeNodeUI* _ParentNode = NULL);
 		~CTreeNodeUI(void);
@@ -35,7 +35,7 @@ namespace DuiLib
 		void SetVisibleTag(bool _IsVisible);
 		bool GetVisibleTag();
 		void SetItemText(LPCTSTR pstrValue);
-		CDuiString GetItemText();
+		QkString GetItemText();
 		void CheckBoxSelected(bool _Selected);
 		bool IsCheckBoxSelected() const;
 		bool IsHasChild() const;
@@ -71,7 +71,7 @@ namespace DuiLib
 		CCheckBoxUI*			GetFolderButton() const {return pFolderButton;};
 		CLabelUI*				GetDottedLine() const {return pDottedLine;};
 		CCheckBoxUI*			GetCheckBox() const {return pCheckBox;};
-		COptionUI*				GetItemButton() const {return pItemButton;};
+		OptionBtn*				GetItemButton() const {return pItemButton;};
 
 	private:
 		CTreeNodeUI* GetLastNode();
@@ -91,14 +91,14 @@ namespace DuiLib
 		CCheckBoxUI*			pFolderButton;
 		CLabelUI*				pDottedLine;
 		CCheckBoxUI*			pCheckBox;
-		COptionUI*				pItemButton;
+		OptionBtn*				pItemButton;
 		CTreeNodeUI*			pParentTreeNode;
 		CStdPtrArray			mTreeNodes;
 	};
 
 	class UILIB_API CTreeViewUI : public CListUI,public INotifyUI
 	{
-		DECLARE_DUICONTROL(CTreeViewUI)
+		DECLARE_QKCONTROL(CTreeViewUI)
 	public:
 		CTreeViewUI(void);
 		~CTreeViewUI(void);

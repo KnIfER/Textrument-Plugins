@@ -55,9 +55,6 @@
     <ClCompile Include="..\DirectUILib\DuiLib\ControlEx\DuiLibTranslator.cpp">
       <Filter>Source\DuiLibFeatures</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\PowerEditor\src\WinControls\ToolBar\ToolBar.cpp">
-      <Filter>Source\PluginFeatures</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\PowerEditor\src\WinControls\InsituDebug.cpp">
       <Filter>Source\PluginFeatures</Filter>
     </ClCompile>
@@ -66,6 +63,9 @@
     </ClCompile>
     <ClCompile Include="..\..\PowerEditor\src\DarkMode\DarkMode.cpp">
       <Filter>Source\DarkMode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PowerEditor\src\WinControls\ToolBar\ToolBarPlus.cpp">
+      <Filter>Source\PluginFeatures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

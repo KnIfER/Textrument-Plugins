@@ -1,15 +1,14 @@
 #pragma once
-#include <map>
 namespace DuiLib 
 {
 	typedef CControlUI* (*CreateClass)();
-	typedef std::map<CDuiString, CreateClass> MAP_DUI_CTRATECLASS;
 
 	class UILIB_API CControlFactory
 	{
 	public:
-		CControlUI* CreateControl(CDuiString strClassName);
-		void RegistControl(CDuiString strClassName, CreateClass pFunc);
+		CControlUI* CreateControl(const QkString & strClassName);
+		void RegistControl(QkString & strClassName, CreateClass pFunc);
+		void RegistControl(LPCTSTR strClassName, CreateClass pFunc);
 
 		static CControlFactory* GetInstance();
 		void Release();
@@ -19,22 +18,20 @@ namespace DuiLib
 		virtual ~CControlFactory();
 
 	private:
-		MAP_DUI_CTRATECLASS m_mapControl;
+		QkStringPtrMap m_mapControl;
 	};
 
-#define DECLARE_DUICONTROL(class_name)\
+#define DECLARE_QKCONTROL(class_name)\
 public:\
 	static CControlUI* CreateControl();
 
-#define IMPLEMENT_DUICONTROL(class_name)\
+#define IMPLEMENT_QKCONTROL(class_name)\
 	CControlUI* class_name::CreateControl()\
 	{\
 		return new class_name;\
 	}
 
-#define REGIST_DUICONTROL(class_name)\
+#define REGIST_QKCONTROL(class_name)\
 	CControlFactory::GetInstance()->RegistControl(_T(#class_name), (CreateClass)class_name::CreateControl);
 
-#define INNER_REGISTER_DUICONTROL(class_name)\
-	RegistControl(_T(#class_name), (CreateClass)class_name::CreateControl);
 }

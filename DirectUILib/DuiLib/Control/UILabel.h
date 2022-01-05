@@ -7,7 +7,7 @@ namespace DuiLib
 {
 	class UILIB_API CLabelUI : public CControlUI
 	{
-		DECLARE_DUICONTROL(CLabelUI)
+		DECLARE_QKCONTROL(CLabelUI)
 	public:
 		CLabelUI();
 		~CLabelUI();
@@ -22,10 +22,6 @@ namespace DuiLib
 		DWORD GetTextColor() const;
 		void SetDisabledTextColor(DWORD dwTextColor);
 		DWORD GetDisabledTextColor() const;
-		void SetFont(int index);
-		int GetFont() const;
-		RECT GetTextPadding() const;
-		void SetTextPadding(RECT rc);
 		bool IsShowHtml();
 		void SetShowHtml(bool bShowHtml = true);
 
@@ -35,29 +31,15 @@ namespace DuiLib
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
 		void PaintText(HDC hDC);
-
-		virtual bool GetAutoCalcWidth() const;
-		virtual void SetAutoCalcWidth(bool bAutoCalcWidth);
-		virtual bool GetAutoCalcHeight() const;
-		virtual void SetAutoCalcHeight(bool bAutoCalcHeight);
 		virtual void SetText(LPCTSTR pstrText);
 		//virtual void SetPos(RECT rc, bool bNeedInvalidate = true);
 		
 	protected:
 		DWORD	m_dwTextColor;
 		DWORD	m_dwDisabledTextColor;
-		int		m_iFont;
 		UINT	m_uTextStyle;
-		RECT	m_rcTextPadding;
+		//RECT	m_rcTextPadding;
 		bool	m_bShowHtml;
-		bool	m_bAutoCalcWidth;
-		bool	m_bAutoCalcHeight;
-
-		//SIZE    _AutoMeasureTextSz;
-
-		SIZE    m_szAvailableLast;
-		SIZE    m_cxyFixedLast;
-		bool    m_bNeedEstimateSize;
 
 		int _preSizeX = 0;
 	};

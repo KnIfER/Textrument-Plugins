@@ -33,7 +33,9 @@ const TCHAR* const kMaxButtonControlName = _T("maxbtn");
 const TCHAR* const kRestoreButtonControlName = _T("restorebtn");
 
 MainFrame::MainFrame()
-{}
+{
+	//_windowless = true;
+}
 
 MainFrame::~MainFrame()
 {
@@ -52,16 +54,24 @@ CControlUI* MainFrame::CreateControl(LPCTSTR pstrClass)
 
 void MainFrame::OnFinalMessage(HWND hWnd)
 {
-	WindowImplBase::OnFinalMessage(hWnd);
+	::DestroyWindow(GetHWND());
+	__super::OnFinalMessage(hWnd);
 	delete this;
 }
 
-CDuiString MainFrame::GetSkinType()
+LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	PostQuitMessage(0);
+	bHandled = TRUE;
+	return 0;
+}
+
+QkString MainFrame::GetSkinType()
 {
 	return TEXT("xml");
 }
 
-CDuiString MainFrame::GetSkinFile()
+QkString MainFrame::GetSkinFile()
 {
 	TCHAR szBuf[MAX_PATH] = {0};
 	_stprintf_s(szBuf, MAX_PATH - 1, _T("%d"), IDR_SKINXML);
@@ -70,7 +80,7 @@ CDuiString MainFrame::GetSkinFile()
 	//return IDR_SKINXML;
 }
 
-CDuiString MainFrame::GetSkinFolder()
+QkString MainFrame::GetSkinFolder()
 {
 	return _T("");
 }
@@ -134,6 +144,7 @@ void MainFrame::OnTimer(TNotifyUI& msg)
 
 void MainFrame::OnExit(TNotifyUI& msg)
 {
+	::DestroyWindow(GetHWND());
 	Close();
 }
 
@@ -193,11 +204,11 @@ void MainFrame::Notify(TNotifyUI& msg)
 			CMenuWnd* pMenu = new CMenuWnd();
 			CDuiPoint point = msg.ptMouse;
 			ClientToScreen(m_hWnd, &point);
-			STRINGorID xml(IDR_XML_MENU);
+			//STRINGorID xml(IDR_XML_MENU);
 
 			//pRoot = builder.Create(xml, _T("xml"), this, &m_pm);
 
-			//STRINGorID xml(TEXT("D:\\Code\\FigureOut\\Textrument\\plugins\\DirectUILib\\MenuDemo\\res\\menutest.xml"));
+			STRINGorID xml(TEXT("D:\\Code\\FigureOut\\Textrument\\plugins\\DirectUILib\\demoMenu\\res\\menutest.xml"));
 			pMenu->Init(NULL, xml, point, &m_pm); // , _T("xml")
 		}
 	}

@@ -124,7 +124,7 @@ BOOL APIENTRY DllMain( HINSTANCE hModule,
 extern "C" __declspec(dllexport) void setInfo(NppData notpadPlusData)
 {
 	// For OLE drag and drop
-	OleInitialize( NULL );
+	::OleInitialize( NULL );
 
 	// stores notepad data
 	g_NppData = notpadPlusData;
@@ -339,8 +339,10 @@ void ShutDownPlugin()
 {
 	_mcViewer.Shutdown();
 	g_ClipboardProxy.Destroy();
-	// Shutdown COM for OLE drag drop
-	OleUninitialize();
+	if (NPPRunning)
+	{
+		//::OleUninitialize();
+	}
 }
 
 /**************************************************************************

@@ -17,9 +17,9 @@ public:
 	virtual void OnFinalMessage(HWND hWnd);
 	virtual void InitWindow();
 	virtual LRESULT ResponseDefaultKeyEvent(WPARAM wParam);
-	virtual CDuiString GetSkinType() override;
-	virtual CDuiString GetSkinFile() override;
-	virtual CDuiString GetSkinFolder();
+	virtual QkString GetSkinType() override;
+	virtual QkString GetSkinFile() override;
+	virtual QkString GetSkinFolder();
 	virtual UILIB_RESTYPE GetResourceType() const;
 	virtual CControlUI* CreateControl(LPCTSTR pstrClass);
 	virtual LRESULT OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);

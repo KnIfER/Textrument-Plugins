@@ -1,19 +1,19 @@
 #include "UIBeautifulSwitch.h"
 
 namespace DuiLib {
-	IMPLEMENT_DUICONTROL(CBSwitchUI)
+	IMPLEMENT_QKCONTROL(CBSwitchUI)
 	
 	void CBSwitchUI::DoEvent(TEventUI& event)
 	{
 		if (event.Type == UIEVENT_SETFOCUS)
 		{
-			m_bFocused = true;
+			m_bFocused_YES;
 			Invalidate();
 			return;
 		}
 		if (event.Type == UIEVENT_KILLFOCUS)
 		{
-			m_bFocused = false;
+			m_bFocused_NO;
 			::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW)));
 			Invalidate();
 			return;

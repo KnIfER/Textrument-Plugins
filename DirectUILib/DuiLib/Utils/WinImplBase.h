@@ -28,17 +28,17 @@ namespace DuiLib
 		virtual BOOL IsInStaticControl(CControlUI *pControl);
 
 	protected:
-		virtual CDuiString GetSkinType() { return _T(""); }
-		virtual CDuiString GetSkinFile() = 0;
+		virtual QkString GetSkinType() { return _T(""); }
+		virtual QkString GetSkinFile() = 0;
 		virtual LPCTSTR GetWindowClassName(void) const = 0 ;
 		virtual LPCTSTR GetManagerName() { return NULL; }
 		virtual LRESULT ResponseDefaultKeyEvent(WPARAM wParam);
 		CPaintManagerUI m_pm;
 
-		bool _isWindowLess = false;
-		bool _isRoundedRgn = false;
+		bool _windowless = false;
+		bool _roundwnd = false;
 	public:
-		bool IsWindowLess(){ return _isWindowLess; }
+		bool IsWindowLess(){ return _windowless; }
 
 		virtual UINT GetClassStyle() const;
 		virtual CControlUI* CreateControl(LPCTSTR pstrClass);

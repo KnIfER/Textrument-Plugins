@@ -72,7 +72,7 @@ void CColorPicker::InitWindow()
 		pColorContiner->Add(pLine);
 		for (int j = 0; j < 8; j++)
 		{
-			CButtonUI* pOne = new CButtonUI();
+			Button* pOne = new Button();
 			pOne->ApplyAttributeList(_T("bordersize=\"1\" bordercolor=\"#FF000000\" width=\"10\" height=\"10\""));
 			pOne->SetBkColor(Colors[i][j]);
 			pLine->Add(pOne);
@@ -89,14 +89,14 @@ void CColorPicker::InitWindow()
 	MoveWindow(GetHWND(), based_point_.x - static_cast<LONG>(size.cx / 2), based_point_.y - size.cy, size.cx, size.cy, FALSE);
 }
 
-CDuiString CColorPicker::GetSkinFile()
+QkString CColorPicker::GetSkinFile()
 {
 	return _T("color.xml");
 }
 
-CDuiString CColorPicker::GetSkinFolder()
+QkString CColorPicker::GetSkinFolder()
 {
-	return CDuiString(CPaintManagerUI::GetInstancePath()) + _T("skin\\");
+	return QkString(CPaintManagerUI::GetInstancePath()) + _T("skin\\");
 }
 
 LRESULT CColorPicker::OnKillFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)

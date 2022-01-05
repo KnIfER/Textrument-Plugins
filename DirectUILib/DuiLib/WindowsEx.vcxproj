@@ -20,18 +20,31 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowsEx\button.h" />
+    <ClInclude Include="WindowsEx\combo.h" />
     <ClInclude Include="WindowsEx\comctl32.h" />
     <ClInclude Include="WindowsEx\debug.h" />
+    <ClInclude Include="WindowsEx\edit.h" />
     <ClInclude Include="WindowsEx\heap.h" />
+    <ClInclude Include="WindowsEx\resources.h" />
     <ClInclude Include="WindowsEx\scrollbar.h" />
     <ClInclude Include="WindowsEx\WindowsEx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowsEx\button.cpp" />
+    <ClCompile Include="WindowsEx\combo.cpp" />
     <ClCompile Include="WindowsEx\comctl32.cpp" />
+    <ClCompile Include="WindowsEx\edit.cpp" />
     <ClCompile Include="WindowsEx\scroll.cpp" />
     <ClCompile Include="WindowsEx\scrollbar.cpp" />
     <ClCompile Include="WindowsEx\tab.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WindowsEx\WindowsEx.rc">
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(dir_output)%(Filename).res</ResourceOutputFileName>
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(dir_output)%(Filename).res</ResourceOutputFileName>
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(dir_output)%(Filename).res</ResourceOutputFileName>
+      <ResourceOutputFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(dir_output)%(Filename).res</ResourceOutputFileName>
+    </ResourceCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -91,20 +104,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\build\$(Configuration)_$(Platform)\</OutDir>
-    <IntDir>$(Configuration)_$(Platform)\</IntDir>
+    <IntDir>$(Configuration)_$(Platform)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\build\$(Configuration)_$(Platform)\</OutDir>
-    <IntDir>$(Configuration)_$(Platform)\</IntDir>
+    <IntDir>$(Configuration)_$(Platform)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>..\build\$(Configuration)_$(Platform)\</OutDir>
-    <IntDir>$(Configuration)_$(Platform)\</IntDir>
+    <IntDir>$(Configuration)_$(Platform)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\build\$(Configuration)_$(Platform)\</OutDir>
-    <IntDir>$(Configuration)_$(Platform)\</IntDir>
+    <IntDir>$(Configuration)_$(Platform)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

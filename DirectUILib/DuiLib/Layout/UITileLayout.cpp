@@ -3,7 +3,7 @@
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CTileLayoutUI)
+	IMPLEMENT_QKCONTROL(CTileLayoutUI)
 	CTileLayoutUI::CTileLayoutUI() : m_nColumns(1)
 	{
 		m_szItem.cx = m_szItem.cy = 0;
@@ -22,7 +22,7 @@ namespace DuiLib
 
 	SIZE CTileLayoutUI::GetItemSize() const
 	{
-		if(m_pManager != NULL) return m_pManager->GetDPIObj()->Scale(m_szItem);
+		if(_manager != NULL) return _manager->GetDPIObj()->Scale(m_szItem);
 		return m_szItem;
 	}
 

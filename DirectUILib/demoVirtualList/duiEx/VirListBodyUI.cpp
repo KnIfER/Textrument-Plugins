@@ -851,9 +851,9 @@ bool CVirListBodyUI::SelectItem(int iIndex, bool bTakeFocus /*= false*/)
 	{
 		pControl->SetFocus();
 	}
-	if (m_pManager != NULL /*&& iLastSel != m_iCurSel*/) 
+	if (_manager != NULL /*&& iLastSel != m_iCurSel*/) 
 	{
-		m_pManager->SendNotify(m_pOwner, DUI_MSGTYPE_ITEMSELECT, iIndex);
+		_manager->SendNotify(m_pOwner, DUI_MSGTYPE_ITEMSELECT, iIndex);
 	}
 
 	return true;
@@ -936,9 +936,9 @@ bool CVirListBodyUI::SelectMultiItem(int iIndex, bool bTakeFocus /*= false*/)
 
 	if (bRes)
 	{
-		if (m_pManager != NULL)
+		if (_manager != NULL)
 		{
-			m_pManager->SendNotify(m_pOwner, DUI_MSGTYPE_ITEMSELECT, iIndex);
+			_manager->SendNotify(m_pOwner, DUI_MSGTYPE_ITEMSELECT, iIndex);
 		}
 	}
 	return bRes;

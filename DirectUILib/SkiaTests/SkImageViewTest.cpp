@@ -13,7 +13,7 @@ namespace SK_IMG_VIEW {
     {
     public:
         ImageViewMainForm() {
-            _isWindowLess = false;
+            _windowless = false;
         };     
 
         LPCTSTR GetWindowClassName() const override
@@ -50,7 +50,7 @@ namespace SK_IMG_VIEW {
             }
         }
 
-        CDuiString GetSkinFile() override
+        QkString GetSkinFile() override
         {
             return _T("testImageView.xml");
         }

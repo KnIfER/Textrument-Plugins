@@ -1,6 +1,7 @@
 /*
 * Code By Tojen (qq:342269237)
 * 界面设计图片资源80%原创，布局完全原创,学习作品，不好请拍砖
+* 
 */
 #include <objbase.h>
 #include <zmouse.h>
@@ -28,12 +29,14 @@ std::vector<std::string> desc;
 struct Prama
 {
     HWND hWnd;
-    CListUI* pList;
-    CButtonUI* pSearch;
-    CDuiString tDomain;
+    ListView* pList;
+    Button* pSearch;
+    QkString tDomain;
 };
 
 #include "MenuWnd.h"
+class ListMainForm;
+ListMainForm* pFrame;
 
 class ListMainForm : public CWindowWnd, public INotifyUI, public IListCallbackUI
 {
@@ -63,11 +66,11 @@ public:
 
     void Init() 
     {
-        m_pCloseBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("closebtn")));
-        m_pMaxBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("maxbtn")));
-        m_pRestoreBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("restorebtn")));
-        m_pMinBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("minbtn")));
-        m_pSearch = static_cast<CButtonUI*>(m_pm.FindControl(_T("btn")));
+        m_pCloseBtn = static_cast<Button*>(m_pm.FindControl(_T("closebtn")));
+        m_pMaxBtn = static_cast<Button*>(m_pm.FindControl(_T("maxbtn")));
+        m_pRestoreBtn = static_cast<Button*>(m_pm.FindControl(_T("restorebtn")));
+        m_pMinBtn = static_cast<Button*>(m_pm.FindControl(_T("minbtn")));
+        m_pSearch = static_cast<Button*>(m_pm.FindControl(_T("btn")));
     }
 
     void OnPrepare(TNotifyUI& msg) 
@@ -79,9 +82,9 @@ public:
         try
         {
             struct Prama* prama = (struct Prama *)lpParameter;
-            CListUI* pList = prama->pList;
-            CButtonUI* pSearch = prama->pSearch;
-            CDuiString tDomain = prama->tDomain;
+            ListView* pList = prama->pList;
+            Button* pSearch = prama->pSearch;
+            QkString tDomain = prama->tDomain;
             //-------------------------------------
             /*
             * 添加数据循环
@@ -94,16 +97,25 @@ public:
                 ss.clear();
                 ss << "it's " << i;
                 desc.push_back(ss.str());
-                CListTextElementUI* pListElement = new CListTextElementUI;
-                pListElement->SetTag(i);
-                if (pListElement != NULL)
+                CControlUI* itemView;
+                if (true)
                 {
-                    ::PostMessage(prama->hWnd, WM_ADDLISTITEM, 0L, (LPARAM)pListElement);
+                    CListTextElementUI* pListElement = new CListTextElementUI;
+                    pListElement->SetTextCallback(pFrame);
+                    pListElement->SetTag(i);
+                    pListElement->SetIndex(i);
+                    itemView = pListElement;
+                }
+                //CLabelUI* pListElement = new CLabelUI;
+                //pListElement->SetText(pFrame->GetItemText(pListElement, i, 0));
+                if (itemView != NULL)
+                {
+                    ::PostMessage(prama->hWnd, WM_ADDLISTITEM, 0L, (LPARAM)itemView);
                 }
                 /*
                 *	Sleep 为了展示添加的动态效果，故放慢了添加速度，同时可以看到添加过程中界面仍然可以响应
                 */
-                ::Sleep(100);
+                ::Sleep(10);
             }
             //------------------------------------------
             delete prama;
@@ -120,10 +132,10 @@ public:
     {
         struct Prama *prama = new Prama;
 
-        CListUI* pList = static_cast<CListUI*>(m_pm.FindControl(_T("domainlist")));
+        ListView* pList = static_cast<ListView*>(m_pm.FindControl(_T("domainlist")));
         CEditUI* pEdit = static_cast<CEditUI*>(m_pm.FindControl(_T("input")));
         pEdit->SetEnabled(false);
-        CDuiString input = pEdit->GetText();
+        QkString input = pEdit->GetText();
         m_pSearch->SetEnabled(false);
         pList->RemoveAll();
         domain.empty();
@@ -131,7 +143,7 @@ public:
         desc.empty();
         desc.resize(0);
         DWORD dwThreadID = 0;
-        pList->SetTextCallback(this);//[1]
+        //pList->SetTextCallback(this);//[1]
 
         prama->hWnd = GetHWND();
         prama->pList = pList;
@@ -222,7 +234,7 @@ public:
         else if( msg.sType == _T("itemactivate") ) 
         {
             int iIndex = msg.pSender->GetTag();
-            CDuiString sMessage = _T("Click: ");;
+            QkString sMessage = _T("Click: ");;
 #ifdef _UNICODE		
             int iLen = domain[iIndex].length();
             LPWSTR lpText = new WCHAR[iLen + 1];
@@ -246,19 +258,19 @@ public:
             pMenu->Init(msg.pSender, pt);
         }
         else if( msg.sType == _T("menu_Delete") ) {
-            CListUI* pList = static_cast<CListUI*>(msg.pSender);
-            int nSel = pList->GetCurSel();
-            if( nSel < 0 ) return;
-            pList->RemoveAt(nSel);
-            domain.erase(domain.begin() + nSel);
-            desc.erase(desc.begin() + nSel);   
+            //CListUI* pList = static_cast<CListUI*>(msg.pSender);
+            //int nSel = pList->GetCurSel();
+            //if( nSel < 0 ) return;
+            //pList->RemoveAt(nSel);
+            //domain.erase(domain.begin() + nSel);
+            //desc.erase(desc.begin() + nSel);   
         }
     }
 
     LRESULT OnAddListItem(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-        CListTextElementUI* pListElement = (CListTextElementUI*)lParam;
-        CListUI* pList = static_cast<CListUI*>(m_pm.FindControl(_T("domainlist")));
+        CControlUI* pListElement = (CControlUI*)lParam;
+        ListView* pList = static_cast<ListView*>(m_pm.FindControl(_T("domainlist")));
         if( pList ) pList->Add(pListElement);
         return 0;
     }
@@ -438,14 +450,15 @@ public:
     CPaintManagerUI m_pm;
 
 private:
-    CButtonUI* m_pCloseBtn;
-    CButtonUI* m_pMaxBtn;
-    CButtonUI* m_pRestoreBtn;
-    CButtonUI* m_pMinBtn;
-    CButtonUI* m_pSearch;
+    Button* m_pCloseBtn;
+    Button* m_pMaxBtn;
+    Button* m_pRestoreBtn;
+    Button* m_pMinBtn;
+    Button* m_pSearch;
 
     //...
 };
+
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)
 {
@@ -456,7 +469,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 
     CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin") + _T("//ListRes"));
 
-    ListMainForm* pFrame = new ListMainForm();
+    pFrame = new ListMainForm();
     if( pFrame == NULL ) return 0;
     pFrame->Create(NULL, _T("ListDemo"), UI_WNDSTYLE_FRAME, WS_EX_STATICEDGE | WS_EX_APPWINDOW , 0, 0, 600, 320);
     pFrame->CenterWindow();

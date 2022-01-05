@@ -16,6 +16,7 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "PluginDefinition.h"
+#include "InsituDebug.h"
 #include "menuCmdID.h"
 #include "./DockingFeature/resource.h"
 #include "OptionsDlg.h"
@@ -25,6 +26,8 @@
 #include <map>
 using namespace std;
 #include <windows.h>
+
+
 
 //
 // The plugin data that Notepad++ needs
@@ -84,18 +87,40 @@ void commandMenuCleanUp()
 
 }
 
+int testPos = 25;
+
+
 void showOptionsDlg() {
 	INT_PTR nRet = ::DialogBox(_hInst, 
 							MAKEINTRESOURCE(IDD_OPTIONS_DIALOG),
 							nppData._nppHandle, 
 							(DLGPROC)dlgProcOptions);
+
+	//LogIs(L" %s "
+	//	, SendMessage(nppData._scintillaMainHandle, SCI_GETMATERIALAT, testPos, 0)
+	//);
+
 }
+
+TCHAR msgTmp[]=TEXT("HELLO MATERIAL!");
 
 void showAboutDlg() {
 	INT_PTR nRet = ::DialogBox(_hInst, 
 							MAKEINTRESOURCE(IDD_ABOUT_DIALOG),
 							nppData._nppHandle, 
 							(DLGPROC)AboutDlg_dlgProcOptions);
+   
+
+	
+	//bool succ=SendMessage(nppData._scintillaMainHandle, SCI_SETMATERIALAT, testPos, (LPARAM)msgTmp);
+	//
+	//LogIs(L" %d %d %d "
+	//	, succ
+	//	, SendMessage(nppData._scintillaMainHandle, SCI_GETSTYLEAT, testPos, 0)
+	//	, SendMessage(nppData._scintillaMainHandle, SCI_GETMATERIALAT, testPos, 0)
+	//);
+
+
 }
 
 bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey *sk, bool check0nInit) 
@@ -160,6 +185,26 @@ std::wstring buildRunCommand(std::wstring &filePath, std::wstring &pypath, bool 
 	return command;
 }
 
+BOOL CALLBACK EnumWindowsProc( HWND hwnd, LPARAM lParam ) {
+	DWORD dwPID;
+
+	GetWindowThreadProcessId( hwnd, &dwPID );
+
+	if( dwPID == lParam ) {
+		SetWindowPos( hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
+		SetWindowPos( hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE );
+
+		
+
+		//LogIs(2, "123");
+
+		// Or just SetFocus( hwnd );
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 bool launchPython(std::wstring &command, std::wstring &path)
 {
 	STARTUPINFOW si;
@@ -189,6 +234,11 @@ bool launchPython(std::wstring &command, std::wstring &path)
 		path.c_str(),
 		&si,
 		&pi) != 0;
+
+	Sleep(100);  
+
+	EnumWindows( EnumWindowsProc, ( LPARAM )( pi.dwProcessId ) );
+
 
 	if (result)
 		pi_map[filename] = pi;

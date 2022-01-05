@@ -173,7 +173,7 @@ public:
 		return m_pMainWndPaintManager;
 	}
 
-	virtual void SetMenuCheckInfo(CStdStringPtrMap* pInfo)
+	virtual void SetMenuCheckInfo(QkStringPtrMap* pInfo)
 	{
 		if (pInfo != NULL)
 			m_pMenuCheckInfo = pInfo;
@@ -181,7 +181,7 @@ public:
 			m_pMenuCheckInfo = NULL;
 	}
 
-	virtual CStdStringPtrMap* GetMenuCheckInfo() const
+	virtual QkStringPtrMap* GetMenuCheckInfo() const
 	{
 		return m_pMenuCheckInfo;
 	}
@@ -190,7 +190,7 @@ protected:
 	typedef std::vector<MenuMenuReceiverImplBase*> ReceiversVector;
 	ReceiversVector *pReceivers_;
 	CPaintManagerUI* m_pMainWndPaintManager;
-	CStdStringPtrMap* m_pMenuCheckInfo;
+	QkStringPtrMap* m_pMenuCheckInfo;
 };
 
 ////////////////////////////////////////////////////
@@ -238,11 +238,17 @@ protected:
 /////////////////////////////////////////////////////////////////////////////////////
 //
 
-class CListUI;
+#define MenuListViewBased
+
 class CMenuWnd;
-class UILIB_API CMenuUI : public CListUI
+class UILIB_API CMenuUI 
+#ifdef MenuListViewBased
+	: public ListView
+#else
+	: public CListUI 
+#endif
 {
-	DECLARE_DUICONTROL(CMenuUI)
+	DECLARE_QKCONTROL(CMenuUI)
 public:
 	CMenuUI();
 	virtual ~CMenuUI();
@@ -253,15 +259,13 @@ public:
 
 	virtual void DoEvent(TEventUI& event);
 
-	virtual bool Add(CControlUI* pControl);
-	virtual bool AddAt(CControlUI* pControl, int iIndex);
-
-	virtual int GetItemIndex(CControlUI* pControl) const;
-	virtual bool SetItemIndex(CControlUI* pControl, int iIndex);
-	virtual bool Remove(CControlUI* pControl);
+	//virtual int GetItemIndex(CControlUI* pControl) const;
+	//virtual bool SetItemIndex(CControlUI* pControl, int iIndex);
+	//virtual bool Remove(CControlUI* pControl);
 
 	SIZE EstimateSize(const SIZE & szAvailable);
 
+	LRESULT GetAttribute(LPCTSTR pstrName, LPARAM lParam=0, WPARAM wParam=0);
 	void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue) ;
 };
 
@@ -278,11 +282,12 @@ public:
 		return s_context_menu_observer;
 	}
 	static CMenuWnd* CreateMenu(CMenuElementUI* pOwner, STRINGorID xml, POINT point,
-		CPaintManagerUI* pMainPaintManager, CStdStringPtrMap* pMenuCheckInfo = NULL,
+		CPaintManagerUI* pMainPaintManager, QkStringPtrMap* pMenuCheckInfo = NULL,
 		DWORD dwAlignment = eMenuAlignment_Left | eMenuAlignment_Top);
 	static void DestroyMenu();
 	static MenuItemInfo* SetMenuItemInfo(LPCTSTR pstrName, bool bChecked);
 
+	QkString GetSkinFile(){return L"";};
 public:
 	CMenuWnd();
 	~CMenuWnd();
@@ -298,7 +303,7 @@ public:
 	 */
 
 	void Init(CMenuElementUI* pOwner, STRINGorID xml, POINT point,
-		CPaintManagerUI* pMainPaintManager, CStdStringPtrMap* pMenuCheckInfo = NULL,
+		CPaintManagerUI* pMainPaintManager, QkStringPtrMap* pMenuCheckInfo = NULL,
 		DWORD dwAlignment = eMenuAlignment_Left | eMenuAlignment_Top);
 	LPCTSTR GetWindowClassName() const;
 	void OnFinalMessage(HWND hWnd);
@@ -312,14 +317,12 @@ public:
 
 	BOOL Receive(ContextMenuParam param);
 
-	// 获取根菜单控件，用于动态添加子菜单
 	CMenuUI* GetMenuUI();
 
-	// 重新调整菜单的大小
 	void ResizeMenu();
 
-	// 重新调整子菜单的大小
 	void ResizeSubMenu();
+
 	void setDPI(int DPI);
 
 public:
@@ -327,6 +330,7 @@ public:
 	POINT			m_BasedPoint;
 	STRINGorID		m_xml;
 	CPaintManagerUI m_pm;
+	// 父级菜单项
 	CMenuElementUI* m_pOwner;
 	CMenuUI*	m_pLayout;
 	DWORD		m_dwAlignment;	//菜单对齐方式
@@ -335,11 +339,14 @@ public:
 class CListContainerElementUI;
 class UILIB_API CMenuElementUI : public CListContainerElementUI
 {
-	DECLARE_DUICONTROL(CMenuElementUI)
+	DECLARE_QKCONTROL(CMenuElementUI)
 	friend CMenuWnd;
 public:
 	CMenuElementUI();
 	~CMenuElementUI();
+
+	virtual bool Add(CControlUI* pControl);
+	//virtual bool AddAt(CControlUI* pControl, int iIndex);
 
 	LPCTSTR GetClass() const;
 	LPVOID GetInterface(LPCTSTR pstrName);
@@ -372,15 +379,19 @@ public:
 
 	MenuItemInfo* GetItemInfo(LPCTSTR pstrName);
 	MenuItemInfo* SetItemInfo(LPCTSTR pstrName, bool bChecked);
+
+	int GetSubMenuCount(){return _subMenus.GetSize();};
+	CMenuElementUI* GetSubMenuAt(int index){return (CMenuElementUI*)_subMenus[index];};
 protected:
 	CMenuWnd*	m_pWindow;
+	CStdPtrArray _subMenus;
 
 	bool		m_bDrawLine;	//画分隔线
 	DWORD		m_dwLineColor;  //分隔线颜色
 	RECT		m_rcLinePadding;	//分割线的左右边距
 
 	SIZE		m_szIconSize; 	//画图标
-	CDuiString	m_strIcon;
+	QkString	m_strIcon;
 	bool		m_bCheckItem;
 
 	bool		m_bShowExplandIcon;

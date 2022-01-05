@@ -3,13 +3,11 @@
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CTextUI)
+	IMPLEMENT_QKCONTROL(CTextUI)
 
 	CTextUI::CTextUI() : m_nLinks(0), m_nHoverLink(-1)
 	{
 		m_uTextStyle = DT_WORDBREAK;
-		m_rcTextPadding.left = 2;
-		m_rcTextPadding.right = 2;
 		::ZeroMemory(m_rcLinks, sizeof(m_rcLinks));
 	}
 
@@ -34,7 +32,7 @@ namespace DuiLib
 		else return 0;
 	}
 
-	CDuiString* CTextUI::GetLinkContent(int iIndex)
+	QkString* CTextUI::GetLinkContent(int iIndex)
 	{
 		if( iIndex >= 0 && iIndex < m_nLinks ) return &m_sLinks[iIndex];
 		return NULL;
@@ -43,7 +41,7 @@ namespace DuiLib
 	void CTextUI::DoEvent(TEventUI& event)
 	{
 		if( !IsMouseEnabled() && event.Type > UIEVENT__MOUSEBEGIN && event.Type < UIEVENT__MOUSEEND ) {
-			if( m_pParent != NULL ) m_pParent->DoEvent(event);
+			if( _parent != NULL ) _parent->DoEvent(event);
 			else CLabelUI::DoEvent(event);
 			return;
 		}
@@ -67,7 +65,7 @@ namespace DuiLib
 		if( event.Type == UIEVENT_BUTTONUP && IsEnabled() ) {
 			for( int i = 0; i < m_nLinks; i++ ) {
 				if( ::PtInRect(&m_rcLinks[i], event.ptMouse) ) {
-					m_pManager->SendNotify(this, DUI_MSGTYPE_LINK, i);
+					_manager->SendNotify(this, DUI_MSGTYPE_LINK, i);
 					return;
 				}
 			}
@@ -107,7 +105,7 @@ namespace DuiLib
 
 	SIZE CTextUI::EstimateSize(const SIZE & szAvailable)
 	{
-		//CDuiString sText = GetText();
+		//QkString sText = GetText();
 		//RECT m_rcTextPadding = GetTextPadding();
 		//
 		//RECT rcText = { 0, 0, m_bAutoCalcWidth ? 9999 : GetManager()->GetDPIObj()->Scale(m_cxyFixed.cx), 9999 };
@@ -116,10 +114,10 @@ namespace DuiLib
 		//
 		//if( m_bShowHtml ) {   
 		//	int nLinks = 0;
-		//	CRenderEngine::DrawHtmlText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, m_dwTextColor, NULL, NULL, nLinks, m_iFont, DT_CALCRECT | m_uTextStyle);
+		//	CRenderEngine::DrawHtmlText(_manager->GetPaintDC(), _manager, rcText, sText, m_dwTextColor, NULL, NULL, nLinks, _font, DT_CALCRECT | m_uTextStyle);
 		//}
 		//else {
-		//	CRenderEngine::DrawPlainText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, m_dwTextColor, m_iFont, DT_CALCRECT | m_uTextStyle);
+		//	CRenderEngine::DrawPlainText(_manager->GetPaintDC(), _manager, rcText, sText, m_dwTextColor, _font, DT_CALCRECT | m_uTextStyle);
 		//}
 		//SIZE cXY = {rcText.right - rcText.left + m_rcTextPadding.left + m_rcTextPadding.right,
 		//	rcText.bottom - rcText.top + m_rcTextPadding.top + m_rcTextPadding.bottom};
@@ -134,38 +132,35 @@ namespace DuiLib
 
 	void CTextUI::PaintText(HDC hDC)
 	{
-		CDuiString sText = GetText();
+		QkString sText = GetText();
 		if( sText.IsEmpty() ) {
 			m_nLinks = 0;
 			return;
 		}
 
-		if( m_dwTextColor == 0 ) m_dwTextColor = m_pManager->GetDefaultFontColor();
-		if( m_dwDisabledTextColor == 0 ) m_dwDisabledTextColor = m_pManager->GetDefaultDisabledColor();
+		if( m_dwTextColor == 0 ) m_dwTextColor = _manager->GetDefaultFontColor();
+		if( m_dwDisabledTextColor == 0 ) m_dwDisabledTextColor = _manager->GetDefaultDisabledColor();
 
 		m_nLinks = lengthof(m_rcLinks);
 		RECT rc = m_rcItem;
-		rc.left += m_rcTextPadding.left;
-		rc.right -= m_rcTextPadding.right;
-		rc.top += m_rcTextPadding.top;
-		rc.bottom -= m_rcTextPadding.bottom;
+		ApplyInsetToRect(rc);
 		if( IsEnabled() ) {
 			if( m_bShowHtml )
-				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, m_dwTextColor, \
-				m_rcLinks, m_sLinks, m_nLinks, m_iFont, m_uTextStyle);
+				CRenderEngine::DrawHtmlText(hDC, _manager, rc, sText, m_dwTextColor, \
+				m_rcLinks, m_sLinks, m_nLinks, _font, m_uTextStyle);
 			else
-				CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, m_dwTextColor, \
-				m_iFont, m_uTextStyle);
+				CRenderEngine::DrawPlainText(hDC, _manager, rc, sText, m_dwTextColor, \
+				_font, m_uTextStyle);
 
 				//m_cxyFixed.cy = rc.bottom;
 		}
 		else {
 			if( m_bShowHtml )
-				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
-				m_rcLinks, m_sLinks, m_nLinks, m_iFont, m_uTextStyle);
+				CRenderEngine::DrawHtmlText(hDC, _manager, rc, sText, m_dwDisabledTextColor, \
+				m_rcLinks, m_sLinks, m_nLinks, _font, m_uTextStyle);
 			else
-				CRenderEngine::DrawPlainText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
-				m_iFont, m_uTextStyle);
+				CRenderEngine::DrawPlainText(hDC, _manager, rc, sText, m_dwDisabledTextColor, \
+				_font, m_uTextStyle);
 		}
 	}
 }

@@ -3,19 +3,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "..\Utils\stb_image.h"
 
-#ifdef USE_XIMAGE_EFFECT
-#	include "../../3rd/CxImage/ximage.h"
-#	include "../../3rd/CxImage/ximage.cpp"
-#	include "../../3rd/CxImage/ximaenc.cpp"
-#	include "../../3rd/CxImage/ximagif.cpp"
-#	include "../../3rd/CxImage/ximainfo.cpp"
-#	include "../../3rd/CxImage/ximalpha.cpp"
-#	include "../../3rd/CxImage/ximapal.cpp"
-#	include "../../3rd/CxImage/ximatran.cpp"
-#	include "../../3rd/CxImage/ximawnd.cpp"
-#	include "../../3rd/CxImage/xmemfile.cpp"
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////////////
 namespace DuiLib {
 	static int g_iFontID = MAX_FONT_ID;
@@ -26,12 +13,15 @@ namespace DuiLib {
 
 	CRenderClip::~CRenderClip()
 	{
-		ASSERT(::GetObjectType(hDC)==OBJ_DC || ::GetObjectType(hDC)==OBJ_MEMDC);
-		ASSERT(::GetObjectType(hRgn)==OBJ_REGION);
-		ASSERT(::GetObjectType(hOldRgn)==OBJ_REGION);
-		::SelectClipRgn(hDC, hOldRgn);
-		::DeleteObject(hOldRgn);
-		::DeleteObject(hRgn);
+		if (hDC)
+		{
+			ASSERT(::GetObjectType(hDC)==OBJ_DC || ::GetObjectType(hDC)==OBJ_MEMDC);
+			ASSERT(::GetObjectType(hRgn)==OBJ_REGION);
+			ASSERT(::GetObjectType(hOldRgn)==OBJ_REGION);
+			::SelectClipRgn(hDC, hOldRgn);
+			::DeleteObject(hOldRgn);
+			::DeleteObject(hRgn);
+		}
 	}
 
 	void CRenderClip::GenerateClip(HDC hDC, RECT rc, CRenderClip& clip)
@@ -236,9 +226,8 @@ namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 	//
-
-	bool DrawImage(HDC hDC, CPaintManagerUI* pManager, const RECT& rc, const RECT& rcPaint, const CDuiString& sImageName, \
-		const CDuiString& sImageResType, RECT rcItem, RECT rcBmpPart, RECT rcCorner, DWORD dwMask, BYTE bFade, \
+	bool GetImageInfoAndDraw(HDC hDC, CPaintManagerUI* pManager, const RECT& rc, const RECT& rcPaint, const QkString& sImageName, \
+		const QkString& sImageResType, RECT rcItem, RECT rcBmpPart, RECT rcCorner, DWORD dwMask, BYTE bFade, \
 		bool bHole, bool bTiledX, bool bTiledY, HINSTANCE instance = NULL)
 	{
 		if (sImageName.IsEmpty()) {
@@ -264,9 +253,336 @@ namespace DuiLib {
 		if( !::IntersectRect(&rcTemp, &rcItem, &rc) ) return true;
 		if( !::IntersectRect(&rcTemp, &rcItem, &rcPaint) ) return true;
 
+
+
+#ifdef MODULE_SKIA_RENDERER
+		if(true)
+			CRenderEngine::DrawSkImage(pManager, data, rcItem, rcPaint, rcBmpPart, rcCorner, pManager->IsLayered() ? true : data->bAlpha, bFade, bHole, bTiledX, bTiledY);
+		else
+#endif
 		CRenderEngine::DrawImage(hDC, data->hBitmap, rcItem, rcPaint, rcBmpPart, rcCorner, pManager->IsLayered() ? true : data->bAlpha, bFade, bHole, bTiledX, bTiledY);
+		
+		
+		//if (false)
+		//{
+		//	HDC hCloneDC = ::CreateCompatibleDC(hDC);
+		//	HBITMAP hOldBitmap = (HBITMAP) ::SelectObject(hCloneDC, data->hBitmap);
+		//	::SetStretchBltMode(hDC, HALFTONE);
+		//	::StretchBlt(hDC, rcItem.left, rcItem.top, rcItem.right-rcItem.left, rcItem.bottom-rcItem.top, hCloneDC, \
+		//		0, 0, data->nX, data->nY, SRCCOPY);
+		//	::SelectObject(hCloneDC, hOldBitmap);
+		//	::DeleteDC(hCloneDC);
+		//}
+		//else
+		//{
+		//	// kOpaque_SkAlphaType
+		//	auto decodeInfo = SkImageInfo::MakeN32(data->nX, data->nY, kPremul_SkAlphaType);
+		//
+		//	SkBitmap skBitmap;
+		//
+		//	skBitmap.setInfo(decodeInfo);
+		//
+		//	skBitmap.setPixels(data->pBits);
+		//
+		//	SkRect rect{rcItem.left, rcItem.top, rcItem.right, rcItem.bottom};
+		//
+		//	SkSamplingOptions options(SkFilterMode::kNearest, SkMipmapMode::kNone);
+		//
+		//	pManager->GetSkiaCanvas()->drawImageRect(skImage, rect, options);
+		//}
 
 		return true;
+	}
+
+	void CRenderEngine::DrawSkImage(CPaintManagerUI* pManager, const TImageInfo* data, const RECT& rc, const RECT& rcPaint,
+		const RECT& rcBmpPart, const RECT& rcCorners, bool bAlpha, 
+		BYTE uFade, bool hole, bool xtiled, bool ytiled)
+	{
+		if( data == NULL ) return;
+#ifdef MODULE_SKIA_RENDERER
+		auto decodeInfo = SkImageInfo::MakeN32(data->nX, data->nY, kPremul_SkAlphaType);
+		SkBitmap skBitmap;
+		skBitmap.setInfo(decodeInfo);
+		skBitmap.setPixels(data->pBmBits);
+		auto skImage = skBitmap.asImage();
+
+		SkSamplingOptions options(SkFilterMode::kLinear, SkMipmapMode::kNone);
+		//SkSamplingOptions options(SkFilterMode::kNearest, SkMipmapMode::kNone);
+
+		#define DRAWRECTCONST SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint
+
+
+		RECT rcTemp = {0};
+		RECT rcDest = {0};
+		{
+			if (rc.right - rc.left == rcBmpPart.right - rcBmpPart.left \
+				&& rc.bottom - rc.top == rcBmpPart.bottom - rcBmpPart.top \
+				&& rcCorners.left == 0 && rcCorners.right == 0 && rcCorners.top == 0 && rcCorners.bottom == 0)
+			{
+				//if( ::IntersectRect(&rcTemp, &rcPaint, &rc) ) {
+				//	::BitBlt(hDC, rcTemp.left, rcTemp.top, rcTemp.right - rcTemp.left, rcTemp.bottom - rcTemp.top, \
+				//		hCloneDC, rcBmpPart.left + rcTemp.left - rc.left, rcBmpPart.top + rcTemp.top - rc.top, SRCCOPY);
+				//}
+			}
+			else
+			{
+				// middle
+				if( !hole ) {
+					rcDest.left = rc.left + rcCorners.left;
+					rcDest.top = rc.top + rcCorners.top;
+					rcDest.right = rc.right - rc.left - rcCorners.left - rcCorners.right;
+					rcDest.bottom = rc.bottom - rc.top - rcCorners.top - rcCorners.bottom;
+					rcDest.right += rcDest.left;
+					rcDest.bottom += rcDest.top;
+					if( ::IntersectRect(&rcTemp, &rcPaint, &rcDest) ) {
+						if( !xtiled && !ytiled ) {
+							rcDest.right -= rcDest.left;
+							rcDest.bottom -= rcDest.top;
+
+							pManager->GetSkiaCanvas()->drawImageRect(skImage
+								, SkRect::MakeXYWH(rcBmpPart.left + rcCorners.left, rcBmpPart.top + rcCorners.top, \
+									rcBmpPart.right - rcBmpPart.left - rcCorners.left - rcCorners.right, \
+									rcBmpPart.bottom - rcBmpPart.top - rcCorners.top - rcCorners.bottom)
+								, SkRect::MakeXYWH(rcDest.left, rcDest.top, rcDest.right, rcDest.bottom)
+								, options, NULL, DRAWRECTCONST);
+						} 
+						else if( xtiled && ytiled ) {
+							LONG lWidth = rcBmpPart.right - rcBmpPart.left - rcCorners.left - rcCorners.right;
+							LONG lHeight = rcBmpPart.bottom - rcBmpPart.top - rcCorners.top - rcCorners.bottom;
+							int iTimesX = (rcDest.right - rcDest.left + lWidth - 1) / lWidth;
+							int iTimesY = (rcDest.bottom - rcDest.top + lHeight - 1) / lHeight;
+							for( int j = 0; j < iTimesY; ++j ) {
+								LONG lDestTop = rcDest.top + lHeight * j;
+								LONG lDestBottom = rcDest.top + lHeight * (j + 1);
+								LONG lDrawHeight = lHeight;
+								if( lDestBottom > rcDest.bottom ) {
+									lDrawHeight -= lDestBottom - rcDest.bottom;
+									lDestBottom = rcDest.bottom;
+								}
+								for( int i = 0; i < iTimesX; ++i ) {
+									LONG lDestLeft = rcDest.left + lWidth * i;
+									LONG lDestRight = rcDest.left + lWidth * (i + 1);
+									LONG lDrawWidth = lWidth;
+									if( lDestRight > rcDest.right ) {
+										lDrawWidth -= lDestRight - rcDest.right;
+										lDestRight = rcDest.right;
+									}
+									//::BitBlt(hDC, rcDest.left + lWidth * i, rcDest.top + lHeight * j, \
+									//	lDestRight - lDestLeft, lDestBottom - lDestTop, hCloneDC, \
+									//	rcBmpPart.left + rcCorners.left, rcBmpPart.top + rcCorners.top, SRCCOPY);
+								}
+							}
+						}
+						else if( xtiled ) {
+							LONG lWidth = rcBmpPart.right - rcBmpPart.left - rcCorners.left - rcCorners.right;
+							int iTimes = (rcDest.right - rcDest.left + lWidth - 1) / lWidth;
+							for( int i = 0; i < iTimes; ++i ) {
+								LONG lDestLeft = rcDest.left + lWidth * i;
+								LONG lDestRight = rcDest.left + lWidth * (i + 1);
+								LONG lDrawWidth = lWidth;
+								if( lDestRight > rcDest.right ) {
+									lDrawWidth -= lDestRight - rcDest.right;
+									lDestRight = rcDest.right;
+								}
+								SkRect rect{lDestLeft, rcDest.top, lDestRight, rcDest.top + rcDest.bottom};
+								SkRect rectSrc{rcBmpPart.left + rcCorners.left
+									, rcBmpPart.top + rcCorners.top
+									, rcBmpPart.left + rcCorners.left + lDrawWidth
+									, rcBmpPart.top + rcCorners.top + rcBmpPart.bottom - rcBmpPart.top - rcCorners.top - rcCorners.bottom};
+								pManager->GetSkiaCanvas()->drawImageRect(skImage, rectSrc, rect, options, NULL, DRAWRECTCONST);
+
+							}
+						}
+						else { // ytiled
+							LONG lHeight = rcBmpPart.bottom - rcBmpPart.top - rcCorners.top - rcCorners.bottom;
+							int iTimes = (rcDest.bottom - rcDest.top + lHeight - 1) / lHeight;
+							for( int i = 0; i < iTimes; ++i ) {
+								LONG lDestTop = rcDest.top + lHeight * i;
+								LONG lDestBottom = rcDest.top + lHeight * (i + 1);
+								LONG lDrawHeight = lHeight;
+								if( lDestBottom > rcDest.bottom ) {
+									lDrawHeight -= lDestBottom - rcDest.bottom;
+									lDestBottom = rcDest.bottom;
+								}
+								pManager->GetSkiaCanvas()->drawImageRect(skImage
+									, SkRect::MakeXYWH(rcBmpPart.left + rcCorners.left
+										, rcBmpPart.top + rcCorners.top
+										,rcBmpPart.right - rcBmpPart.left - rcCorners.left - rcCorners.right
+										, lDrawHeight)
+									, SkRect::MakeXYWH(rcDest.left, rcDest.top + lHeight * i, rcDest.right, lDestBottom - lDestTop)
+									, options, NULL, DRAWRECTCONST);
+							}
+						}
+					}
+				}
+
+				//// bottom
+				//if( rcCorners.bottom > 0 ) {
+				//	rcDest.left = rc.left + rcCorners.left;
+				//	rcDest.top = rc.bottom - rcCorners.bottom;
+				//	rcDest.right = rc.right - rc.left - rcCorners.left - rcCorners.right;
+				//	rcDest.bottom = rcCorners.bottom;
+				//	rcDest.right += rcDest.left;
+				//	rcDest.bottom += rcDest.top;
+				//	if( ::IntersectRect(&rcTemp, &rcPaint, &rcDest) ) {
+				//		SkRect rect{rcDest.left, rcDest.top, rcDest.right, rcDest.bottom};
+				//		SkRect rectSrc{rcBmpPart.left + rcCorners.left
+				//			, rcBmpPart.bottom - rcCorners.bottom
+				//			, rcBmpPart.left + rcCorners.left + rcBmpPart.right - rcBmpPart.left - rcCorners.left - rcCorners.right
+				//			, rcBmpPart.bottom - rcCorners.bottom + rcCorners.bottom};
+				//		pManager->GetSkiaCanvas()->drawImageRect(skImage, rectSrc, rect, options, NULL, DRAWRECTCONST);
+				//
+				//	}
+				//
+				//}
+
+				//if(1) return;
+
+				// left-top
+				if( rcCorners.left > 0 && rcCorners.top > 0 ) {
+					rcDest.left = rc.left;
+					rcDest.top = rc.top;
+					rcDest.right = rcCorners.left;
+					rcDest.bottom = rcCorners.top;
+					rcDest.right += rcDest.left;
+					rcDest.bottom += rcDest.top;
+					if( ::IntersectRect(&rcTemp, &rcPaint, &rcDest) ) {
+						SkRect rect{rcDest.left, rcDest.top, rcDest.right, rcDest.bottom};
+						SkRect rectSrc{rcBmpPart.left, rcBmpPart.top, rcBmpPart.left+rcCorners.left, rcBmpPart.top+rcCorners.top};
+						pManager->GetSkiaCanvas()->drawImageRect(skImage, rectSrc, rect, options, NULL, DRAWRECTCONST);
+					}
+				}
+				// top
+				if( rcCorners.top > 0 ) {
+					rcDest.left = rc.left + rcCorners.left;
+					rcDest.top = rc.top;
+					rcDest.right = rc.right - rc.left - rcCorners.left - rcCorners.right;
+					rcDest.bottom = rcCorners.top;
+					rcDest.right += rcDest.left;
+					rcDest.bottom += rcDest.top;
+					if( ::IntersectRect(&rcTemp, &rcPaint, &rcDest) ) {
+						SkRect rect{rcDest.left, rcDest.top, rcDest.right, rcDest.bottom};
+						SkRect rectSrc{rcBmpPart.left + rcCorners.left
+							, rcBmpPart.top
+							, rcBmpPart.left + rcCorners.left + rcBmpPart.right - rcBmpPart.left - rcCorners.left - rcCorners.right
+							, rcBmpPart.top + rcCorners.top};
+						pManager->GetSkiaCanvas()->drawImageRect(skImage, rectSrc, rect, options, NULL, DRAWRECTCONST);
+
+					}
+				}
+				// right-top
+				if( rcCorners.right > 0 && rcCorners.top > 0 ) {
+					rcDest.left = rc.right - rcCorners.right;
+					rcDest.top = rc.top;
+					rcDest.right = rcCorners.right;
+					rcDest.bottom = rcCorners.top;
+					rcDest.right += rcDest.left;
+					rcDest.bottom += rcDest.top;
+					if( ::IntersectRect(&rcTemp, &rcPaint, &rcDest) ) {
+						SkRect rect{rcDest.left, rcDest.top, rcDest.right, rcDest.bottom};
+						SkRect rectSrc{rcBmpPart.right - rcCorners.right
+							, rcBmpPart.top
+							, rcBmpPart.right
+							, rcBmpPart.top + rcCorners.top};
+						pManager->GetSkiaCanvas()->drawImageRect(skImage, rectSrc, rect, options, NULL, DRAWRECTCONST);
+					}
+				}
+				// left
+				if( rcCorners.left > 0 ) {
+					rcDest.left = rc.left;
+					rcDest.top = rc.top + rcCorners.top;
+					rcDest.right = rcCorners.left;
+					rcDest.bottom = rc.bottom - rc.top - rcCorners.top - rcCorners.bottom;
+					rcDest.right += rcDest.left;
+					rcDest.bottom += rcDest.top;
+					if( ::IntersectRect(&rcTemp, &rcPaint, &rcDest) ) {
+
+						SkRect rect{rcDest.left, rcDest.top, rcDest.right, rcDest.bottom};
+						SkRect rectSrc{rcBmpPart.left
+							, rcBmpPart.top + rcCorners.top
+							, rcBmpPart.left + rcCorners.left
+							, rcBmpPart.top + rcCorners.top + rcBmpPart.bottom - rcBmpPart.top - rcCorners.top - rcCorners.bottom};
+						pManager->GetSkiaCanvas()->drawImageRect(skImage, rectSrc, rect, options, NULL, DRAWRECTCONST);
+
+					}
+				}
+				// right
+				if( rcCorners.right > 0 ) {
+					rcDest.left = rc.right - rcCorners.right;
+					rcDest.top = rc.top + rcCorners.top;
+					rcDest.right = rcCorners.right;
+					rcDest.bottom = rc.bottom - rc.top - rcCorners.top - rcCorners.bottom;
+					rcDest.right += rcDest.left;
+					rcDest.bottom += rcDest.top;
+					if( ::IntersectRect(&rcTemp, &rcPaint, &rcDest) ) {
+						SkRect rect{rcDest.left, rcDest.top, rcDest.right, rcDest.bottom};
+						SkRect rectSrc{rcBmpPart.right - rcCorners.right
+							, rcBmpPart.top + rcCorners.top
+							, rcBmpPart.right - rcCorners.right + rcCorners.right
+							, rcBmpPart.top + rcCorners.top + rcBmpPart.bottom - rcBmpPart.top - rcCorners.top - rcCorners.bottom};
+						pManager->GetSkiaCanvas()->drawImageRect(skImage, rectSrc, rect, options, NULL, DRAWRECTCONST);
+
+					}
+				}
+				// left-bottom
+				if( rcCorners.left > 0 && rcCorners.bottom > 0 ) {
+					rcDest.left = rc.left;
+					rcDest.top = rc.bottom - rcCorners.bottom;
+					rcDest.right = rcCorners.left;
+					rcDest.bottom = rcCorners.bottom;
+					rcDest.right += rcDest.left;
+					rcDest.bottom += rcDest.top;
+					if( ::IntersectRect(&rcTemp, &rcPaint, &rcDest) ) {
+						SkRect rect{rcDest.left, rcDest.top, rcDest.right, rcDest.bottom};
+						SkRect rectSrc{rcBmpPart.left
+							, rcBmpPart.bottom - rcCorners.bottom
+							, rcBmpPart.left+rcCorners.left
+							, rcBmpPart.bottom - rcCorners.bottom+rcCorners.bottom};
+						pManager->GetSkiaCanvas()->drawImageRect(skImage, rectSrc, rect, options, NULL, DRAWRECTCONST);
+					}
+				}
+				// bottom
+				if( rcCorners.bottom > 0 ) {
+					rcDest.left = rc.left + rcCorners.left;
+					rcDest.top = rc.bottom - rcCorners.bottom;
+					rcDest.right = rc.right - rc.left - rcCorners.left - rcCorners.right;
+					rcDest.bottom = rcCorners.bottom;
+					rcDest.right += rcDest.left;
+					rcDest.bottom += rcDest.top;
+					if( ::IntersectRect(&rcTemp, &rcPaint, &rcDest) ) {
+						SkRect rect{rcDest.left, rcDest.top, rcDest.right, rcDest.bottom};
+						SkRect rectSrc{rcBmpPart.left + rcCorners.left
+							, rcBmpPart.bottom - rcCorners.bottom
+							, rcBmpPart.left + rcCorners.left + rcBmpPart.right - rcBmpPart.left - rcCorners.left - rcCorners.right
+							, rcBmpPart.bottom - rcCorners.bottom + rcCorners.bottom};
+						pManager->GetSkiaCanvas()->drawImageRect(skImage, rectSrc, rect, options, NULL, DRAWRECTCONST);
+
+					}
+
+				}
+				// right-bottom
+				if( rcCorners.right > 0 && rcCorners.bottom > 0 ) {
+					rcDest.left = rc.right - rcCorners.right;
+					rcDest.top = rc.bottom - rcCorners.bottom;
+					rcDest.right = rcCorners.right;
+					rcDest.bottom = rcCorners.bottom;
+					rcDest.right += rcDest.left;
+					rcDest.bottom += rcDest.top;
+					if( ::IntersectRect(&rcTemp, &rcPaint, &rcDest) ) {
+
+						SkRect rect{rcDest.left, rcDest.top, rcDest.right, rcDest.bottom};
+						SkRect rectSrc{rcBmpPart.right - rcCorners.right
+							, rcBmpPart.bottom - rcCorners.bottom
+							, rcBmpPart.right - rcCorners.right + rcCorners.right
+							, rcBmpPart.bottom - rcCorners.bottom + rcCorners.bottom};
+						pManager->GetSkiaCanvas()->drawImageRect(skImage, rectSrc, rect, options, NULL, DRAWRECTCONST);
+					}
+				}
+
+			}
+		}
+
+#endif
 	}
 
 	DWORD CRenderEngine::AdjustColor(DWORD dwColor, short H, short S, short L)
@@ -291,7 +607,7 @@ namespace DuiLib {
 		do 
 		{
 			if( type == NULL ) {
-				CDuiString sFile = CPaintManagerUI::GetResourcePath();
+				QkString sFile = CPaintManagerUI::GetResourcePath();
 				if( CPaintManagerUI::GetResourceZip().IsEmpty() ) {
 					sFile += bitmap.m_lpstr;
 					HANDLE hFile = ::CreateFile(sFile.GetData(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, \
@@ -313,7 +629,7 @@ namespace DuiLib {
 				}
 				else {
 					sFile += CPaintManagerUI::GetResourceZip();
-					CDuiString sFilePwd = CPaintManagerUI::GetResourceZipPwd();
+					QkString sFilePwd = CPaintManagerUI::GetResourceZipPwd();
 					HZIP hz = NULL;
 					if( CPaintManagerUI::IsCachedResourceZip() ) hz = (HZIP)CPaintManagerUI::GetResourceZipHandle();
 					else
@@ -329,7 +645,7 @@ namespace DuiLib {
 					if( hz == NULL ) break;
 					ZIPENTRY ze; 
 					int i = 0; 
-					CDuiString key = bitmap.m_lpstr;
+					QkString key = bitmap.m_lpstr;
 					key.Replace(_T("\\"), _T("/"));
 					if( FindZipItem(hz, key, true, &i, &ze) != 0 ) break;
 					dwSize = ze.unc_size;
@@ -451,6 +767,7 @@ namespace DuiLib {
 		stbi_image_free(pImage);
 
 		TImageInfo* data = new TImageInfo;
+		data->pBmBits = pDest;
 		data->pBits = NULL;
 		data->pSrcBits = NULL;
 		data->hBitmap = hBitmap;
@@ -469,7 +786,7 @@ namespace DuiLib {
 		{
 			if( type == NULL )
 			{
-				CDuiString sFile = CPaintManagerUI::GetResourcePath();
+				QkString sFile = CPaintManagerUI::GetResourcePath();
 				if( CPaintManagerUI::GetResourceZip().IsEmpty() )
 				{
 					sFile += bitmap.m_lpstr;
@@ -500,7 +817,7 @@ namespace DuiLib {
 					if( CPaintManagerUI::IsCachedResourceZip() ) 
 						hz = (HZIP)CPaintManagerUI::GetResourceZipHandle();
 					else {
-						CDuiString sFilePwd = CPaintManagerUI::GetResourceZipPwd();
+						QkString sFilePwd = CPaintManagerUI::GetResourceZipPwd();
 #ifdef UNICODE
 						char* pwd = w2a((wchar_t*)sFilePwd.GetData());
 						hz = OpenZip((void*)sFile.GetData(), pwd);
@@ -512,7 +829,7 @@ namespace DuiLib {
 					if( hz == NULL ) break;
 					ZIPENTRY ze; 
 					int i = 0; 
-					CDuiString key = bitmap.m_lpstr;
+					QkString key = bitmap.m_lpstr;
 					key.Replace(_T("\\"), _T("/")); 
 					if( FindZipItem(hz, key, true, &i, &ze) != 0 ) break;
 					dwSize = ze.unc_size;
@@ -603,14 +920,14 @@ namespace DuiLib {
 	{
 		tagTDrawInfo drawInfo;
 		drawInfo.Parse(pstrPath1, NULL, NULL);
-		CDuiString sImageName = drawInfo.sImageName;
+		QkString sImageName = drawInfo.sImageName;
 
 		LPBYTE pData = NULL;
 		DWORD dwSize = 0;
 
 		do 
 		{
-			CDuiString sFile = CPaintManagerUI::GetResourcePath();
+			QkString sFile = CPaintManagerUI::GetResourcePath();
 			if( CPaintManagerUI::GetResourceZip().IsEmpty() ) {
 				sFile += sImageName;
 				HANDLE hFile = ::CreateFile(sFile.GetData(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, \
@@ -635,7 +952,7 @@ namespace DuiLib {
 				HZIP hz = NULL;
 				if( CPaintManagerUI::IsCachedResourceZip() ) hz = (HZIP)CPaintManagerUI::GetResourceZipHandle();
 				else {
-					CDuiString sFilePwd = CPaintManagerUI::GetResourceZipPwd();
+					QkString sFilePwd = CPaintManagerUI::GetResourceZipPwd();
 #ifdef UNICODE
 					char* pwd = w2a((wchar_t*)sFilePwd.GetData());
 					hz = OpenZip(sFile.GetData(), pwd);
@@ -647,7 +964,7 @@ namespace DuiLib {
 				if( hz == NULL ) break;
 				ZIPENTRY ze; 
 				int i = 0; 
-				CDuiString key = sImageName;
+				QkString key = sImageName;
 				key.Replace(_T("\\"), _T("/"));
 				if( FindZipItem(hz, key, true, &i, &ze) != 0 ) break;
 				dwSize = ze.unc_size;
@@ -696,21 +1013,15 @@ namespace DuiLib {
 
 	TImageInfo* CRenderEngine::LoadImageStr(LPCTSTR pStrImage, LPCTSTR type, DWORD mask, HINSTANCE instance)
 	{	
-		if(pStrImage == NULL) return NULL;
-
-		CDuiString sStrPath = pStrImage;
-		if( type == NULL )  {
-			sStrPath = CResourceManager::GetInstance()->GetImagePath(pStrImage);
-			if (sStrPath.IsEmpty()) sStrPath = pStrImage;
-			else {
-				/*if (CResourceManager::GetInstance()->GetScale() != 100) {
-				CDuiString sScale;
-				sScale.Format(_T("@%d."), CResourceManager::GetInstance()->GetScale());
-				sStrPath.Replace(_T("."), sScale);
-				}*/
-			}
+		if(pStrImage == NULL) 
+		{
+			return NULL;
 		}
-		return LoadImageStr(STRINGorID(sStrPath.GetData()), type, mask, instance);
+		if( type == NULL )  
+		{
+			pStrImage = CResourceManager::GetInstance()->MapImagePath(pStrImage);
+		}
+		return LoadImageStr(STRINGorID(pStrImage), type, mask, instance);
 	}
 
 	TImageInfo* CRenderEngine::LoadImageStr(UINT nID, LPCTSTR type, DWORD mask, HINSTANCE instance)
@@ -743,7 +1054,7 @@ namespace DuiLib {
 		}
 		bitmap->hBitmap = NULL;
 		if (bitmap->pBits) {
-			delete[] bitmap->pBits;
+			//delete[] bitmap->pBits;
 		}
 		bitmap->pBits = NULL;
 		if (bitmap->pSrcBits) {
@@ -756,7 +1067,7 @@ namespace DuiLib {
 		}
 	}
 
-	bool CRenderEngine::MakeImageDest(const RECT& rcControl, const CDuiSize& szImage, const CDuiString& sAlign, const RECT& rcPadding, RECT& rcDest)
+	bool CRenderEngine::MakeImageDest(const RECT& rcControl, const CDuiSize& szImage, const QkString& sAlign, const RECT& rcPadding, RECT& rcDest)
 	{
 		if(sAlign.Find(_T("left")) != -1)
 		{
@@ -802,15 +1113,6 @@ namespace DuiLib {
 		return true;
 	}
 
-	void CRenderEngine::DrawPlainText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText,DWORD dwTextColor, \
-		int iFont, UINT uStyle, DWORD dwTextBKColor)
-	{
-		ASSERT(::GetObjectType(hDC)==OBJ_DC || ::GetObjectType(hDC)==OBJ_MEMDC);
-		if( pstrText == NULL || pManager == NULL ) return;
-		DrawColor(hDC, rc, dwTextBKColor);
-		DrawPlainText(hDC, pManager, rc, pstrText, dwTextColor, iFont, uStyle);
-	}
-
 	void CRenderEngine::DrawImage(HDC hDC, HBITMAP hBitmap, const RECT& rc, const RECT& rcPaint,
 		const RECT& rcBmpPart, const RECT& rcCorners, bool bAlpha, 
 		BYTE uFade, bool hole, bool xtiled, bool ytiled)
@@ -826,10 +1128,13 @@ namespace DuiLib {
 		HDC hCloneDC = ::CreateCompatibleDC(hDC);
 		HBITMAP hOldBitmap = (HBITMAP) ::SelectObject(hCloneDC, hBitmap);
 		::SetStretchBltMode(hDC, HALFTONE);
+		//::SetStretchBltMode(hDC, COLORONCOLOR);
 
 		RECT rcTemp = {0};
 		RECT rcDest = {0};
-		if( lpAlphaBlend && (bAlpha || uFade < 255) ) {
+		if( lpAlphaBlend && (bAlpha || uFade < 255) ) 
+		//if( 0 ) 
+		{
 			BLENDFUNCTION bf = { AC_SRC_OVER, 0, uFade, AC_SRC_ALPHA };
 			// middle
 			if( !hole ) {
@@ -1128,6 +1433,8 @@ namespace DuiLib {
 					}
 				}
 
+				//if(1) return;
+
 				// left-top
 				if( rcCorners.left > 0 && rcCorners.top > 0 ) {
 					rcDest.left = rc.left;
@@ -1279,10 +1586,27 @@ namespace DuiLib {
 			MakeImageDest(rcItem, pDrawInfo->szImage, pDrawInfo->sAlign, pDrawInfo->rcPadding, rcDest);
 		}
 
-		bool bRet = DuiLib::DrawImage(hDC, pManager, rcItem, rcPaint, pDrawInfo->sImageName, pDrawInfo->sResType, rcDest, \
+		bool bRet = DuiLib::GetImageInfoAndDraw(hDC, pManager, rcItem, rcPaint, pDrawInfo->sImageName, pDrawInfo->sResType, rcDest, \
 			pDrawInfo->rcSource, pDrawInfo->rcCorner, pDrawInfo->dwMask, pDrawInfo->uFade, pDrawInfo->bHole, pDrawInfo->bTiledX, pDrawInfo->bTiledY, instance);
 
 		return bRet;
+	}
+
+	const TImageInfo* CRenderEngine::ParseImageString(CPaintManagerUI* pManager, LPCTSTR pStrImage, LPCTSTR pStrModify, HINSTANCE instance)
+	{
+		const TDrawInfo* pDrawInfo = pManager->GetDrawInfo(pStrImage, pStrModify);
+		if( pManager == NULL || pDrawInfo == NULL ) return false;
+		if (pDrawInfo->sImageName.IsEmpty()) {
+			return NULL;
+		}
+		const TImageInfo* data = NULL;
+		if( pDrawInfo->sResType.IsEmpty() ) {
+			data = pManager->GetImageEx(pDrawInfo->sImageName, NULL, pDrawInfo->dwMask, false, instance);
+		}
+		else {
+			data = pManager->GetImageEx(pDrawInfo->sImageName, pDrawInfo->sResType, pDrawInfo->dwMask, false, instance);
+		}
+		return data;  
 	}
 
 	bool CRenderEngine::DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, LPCTSTR pStrModify, HINSTANCE instance)
@@ -1299,6 +1623,84 @@ namespace DuiLib {
 		Gdiplus::Graphics graphics( hDC );
 		Gdiplus::SolidBrush brush(Gdiplus::Color((LOBYTE((color)>>24)), GetBValue(color), GetGValue(color), GetRValue(color)));
 		graphics.FillRectangle(&brush, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+	}
+
+	void CRenderEngine::FillRectHeteroSized(HDC hDC, const RECT& frameRect, const RECT& rcBorderSize, const RECT& rcborderInset, DWORD bordercolor)
+	{
+		RECT rcBorder;
+		BYTE bR = (BYTE) GetBValue(bordercolor);
+		BYTE bG = (BYTE) GetGValue(bordercolor);
+		BYTE bB = (BYTE) GetRValue(bordercolor);
+		HBRUSH hBrush = ::CreateSolidBrush(RGB(bR,bG,bB));
+		if(rcBorderSize.left)
+		{ // left
+		    rcBorder = {frameRect.left + rcborderInset.left
+		    	, frameRect.top + rcborderInset.top
+		    	, frameRect.left + rcBorderSize.left + rcborderInset.left
+		    	, frameRect.bottom - rcborderInset.bottom};
+		    ::FillRect(hDC, &rcBorder, hBrush);
+		}
+		if(rcBorderSize.top)
+		{ // top
+			rcBorder = {frameRect.left + rcBorderSize.left + rcborderInset.left
+				, frameRect.top + rcborderInset.top
+				, frameRect.right - rcborderInset.right
+				, frameRect.top + rcBorderSize.top + rcborderInset.top};
+			::FillRect(hDC, &rcBorder, hBrush);
+		}
+		if(rcBorderSize.right)
+		{ // right
+			rcBorder = {frameRect.right - rcBorderSize.right - rcborderInset.right
+				, frameRect.top + rcBorderSize.top + rcborderInset.top
+				, frameRect.right - rcborderInset.right
+				, frameRect.bottom - rcborderInset.bottom};
+			::FillRect(hDC, &rcBorder, hBrush);
+		}
+		if(rcBorderSize.bottom)
+		{ // bottom
+			rcBorder = {frameRect.left + rcBorderSize.left + rcborderInset.left
+				, frameRect.bottom - rcBorderSize.top - rcborderInset.bottom
+				, frameRect.right - rcBorderSize.right - rcborderInset.right
+				, frameRect.bottom - rcborderInset.bottom};
+			::FillRect(hDC, &rcBorder, hBrush);
+		}
+		::DeleteObject(hBrush);
+	}
+	
+	void CRenderEngine::FillRectHeteroSizedPlus(HDC hDC, const RECT& frameRect, const RECT& rcBorderSize, const RECT& rcborderInset, DWORD bordercolor)
+	{
+		RECT rcBorder;
+		Gdiplus::Graphics graphis (hDC);
+		Gdiplus::SolidBrush solidbrush (Gdiplus::Color((LOBYTE((bordercolor)>>24)), GetBValue(bordercolor), GetGValue(bordercolor), GetRValue(bordercolor)));
+		LONG leftVal = frameRect.left + rcBorderSize.left + rcborderInset.left;
+		if(rcBorderSize.left)
+		{ // left
+			graphis.FillRectangle(&solidbrush, frameRect.left + rcborderInset.left
+		    	, frameRect.top + rcborderInset.top
+		    	, rcBorderSize.left
+		    	, frameRect.bottom - rcborderInset.bottom - (frameRect.top + rcborderInset.top));
+		}
+		if(rcBorderSize.top)
+		{ // top
+			graphis.FillRectangle(&solidbrush, leftVal
+				, frameRect.top + rcborderInset.top
+				, frameRect.right - rcborderInset.right - leftVal
+				, rcBorderSize.top);
+		}
+		if(rcBorderSize.right)
+		{ // right
+			graphis.FillRectangle(&solidbrush, frameRect.right - rcBorderSize.right - rcborderInset.right
+				, frameRect.top + rcBorderSize.top + rcborderInset.top
+				, rcBorderSize.right
+				, frameRect.bottom - rcborderInset.bottom - (frameRect.top + rcBorderSize.top + rcborderInset.top));
+		}
+		if(rcBorderSize.bottom)
+		{ // bottom
+			graphis.FillRectangle(&solidbrush, leftVal
+				, frameRect.bottom - rcBorderSize.top - rcborderInset.bottom
+				, frameRect.right - rcBorderSize.right - rcborderInset.right - leftVal
+				, rcBorderSize.top);
+		}
 	}
 
 	void CRenderEngine::DrawGradient(HDC hDC, const RECT& rc, DWORD dwFirst, DWORD dwSecond, bool bVertical, int nSteps)
@@ -1402,32 +1804,125 @@ namespace DuiLib {
 
 	void CRenderEngine::DrawRect(HDC hDC, const RECT& rc, int nSize, DWORD dwPenColor,int nStyle /*= PS_SOLID*/)
 	{
-#ifdef USE_GDI_RENDER
-		ASSERT(::GetObjectType(hDC) == OBJ_DC || ::GetObjectType(hDC) == OBJ_MEMDC);
-		HPEN hPen = ::CreatePen(PS_SOLID | PS_INSIDEFRAME, nSize, RGB(GetBValue(dwPenColor), GetGValue(dwPenColor), GetRValue(dwPenColor)));
-		HPEN hOldPen = (HPEN)::SelectObject(hDC, hPen);
-		::SelectObject(hDC, ::GetStockObject(HOLLOW_BRUSH));
-		::Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
-		::SelectObject(hDC, hOldPen);
-		::DeleteObject(hPen);
-#else
-		ASSERT(::GetObjectType(hDC) == OBJ_DC || ::GetObjectType(hDC) == OBJ_MEMDC);
-		Gdiplus::Graphics graphics(hDC);
-		Gdiplus::Pen pen(Gdiplus::Color(dwPenColor), (Gdiplus::REAL)nSize);
-		pen.SetAlignment(Gdiplus::PenAlignmentInset);
+		// Gdiplus更易于叠加透明图形，性能上没啥区别。
+		if (dwPenColor >= 0xFF000000)
+		{
+			ASSERT(::GetObjectType(hDC) == OBJ_DC || ::GetObjectType(hDC) == OBJ_MEMDC);
+			HPEN hPen = ::CreatePen(PS_SOLID | PS_INSIDEFRAME, nSize, RGB(GetBValue(dwPenColor), GetGValue(dwPenColor), GetRValue(dwPenColor)));
+			HPEN hOldPen = (HPEN)::SelectObject(hDC, hPen);
+			::SelectObject(hDC, ::GetStockObject(HOLLOW_BRUSH));
+			::Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
+			::SelectObject(hDC, hOldPen);
+			::DeleteObject(hPen);
+		}
+		else
+		{
+			ASSERT(::GetObjectType(hDC) == OBJ_DC || ::GetObjectType(hDC) == OBJ_MEMDC);
+			Gdiplus::Graphics graphics(hDC);
+			Gdiplus::Pen pen(Gdiplus::Color(dwPenColor), (Gdiplus::REAL)nSize);
+			pen.SetAlignment(Gdiplus::PenAlignmentInset);
 
-		graphics.DrawRectangle(&pen, rc.left, rc.top, rc.right - rc.left - 1, rc.bottom - rc.top - 1);
-#endif
+			graphics.DrawRectangle(&pen, rc.left, rc.top, rc.right - rc.left - 1, rc.bottom - rc.top - 1);
+		}
 	}
 
 	// 绘制及填充圆角矩形
-	void DrawRoundRectangle(HDC hDC, float x, float y, float width, float height, float arcSize, float lineWidth, Gdiplus::Color lineColor, bool fillPath, Gdiplus::Color fillColor)
+	void CRenderEngine::DrawRoundBorder(HDC hDC, RECT frameRect, float arcSize, RECT borderSize, Gdiplus::Color lineColor, Gdiplus::Color fillColor)
+	{
+		// 创建GDI+对象
+		Gdiplus::Graphics  graphics(hDC);
+		//if (1)
+		//{
+		//	// Create a path that consists of a single polygon.
+		//	Point polyPoints[] = {Point(10, 10), Point(150, 10), 
+		//		Point(100, 75), Point(100, 150)};
+		//	GraphicsPath path;
+		//	path.AddPolygon(polyPoints, 4);
+		//	// Construct a region based on the path.
+		//	Region region(&path);
+		//	// Draw the outline of the region.
+		//	Pen pen(Color(255, 0, 0, 0));
+		//	graphics.DrawPath(&pen, &path);
+		//	// Set the clipping region of the Graphics object.
+		//	graphics.SetClip(&region);
+		//	// Draw some clipped strings.
+		//	FontFamily fontFamily(L"Arial");
+		//	Font font(&fontFamily, 36, FontStyleBold, UnitPixel);
+		//	SolidBrush solidBrush(Color(255, 255, 0, 0));
+		//	graphics.DrawString(L"A Clipping Region", 20, &font, 
+		//		PointF(15, 25), &solidBrush);
+		//	graphics.DrawString(L"A Clipping Region", 20, &font, 
+		//		PointF(15, 68), &solidBrush);
+		//}
+		float arcDiameter = arcSize * 2;
+		//设置画图时的滤波模式为消除锯齿现象
+		graphics.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
+		//g.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
+
+		Gdiplus::SolidBrush brush(lineColor);
+
+		// 绘图路径
+		Gdiplus::GraphicsPath roundRectPath;
+
+		float x = frameRect.left;
+		float y = frameRect.top;
+		float x1 = frameRect.right;
+		float y1 = frameRect.bottom;
+		
+		float width = x1-x;
+		float height = y1-y;
+
+		x += borderSize.left/2;
+		y += borderSize.top/2;
+
+		x1 -= borderSize.right/2;
+		y1 -= borderSize.bottom/2;
+
+		Gdiplus::Pen pen(lineColor);
+
+		roundRectPath.AddLine(x+borderSize.left/2, y, x1-borderSize.right/2, y);  // 顶部横线
+		pen.SetWidth(borderSize.top);	
+		graphics.DrawPath(&pen, &roundRectPath);
+		graphics.FillPie(&brush, x1-borderSize.right/2-borderSize.right, (float)frameRect.top, (float)borderSize.right*2, (float)borderSize.top, 270, 90);
+
+
+		roundRectPath.Reset();
+		roundRectPath.AddLine(x1, y, x1, y1);  // 右侧竖线
+		//roundRectPath.AddArc(x + width - arcDiameter, y + height - arcDiameter, arcDiameter, arcDiameter, 0, 90); // 右下圆角
+		pen.SetWidth(borderSize.right);	
+		graphics.DrawPath(&pen, &roundRectPath);
+		graphics.FillPie(&brush, x1-borderSize.right/2-borderSize.right, (float)frameRect.bottom-borderSize.bottom, (float)borderSize.right*2, (float)borderSize.bottom, 0, 90);
+
+		
+		roundRectPath.Reset();
+		roundRectPath.AddLine(x1-borderSize.right/2, y1, x+borderSize.left/2, y1);  // 底部横线
+		//roundRectPath.AddArc(x, y + height - arcDiameter, arcDiameter, arcDiameter, 90, 90); // 左下圆角
+		pen.SetWidth(borderSize.bottom);	
+		graphics.DrawPath(&pen, &roundRectPath);
+		graphics.FillPie(&brush, x-borderSize.left/2, (float)frameRect.bottom-borderSize.bottom, (float)borderSize.left*2, (float)borderSize.bottom, 90, 90);
+
+
+		
+		roundRectPath.Reset();
+		roundRectPath.AddLine(x, y1, x, y);  // 左侧竖线
+		//roundRectPath.AddArc(x, y, arcDiameter, arcDiameter, 180, 90 + 10); // 左上圆角
+		pen.SetWidth(borderSize.left);	
+		graphics.FillPie(&brush, x-borderSize.left/2, (float)frameRect.top, (float)borderSize.left*2, (float)borderSize.top, 180, 90);
+		graphics.DrawPath(&pen, &roundRectPath);
+
+												
+
+	}
+
+	// 绘制及填充圆角矩形
+	void CRenderEngine::DrawRoundRectangle(HDC hDC, float x, float y, float width, float height, float arcSize, float lineWidth, Gdiplus::Color lineColor, bool fillPath, Gdiplus::Color fillColor)
 	{
 		float arcDiameter = arcSize * 2;
 		// 创建GDI+对象
-		Gdiplus::Graphics  g(hDC);
+		Gdiplus::Graphics  graphics(hDC);
 		//设置画图时的滤波模式为消除锯齿现象
-		g.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
+		graphics.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
+		//graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
 
 		// 绘图路径
 		Gdiplus::GraphicsPath roundRectPath;
@@ -1443,26 +1938,123 @@ namespace DuiLib {
 		roundRectPath.AddArc(x, y + height - arcDiameter, arcDiameter, arcDiameter, 90, 90); // 左下圆角
 
 		roundRectPath.AddLine(x, y + height - arcSize, x, y + arcSize);  // 左侧竖线
-		roundRectPath.AddArc(x, y, arcDiameter, arcDiameter, 180, 90); // 左上圆角
+		roundRectPath.AddArc(x, y, arcDiameter, arcDiameter, 180, 90 ); // 左上圆角
 
-		//创建画笔
-		Gdiplus::Pen pen(lineColor, lineWidth);
-		// 绘制矩形
-		g.DrawPath(&pen, &roundRectPath);
+		if (lineWidth)
+		{ // 勾勒
+			Gdiplus::Pen pen(lineColor, lineWidth);
+			graphics.DrawPath(&pen, &roundRectPath);
+		}
 
-		// 是否填充
-		if(fillPath) {
+		if(fillPath) 
+		{ // 填充
 			if(fillColor.GetAlpha() == 0) {
 				fillColor = lineColor; // 若未指定填充色，则用线条色填充
 			}
-
-			// 创建画刷
 			Gdiplus::SolidBrush brush(fillColor);
+			graphics.FillPath(&brush, &roundRectPath);
+		}
 
-			// 填充
-			g.FillPath(&brush, &roundRectPath);
+		//LinearGradientBrush gradBrush(Point(x, y), Point(x, y+height), Color(255, 255, 0, 0), Color(255, 0, 0, 255));
+		//Color colors[] = {
+		//	Color(255, 255,	0,	 0),		//red   
+		//	Color(255, 255,	255, 0),		//yellow   
+		//	Color(255, 0,	0,	 255),		//blue   
+		//	Color(255, 0,	255, 0)			//green 
+		//};		  
+		//
+		////按红黄蓝绿的顺序四种颜色渐变,四种颜色,各占四分之一
+		//REAL positions[] = {
+		//	0.0f,
+		//	0.33f,
+		//	0.66f,
+		//	1.0f 
+		//};
+		//
+		////设置插补颜色（插值法）
+		//gradBrush.SetInterpolationColors(colors, positions, 4);
+		//
+		////填充指定区域矩形 
+		//graphics.DrawPath(&gradBrush, &roundRectPath); 
+	}
+
+	// 绘制空心圆角矩形
+	void CRenderEngine::DrawRoundRectangleHollow(HDC hDC, float x, float y, float width, float height, float arcSize, float lineWidth, Gdiplus::Color lineColor, bool fillPath, Gdiplus::Color fillColor)
+	{
+		float arcDiameter = arcSize * 2;
+		// 创建GDI+对象
+		Gdiplus::Graphics  graphics(hDC);
+		//设置画图时的滤波模式为消除锯齿现象
+		graphics.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
+		//graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
+
+		// 绘图路径
+		Gdiplus::GraphicsPath roundRectPath;
+
+		// 保存绘图路径
+		roundRectPath.AddLine(x + arcSize, y, x + width - arcSize, y);  // 顶部横线
+		roundRectPath.AddArc(x + width - arcDiameter, y, arcDiameter, arcDiameter, 270, 90); // 右上圆角
+
+		roundRectPath.AddLine(x + width, y + arcSize, x + width, y + height - arcSize);  // 右侧竖线
+		roundRectPath.AddArc(x + width - arcDiameter, y + height - arcDiameter, arcDiameter, arcDiameter, 0, 90); // 右下圆角
+
+		roundRectPath.AddLine(x + width - arcSize, y + height, x + arcSize, y + height);  // 底部横线
+		roundRectPath.AddArc(x, y + height - arcDiameter, arcDiameter, arcDiameter, 90, 90); // 左下圆角
+
+		roundRectPath.AddLine(x, y + height - arcSize, x, y + arcSize);  // 左侧竖线
+		roundRectPath.AddArc(x, y, arcDiameter, arcDiameter, 180, 90 ); // 左上圆角
+
+		if(fillPath) 
+		{ // 填充
+			if(fillColor.GetAlpha() == 0) {
+				fillColor = lineColor; // 若未指定填充色，则用线条色填充
+			}
+			Gdiplus::SolidBrush brush(fillColor);
+			if(lineWidth<arcSize*0.3)
+				lineWidth = arcSize*0.3;
+			Rect rect = {(int)(x+lineWidth), (int)(y+lineWidth), (int)(width-lineWidth*2), (int)(height-lineWidth*2)};
+			graphics.ExcludeClip(rect);
+			graphics.FillPath(&brush, &roundRectPath);
 		}
 	}
+
+	void CRenderEngine::DrawRoundRectangleTest(HDC hDC, float x, float y, float width, float height, float arcSize, float lineWidth, Gdiplus::Color lineColor, bool fillPath, Gdiplus::Color fillColor)
+	{
+		float arcDiameter = arcSize * 2;
+		Gdiplus::Graphics  graphics(hDC);
+		graphics.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
+		//graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
+
+		Gdiplus::GraphicsPath roundRectPath;
+
+		roundRectPath.AddLine(x + arcSize, y, x + width - arcSize, y);  // 顶部横线
+		roundRectPath.AddArc(x + width - arcDiameter, y, arcDiameter, arcDiameter-lineWidth, 270, 90); // 右上圆角
+
+		//roundRectPath.AddLine(x + width, y + arcSize, x + width, y + height - arcSize);  // 右侧竖线
+		//roundRectPath.AddArc(x + width - arcDiameter, y + height - arcDiameter, arcDiameter, arcDiameter, 0, 90); // 右下圆角
+		//
+		//roundRectPath.AddLine(x + width - arcSize, y + height, x + arcSize, y + height);  // 底部横线
+		//roundRectPath.AddArc(x, y + height - arcDiameter, arcDiameter, arcDiameter, 90, 90); // 左下圆角
+		//
+		//roundRectPath.AddLine(x, y + height - arcSize, x, y + arcSize);  // 左侧竖线
+		//roundRectPath.AddArc(x, y, arcDiameter, arcDiameter, 180, 90 ); // 左上圆角
+
+		if (lineWidth)
+		{ // 勾勒
+			Gdiplus::Pen pen(lineColor, lineWidth);
+			graphics.DrawPath(&pen, &roundRectPath);
+		}
+
+		if(fillPath) 
+		{ // 填充
+			if(fillColor.GetAlpha() == 0) {
+				fillColor = lineColor; // 若未指定填充色，则用线条色填充
+			}
+			Gdiplus::SolidBrush brush(fillColor);
+			graphics.FillPath(&brush, &roundRectPath);
+		}
+	}
+
 	void CRenderEngine::DrawRoundRect(HDC hDC, const RECT& rc, int nSize, int width, int height, DWORD dwPenColor,int nStyle /*= PS_SOLID*/)
 	{
 #ifdef USE_GDI_RENDER
@@ -1478,10 +2070,10 @@ namespace DuiLib {
 #endif
 	}
 
-	void CRenderEngine::DrawPlainText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText, DWORD dwTextColor, int iFont, UINT uStyle)
+	void CRenderEngine::DrawPlainText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, const QkString & pstrText, DWORD dwTextColor, int iFont, UINT uStyle)
 	{
 		ASSERT(::GetObjectType(hDC)==OBJ_DC || ::GetObjectType(hDC)==OBJ_MEMDC);
-		if( pstrText == NULL || pManager == NULL ) return;
+		if( /*pstrText == NULL || */pManager == NULL ) return;
 
 		if ( pManager->IsLayered() || pManager->IsUseGdiplusText())
 		{
@@ -1551,7 +2143,7 @@ namespace DuiLib {
 			{
 				Gdiplus::RectF bounds;
 
-				graphics.MeasureString(pstrText, -1, &font, rectF, &stringFormat, &bounds);
+				graphics.MeasureString(pstrText, pstrText.GetLength(), &font, rectF, &stringFormat, &bounds);
 
 				// MeasureString存在计算误差，这里加一像素
 				rc.bottom = rc.top + (long)bounds.Height + 1;
@@ -1559,7 +2151,7 @@ namespace DuiLib {
 			}
 			else
 			{
-				graphics.DrawString(pstrText, -1, &font, rectF, &stringFormat, &brush);
+				graphics.DrawString(pstrText, pstrText.GetLength(), &font, rectF, &stringFormat, &brush);
 			}
 #else
 			DWORD dwSize = MultiByteToWideChar(CP_ACP, 0, pstrText, -1, NULL, 0);
@@ -1589,9 +2181,9 @@ namespace DuiLib {
 			::SetBkMode(hDC, TRANSPARENT);
 			::SetTextColor(hDC, RGB(GetBValue(dwTextColor), GetGValue(dwTextColor), GetRValue(dwTextColor)));
 			HFONT hOldFont = (HFONT)::SelectObject(hDC, pManager->GetFont(iFont));
-			int fonticonpos = CDuiString(pstrText).Find(_T("&#x"));
+			int fonticonpos = pstrText.Find(_T("&#x"));
 			if (fonticonpos != -1) {
-				CDuiString strUnicode = CDuiString(pstrText).Mid(fonticonpos + 3);
+				QkString strUnicode = pstrText.Mid(fonticonpos + 3);
 				if (strUnicode.GetLength() > 4) strUnicode = strUnicode.Mid(0,4);
 				if (strUnicode.Right(1).CompareNoCase(_T(" ")) == 0) {
 					strUnicode = strUnicode.Mid(0, strUnicode.GetLength() - 1);
@@ -1604,13 +2196,22 @@ namespace DuiLib {
 				::DrawTextW(hDC, wch, -1, &rc, uStyle);
 			}
 			else {
-				::DrawText(hDC, pstrText, -1, &rc, uStyle);
+				::DrawText(hDC, pstrText, pstrText.GetLength(), &rc, uStyle);
 			}
 			::SelectObject(hDC, hOldFont);
 		}
 	}
 
-	void CRenderEngine::DrawHtmlText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText, DWORD dwTextColor, RECT* prcLinks, CDuiString* sLinks, int& nLinkRects, int iFont, UINT uStyle)
+	void CRenderEngine::DrawPlainText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, const QkString & pstrText,DWORD dwTextColor, \
+		int iFont, UINT uStyle, DWORD dwTextBKColor)
+	{
+		ASSERT(::GetObjectType(hDC)==OBJ_DC || ::GetObjectType(hDC)==OBJ_MEMDC);
+		if( /*pstrText == NULL || */pManager == NULL ) return;
+		DrawColor(hDC, rc, dwTextBKColor);
+		DrawPlainText(hDC, pManager, rc, pstrText, dwTextColor, iFont, uStyle);
+	}
+
+	void CRenderEngine::DrawHtmlText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText, DWORD dwTextColor, RECT* prcLinks, QkString* sLinks, int& nLinkRects, int iFont, UINT uStyle)
 	{
 		// 考虑到在xml编辑器中使用<>符号不方便，可以使用{}符号代替
 		// 支持标签嵌套（如<l><b>text</b></l>），但是交叉嵌套是应该避免的（如<l><b>text</l></b>）
@@ -1682,11 +2283,11 @@ namespace DuiLib {
 		}
 
 		bool bHoverLink = false;
-		CDuiString sHoverLink;
+		QkString sHoverLink;
 		POINT ptMouse = pManager->GetMousePos();
 		for( int i = 0; !bHoverLink && i < nLinkRects; i++ ) {
 			if( ::PtInRect(prcLinks + i, ptMouse) ) {
-				sHoverLink = *(CDuiString*)(sLinks + i);
+				sHoverLink = *(QkString*)(sLinks + i);
 				bHoverLink = true;
 			}
 		}
@@ -1720,8 +2321,8 @@ namespace DuiLib {
 				if( !bLineDraw ) {
 					if( bInLink && iLinkIndex < nLinkRects ) {
 						::SetRect(&prcLinks[iLinkIndex++], ptLinkStart.x, ptLinkStart.y, MIN(pt.x, rc.right), pt.y + cyLine);
-						CDuiString *pStr1 = (CDuiString*)(sLinks + iLinkIndex - 1);
-						CDuiString *pStr2 = (CDuiString*)(sLinks + iLinkIndex);
+						QkString *pStr1 = (QkString*)(sLinks + iLinkIndex - 1);
+						QkString *pStr2 = (QkString*)(sLinks + iLinkIndex);
 						*pStr2 = *pStr1;
 					}
 					for( int i = iLineLinkIndex; i < iLinkIndex; i++ ) {
@@ -1757,7 +2358,7 @@ namespace DuiLib {
 							pstrText++;
 							while( *pstrText > _T('\0') && *pstrText <= _T(' ') ) pstrText = ::CharNext(pstrText);
 							if( iLinkIndex < nLinkRects && !bLineDraw ) {
-								CDuiString *pStr = (CDuiString*)(sLinks + iLinkIndex);
+								QkString *pStr = (QkString*)(sLinks + iLinkIndex);
 								pStr->Empty();
 								while( *pstrText != _T('\0') && *pstrText != _T('>') && *pstrText != _T('}') ) {
 									LPCTSTR pstrTemp = ::CharNext(pstrText);
@@ -1770,7 +2371,7 @@ namespace DuiLib {
 							DWORD clrColor = dwTextColor;
 							if(clrColor == 0) pManager->GetDefaultLinkFontColor();
 							if( bHoverLink && iLinkIndex < nLinkRects ) {
-								CDuiString *pStr = (CDuiString*)(sLinks + iLinkIndex);
+								QkString *pStr = (QkString*)(sLinks + iLinkIndex);
 								if( sHoverLink == *pStr ) clrColor = pManager->GetDefaultLinkHoverFontColor();
 							}
 							//else if( prcLinks == NULL ) {
@@ -1833,9 +2434,9 @@ namespace DuiLib {
 								::SelectObject(hDC, pFontInfo->hFont);
 							}
 							else {
-								CDuiString sFontName;
+								QkString sFontName;
 								int iFontSize = 10;
-								CDuiString sFontAttr;
+								QkString sFontAttr;
 								bool bBold = false;
 								bool bUnderline = false;
 								bool bItalic = false;
@@ -1874,12 +2475,12 @@ namespace DuiLib {
 						{    
 							pstrNextStart = pstrText - 1;
 							pstrText++;
-							CDuiString sImageString = pstrText;
+							QkString sImageString = pstrText;
 							int iWidth = 0;
 							int iHeight = 0;
 							while( *pstrText > _T('\0') && *pstrText <= _T(' ') ) pstrText = ::CharNext(pstrText);
 							const TImageInfo* pImageInfo = NULL;
-							CDuiString sName;
+							QkString sName;
 							while( *pstrText != _T('\0') && *pstrText != _T('>') && *pstrText != _T('}') && *pstrText != _T(' ') ) {
 								LPCTSTR pstrTemp = ::CharNext(pstrText);
 								while( pstrText < pstrTemp) {
@@ -1909,11 +2510,11 @@ namespace DuiLib {
 								if( iImageListIndex < 0 || iImageListIndex >= iImageListNum ) iImageListIndex = 0;
 
 								if( _tcsstr(sImageString.GetData(), _T("file=\'")) != NULL || _tcsstr(sImageString.GetData(), _T("res=\'")) != NULL ) {
-									CDuiString sImageResType;
-									CDuiString sImageName;
+									QkString sImageResType;
+									QkString sImageName;
 									LPCTSTR pStrImage = sImageString.GetData();
-									CDuiString sItem;
-									CDuiString sValue;
+									QkString sItem;
+									QkString sValue;
 									while( *pStrImage != _T('\0') ) {
 										sItem.Empty();
 										sValue.Empty();

@@ -3,9 +3,9 @@
 
 namespace DuiLib
 {
-	class UILIB_API CBSwitchUI : public COptionUI
+	class UILIB_API CBSwitchUI : public OptionBtn
 	{
-		DECLARE_DUICONTROL(CBSwitchUI)
+		DECLARE_QKCONTROL(CBSwitchUI)
 	public:
 		void DoEvent(TEventUI& event) override;
 

@@ -5,7 +5,7 @@ using namespace DuiLib;
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CComboEditUI)
+	IMPLEMENT_QKCONTROL(CComboEditUI)
 
 	class UILIB_API CComboEditWnd : public CWindowWnd
 	{
@@ -297,7 +297,7 @@ namespace DuiLib
 	}
 
 
-	DuiLib::CDuiString & CComboEditUI::GetText()
+	DuiLib::QkString & CComboEditUI::GetText()
 	{
 		return m_sText;
 	}
@@ -305,7 +305,7 @@ namespace DuiLib
 	void CComboEditUI::DoEvent(TEventUI& event)
 	{
 		if (!IsMouseEnabled() && event.Type > UIEVENT__MOUSEBEGIN && event.Type < UIEVENT__MOUSEEND) {
-			if (m_pParent != NULL) m_pParent->DoEvent(event);
+			if (_parent != NULL) _parent->DoEvent(event);
 			else CComboUI::DoEvent(event);
 			return;
 		}
@@ -434,7 +434,7 @@ namespace DuiLib
 		m_iCurSel = iIndex;
 		if (m_pWindow != NULL || bTakeFocus) pControl->SetFocus();
 		pListItem->Select(TRUE); // , bTriggerEvent
-		if (m_pManager != NULL && bTriggerEvent) m_pManager->SendNotify(this, DUI_MSGTYPE_ITEMSELECT, m_iCurSel, iOldSel);
+		if (_manager != NULL && bTriggerEvent) _manager->SendNotify(this, DUI_MSGTYPE_ITEMSELECT, m_iCurSel, iOldSel);
 
 
 		Invalidate();
@@ -462,7 +462,7 @@ namespace DuiLib
 
 			//if (pControl)
 			//{
-			//	CDuiString strIcon = pControl->GetIcon();
+			//	QkString strIcon = pControl->GetIcon();
 			//	SIZE szIcon = pControl->GetIconSize();
 			//	if (strIcon != _T(""))
 			//	{
@@ -475,13 +475,13 @@ namespace DuiLib
 			//		left = 0;
 			//		right = left + szIcon.cx;
 			//		TDrawInfo   diIcon;
-			//		CDuiString pStrImage;
+			//		QkString pStrImage;
 			//		int bottom, top = (rcText.bottom - rcText.top - szIcon.cy) / 2;
 			//		bottom = top + szIcon.cy;
 			//		pStrImage.SmallFormat(_T("file='%s' dest='%d,%d,%d,%d'"), strIcon.GetData(), left, top, right, bottom);
 			//		diIcon.Clear();
 			//		diIcon.sDrawString = pStrImage;
-			//		CRenderEngine::DrawImage(hDC, m_pManager, rcText, m_rcPaint, diIcon);
+			//		CRenderEngine::DrawImage(hDC, _manager, rcText, m_rcPaint, diIcon);
 			//		m_uTextStyle |= pInfo->uTextStyle;
 			//	}
 
@@ -491,8 +491,8 @@ namespace DuiLib
 
 		}
 
-		if (m_dwTextColor == 0) m_dwTextColor = m_pManager->GetDefaultFontColor();
-		if (m_dwDisabledTextColor == 0) m_dwDisabledTextColor = m_pManager->GetDefaultDisabledColor();
+		if (m_dwTextColor == 0) m_dwTextColor = _manager->GetDefaultFontColor();
+		if (m_dwDisabledTextColor == 0) m_dwDisabledTextColor = _manager->GetDefaultDisabledColor();
 
 		if (m_sText.IsEmpty()) return;
 
@@ -500,11 +500,11 @@ namespace DuiLib
 
 
 		if (IsEnabled()) {
-			CRenderEngine::DrawPlainText(hDC, m_pManager, rcText, m_sText, m_dwTextColor, \
+			CRenderEngine::DrawPlainText(hDC, _manager, rcText, m_sText, m_dwTextColor, \
 				m_iFont, DT_SINGLELINE | m_uTextStyle);
 		}
 		else {
-			CRenderEngine::DrawPlainText(hDC, m_pManager, rcText, m_sText, m_dwDisabledTextColor, \
+			CRenderEngine::DrawPlainText(hDC, _manager, rcText, m_sText, m_dwDisabledTextColor, \
 				m_iFont, DT_SINGLELINE | m_uTextStyle);
 
 		}

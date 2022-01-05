@@ -18,7 +18,7 @@ public:
     {
         int _level;
         bool _expand;
-        CDuiString _text;
+        QkString _text;
         CListLabelElementUI* _pListElement;
     };
 
@@ -142,15 +142,10 @@ public:
         CControlUI::SetVisible(bVisible);
     }
 
-    void SetInternVisible(bool bVisible = true)
-    {
-        CControlUI::SetInternVisible(bVisible);
-    }
-
     void DoEvent(TEventUI& event) 
     {
         if( !IsMouseEnabled() && event.Type > UIEVENT__MOUSEBEGIN && event.Type < UIEVENT__MOUSEEND ) {
-            if( m_pParent != NULL ) m_pParent->DoEvent(event);
+            if( _parent != NULL ) _parent->DoEvent(event);
             else CVerticalLayoutUI::DoEvent(event);
             return;
         }
@@ -169,7 +164,7 @@ public:
             m_dwDelayDeltaY = 0;
             m_dwDelayNum = 0;
             m_dwDelayLeft = 0;
-            m_pManager->KillTimer(this, SCROLL_TIMERID);
+            _manager->KillTimer(this, SCROLL_TIMERID);
             return;
         }
         if( event.Type == UIEVENT_SCROLLWHEEL ) {
@@ -189,7 +184,7 @@ public:
             else if( m_dwDelayDeltaY < -100 ) m_dwDelayDeltaY = -100;
             m_dwDelayNum = (DWORD)sqrt((double)abs(m_dwDelayDeltaY)) * 5;
             m_dwDelayLeft = m_dwDelayNum;
-            m_pManager->SetTimer(this, SCROLL_TIMERID, 50U);
+            _manager->SetTimer(this, SCROLL_TIMERID, 50U);
             return;
         }
 
@@ -210,12 +205,12 @@ public:
         node->data()._text = text;
         node->data()._pListElement = pListElement;
 
-        if( parent != _root ) {
-            if( !(parent->data()._expand && parent->data()._pListElement->IsVisible()) )
-                pListElement->SetInternVisible(false);
-        }
+        //if( parent != _root ) {
+        //    if( !(parent->data()._expand && parent->data()._pListElement->IsVisible()) )
+        //        pListElement->SetInternVisible(false);
+        //}
 
-        CDuiString html_text;
+        QkString html_text;
         html_text += _T("<x 6>");
         for( int i = 0; i < node->data()._level; ++i ) {
             html_text += _T("<x 24>");
@@ -271,7 +266,7 @@ public:
         if( node->data()._expand == expand ) return;
         node->data()._expand = expand;
 
-        CDuiString html_text;
+        QkString html_text;
         html_text += _T("<x 6>");
         for( int i = 0; i < node->data()._level; ++i ) {
             html_text += _T("<x 24>");
@@ -290,10 +285,10 @@ public:
         Node* end = node->get_last_child();
         for( int i = begin->data()._pListElement->GetIndex(); i <= end->data()._pListElement->GetIndex(); ++i ) {
             CControlUI* control = GetItemAt(i);
-            if( _tcscmp(control->GetClass(), DUI_CTR_LISTLABELELEMENT) == 0 ) {
-                Node* local_parent = ((GameListUI::Node*)control->GetTag())->parent();
-                control->SetInternVisible(local_parent->data()._expand && local_parent->data()._pListElement->IsVisible());
-            }
+            //if( _tcscmp(control->GetClass(), DUI_CTR_LISTLABELELEMENT) == 0 ) {
+            //    Node* local_parent = ((GameListUI::Node*)control->GetTag())->parent();
+            //    control->SetInternVisible(local_parent->data()._expand && local_parent->data()._pListElement->IsVisible());
+            //}
         }
         NeedUpdate();
     }
@@ -334,7 +329,7 @@ public:
                 if( pDesk != NULL ) {
                     this->Add(pDesk);
                     TCHAR indexBuffer[16];
-                    CDuiString strIndexString = _T("- ");
+                    QkString strIndexString = _T("- ");
                     strIndexString += _itot(i+1, indexBuffer, 10);
                     strIndexString += _T(" -");
                     pDesk->GetItemAt(3)->SetText(strIndexString);
@@ -351,7 +346,7 @@ public:
     void DoEvent(TEventUI& event) 
     {
         if( !IsMouseEnabled() && event.Type > UIEVENT__MOUSEBEGIN && event.Type < UIEVENT__MOUSEEND ) {
-            if( m_pParent != NULL ) m_pParent->DoEvent(event);
+            if( _parent != NULL ) _parent->DoEvent(event);
             else CTileLayoutUI::DoEvent(event);
             return;
         }
@@ -359,7 +354,7 @@ public:
         if( event.Type == UIEVENT_TIMER && event.wParam == SCROLL_TIMERID )
         {
             if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
-                POINT pt = m_pManager->GetMousePos();
+                POINT pt = _manager->GetMousePos();
                 LONG cy = (pt.y - m_ptLastMouse.y);
                 m_ptLastMouse = pt;
                 SIZE sz = GetScrollPos();
@@ -380,7 +375,7 @@ public:
             m_dwDelayDeltaY = 0;
             m_dwDelayNum = 0;
             m_dwDelayLeft = 0;
-            m_pManager->KillTimer(this, SCROLL_TIMERID);
+            _manager->KillTimer(this, SCROLL_TIMERID);
             return;
         }
         if( event.Type == UIEVENT_BUTTONDOWN && IsEnabled() )
@@ -391,7 +386,7 @@ public:
             m_dwDelayNum = 0;
             m_dwDelayLeft = 0;
             ::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_HAND)));
-            m_pManager->SetTimer(this, SCROLL_TIMERID, 50U);
+            _manager->SetTimer(this, SCROLL_TIMERID, 50U);
             return;
         }
         if( event.Type == UIEVENT_BUTTONUP )
@@ -407,7 +402,7 @@ public:
                     m_dwDelayLeft = m_dwDelayNum;
                 }
                 else 
-                    m_pManager->KillTimer(this, SCROLL_TIMERID);
+                    _manager->KillTimer(this, SCROLL_TIMERID);
             }
             return;
         }
@@ -429,7 +424,7 @@ public:
             else if( m_dwDelayDeltaY < -100 ) m_dwDelayDeltaY = -100;
             m_dwDelayNum = (DWORD)sqrt((double)abs(m_dwDelayDeltaY)) * 5;
             m_dwDelayLeft = m_dwDelayNum;
-            m_pManager->SetTimer(this, SCROLL_TIMERID, 50U);
+            _manager->SetTimer(this, SCROLL_TIMERID, 50U);
             return;
         }
         CTileLayoutUI::DoEvent(event);
@@ -441,18 +436,6 @@ private:
     LONG m_dwDelayDeltaY;
     DWORD m_dwDelayNum;
     DWORD m_dwDelayLeft;
-};
-
-
-class CDialogBuilderCallbackEx : public IDialogBuilderCallback
-{
-public:
-    CControlUI* CreateControl(LPCTSTR pstrClass) 
-    {
-        if( _tcscmp(pstrClass, _T("GameList")) == 0 ) return new GameListUI;
-        else if( _tcscmp(pstrClass, _T("DeskList")) == 0 ) return new DeskListUI;
-        return NULL;
-    }
 };
 
 

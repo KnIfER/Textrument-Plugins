@@ -36,7 +36,7 @@ namespace DuiLib
 
 		bool IsAnimating() const;
 		bool IsJobScheduled() const;
-		bool AddJob(CDxAnimationUI* pJob);
+		bool AddAnimationJob(CDxAnimationUI* pJob);
 
 	protected:
 		void Term();

@@ -49,13 +49,13 @@ namespace DuiLib {
 	class UILIB_API CNotifyPump
 	{
 	public:
-		bool AddVirtualWnd(CDuiString strName,CNotifyPump* pObject);
-		bool RemoveVirtualWnd(CDuiString strName);
+		bool AddVirtualWnd(QkString strName,CNotifyPump* pObject);
+		bool RemoveVirtualWnd(QkString strName);
 		void NotifyPump(TNotifyUI& msg);
 		bool LoopDispatch(TNotifyUI& msg);
 		DUI_DECLARE_MESSAGE_MAP()
 	private:
-		CStdStringPtrMap m_VirtualWndMap;
+		QkStringPtrMap m_VirtualWndMap;
 	};
 
 	class UILIB_API CWindowWnd
@@ -72,7 +72,7 @@ namespace DuiLib {
 		bool RegisterSuperclass();
 
 		HWND Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD dwExStyle, const RECT rc, HMENU hMenu = NULL);
-		HWND Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD dwExStyle, int x = CW_USEDEFAULT, int y = CW_USEDEFAULT, int cx = CW_USEDEFAULT, int cy = CW_USEDEFAULT, HMENU hMenu = NULL);
+		HWND Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD dwExStyle, int x = CW_USEDEFAULT, int y = CW_USEDEFAULT, int cx = CW_USEDEFAULT, int cy = CW_USEDEFAULT, bool center=true, HMENU hMenu = NULL);
 		HWND CreateDuiWindow(HWND hwndParent, LPCTSTR pstrWindowName,DWORD dwStyle =0, DWORD dwExStyle =0);
 
 		HWND Subclass(HWND hWnd);

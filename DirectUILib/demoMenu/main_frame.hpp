@@ -30,12 +30,13 @@ public:
 
 	LPCTSTR GetWindowClassName() const;	
 	virtual void OnFinalMessage(HWND hWnd);
+	LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled) override;
 	virtual void InitWindow();
 	virtual LRESULT ResponseDefaultKeyEvent(WPARAM wParam);
 	virtual UILIB_RESOURCETYPE GetResourceType() const;
-	virtual CDuiString GetSkinType();
-	virtual CDuiString GetSkinFile();
-	virtual CDuiString GetSkinFolder();
+	virtual QkString GetSkinType();
+	virtual QkString GetSkinFile();
+	virtual QkString GetSkinFolder();
 	virtual CControlUI* CreateControl(LPCTSTR pstrClass);
 	virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual LRESULT OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);

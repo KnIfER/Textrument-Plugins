@@ -144,6 +144,17 @@ namespace DuiLib
 		}
 	}
 
+	int CDPI::ScaleProfile()
+	{
+		if (m_Awareness == PROCESS_DPI_UNAWARE) {
+			return 0;
+		}
+		if (m_Awareness == PROCESS_SYSTEM_DPI_AWARE) {
+			return m_nScaleFactorSDA;
+		}
+		return m_nScaleFactor;
+	}
+
 	int  CDPI::Scale(int iValue)
 	{
 		if (m_Awareness == PROCESS_DPI_UNAWARE) {
@@ -176,6 +187,19 @@ namespace DuiLib
 		rcScale.right = rcScale.left + sw;
 		rcScale.bottom = rcScale.top + sh;
 		return rcScale;
+	}
+	
+	RECT CDPI::ScaleInset(const RECT & rcRect)
+	{
+		return {Scale(rcRect.left), Scale(rcRect.top), Scale(rcRect.right), Scale(rcRect.bottom)};
+	}
+
+	void CDPI::ScaleInset(RECT * rcRect)
+	{
+		rcRect->left = Scale(rcRect->left) ;
+		rcRect->top =  Scale(rcRect->top);
+		rcRect->top =  Scale(rcRect->top);
+		rcRect->bottom = Scale(rcRect->bottom);
 	}
 
 	void CDPI::Scale(RECT *pRect)
