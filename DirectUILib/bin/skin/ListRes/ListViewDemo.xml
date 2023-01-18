@@ -15,6 +15,7 @@
 			hscrollbar="true"
 			hscrollbar="false"
 			menu="true"
+			itemautoheight="true"
 			/>
 		
 	</VerticalLayout>

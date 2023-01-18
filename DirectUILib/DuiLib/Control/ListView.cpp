@@ -5,6 +5,43 @@
 
 namespace DuiLib {
 
+    LRESULT CALLBACK WndProcInVis(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        switch (message)
+        {
+        case WM_SIZE:
+            return 1;
+        case WM_DESTROY:
+            break;
+        case WM_ERASEBKGND:
+            return 1;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
+            break;
+        }
+
+        return 0;
+    }
+
+    BOOL regWndClassInVisible(LPCTSTR lpcsClassName, DWORD dwStyle)
+    {
+        WNDCLASS wndclass = { 0 };
+
+        wndclass.style = dwStyle;
+        wndclass.lpfnWndProc = WndProcInVis;
+        wndclass.cbClsExtra = 200;
+        wndclass.cbWndExtra = 200;
+        wndclass.hInstance = ::GetModuleHandle(NULL);
+        wndclass.hIcon = NULL;
+        //wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wndclass.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+        wndclass.lpszMenuName = NULL;
+        wndclass.lpszClassName = lpcsClassName;
+
+        ::RegisterClass(&wndclass);
+        return TRUE;
+    }
+
     IMPLEMENT_QKCONTROL(ListView)
        
     ListView::ListView()
@@ -25,7 +62,7 @@ namespace DuiLib {
         , _heteroHeight(false)
         , _headerView(nullptr)
     {
-        //_bUseSmoothScroll = true;
+        _bUseSmoothScroll = true;
 
         // 列表配置
         m_ListInfo.nColumns = 0;
@@ -161,6 +198,9 @@ namespace DuiLib {
                 m_HiddenItem = adapter->CreateItemView();
                 if (m_HiddenItem)
                 {
+                    auto tmp = new CControlUI; 
+                    tmp->SetFixedHeight(m_HiddenItem->GetFixedHeight());
+                    //m_HiddenItem = tmp; // ??? 在干啥勒 忘记了
                     if( _manager ) _manager->InitControls(m_HiddenItem, this);
                     NeedUpdate();
                 }
@@ -266,13 +306,15 @@ namespace DuiLib {
             if(m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible()) 
                 _scrollX = m_pHorizontalScrollBar->GetScrollPos();
 
+            boolean heteroHeight = _heteroHeight;//_heteroHeight;
+
             if (newOffsetY<0 || newOffsetY>=itemHeight)
             {
                 SIZE szAvailable = { m_rcItem.right - m_rcItem.left, m_rcItem.bottom - m_rcItem.top };
                 SIZE estSz;
                 int index = 0;
                 int maxIndex = _adapter->GetItemCount()-1;
-                if (!_heteroHeight)
+                if (!heteroHeight)
                 {
                     estSz = m_HiddenItem->EstimateSize(szAvailable);
                     if (estSz.cy==0) estSz.cy=30;
@@ -281,19 +323,22 @@ namespace DuiLib {
                     if (maxIndex < 0) maxIndex = 0;
                 }
                 if (itemHeight && abs(y)/itemHeight>=10)
-                { // 快速滚动
-                    _scrollPositionY = (std::max)(0, (std::min)(maxIndex, _scrollPositionY + y/itemHeight));
+                {
+                    index = y/itemHeight;
                     newOffsetY = 0;
+                    LogIs("ListView::DoScroll::快速滚动 delta=%d", index, _scrollPositionY + index);
+                    //_scrollPositionY = (std::max)(0, (std::min)(maxIndex, _scrollPositionY + y/itemHeight));
                 }
                 else if (newOffsetY<0)
-                { // 切换至上N个
+                {
+                    LogIs("ListView::DoScroll::切换至上N个", _scrollPositionY, index, _scrollPositionY + index);
                     while(newOffsetY<0
                         && _scrollPositionY + index > 0
-                        && index<1024)
+                        && index>-1024)
                     {
                         --index;
                         //todo !!! 
-                        if (_heteroHeight) 
+                        if (heteroHeight) 
                         {
                             firstVisible = m_HiddenItem;
                             _adapter->OnBindItemView(firstVisible, _scrollPositionY + index);
@@ -304,7 +349,8 @@ namespace DuiLib {
                     }
                 }
                 else // newOffsetY>=itemHeight
-                { // 切换至下N个
+                {
+                    LogIs("ListView::DoScroll::切换至下N个", _scrollPositionY, index, _scrollPositionY + index);
                     while(newOffsetY >= itemHeight
                         && _scrollPositionY + index < maxIndex
                         && index<1024
@@ -313,7 +359,7 @@ namespace DuiLib {
                         ++index;
                         newOffsetY -= itemHeight;
                         //todo !!! 
-                        if (_heteroHeight) 
+                        if (heteroHeight) 
                         {
                             if (index>=size)
                             {
@@ -330,7 +376,7 @@ namespace DuiLib {
                         }
                     }
                 }
-                if (!_heteroHeight)
+                if (!heteroHeight)
                 {
                     if (_scrollPositionY + index > maxIndex) 
                         index = maxIndex - _scrollPositionY;
@@ -343,11 +389,16 @@ namespace DuiLib {
                 {
                     newOffsetY=0;
                 }
+                LogIs("ListView::DoScroll::, pos=%d delta=%d/%d res=%d", _scrollPositionY, index, y, _scrollPositionY + index);
                 _scrollPositionY += index;
+                _scrollPositionY = (std::max)(0, (std::min)(maxIndex, _scrollPositionY));
             }
             _scrollOffsetY = newOffsetY;
             //Invalidate();
             NeedUpdate();
+
+            // PostUpdate
+            //SetTimer(0x112, 10, true);
         }
     }
 
@@ -366,20 +417,40 @@ namespace DuiLib {
             m_pHorizontalScrollBar->SetScrollPos(szPos.cx);
             cx = m_pHorizontalScrollBar->GetScrollPos() - iLastScrollPos;
         }
+        if ((cx || cy) && 0)
+        {
+            ::ScrollWindowEx(GetHWND(), cx, -cy, 0, 0, 0, 0, SW_SCROLLCHILDREN);
+            return true;
+        }
+        //if (cy && m_items.GetSize())
+        //{
+        //    bool scroll=false;
+        //    if(cy<0) {
+        //        CControlUI* pControl = (CControlUI*)m_items.GetAt(0);
+        //        if(pControl->GetPos().top+cy>-pControl->GetHeight()
+        //            &&) {
+        //            scroll = true;
+        //        }
+        //    } 
+        //    if(scroll) {
+        //        ::ScrollWindowEx(GetHWND(), cx, -cy, 0, 0, 0, 0, SW_SCROLLCHILDREN);
+        //        return true;
+        //    }
+        //}
         if (cx || cy)
         {
-            //LogIs("SetScrollPos:: %d, %d", cx, cy);
-            //LogIs("SetScrollPos:: %d, %d  %d/%d", szPos.cx, szPos.cy, m_pVerticalScrollBar->GetScrollPos(), m_pVerticalScrollBar->GetScrollRange());
-            if (_bUseSmoothScroll)
+            LogIs("SetScrollPos:: %d, %d, fY=%d", cx, cy, _scrollY + cy);
+            LogIs("SetScrollPos:: %d, %d  %d/%d", szPos.cx, szPos.cy, m_pVerticalScrollBar->GetScrollPos(), m_pVerticalScrollBar->GetScrollRange());
+            if (_bUseSmoothScroll) // _bUseSmoothScroll
             {
                 _scrollX += cx;
                 _scrollY += cy;
-                SetTimer(0x100, 10);
+                SetTimer(0x100, 16, true);
             }
             else
             {
                 DoScroll(0, cy);
-                NeedUpdate();
+                //NeedUpdate();
             }
             return true;
         }
@@ -423,9 +494,16 @@ namespace DuiLib {
 
         return {cxFixed, cyFixed};
     }
-
+    HWND _hLeeverse=0;
     void ListView::SetPos(RECT rc, bool bNeedInvalidate) {
-        CControlUI::SetPos(rc);
+        if (!_hLeeverse && _hParent)
+        {
+            regWndClassInVisible(L"InVisible", CS_HREDRAW | CS_VREDRAW);
+            _hLeeverse = ::CreateWindowEx(0 , L"InVisible" , NULL
+                , WS_CHILD , 0 , 0 , 0 , 0 , _hParent , NULL , ::GetModuleHandle(NULL), NULL);
+
+        }
+        CControlUI::SetPos(rc, bNeedInvalidate);
         if (!_adapter) return;
         rc = m_rcItem;
         ApplyInsetToRect(rc);
@@ -457,9 +535,11 @@ namespace DuiLib {
         m_available_width = szAvailable.cx;
         m_available_height = szAvailable.cy;
 
+        boolean heteroHeight = _heteroHeight;//_heteroHeight;
+
         int maxIndex = _adapter->GetItemCount()-1;
         SIZE estSz;
-        if (!_heteroHeight)
+        if (!heteroHeight)
         {
             estSz = m_HiddenItem->EstimateSize(szAvailable);
             if (estSz.cy==0) estSz.cy=30;
@@ -477,23 +557,15 @@ namespace DuiLib {
         int bkRecyclableCnt = 0;
         int fwRecyclable = m_items.GetSize();
         int delta = _scrollPositionY-_lastScrollPositionY;
-        int reusableSt = delta;
+        int reusableSt = delta>=0?delta:0;
+        int reusableCnt = fwRecyclable - reusableSt;
         int reusableEd = -1;
-        int reusableCnt;
-        if (reusableSt<0)
-        {
-            reusableSt = 0;
-            reusableCnt = fwRecyclable;
-        }
-        else
-        {
-            reusableCnt = fwRecyclable - reusableSt;
-        }
-        if (reusableCnt<0)
+        if (reusableCnt<=0)
         {
             reusableCnt = 0;
+            reusableSt = -1;
         }
-        if (reusableCnt>0)
+        else if (reusableCnt>0)
         {
             bkRecyclableCnt = reusableSt;
             reusableEd = reusableSt+reusableCnt-1;
@@ -528,6 +600,10 @@ namespace DuiLib {
             else if(_recyclePool.GetSize()>0)
             {
                 pControl = static_cast<CControlUI*>(_recyclePool.RemoveAt(_recyclePool.GetSize()-1));
+              //  ShowWindow(pControl->GetHWND(), SW_SHOWNOACTIVATE);
+                //if()
+                //SetParent(pControl->GetHWND(), _hWnd);
+               // SetWindowPos(pControl->GetHWND(), HWND_BOTTOM, 0,0,0,0, SWP_NOMOVE|SWP_NOREDRAW|SWP_NOREPOSITION);
             }
             else if(bkRecyclableCnt>0)
             {
@@ -556,7 +632,7 @@ namespace DuiLib {
                 _adapter->OnBindItemView(pControl, _scrollPositionY + index);
             }
 
-            if (_heteroHeight)
+            if (heteroHeight)
                 estSz = pControl->EstimateSize(szAvailable);
 
             if (_headerView)
@@ -566,18 +642,18 @@ namespace DuiLib {
             }
             else 
             {
-                pControl->SetPos({ rc.left, top, rc.right, top + estSz.cy });
+                pControl->SetPos({ rc.left, top, rc.right, top + estSz.cy }, false);
             }
-            LogIs("ListView::子项高度计算@%d::%d", _scrollPositionY + index, estSz.cy);
+            //LogIs("ListView::子项高度计算@%d::%d", _scrollPositionY + index, estSz.cy);
 
             top += estSz.cy;
             //szAvailable.cy -= estSz.cy;
             index++;
             delta_index++;
         }
-        // 贴底重排，子项充足时，避免最后一项的底部超出控件底部
+        // 贴底重排，子项充足时，避免最后一项的底部还有空间
         //if(false)
-        if (_heteroHeight && top<rc.bottom && _scrollPositionY>0)
+        if (heteroHeight && top<rc.bottom && _scrollPositionY>0)
         {
             top += _scrollOffsetY;
             _scrollOffsetY = 0;
@@ -625,7 +701,7 @@ namespace DuiLib {
         {
             _scrollYProxy = m_pVerticalScrollBar->GetScrollPos();
             // 端部处理：移至最顶部或最底部，更新滚动条。
-            //if(_heteroHeight)
+            //if(heteroHeight)
             if ((_scrollYProxy==0&&_scrollPositionY>0) || (_scrollYProxy>=m_pVerticalScrollBar->GetScrollRange() /*&& _scrollPositionY+m_items.GetSize()<=maxIndex*/))
             {
                 // 可是，需要记录差值，否则跳过了很多。
@@ -635,7 +711,7 @@ namespace DuiLib {
         //handleScroll = 1; // 会造成抖动
         if (handleScroll)
         {
-            if (_heteroHeight)
+            if (heteroHeight)
             {
                 _avgHeight = m_items.GetSize();
                 if (_avgHeight)
@@ -664,14 +740,15 @@ namespace DuiLib {
         }
 
         // 回收没有引用的子项
-        if(!_bHasBasicViewAdapter)
+        //if(!_bHasBasicViewAdapter)
+        if(0)
         while (true)
         {
-            if (reusableCnt>0 && delta_index>=reusableSt && delta_index<=reusableEd)
+            if (reusableCnt>0)
             {
-                pControl = static_cast<CControlUI*>(children.GetAt(delta_index));
+                pControl = static_cast<CControlUI*>(children.GetAt(reusableSt));
                 reusableCnt--;
-                reusableSt = delta_index+1;
+                reusableSt++;
             }
             else if(bkRecyclableCnt>0)
             {
@@ -688,8 +765,15 @@ namespace DuiLib {
             }
             else break;
             // todo check not null
+           // ShowWindow(pControl->GetHWND(), SW_HIDE);
+           //if(_hLeeverse)SetParent(pControl->GetHWND(), _hLeeverse);
+
+           // SetWindowPos(pControl->GetHWND(), HWND_TOP, 0,0,0,0, SWP_NOMOVE|SWP_NOREDRAW|SWP_NOREPOSITION);
+
             _recyclePool.Add(pControl);
         }
+        //for (size_t i = 0; i < children.GetSize(); i++)
+        //    if(m_items.Find(children.GetAt(i))<0)_recyclePool.Add(children.GetAt(i));
         _lastScrollPositionY = _scrollPositionY;
 
         if (_headerView)
@@ -697,11 +781,11 @@ namespace DuiLib {
             m_items.Add(_headerView);
         }
 
-        LogIs("ListView::布局完毕::, cnt=%d", GetCount());
+       // LogIs("ListView::布局完毕::, pos=%d cnt=%d", _scrollPositionY, GetCount());
         if (GetCount())
         {
             RECT rc = GetItemAt(0)->GetPos();
-            LogIs("ListView::布局完毕::, rect=%d,%d,%d,%d", rc.left, rc.right, rc.top, rc.bottom);
+            //LogIs("ListView::布局完毕::, rect=%d,%d,%d,%d", rc.left, rc.right, rc.top, rc.bottom);
         }
     }
 

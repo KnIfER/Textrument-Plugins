@@ -620,6 +620,7 @@ namespace DuiLib {
 
 		bool _SIZING;
 		bool _bIsLayoutOnly = false;
+		bool _bIsWinFrame = false;
 
 		static HCURSOR hCursorArrow;
 		static HCURSOR hCursorHand;

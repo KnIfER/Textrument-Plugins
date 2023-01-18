@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window caption="0,0,0,30" roundcorner="5,5,5,5" showdirty="false">
  	
-	<Button 
+	<WebView
+		height="800"
 		type="push"
 		name="vList" 
 		bkcolor="#FFFFFFFF" 
@@ -10,31 +11,13 @@
 		hscrollbar="true"
 		hscrollbar="false"
 		menu="true"
-		autocalcwidth="true"
-		autocalcheight="true"
+		autocalcwidth="false"
+		autocalcheight="false"
 		wordbreak="true"
 		multiline="true"
 		font="2"
 		align="left"
 		/>
-		
-		 	
-	<!--Label 
-		type="push"
-		name="vList" 
-		bkcolor="#FFFFFFFF" 
-		inset="0,0,0,0"
-		vscrollbar="true" 
-		hscrollbar="true"
-		hscrollbar="false"
-		menu="true"
-		wordbreak="true"
-		multiline="true"
-		font="2"
-		align="left"
-			multiline="true"
-			height="30"
-		/-->
 		
 
 </Window>

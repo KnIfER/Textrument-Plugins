@@ -16,6 +16,34 @@ namespace DuiLib {
 		UINT GetClassStyle() const {
 			return UI_CLASSSTYLE_FRAME | CS_DBLCLKS; 
 		};
+
+		static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+		{
+			WndBase* pThis = reinterpret_cast<WndBase*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
+			if (uMsg==WM_SIZE)
+			{
+				RECT rc;
+				::GetClientRect(hWnd, &rc);
+				pThis->m_pm.GetRoot()->SetPos(rc);
+				//
+				//LogIs("GetClientRect OnSize, %ld %ld", rc.right, rc.bottom);
+
+				return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+			}
+
+			//if (uMsg==WM_PAINT)
+			{
+
+				LRESULT ret;
+				pThis->m_pm.MessageHandler(uMsg, wParam, lParam, ret);
+				return ret;
+			}
+
+
+			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+		}
+
 		void Init(WinFrame* pOwner) {
 			wParent = pOwner;
 			RECT rcPos = pOwner->GetPos();
@@ -30,6 +58,14 @@ namespace DuiLib {
 			//m_pm.SetUseGdiplusText(true);
 			//m_pm.SetLayered(true);
 			//else throw "root_layout==null!";
+
+			if (false)
+			{
+				m_pm._bIsWinFrame = true;
+				//m_pm._bIsLayoutOnly = true;
+				//m_pm.SetLayered(false);
+				//SetWindowLongPtr(GetHWND(), GWLP_WNDPROC, (LONG_PTR)WndProc);
+			}
 
 			::ShowWindow(m_hWnd, SW_SHOWNOACTIVATE);
 			//LogIs(L"Create::%d::%s::%d::%s", wParent->GetHWND(), wParent->GetName().GetData(), m_hWnd, wParent->GetParent()->GetName().GetData());
@@ -83,6 +119,10 @@ namespace DuiLib {
 		}
 
 		void OnFinalMessage(HWND hWnd) { }
+
+		CPaintManagerUI* GetManager() {
+			return &m_pm;
+		}
 
 		//LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 		//LRESULT OnKillFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -147,8 +187,12 @@ namespace DuiLib {
 	void WinFrame::SetPos(RECT rc, bool bNeedInvalidate) 
 	{
 		m_rcItem = rc;
+		//RECT rcTmp; ::GetWindowRect(GetHWND(), &rcTmp);
 		::MoveWindow(GetHWND(), rc.left, rc.top, rc.right - rc.left, 
 			rc.bottom - rc.top, TRUE);
+
+		//((WndBase*)wEmbedded)->GetManager()->GetRoot()->SetPos(rc);
+
 	}
 
 	CControlUI* WinFrame::FindControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags)

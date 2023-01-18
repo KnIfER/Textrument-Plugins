@@ -10,6 +10,7 @@ packages
 *.zip
 *.aps
 *.lib
+LocalStorage
 
 *.exe
 *.exp
@@ -22,3 +23,5 @@ imgui.ini
 
 *.map
 *.dll
+DirectUILib/bin/ListViewDemo.exe.WebView2
+miniblink/

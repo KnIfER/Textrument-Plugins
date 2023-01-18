@@ -3,15 +3,20 @@
 * 
 */
 #include "pch.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+using namespace rapidjson;
 
-namespace ListHeaderItems{
 
-QkString Name = L"列表头(ListHeader)";
+namespace EmptyButton{
+
+QkString Name = L"空按钮";
 
 class ListMainForm : public WindowImplBase, public INotifyUI, public ListViewAdapter
 {
 public:
-    ListMainForm() { };     
+    ListMainForm() {  };     
 
     LPCTSTR GetWindowClassName() const override
     { 
@@ -35,22 +40,17 @@ public:
         bHandled = TRUE;
         return 0;
     }
-
-    CControlUI* viewTemplate;
-
+	 
+	ListView* pList;
+	CLabelUI* lb;
 
     void InitWindow() override
-    {
-        viewTemplate = builder.Create(L"ListViewDemo_item.xml", 0, 0, &m_pm);
+    { 
 
-        ListView* pList = static_cast<ListView*>(m_pm.FindControl(_T("vList")));
+        pList = static_cast<ListView*>(m_pm.FindControl(_T("vList")));
+        lb = static_cast<CLabelUI*>(m_pm.FindControl(_T("lb")));
         if (pList)
         {
-
-            //TCHAR buffer[100]={0};
-            //wsprintf(buffer,TEXT("position=%s"), pList->GetClass());
-            //::MessageBox(NULL, buffer, TEXT(""), MB_OK);
-
 
             Button* refer = new Button;
 
@@ -61,20 +61,23 @@ public:
 
             pList->SetAdapter(this);
 
-            pList->SetHeaderView(builder.Create(L"ListViewDemo_ListHeader.xml", 0, 0, &m_pm));
+            //pList->SetHeaderView(builder.Create(L"ListViewDemo_ListHeader.xml", 0, 0, &m_pm));
 
         }
     }
 
     size_t GetItemCount()
     {
-        //return 100;
-        return 10000000;
+        return 10000;
+		//return 1;
     }
+
+	int items=0;
+	QkString itemsBuffer;
 
     CControlUI* CreateItemView()
     {
-        CControlUI* pRoot =  builder.Create(L"ListViewDemo_item_columns.xml", 0, 0, &m_pm);
+        CControlUI* pRoot =  builder.Create(L"WinBtn.xml", 0, 0, &m_pm);
 
         if (pRoot == NULL) {
             QkString sError = _T("加载皮肤失败：");
@@ -88,6 +91,9 @@ public:
             return 0;
         }
 
+		itemsBuffer.Format(L"创建了 %d 个视图！回收池大小：%d", items++, pList->GetRecyclePool().GetSize());
+		lb->SetText(itemsBuffer);
+
         return pRoot;
 
         //return ((Button*)viewTemplate)->Duplicate();
@@ -95,22 +101,19 @@ public:
 
     void OnBindItemView(CControlUI* view, size_t index)
     {
-        CHorizontalLayoutUI* horLayout = dynamic_cast<CHorizontalLayoutUI*>(view);
-
-        if (horLayout)
-        {
-            CControlUI* control = horLayout->GetItemAt(0);
-            QkString & label = control->GetText();
-            label.AsBuffer();
-            label.Format(L"当前是第：\r\n%d\r\n行", index);
-            label = L"asdasd\r\nasdads\r\n";
-            control->Invalidate();
-        }
+        //if (horLayout)
+        //{
+        //    CControlUI* control = horLayout->GetItemAt(0);
+        //    QkString & label = control->GetText();
+        //    label.AsBuffer();
+        //    label.Format(L"%d", index);
+        //    control->Invalidate();
+        //}
     }
 
     QkString GetSkinFile() override
     {
-        return _T("ListViewDemo.xml");
+        return _T("test.xml");
     }
 
     void Notify( TNotifyUI &msg ) override
@@ -132,10 +135,31 @@ private:
     Button* m_pSearch;
 };
 
+void TestRapidJson()
+{
+    // 1. Parse a JSON string into DOM.
+    const char* json = "{\"project\":\"rapidjson\",\"stars\":10}";
+    Document d;
+    d.Parse(json);
+
+    // 2. Modify it by DOM.
+    Value& s = d["stars"];
+    s.SetInt(s.GetInt() + 1);
+
+    // 3. Stringify the DOM
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    d.Accept(writer);
+
+    // Output {"project":"rapidjson","stars":11}
+    LogIs(buffer.GetString());
+}
+
 LRESULT RunTest(HINSTANCE hInstance, HWND hParent)
 {
     if (hInstance==NULL) return (LRESULT)Name.GetData();
     CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin//ListRes"));
+    TestRapidJson();
     (new ListMainForm)->Create(NULL, Name, UI_WNDSTYLE_FRAME, WS_EX_APPWINDOW , 0, 0, 800, 600);
 	return 0;
 }

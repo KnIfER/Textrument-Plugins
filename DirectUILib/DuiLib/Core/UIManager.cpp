@@ -1243,6 +1243,21 @@ namespace DuiLib {
 			{
 				// We'll do the painting here...
 				lRes = 1;
+				if(0) {
+					HBRUSH hbrWhite, hbrGray;
+
+					hbrWhite = (HBRUSH)GetStockObject(WHITE_BRUSH); 
+					hbrGray  = (HBRUSH)GetStockObject(GRAY_BRUSH); 
+
+					HDC hdc = (HDC) wParam; 
+					hdc = GetDC(m_pRoot->GetHWND()); 
+					RECT rc = m_pRoot->GetPos();
+					//GetClientRect(m_pRoot->, &rc); 
+					//SetMapMode(hdc, MM_ANISOTROPIC); 
+					//SetWindowExtEx(hdc, 100, 100, NULL); 
+					//SetViewportExtEx(hdc, rc.right, rc.bottom, NULL); 
+					FillRect(hdc, &rc, hbrWhite); 
+				}
 			}
 			return true;
 		case WM_EFFECTS:
@@ -1497,6 +1512,9 @@ namespace DuiLib {
 #endif
 				}
 				// Begin Windows paint
+				if(_bIsWinFrame) {
+					rcPaint.left = rcClient.right-16; // DEFAULT_SCROLLBAR_SIZE
+				}
 				PAINTSTRUCT ps = { 0 };
 				HDC hdc_ = ::BeginPaint(m_hWndPaint, &ps);
 				if( m_bOffscreenPaint )  {
@@ -1658,7 +1676,7 @@ namespace DuiLib {
 
 				// 发送窗口大小改变消息
 				if(bNeedSizeMsg) {
-					this->SendNotify(m_pRoot, DUI_MSGTYPE_WINDOWSIZE, 0, 0, true);
+					//this->SendNotify(m_pRoot, DUI_MSGTYPE_WINDOWSIZE, 0, 0, true);
 				}
 			return true;
 		}

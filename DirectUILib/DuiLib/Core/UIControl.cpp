@@ -198,11 +198,11 @@ namespace DuiLib {
 			_view_states |= VIEWSTATEMASK_NeedEstimateSize;
 	}
 
-	bool CControlUI::SetTimer(UINT nTimerID, UINT nElapse)
+	bool CControlUI::SetTimer(UINT nTimerID, UINT nElapse, bool restart)
 	{
 		if(_manager == NULL) return false;
 
-		return _manager->SetTimer(this, nTimerID, nElapse);
+		return _manager->SetTimer(this, nTimerID, nElapse, restart);
 	}
 
 	void CControlUI::KillTimer(UINT nTimerID)
@@ -557,9 +557,9 @@ namespace DuiLib {
 			}
 		}
 
-		if( !m_bSettingPos ) {
+		if( OnSize && !m_bSettingPos ) {
 			_view_states |= VIEWSTATEMASK_SettingPos;
-			if( OnSize ) OnSize(this);
+			OnSize(this);
 			_view_states &= ~VIEWSTATEMASK_SettingPos;
 		}
 
@@ -964,7 +964,7 @@ namespace DuiLib {
 		if( (uFlags & UIFIND_VISIBLE) != 0 && !IsVisible() ) return NULL;
 		if( (uFlags & UIFIND_ENABLED) != 0 && !IsEnabled() ) return NULL;
 		
-		if( !m_bIsViewGroup && (uFlags & UIFIND_HITTEST) ) {
+		if( !m_bIsViewGroup && (uFlags==0 || (uFlags & UIFIND_HITTEST)) ) {
 			int length = m_items.GetSize() - 1;
 			if (length>=0)
 			{
@@ -995,13 +995,11 @@ namespace DuiLib {
 		RECT invalidateRc = m_rcItem;
 
 		CControlUI* pParent = this;
-		RECT rcTemp;
-		RECT rcParent;
+		//RECT rcTemp;
 		while( pParent = pParent->GetParent() )
 		{
-			rcTemp = invalidateRc;
-			rcParent = pParent->GetPos();
-			if( !::IntersectRect(&invalidateRc, &rcTemp, &rcParent) ) 
+			//rcTemp = invalidateRc;
+			if( !::IntersectRect(&invalidateRc, &invalidateRc, &pParent->GetPos()) ) 
 			{
 				return;
 			}

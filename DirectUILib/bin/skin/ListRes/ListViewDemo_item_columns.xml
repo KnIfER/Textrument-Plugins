@@ -14,7 +14,8 @@
 			
 			height="30"
 			autocalcwidth="true"
-			wordbreak="false"
+			autocalcheight="true"
+			wordbreak="true"
 			multiline="true"
 			font="2"
 			align="left"
@@ -29,10 +30,27 @@
 			
 			height="30"
 			autocalcwidth="true"
+			wordbreak="true"
+			multiline="true"
+			font="2"
+			align="left"
+			/>
+		
+		
+		<Label 
+			text="colum<b>n_2</b>"
+			type="push"
+			name="vList" 
+			bkcolor="#FFFFFFFF" 
+			inset="0,0,0,0"
+			
+			height="30"
+			autocalcwidth="true"
 			wordbreak="false"
 			multiline="true"
 			font="2"
 			align="left"
+			showhtml="true"
 			/>
 		
 		

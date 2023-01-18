@@ -166,6 +166,8 @@ namespace DuiLib
 				if (_scrollY)
 				{
 					scrollY = _scrollY*10*1.2/25;
+					scrollY = _scrollY*(10*1.2/25);
+					//if(scrollY*_scrollY<0)LogIs("213213_scrollY=%d %d",_scrollY,scrollY);
 					if (std::abs(scrollY)<6)
 					{
 						scrollY = _scrollY>0?6:-6;
@@ -180,12 +182,19 @@ namespace DuiLib
 						_scrollY -= scrollY;
 					}
 				}
+				//if(scrollY*_scrollY<0) LogIs("213213");
+				if(scrollY)
 				DoScroll(0, scrollY);
 
 				if (!_scrollY)
 				{
 					KillTimer(0x100);
 				}
+			}
+			if (event.wParam==0x112) //  && _bUseSmoothScroll
+			{
+				SetPos(GetPos(), false);
+				//KillTimer(0x112);
 			}
 			return;
 		}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window caption="0,0,0,30" roundcorner="5,5,5,5" showdirty="false">
+ <Font id="0" name="宋体" size="13" bold="false"/>
+ <Font id="1" name="宋体" size="12"/>
+ <Font id="2" name="宋体" size="30"/>
+ 
+	
+		<VerticalLayout  bkcolor="#FF313C00">		
+	
+			<Label
+				name="lb" 
+				bkcolor="#FFFFFFFF" 
+				inset="0,0,0,0"
+				vscrollbar="true" 
+				hscrollbar="true"
+				hscrollbar="false"
+				menu="true"
+				autocalcwidth="false"
+				autocalcheight="true"
+				wordbreak="true"
+				multiline="true"
+				font="2"
+				align="left"
+				/>
+				
+				
+			<WinFrame>
+			
+				<ListView 
+					name="vList" 
+					bkcolor="#FFFFFFFF" 	
+					inset="0,0,0,0"
+					vscrollbar="true" 
+					hscrollbar="true"
+					hscrollbar="false"
+					menu="true"
+					/>
+					
+			</WinFrame>
+
+		</VerticalLayout>	
+		
+</Window>

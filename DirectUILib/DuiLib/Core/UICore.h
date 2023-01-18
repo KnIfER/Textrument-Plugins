@@ -1,4 +1,5 @@
 #pragma once
+#define UNICODE 1
 
 #include <windows.h>
 #include <windowsx.h>

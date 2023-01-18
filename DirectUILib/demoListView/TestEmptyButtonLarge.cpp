@@ -9,14 +9,18 @@
 using namespace rapidjson;
 
 
-namespace TestTreeViewAdapter{
+namespace EmptyButtonLarge{
 
-QkString Name = L"Json树(TreeViewAdapter)";
+QkString Name = L"空按钮(大)";
+
+#define kClassWindow L"MiniblinkWebs"
 
 class ListMainForm : public WindowImplBase, public INotifyUI, public ListViewAdapter
 {
 public:
-    ListMainForm() { };     
+    ListMainForm() 
+	{ 
+    };     
 
     LPCTSTR GetWindowClassName() const override
     { 
@@ -40,22 +44,17 @@ public:
         bHandled = TRUE;
         return 0;
     }
-
-    CControlUI* viewTemplate;
-
+	 
+	ListView* pList;
+	CLabelUI* lb;
 
     void InitWindow() override
-    {
-        viewTemplate = builder.Create(L"ListViewDemo_item.xml", 0, 0, &m_pm);
+    { 
 
-        ListView* pList = static_cast<ListView*>(m_pm.FindControl(_T("vList")));
+        pList = static_cast<ListView*>(m_pm.FindControl(_T("vList")));
+        lb = static_cast<CLabelUI*>(m_pm.FindControl(_T("lb")));
         if (pList)
         {
-
-            //TCHAR buffer[100]={0};
-            //wsprintf(buffer,TEXT("position=%s"), pList->GetClass());
-            //::MessageBox(NULL, buffer, TEXT(""), MB_OK);
-
 
             Button* refer = new Button;
 
@@ -66,20 +65,23 @@ public:
 
             pList->SetAdapter(this);
 
-            pList->SetHeaderView(builder.Create(L"ListViewDemo_ListHeader.xml", 0, 0, &m_pm));
+            //pList->SetHeaderView(builder.Create(L"ListViewDemo_ListHeader.xml", 0, 0, &m_pm));
 
         }
     }
 
     size_t GetItemCount()
     {
-        //return 100;
-        return 10000000;
+        return 10;
+		//return 1;
     }
+
+	int items=0;
+	QkString itemsBuffer;
 
     CControlUI* CreateItemView()
     {
-        CControlUI* pRoot =  builder.Create(L"ListViewDemo_item_columns.xml", 0, 0, &m_pm);
+        CControlUI* pRoot =  builder.Create(L"WinBtn.xml", 0, 0, &m_pm);
 
         if (pRoot == NULL) {
             QkString sError = _T("加载皮肤失败：");
@@ -93,6 +95,11 @@ public:
             return 0;
         }
 
+        pRoot->SetFixedHeight(800);
+
+		itemsBuffer.Format(L"创建了 %d 个视图！回收池大小：%d", items++, pList->GetRecyclePool().GetSize());
+		lb->SetText(itemsBuffer);
+
         return pRoot;
 
         //return ((Button*)viewTemplate)->Duplicate();
@@ -100,21 +107,19 @@ public:
 
     void OnBindItemView(CControlUI* view, size_t index)
     {
-        CHorizontalLayoutUI* horLayout = dynamic_cast<CHorizontalLayoutUI*>(view);
-
-        if (horLayout)
-        {
-            CControlUI* control = horLayout->GetItemAt(0);
-            QkString & label = control->GetText();
-            label.AsBuffer();
-            label.Format(L"%d", index);
-            control->Invalidate();
-        }
+        //if (horLayout)
+        //{
+        //    CControlUI* control = horLayout->GetItemAt(0);
+        //    QkString & label = control->GetText();
+        //    label.AsBuffer();
+        //    label.Format(L"%d", index);
+        //    control->Invalidate();
+        //}
     }
 
     QkString GetSkinFile() override
     {
-        return _T("ListViewDemo.xml");
+        return _T("test.xml");
     }
 
     void Notify( TNotifyUI &msg ) override

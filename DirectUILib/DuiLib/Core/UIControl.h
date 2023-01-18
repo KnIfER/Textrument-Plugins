@@ -80,7 +80,7 @@ namespace DuiLib {
 		void SetInset(const RECT & rcInset, LPCTSTR handyStr = 0);
 
 		// 定时器
-		bool SetTimer(UINT nTimerID, UINT nElapse);
+		bool SetTimer(UINT nTimerID, UINT nElapse, bool restart=false);
 		void KillTimer(UINT nTimerID);
 
 		// 文本相关

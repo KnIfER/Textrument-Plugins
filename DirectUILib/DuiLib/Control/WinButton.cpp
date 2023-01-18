@@ -37,7 +37,7 @@ namespace DuiLib {
 			COMBO_Register();
 			//_isDirectUI = false;
 			__hParent = _hParent;
-			if(0)
+			if(1)
 			_hWnd = ::CreateWindow(
 				WC_BUTTON
 				//TEXT("MyBUTTON")
@@ -45,7 +45,7 @@ namespace DuiLib {
 				, TEXT("MyBUTTON")
 				, WS_CHILD 
 				| WS_VISIBLE 
-				| BS_MULTILINE  
+		//		| BS_MULTILINE  
 				//| BS_CENTER 
 				| BS_VCENTER 
 				| BS_CENTER 
@@ -59,7 +59,7 @@ namespace DuiLib {
 				, NULL
 				, CPaintManagerUI::GetInstance()
 				,  NULL) ;
-			if(1)
+			if(0)
 			_hWnd = ::CreateWindow(
 				//WC_COMBOBOX
 				//WC_EDIT

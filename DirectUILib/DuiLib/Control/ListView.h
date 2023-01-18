@@ -71,6 +71,10 @@ namespace DuiLib {
 
         void SetReferenceItemView(CControlUI* view) {  
             m_HiddenItem = view;
+        }; 
+
+        CStdPtrArray & GetRecyclePool() {  
+            return _recyclePool;
         };
         void DoEvent(TEventUI& event);
         //void NeedUpdate();

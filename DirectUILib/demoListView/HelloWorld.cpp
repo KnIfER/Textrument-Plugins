@@ -91,9 +91,10 @@ public:
             label.Format(L"#%d", index);
             for (size_t i = 0; i < index*2; i++)
             {
-                label.Append(L" Test ");
+                //label.Append(L" <b>测试</b> ");
                 if (i > 5) break;
             }
+            label.Append(L"\r\n哈哈哈无语了");
             btn->SetText(label);
             btn->SetNeedAutoCalcSize();
             //btn->Invalidate();

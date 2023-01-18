@@ -5,6 +5,9 @@
       <UniqueIdentifier>{835a4270-af43-4902-b7d8-950a553752e0}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
     </Filter>
+    <Filter Include="Source Files\webkit">
+      <UniqueIdentifier>{bd32a6bd-5ed8-4696-a89b-d5ad727fe30b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HelloWorld.cpp">
@@ -19,13 +22,52 @@
     <ClCompile Include="TestListHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TestTreeViewAdapter.cpp">
+    <ClCompile Include="TestEmptyButton.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestWebViewList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestEmptyButtonLarge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="webkit\WebViewMiniwke.cpp">
+      <Filter>Source Files\webkit</Filter>
+    </ClCompile>
+    <ClCompile Include="webkit\WebViewFactory.cpp">
+      <Filter>Source Files\webkit</Filter>
+    </ClCompile>
+    <ClCompile Include="webkit\WebViewMiniblink.cpp">
+      <Filter>Source Files\webkit</Filter>
+    </ClCompile>
+    <ClCompile Include="webkit\WebViewWebview2.cpp">
+      <Filter>Source Files\webkit</Filter>
+    </ClCompile>
+    <ClCompile Include="webkit\CheckFailure.cpp">
+      <Filter>Source Files\webkit</Filter>
+    </ClCompile>
+    <ClCompile Include="webkit\WebViewBrowserWidget.cpp">
+      <Filter>Source Files\webkit</Filter>
+    </ClCompile>
+    <ClCompile Include="webkit\WndControl.cpp">
+      <Filter>Source Files\webkit</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="webkit\wke.h">
+      <Filter>Source Files\webkit</Filter>
+    </ClInclude>
+    <ClInclude Include="webkit\WebViewFactory.h">
+      <Filter>Source Files\webkit</Filter>
+    </ClInclude>
+    <ClInclude Include="webkit\CheckFailure.h">
+      <Filter>Source Files\webkit</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
