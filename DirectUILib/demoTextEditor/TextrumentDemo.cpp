@@ -206,6 +206,7 @@ public:
         edittext->SetSmoothScrolling(true);
         edittext->SetMarginWidthN(0, 50);
         //edittext->SetCodePage(CP_ACP);
+        //edittext->SetCodePage(CP_ACP);
         edittext->SetBufferedDraw(false);
         for (; article_idx < article_end; article_idx++)
         {
