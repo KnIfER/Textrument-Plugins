@@ -145,6 +145,8 @@ namespace DuiLib
 		CControlUI::SetMouseEnabled(bEnabled);
 	}
 
+	static INT64 TicksLastDraw, TicksPerSecond;
+
 	void CContainerUI::DoEvent(TEventUI& event)
 	{
 		if( !IsMouseEnabled() && event.Type > UIEVENT__MOUSEBEGIN && event.Type < UIEVENT__MOUSEEND ) {
@@ -165,12 +167,21 @@ namespace DuiLib
 				int scrollY = 0;
 				if (_scrollY)
 				{
+					INT64 tk;
+					::QueryPerformanceCounter((LARGE_INTEGER*)&tk);
+					LogIs("time elapsed=%d", tk-TicksLastDraw);
 					scrollY = _scrollY*10*1.2/25;
 					scrollY = _scrollY*(10*1.2/25);
 					//if(scrollY*_scrollY<0)LogIs("213213_scrollY=%d %d",_scrollY,scrollY);
-					if (std::abs(scrollY)<6)
+					scrollY = 8; 
+					if(tk/10000<1000) {
+						scrollY = (tk-TicksLastDraw)*1.0/10000/16*scrollY;
+					}
+					TicksLastDraw = tk;
+
+					if (std::abs(scrollY)<1)
 					{
-						scrollY = _scrollY>0?6:-6;
+						scrollY = _scrollY>0?1:-1;
 					}
 					if ((_scrollY-scrollY>0) ^ (_scrollY>0))
 					{

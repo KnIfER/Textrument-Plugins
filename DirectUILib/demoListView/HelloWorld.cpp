@@ -64,8 +64,9 @@ public:
 
     size_t GetItemCount()
     {
-        //return 1000;
-        return 10000000;
+        //return 10;
+        return 1000;
+        // return 10000000;
     }
 
     CControlUI* CreateItemView()
@@ -88,6 +89,7 @@ public:
         {
             QkString & label = btn->GetText();
             label.AsBuffer();
+            label.Append(L"\n\n");
             label.Format(L"#%d", index);
             for (size_t i = 0; i < index*2; i++)
             {
@@ -95,6 +97,7 @@ public:
                 if (i > 5) break;
             }
             label.Append(L"\r\n哈哈哈无语了");
+            label.Append(L"\r\n哈哈哈无语了\n\n\n");
             btn->SetText(label);
             btn->SetNeedAutoCalcSize();
             //btn->Invalidate();

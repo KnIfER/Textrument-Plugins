@@ -402,6 +402,8 @@ namespace DuiLib {
         }
     }
 
+    static INT64 TicksLastDraw, TicksPerSecond;
+
     bool ListView::SetScrollPos(SIZE szPos, bool bMsg)
     {
         int cx = 0;
@@ -445,7 +447,10 @@ namespace DuiLib {
             {
                 _scrollX += cx;
                 _scrollY += cy;
-                SetTimer(0x100, 16, true);
+                ::QueryPerformanceFrequency((LARGE_INTEGER*)&TicksPerSecond);
+                ::QueryPerformanceCounter((LARGE_INTEGER*)&TicksLastDraw);
+                LogIs("TicksPerSecond=%d", TicksPerSecond);
+                SetTimer(0x100, 15, true);
             }
             else
             {
