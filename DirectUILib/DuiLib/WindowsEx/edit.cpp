@@ -381,7 +381,8 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 
 	/* Find starting line. istart must lie inside an existing line or
 	 * at the end of buffer */
-	do {
+	while (current_line)
+	/*do*/ {
 		if (istart < current_line->index + current_line->length ||
 				current_line->ending == END_0)
 			break;
@@ -389,7 +390,7 @@ static void EDIT_BuildLineDefs_ML(EDITSTATE *es, INT istart, INT iend, INT delta
 		previous_line = current_line;
 		current_line = current_line->next;
 		line_index++;
-	} while (current_line);
+	} ;
 
 	if (!current_line) /* Error occurred start is not inside previous buffer */
 	{
