@@ -2651,8 +2651,8 @@ namespace DuiLib {
 	void CPaintManagerUI::SetFocus(CControlUI* pControl)
 	{
 		// Paint manager window has focus?
-		HWND hFocusWnd = ::GetFocus();
-		if( hFocusWnd != m_hWndPaint && pControl != m_pFocus ) ::SetFocus(m_hWndPaint);
+		HWND hFocusWnd = ::GetFocus(), ctrlWnd = pControl->GetManager()->GetPaintWindow();
+		if( hFocusWnd != ctrlWnd ) ::SetFocus(ctrlWnd);
 		// Already has focus?
 		if( pControl == m_pFocus ) return;
 		// Remove focus from old control
