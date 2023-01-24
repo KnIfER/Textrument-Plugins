@@ -423,6 +423,14 @@ namespace DuiLib {
 		VIEWSTATEMASK_APPLY(VIEWSTATEMASK_RoundClip, bClip);
 		Invalidate();
 	}
+	
+	void CControlUI::SetBkRound(bool val)
+	{
+		if(m_bBkRound == val ) return;
+
+		VIEWSTATEMASK_APPLY(VIEWSTATEMASK_BKColorNonRound, !val);
+		Invalidate();
+	}
 
 	// todo remove ???
 	int CControlUI::GetBorderSize() const
@@ -1239,6 +1247,7 @@ namespace DuiLib {
 			else if( _tcsicmp(pstrName, _T("bottombordersize")) == 0 ) SetBottomBorderSize(ParseInt(pstrValue));
 			else if( _tcsicmp(pstrName, _T("borderstyle")) == 0 ) SetBorderStyle(ParseInt(pstrValue));
 			else if( _tcsicmp(pstrName, _T("borderround")) == 0 ) SetBorderRound(m_cxyBorderRound, pstrValue);
+			else if( _tcsicmp(pstrName, _T("bkround")) == 0 ) SetBkRound(_tcsicmp(pstrValue, _T("true")) == 0);
 			else if( _tcsicmp(pstrName, _T("colorhsl")) == 0 ) SetColorHSL(_tcsicmp(pstrValue, _T("true")) == 0);
 			else if( _tcsicmp(pstrName, _T("cursor")) == 0 && pstrValue) {
 				if( _tcsicmp(pstrValue, _T("arrow")) == 0 )			SetCursor(DUI_ARROW);
@@ -1641,7 +1650,7 @@ namespace DuiLib {
 		if( backcolor>0x00FFFFFF ) 
 		{
 			backcolor = GetAdjustColor(backcolor);
-			if (_sizeBorderRoundScaled.cx)
+			if (_sizeBorderRoundScaled.cx && m_bBkRound)
 			{ // 圆角
 				RECT & rc = m_rcItem;
 				CRenderEngine::DrawRoundRectangle(hDC

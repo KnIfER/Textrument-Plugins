@@ -165,6 +165,7 @@ const int VIEWSTATEMASK_ResourceText     =   0x1<<22;
 const int VIEWSTATEMASK_ColorHSL         =   0x1<<23;
 const int VIEWSTATEMASK_RoundClip        =   0x1<<24;
 const int VIEW_INFO_DIRTY_COLORS         =   0x1<<25;
+const int VIEWSTATEMASK_BKColorNonRound  =   0x1<<26;
 
 #define m_bEnabled                 (_view_states&VIEWSTATEMASK_Enabled)
 #define m_bVisible                 (_view_states&VIEWSTATEMASK_Visibility)
@@ -190,6 +191,7 @@ const int VIEW_INFO_DIRTY_COLORS         =   0x1<<25;
 #define m_bColorHSL                (_view_states&VIEWSTATEMASK_ColorHSL)
 #define m_bRoundClip               (_view_states&VIEWSTATEMASK_RoundClip)
 #define m_bInfoDirtyColors         (_view_states&VIEW_INFO_DIRTY_COLORS)
+#define m_bBkRound                 ((_view_states&VIEWSTATEMASK_BKColorNonRound)==0)
 
 #define m_bFocused_YES _view_states|=VIEWSTATEMASK_Focused
 #define m_bFocused_NO _view_states&=~VIEWSTATEMASK_Focused

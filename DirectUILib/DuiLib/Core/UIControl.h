@@ -125,6 +125,7 @@ namespace DuiLib {
 		void SetColorHSL(bool bColorHSL);
 		// 是否裁切出圆角内容
 		void SetRoundClip(bool bClip);
+		void SetBkRound(bool val);
 		SIZE GetBorderRound() const;
 		void SetBorderRound(SIZE cxyRound, LPCTSTR handyStr=0);
 		bool DrawImage(HDC hDC, LPCTSTR pStrImage, LPCTSTR pStrModify = NULL);
