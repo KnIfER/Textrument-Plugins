@@ -171,12 +171,12 @@ namespace DuiLib
 					::QueryPerformanceCounter((LARGE_INTEGER*)&tk);
 					LogIs("time elapsed=%d", tk-TicksLastDraw);
 					scrollY = _scrollY*10*1.2/25;
-					scrollY = _scrollY*(10*1.2/25);
+					scrollY = _scrollY*(10*1.2/31);
 					//if(scrollY*_scrollY<0)LogIs("213213_scrollY=%d %d",_scrollY,scrollY);
-					scrollY = 8; 
-					if(tk/10000<1000) {
-						scrollY = (tk-TicksLastDraw)*1.0/10000/16*scrollY;
-					}
+					//scrollY = _scrollY>0?1:-1;
+					//if(tk/10000<1000) {
+					//	scrollY = (tk-TicksLastDraw)*1.0/10000/16*scrollY;
+					//}
 					TicksLastDraw = tk;
 
 					if (std::abs(scrollY)<1)
