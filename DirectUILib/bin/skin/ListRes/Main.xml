@@ -3,7 +3,7 @@
 	caption="0,0,0,30" 
 	roundcorner="5,5,5,5" 
 	showdirty="false"
-	
+	layered="false"
 	>
  <Font id="0" name="宋体" size="13" bold="false"/>
  <Font id="1" name="宋体" size="12"/>
@@ -12,7 +12,7 @@
  
   
 
-<VBox>	
+<VBox >	
 	<VBox autocalcheight="true">	
 		<HBox height="38" bkcolor="#FFfafafa" bkcolor2="#FFe7e7e7" bkcolor3xs="#FFff0000" gradient="ver"/>
 	
@@ -31,6 +31,7 @@
 			hscrollbar="truex"
 		/>
 	</VBox>	
+				 
 		
 	<HBox  bkcolor="#FF313C00">	
 		<WinFrame inset="0,0,0,0" width="245">

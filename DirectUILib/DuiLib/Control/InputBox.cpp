@@ -353,16 +353,19 @@ namespace DuiLib
 		{
 			if (event.wParam == IMR_QUERYCHARPOSITION)
 			{
-				IMECHARPOSITION *chpos = (IMECHARPOSITION *)event.lParam;
-				LRESULT pos;
+				HIMC hIMC = ImmGetContext(GetManager()->GetPaintWindow());
+				if (hIMC)  {
+					POINT point;
+					GetCaretPos(&point);
 
-				pos = EDIT_EM_PosFromChar(infoPtr, infoPtr->selection_start + chpos->dwCharPos, FALSE);
-				chpos->pt.x = LOWORD(pos);
-				chpos->pt.y = HIWORD(pos);
-				chpos->cLineHeight = infoPtr->line_height;
-				chpos->rcDocument = infoPtr->format_rect;
-				MapWindowPoints(GetHWND(), 0, &chpos->pt, 1);
-				MapWindowPoints(GetHWND(), 0, (POINT*)&chpos->rcDocument, 2);
+					COMPOSITIONFORM Composition;
+					Composition.dwStyle = CFS_POINT;
+					Composition.ptCurrentPos.x = point.x;
+					Composition.ptCurrentPos.y = point.y;
+					ImmSetCompositionWindow(hIMC, &Composition);
+
+					ImmReleaseContext(GetManager()->GetPaintWindow(),hIMC);
+				}
 			}
 			return;
 		}

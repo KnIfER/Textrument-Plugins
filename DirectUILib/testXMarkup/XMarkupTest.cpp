@@ -78,6 +78,7 @@ public:
     QkString GetSkinFile() override
     {
         return _T("testScroll.xml");
+        //return _T("skin\\ListRes\\Main.xml");
         //return _T("VSMake.xml");
         //return _T("settings.xml");
     }
