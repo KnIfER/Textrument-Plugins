@@ -90,7 +90,8 @@ namespace DuiLib
 				//| WS_BORDER  
 				//| ES_PASSWORD
 				//| infoPtr->dwStyle
-				| ES_MULTILINE 
+				//| ES_MULTILINE 
+				//| ES_CENTER 
 				| ES_NOHIDESEL 
 				;
 			EDITOBJ_SyncText(infoPtr);
@@ -144,6 +145,14 @@ namespace DuiLib
 		}
 		infoPtr->bgrTextColor = RGB(GetBValue(m_dwTextColor), GetGValue(m_dwTextColor), GetRValue(m_dwTextColor));
 		VIEWSTATE_MARK_SYNCED(VIEW_INFO_DIRTY_COLORS);
+		if(VCENTER) {
+			_rcEdit.top -= VCENTER_OFFSET;
+			VCENTER_OFFSET = 0;
+			if(!(infoPtr->style & ES_MULTILINE)) {
+				VCENTER_OFFSET = ((_rcEdit.bottom-_rcEdit.top) - infoPtr->line_height) / 2;
+			}
+			_rcEdit.top += VCENTER_OFFSET;
+		}
 	}
 
 	void InputBox::PaintText(HDC hDC)
@@ -253,10 +262,38 @@ namespace DuiLib
 		}
 		ApplyInsetToRect(_rcEdit);
 
+		VCENTER_OFFSET = 0;
+		if(VCENTER) {
+			if(!(infoPtr->style & ES_MULTILINE)) {
+				VCENTER_OFFSET = ((_rcEdit.bottom-_rcEdit.top) - infoPtr->line_height) / 2;
+			}
+			_rcEdit.top += VCENTER_OFFSET;
+		}
+
 		// Process the scrollbar
 		scrollbars_set_cnt++;
 		if (scrollbars_set_cnt<3) ProcessScrollBar(_rcEdit, infoPtr->text_width, infoPtr->line_count*infoPtr->line_height);
 		scrollbars_set_cnt--;
+	}
+
+	void InputBox::SetVCenter(bool value)
+	{
+		if(VCENTER != value) {
+			VCENTER = value;
+			// if(rendered)
+			_rcEdit.top -= VCENTER_OFFSET;
+			VCENTER_OFFSET = 0;
+			if(value && !(infoPtr->style & ES_MULTILINE)) {
+				VCENTER_OFFSET = ((_rcEdit.bottom-_rcEdit.top) - infoPtr->line_height) / 2;
+			}
+			_rcEdit.top += VCENTER_OFFSET;
+		}
+	}
+
+	void InputBox::SetMultiline(bool value)
+	{
+		if(value) infoPtr->style |= ES_MULTILINE;
+		else infoPtr->style &= ~ES_MULTILINE;
 	}
 
 	void InputBox::ShowCaretIfVisible(bool update)
@@ -586,6 +623,8 @@ namespace DuiLib
 		//else if( _tcsicmp(pstrName, _T("disabledimage")) == 0 ) SetDisabledImage(pstrValue);
 		else if( _tcsicmp(pstrName, _T("tipvalue")) == 0 ) SetTipValue(pstrValue);
 		else if( _tcsicmp(pstrName, _T("tipvaluecolor")) == 0 ) SetTipValueColor(pstrValue);
+		else if( _tcsicmp(pstrName, _T("VCENTER")) == 0 ) SetVCenter(_tcsicmp(pstrValue, _T("true")) == 0);
+		else if( _tcsicmp(pstrName, _T("multiline")) == 0 ) SetMultiline(_tcsicmp(pstrValue, _T("true")) == 0);
 		//else if( _tcsicmp(pstrName, _T("nativetextcolor")) == 0 ) SetNativeEditTextColor(pstrValue);
 		else if( _tcsicmp(pstrName, _T("nativebkcolor")) == 0 ) {
 			DWORD clrColor;

@@ -74,6 +74,8 @@ namespace DuiLib
 		virtual void PaintText(HDC hDC);
 
 		void ShowCaretIfVisible(bool update);
+		void SetVCenter(bool value);
+		void SetMultiline(bool value);
 	protected:
 		RECT _rcEdit;
 		RECT _rcEditMax;
@@ -86,5 +88,7 @@ namespace DuiLib
 		UINT m_uButtonState;
 		UINT m_uMaxChar;
 		DWORD m_dwTipValueColor;
+		BOOL VCENTER; // only for single line text for now.
+		INT VCENTER_OFFSET;	
 	};
 }
