@@ -70,6 +70,7 @@ namespace DuiLib {
 		if( !root.IsValid() ) return NULL;
 
 		if( pManager ) {
+			pManager->_inflaing = 1;
 			LPCTSTR pstrClass = NULL;
 			int nAttributes = 0;
 			LPCTSTR pstrName = NULL;
@@ -449,7 +450,9 @@ namespace DuiLib {
 			}
 		}
 		QkString tagNameBuffer;
-		return _Parse(&root, tagNameBuffer, pParent, pManager);
+		CControlUI* ret =  _Parse(&root, tagNameBuffer, pParent, pManager);
+		if(pManager) pManager->_inflaing = 0;
+		return ret;
 	}
 
 	XMarkupParser* CDialogBuilder::GetMarkup()

@@ -1224,7 +1224,7 @@ err:
 
 	void CRichEditUI::SetFont(int index)
 	{
-		_font = index;
+		__super::SetFont(index);
 		if( m_pTwh ) {
 			m_pTwh->SetFont(GetManager()->GetFont(_font));
 		}
@@ -2599,7 +2599,6 @@ err:
 				m_lTwhStyle |= ES_RIGHT;
 			}
 		}
-		else if( _tcscmp(pstrName, _T("font")) == 0 ) SetFont(_ttoi(pstrValue));
 		else if( _tcscmp(pstrName, _T("textcolor")) == 0 ) {
 			DWORD clrColor;
 			STR2ARGB(pstrValue, clrColor);

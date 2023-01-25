@@ -1018,7 +1018,7 @@ namespace DuiLib {
 
 	void CControlUI::Invalidate()
 	{
-		if( !IsVisible() ) return;
+		if( !IsVisible() || !_manager || _manager->_inflaing) return;
 
 		RECT invalidateRc = m_rcItem;
 
@@ -1033,7 +1033,7 @@ namespace DuiLib {
 			}
 		}
 
-		if( _manager != NULL ) _manager->Invalidate(invalidateRc);
+		_manager->Invalidate(invalidateRc);
 	}
 
 	bool CControlUI::IsUpdateNeeded() const
@@ -1289,7 +1289,8 @@ namespace DuiLib {
 		}
 		else if(c<='f') // d e f
 		{
-			if( _tcsicmp(pstrName, _T("forecolor")) == 0 ) {
+			if( _tcsicmp(pstrName, _T("font")) == 0 ) SetFont(_ttoi(pstrValue));
+			else if( _tcsicmp(pstrName, _T("forecolor")) == 0 ) {
 				STR2ARGB(pstrValue, m_dwForeColor);
 				VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
 			}

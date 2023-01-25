@@ -93,11 +93,6 @@ namespace DuiLib {
 		Invalidate();
 	}
 
-	void CListHeaderItemUI::SetFont(int index)
-	{
-		_font = index;
-	}
-
 	bool CListHeaderItemUI::IsShowHtml()
 	{
 		return m_bShowHtml;
@@ -198,7 +193,6 @@ namespace DuiLib {
 			if (_tcsicmp(pstrValue, _T("true")) == 0) m_uTextStyle |= DT_END_ELLIPSIS;
 			else m_uTextStyle &= ~DT_END_ELLIPSIS;
 		}
-		else if (_tcsicmp(pstrName, _T("font")) == 0) SetFont(_ttoi(pstrValue));
 		else if (_tcsicmp(pstrName, _T("textcolor")) == 0) {
 			DWORD clrColor;
 			STR2ARGB(pstrValue, clrColor);

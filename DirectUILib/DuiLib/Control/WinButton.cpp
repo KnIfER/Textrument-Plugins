@@ -153,7 +153,6 @@ namespace DuiLib {
 	void WinButton::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
 	{
 		if( _tcsicmp(pstrName, _T("type")) == 0 ) SetType(pstrValue);
-		else if( _tcsicmp(pstrName, _T("font")) == 0 ) SetFont(_ttoi(pstrValue));
 		else __super::SetAttribute(pstrName, pstrValue);
 	}
 

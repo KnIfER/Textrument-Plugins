@@ -1021,7 +1021,6 @@ namespace DuiLib {
 				m_uTextStyle |= DT_SINGLELINE;
 			}
 		}    
-		else if( _tcsicmp(pstrName, _T("font")) == 0 ) SetFont(_ttoi(pstrValue));
 		else if( _tcsicmp(pstrName, _T("textcolor")) == 0 ) {
 			DWORD clrColor;
 			STR2ARGB(pstrValue, clrColor);

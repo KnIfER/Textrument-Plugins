@@ -619,6 +619,7 @@ namespace DuiLib {
 #endif
 
 		bool _SIZING;
+		bool _inflaing;
 		bool _bIsLayoutOnly = false;
 		bool _bIsWinFrame = false;
 

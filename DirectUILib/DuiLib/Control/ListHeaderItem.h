@@ -24,7 +24,6 @@ namespace DuiLib {
 		void SetTextColor(DWORD dwTextColor);
 		void SetTextPadding(RECT rc);
 		RECT GetTextPadding() const;
-		void SetFont(int index);
 		bool IsShowHtml();
 		void SetShowHtml(bool bShowHtml = true);
 		LPCTSTR GetNormalImage() const;
