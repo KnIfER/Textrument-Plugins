@@ -132,7 +132,7 @@ namespace DuiLib
 
 	void CTextUI::PaintText(HDC hDC)
 	{
-		QkString sText = GetText();
+		const QkString & sText = GetText();
 		if( sText.IsEmpty() ) {
 			m_nLinks = 0;
 			return;
