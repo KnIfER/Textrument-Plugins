@@ -132,9 +132,9 @@ namespace DuiLib
 				}
 				return;
 			case UIEVENT_SETCURSOR:
-				if( (infoPtr->dwStyle&BS_TYPEMASK)==BS_OWNERDRAW )
-					::SetCursor(CPaintManagerUI::hCursorHand);
-				else 
+				//if( (infoPtr->dwStyle&BS_TYPEMASK)==BS_OWNERDRAW )
+				//	::SetCursor(CPaintManagerUI::hCursorHand);
+				//else 
 					::SetCursor(CPaintManagerUI::hCursorArrow);
 				return;
 		}  
@@ -667,7 +667,7 @@ namespace DuiLib
 		{
 			if(m_dwDisabledBkColor) color = m_dwDisabledBkColor;
 		}
-		else if( (m_uButtonState & UISTATE_PUSHED) != 0 )
+		else if( (m_uButtonState & UISTATE_PUSHED) != 0 && m_dwPushedBkColor!=0)
 		{
 			if(m_dwPushedBkColor) color = m_dwPushedBkColor;
 		}
