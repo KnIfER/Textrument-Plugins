@@ -387,5 +387,8 @@
     <ClCompile Include="Utils\DemoUitls.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Core\UIRenderFx.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
