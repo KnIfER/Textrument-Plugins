@@ -540,6 +540,26 @@ namespace DuiLib {
 		}
 	}
 
+	RECT CControlUI::GetAbsolutePos() const
+	{
+		CControlUI* pParent = GetParent();
+		CDuiRect ret(m_rcItem);
+		if( pParent != NULL ) {
+			RECT rcParentPos = pParent->GetAbsolutePos();
+			ret.Offset(rcParentPos.left, rcParentPos.top);
+		}
+		else {
+			::GetClientRect(_hWnd, &ret);
+			POINT pt{ret.left, ret.top};
+			::ClientToScreen(_hWnd, &pt);
+			ret.right += pt.x - ret.left;
+			ret.bottom += pt.y - ret.top;
+			ret.left = pt.x;
+			ret.top = pt.y;
+		}
+		return ret;
+	}
+
 	RECT CControlUI::GetClientPos() const 
 	{
 		return m_rcItem;
