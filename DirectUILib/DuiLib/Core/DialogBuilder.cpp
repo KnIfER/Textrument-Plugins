@@ -68,10 +68,10 @@ namespace DuiLib {
 		m_pCallback = pCallback;
 		XMarkupNode root = m_xml.GetRoot();
 		if( !root.IsValid() ) return NULL;
-
+		LPCTSTR pstrClass = root.GetName();
+		BOOL windowed = _tcsicmp(pstrClass, _T("Window")) == 0; 
 		if( pManager ) {
 			pManager->_inflaing = 1;
-			LPCTSTR pstrClass = NULL;
 			int nAttributes = 0;
 			LPCTSTR pstrName = NULL;
 			LPCTSTR pstrValue = NULL;
@@ -297,8 +297,7 @@ namespace DuiLib {
 				}
 			}
 
-			pstrClass = root.GetName();
-			if( _tcsicmp(pstrClass, _T("Window")) == 0 ) {
+			if( windowed ) {
 				if( pManager->GetPaintWindow() ) {
 					int nAttributes = root.GetAttributeCount();
 					for( int i = 0; i < nAttributes; i++ ) {
@@ -447,10 +446,12 @@ namespace DuiLib {
 						}
 					}
 				}
+			} else {
+				//root = wrap;
 			}
 		}
 		QkString tagNameBuffer;
-		CControlUI* ret =  _Parse(&root, tagNameBuffer, pParent, pManager);
+		CControlUI* ret =  _Parse(&root, tagNameBuffer, pParent, pManager, windowed);
 		if(pManager) pManager->_inflaing = 0;
 		return ret;
 	}
@@ -471,20 +472,22 @@ namespace DuiLib {
 	}
 
 	// 递归分析xml建立控件树
-	CControlUI* CDialogBuilder::_Parse(XMarkupNode* pRoot, QkString & tagNameBuffer, CControlUI* pParent, CPaintManagerUI* pManager)
+	CControlUI* CDialogBuilder::_Parse(XMarkupNode* pRoot, QkString & tagNameBuffer
+			, CControlUI* pParent, CPaintManagerUI* pManager, boolean windowed)
 	{
 		IContainerUI* pContainer = NULL;
 		CControlUI* pReturn = NULL;
 		LPCWSTR pstrClass;
-		for( XMarkupNode node = pRoot->GetChild() ; node.IsValid(); node = node.GetSibling() ) {
+		for( XMarkupNode node = windowed?pRoot->GetChild():*pRoot ; node.IsValid(); node = node.GetSibling() ) {
 			tagNameBuffer = node.GetName();
 			tagNameBuffer.MakeLower();
 			pstrClass = tagNameBuffer;
-			if( _tcscmp(pstrClass, _T("image")) == 0 || _tcscmp(pstrClass, _T("font")) == 0 \
-				|| _tcscmp(pstrClass, _T("default")) == 0 || _tcscmp(pstrClass, _T("style")) == 0 ) continue;
+			if( _tcscmp(pstrClass, _T("image")) == 0 || _tcscmp(pstrClass, _T("font")) == 0
+				|| _tcscmp(pstrClass, _T("default")) == 0 || _tcscmp(pstrClass, _T("style")) == 0 
+				|| _tcscmp(pstrClass, _T("import")) == 0
+				) continue;
 
 			CControlUI* pControl = NULL;
-			if (_tcscmp(pstrClass, _T("import")) == 0) continue;
 			if( _tcscmp(pstrClass, _T("include")) == 0 ) {
 				if( !node.HasAttributes() ) continue;
 				int count = 1;

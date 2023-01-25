@@ -29,7 +29,7 @@ namespace DuiLib {
 
 		XMarkupParser m_xml;
 	private:
-		CControlUI* _Parse(XMarkupNode* parent, QkString & tagNameBuffer, CControlUI* pParent, CPaintManagerUI* pManager);
+		CControlUI* _Parse(XMarkupNode* parent, QkString & tagNameBuffer, CControlUI* pParent, CPaintManagerUI* pManager, boolean windowed=true);
 
 		IDialogBuilderCallback* m_pCallback;
 		LPCTSTR m_pstrtype;
