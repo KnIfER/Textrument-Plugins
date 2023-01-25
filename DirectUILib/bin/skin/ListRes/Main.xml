@@ -14,7 +14,7 @@
 
 <VBox >	
 	<VBox autocalcheight="true">	
-		<HBox height="38" bkcolor="#FFfafafa" bkcolor2="#FFe7e7e7" bkcolor3xs="#FFff0000" gradient="ver"/>
+		<HBox name="menuBar" height="38" bkcolor="#FFfafafa" bkcolor2="#FFe7e7e7" bkcolor3xs="#FFff0000" gradient="ver"/>
 	
 		<Edit  height="50"
 			textcolor="#ff000000" font="3"   

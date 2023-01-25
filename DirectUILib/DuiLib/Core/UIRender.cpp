@@ -2070,7 +2070,8 @@ namespace DuiLib {
 #endif
 	}
 
-	void CRenderEngine::DrawPlainText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, const QkString & pstrText, DWORD dwTextColor, int iFont, UINT uStyle)
+	void CRenderEngine::DrawPlainText(HDC hDC, CPaintManagerUI* pManager, RECT& rc
+			, const QkString & pstrText, DWORD dwTextColor, int iFont, UINT uStyle)
 	{
 		ASSERT(::GetObjectType(hDC)==OBJ_DC || ::GetObjectType(hDC)==OBJ_MEMDC);
 		if( /*pstrText == NULL || */pManager == NULL ) return;
