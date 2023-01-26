@@ -59,6 +59,13 @@ bool XMarkupNode::HasChildren() const
 	return m_pOwner->m_pElements[m_iPos].iChild != 0;
 }
 
+
+bool XMarkupNode::HasParent() const
+{
+	if( m_pOwner == NULL ) return false;
+	return m_pOwner->m_pElements[m_iPos].iParent != 0;
+}
+
 XMarkupNode XMarkupNode::GetParent()
 {
 	if( m_pOwner == NULL ) return XMarkupNode();

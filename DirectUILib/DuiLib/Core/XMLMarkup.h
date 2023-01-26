@@ -108,6 +108,7 @@ namespace DuiLib {
 
 		bool HasSiblings() const;
 		bool HasChildren() const;
+		bool HasParent() const;
 		LPCTSTR GetName() const;
 		LPCTSTR GetValue() const;
 
@@ -140,7 +141,7 @@ namespace DuiLib {
 		int m_iPos;
 		int m_nAttributes;
 
-		// 浪费内存
+		// 内存
 		XMLATTRIBUTE m_aAttributes[MAX_XML_ATTRIBUTES];
 
 		// xml 全局容器

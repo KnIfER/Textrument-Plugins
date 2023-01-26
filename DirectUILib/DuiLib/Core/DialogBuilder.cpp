@@ -67,239 +67,19 @@ namespace DuiLib {
 	{
 		m_pCallback = pCallback;
 		XMarkupNode root = m_xml.GetRoot();
+		XMarkupNode* start = 0;
 		if( !root.IsValid() ) return NULL;
 		LPCTSTR pstrClass = root.GetName();
 		BOOL windowed = _tcsicmp(pstrClass, _T("Window")) == 0; 
 		if( pManager ) {
 			pManager->_inflaing = 1;
-			int nAttributes = 0;
-			LPCTSTR pstrName = NULL;
-			LPCTSTR pstrValue = NULL;
-			LPTSTR pstr = NULL;
-			for( XMarkupNode node = root.GetChild() ; node.IsValid(); node = node.GetSibling() ) {
-				pstrClass = node.GetName();
-				if( _tcsicmp(pstrClass, _T("Image")) == 0 ) 
-				{
-					nAttributes = node.GetAttributeCount();
-					LPCTSTR pImageName = NULL;
-					LPCTSTR pImageResType = NULL;
-					bool shared = false;
-					DWORD mask = 0;
-					for( int i = 0; i < nAttributes; i++ ) {
-						pstrName = node.GetAttributeName(i);
-						pstrValue = node.GetAttributeValue(i);
-						if( _tcsicmp(pstrName, _T("name")) == 0 ) {
-							pImageName = pstrValue;
-						}
-						else if( _tcsicmp(pstrName, _T("restype")) == 0 ) {
-							pImageResType = pstrValue;
-						}
-						else if( _tcsicmp(pstrName, _T("mask")) == 0 ) {
-							STR2ARGB(pstrValue, mask);
-						}
-						else if( _tcsicmp(pstrName, _T("shared")) == 0 ) {
-							shared = (_tcsicmp(pstrValue, _T("true")) == 0);
-						}
-					}
-					if( pImageName ) pManager->AddImage(pImageName, pImageResType, mask, false, shared);
-				}
-				else if( _tcsicmp(pstrClass, _T("Font")) == 0 ) 
-				{
-					nAttributes = node.GetAttributeCount();
-					int id = -1;
-					LPCTSTR pFontName = NULL;
-					int size = 12;
-					bool bold = false;
-					bool underline = false;
-					bool italic = false;
-					bool defaultfont = false;
-					bool shared = false;
-					for( int i = 0; i < nAttributes; i++ ) {
-						pstrName = node.GetAttributeName(i);
-						pstrValue = node.GetAttributeValue(i);
-						if( _tcsicmp(pstrName, _T("id")) == 0 ) {
-							id = _tcstol(pstrValue, &pstr, 10);
-						}
-						else if( _tcsicmp(pstrName, _T("name")) == 0 ) {
-							pFontName = pstrValue;
-						}
-						else if( _tcsicmp(pstrName, _T("size")) == 0 ) {
-							size = _tcstol(pstrValue, &pstr, 10);
-						}
-						else if( _tcsicmp(pstrName, _T("bold")) == 0 ) {
-							bold = (_tcsicmp(pstrValue, _T("true")) == 0);
-						}
-						else if( _tcsicmp(pstrName, _T("underline")) == 0 ) {
-							underline = (_tcsicmp(pstrValue, _T("true")) == 0);
-						}
-						else if( _tcsicmp(pstrName, _T("italic")) == 0 ) {
-							italic = (_tcsicmp(pstrValue, _T("true")) == 0);
-						}
-						else if( _tcsicmp(pstrName, _T("default")) == 0 ) {
-							defaultfont = (_tcsicmp(pstrValue, _T("true")) == 0);
-						}
-						else if( _tcsicmp(pstrName, _T("shared")) == 0 ) {
-							shared = (_tcsicmp(pstrValue, _T("true")) == 0);
-						}
-					}
-					if( id >= 0 ) {
-						pManager->AddFont(id, pFontName, size, bold, underline, italic, shared);
-						if( defaultfont ) pManager->SetDefaultFont(pFontName, size, bold, underline, italic, shared);
-					}
-				}
-				else if( _tcsicmp(pstrClass, _T("Default")) == 0 ) 
-				{
-					nAttributes = node.GetAttributeCount();
-					LPCTSTR pControlName = NULL;
-					LPCTSTR pStyleId = NULL;
-					LPCTSTR pControlValue = NULL;
-					bool shared = false;
-					for( int i = 0; i < nAttributes; i++ ) {
-						pstrName = node.GetAttributeName(i);
-						pstrValue = node.GetAttributeValue(i);
-						if( _tcsicmp(pstrName, _T("name")) == 0 ) {
-							if (_tcsicmp(pstrClass, _T("Default")) == 0)
-							{
-								pControlName = pstrValue;
-							}
-							else
-							{
-								pStyleId = pstrValue;
-							}
-						}
-						else if( _tcsicmp(pstrName, _T("value")) == 0 ) {
-							pControlValue = pstrValue;
-						}
-						else if( _tcsicmp(pstrName, _T("shared")) == 0 ) {
-							shared = (_tcsicmp(pstrValue, _T("true")) == 0);
-						}
-					}
-					
-					if( pControlName || pStyleId ) {
-						pManager->AddDefaultAttributeList(pControlName, pStyleId, pControlValue, shared);
-					}
-				}
-				else if( _tcsicmp(pstrClass, _T("Style")) == 0 ) 
-				{ // <style>  <button textcolor=.../>  </style>
-					XMarkupNode child = node.GetChild();
-					while(child.IsValid())
-					{
-						bool shared = false;
-						Style* style = new Style{};
-						if( _tcsicmp(child.GetName(), _T("Default")) != 0 ) {
-							style->name = child.GetName();
-						}
-						size_t i = 0, length=child.GetAttributeCount();
-						style->styles.reserve(length);
-						int index=0;
-						for (; i < length; i++)
-						{
-							pstrName = child.GetAttributeName(i);
-							pstrValue = child.GetAttributeValue(i);
-							if( _tcsicmp(pstrName, _T("id")) == 0 ) {
-								style->id = pstrValue;
-							}
-							else if( _tcsicmp(pstrName, _T("apply")) == 0 ) {
-							}
-							else if( _tcsicmp(pstrName, _T("shared")) == 0 ) {
-								shared = (_tcsicmp(pstrValue, _T("true")) == 0);
-							}
-							else
-							{
-								style->styles.resize(++index);
-								StyleDefine & styleDef = style->styles[index-1];
-								styleDef.name = pstrName;
-								styleDef.value = pstrValue;
-							}
-						}
-						pManager->AddStyle(style, shared); // 添加样式
-						child = child.GetSibling();
-					}
-				}
-				else if (_tcsicmp(pstrClass, _T("Import")) == 0) 
-				{
-					nAttributes = node.GetAttributeCount();
-					LPCTSTR pstrPath = NULL;
-					for (int i = 0; i < nAttributes; i++) {
-						pstrName = node.GetAttributeName(i);
-						pstrValue = node.GetAttributeValue(i);
-						if (_tcsicmp(pstrName, _T("fontfile")) == 0) {
-							pstrPath = pstrValue;
-						}
-					}
-					if (pstrPath) {
-						pManager->AddFontArray(pstrPath);
-					}
-				}
-				else if( _tcscmp(pstrClass, _T("EffectsStyles")) == 0 && node.HasChildren() ) {
-					nAttributes = node.GetAttributeCount();
-					LPCTSTR pStrStyleName = NULL;
-					LPCTSTR pStrStyleValue = NULL;
-					for( int i = 0; i < nAttributes; i++ ) {
-						pstrName = node.GetAttributeName(i);
-						pstrValue = node.GetAttributeValue(i);
-
-						if( _tcscmp(pstrName, _T("stylefile")) == 0 ){
-							XMarkupParser mEffectsStyleFile;
-							if(mEffectsStyleFile.LoadFromFile(pstrValue))
-							{
-								for( XMarkupNode nEffectsStyleNode = mEffectsStyleFile.GetRoot(); nEffectsStyleNode.IsValid(); nEffectsStyleNode = nEffectsStyleNode.GetSibling() ) {
-									LPCTSTR pstrClass = nEffectsStyleNode.GetName();
-
-									if( _tcscmp(pstrClass, _T("EffectsStyle")) != 0)
-										continue;
-
-									nAttributes = nEffectsStyleNode.GetAttributeCount();
-									LPCTSTR pControlName = NULL;
-									LPCTSTR pControlValue = NULL;
-									for( int i = 0; i < nAttributes; i++ ) {
-										pstrName = nEffectsStyleNode.GetAttributeName(i);
-										pstrValue = nEffectsStyleNode.GetAttributeValue(i);
-										if( _tcscmp(pstrName, _T("name")) == 0 ) {
-											pControlName = pstrValue;
-										}
-										else if( _tcscmp(pstrName, _T("value")) == 0 ) {
-											pControlValue = pstrValue;
-										}
-									}
-									if( pControlName ) {
-										pManager->AddEffectsStyle(pControlName, pControlValue);
-									}
-								}
-							}
-							break;
-						}
-					}
-
-					for( XMarkupNode nEffectsStyleNode = node.GetChild() ; nEffectsStyleNode.IsValid(); nEffectsStyleNode = nEffectsStyleNode.GetSibling() ) {
-						LPCTSTR pstrClass = nEffectsStyleNode.GetName();
-
-						if( _tcscmp(pstrClass, _T("EffectsStyle")) != 0)
-							continue;
-					
-						nAttributes = nEffectsStyleNode.GetAttributeCount();
-						LPCTSTR pControlName = NULL;
-						LPCTSTR pControlValue = NULL;
-						for( int i = 0; i < nAttributes; i++ ) {
-							pstrName = nEffectsStyleNode.GetAttributeName(i);
-							pstrValue = nEffectsStyleNode.GetAttributeValue(i);
-							if( _tcscmp(pstrName, _T("name")) == 0 ) {
-								pControlName = pstrValue;
-							}
-							else if( _tcscmp(pstrName, _T("value")) == 0 ) {
-								pControlValue = pstrValue;
-							}
-						}
-						if( pControlName ) {
-							pManager->AddEffectsStyle(pControlName, pControlValue);
-						}
-					}
-				}
-			}
-
 			if( windowed ) {
+				int nAttributes = 0;
+				LPCTSTR pstrName = NULL;
+				LPCTSTR pstrValue = NULL;
+				LPTSTR pstr = NULL;
 				if( pManager->GetPaintWindow() ) {
-					int nAttributes = root.GetAttributeCount();
+					nAttributes = root.GetAttributeCount();
 					for( int i = 0; i < nAttributes; i++ ) {
 						pstrName = root.GetAttributeName(i);
 						pstrValue = root.GetAttributeValue(i);
@@ -446,12 +226,238 @@ namespace DuiLib {
 						}
 					}
 				}
-			} else {
-				//root = wrap;
+
+				for( XMarkupNode node = root.GetChild() ; node.IsValid(); node = node.GetSibling() ) {
+					pstrClass = node.GetName();
+					if( _tcsicmp(pstrClass, _T("Image")) == 0 ) 
+					{
+						nAttributes = node.GetAttributeCount();
+						LPCTSTR pImageName = NULL;
+						LPCTSTR pImageResType = NULL;
+						bool shared = false;
+						DWORD mask = 0;
+						for( int i = 0; i < nAttributes; i++ ) {
+							pstrName = node.GetAttributeName(i);
+							pstrValue = node.GetAttributeValue(i);
+							if( _tcsicmp(pstrName, _T("name")) == 0 ) {
+								pImageName = pstrValue;
+							}
+							else if( _tcsicmp(pstrName, _T("restype")) == 0 ) {
+								pImageResType = pstrValue;
+							}
+							else if( _tcsicmp(pstrName, _T("mask")) == 0 ) {
+								STR2ARGB(pstrValue, mask);
+							}
+							else if( _tcsicmp(pstrName, _T("shared")) == 0 ) {
+								shared = (_tcsicmp(pstrValue, _T("true")) == 0);
+							}
+						}
+						if( pImageName ) pManager->AddImage(pImageName, pImageResType, mask, false, shared);
+					}
+					else if( _tcsicmp(pstrClass, _T("Font")) == 0 ) 
+					{
+						nAttributes = node.GetAttributeCount();
+						int id = -1;
+						LPCTSTR pFontName = NULL;
+						int size = 12;
+						bool bold = false;
+						bool underline = false;
+						bool italic = false;
+						bool defaultfont = false;
+						bool shared = false;
+						for( int i = 0; i < nAttributes; i++ ) {
+							pstrName = node.GetAttributeName(i);
+							pstrValue = node.GetAttributeValue(i);
+							if( _tcsicmp(pstrName, _T("id")) == 0 ) {
+								id = _tcstol(pstrValue, &pstr, 10);
+							}
+							else if( _tcsicmp(pstrName, _T("name")) == 0 ) {
+								pFontName = pstrValue;
+							}
+							else if( _tcsicmp(pstrName, _T("size")) == 0 ) {
+								size = _tcstol(pstrValue, &pstr, 10);
+							}
+							else if( _tcsicmp(pstrName, _T("bold")) == 0 ) {
+								bold = (_tcsicmp(pstrValue, _T("true")) == 0);
+							}
+							else if( _tcsicmp(pstrName, _T("underline")) == 0 ) {
+								underline = (_tcsicmp(pstrValue, _T("true")) == 0);
+							}
+							else if( _tcsicmp(pstrName, _T("italic")) == 0 ) {
+								italic = (_tcsicmp(pstrValue, _T("true")) == 0);
+							}
+							else if( _tcsicmp(pstrName, _T("default")) == 0 ) {
+								defaultfont = (_tcsicmp(pstrValue, _T("true")) == 0);
+							}
+							else if( _tcsicmp(pstrName, _T("shared")) == 0 ) {
+								shared = (_tcsicmp(pstrValue, _T("true")) == 0);
+							}
+						}
+						if( id >= 0 ) {
+							pManager->AddFont(id, pFontName, size, bold, underline, italic, shared);
+							if( defaultfont ) pManager->SetDefaultFont(pFontName, size, bold, underline, italic, shared);
+						}
+					}
+					else if( _tcsicmp(pstrClass, _T("Default")) == 0 ) 
+					{
+						nAttributes = node.GetAttributeCount();
+						LPCTSTR pControlName = NULL;
+						LPCTSTR pStyleId = NULL;
+						LPCTSTR pControlValue = NULL;
+						bool shared = false;
+						for( int i = 0; i < nAttributes; i++ ) {
+							pstrName = node.GetAttributeName(i);
+							pstrValue = node.GetAttributeValue(i);
+							if( _tcsicmp(pstrName, _T("name")) == 0 ) {
+								if (_tcsicmp(pstrClass, _T("Default")) == 0)
+								{
+									pControlName = pstrValue;
+								}
+								else
+								{
+									pStyleId = pstrValue;
+								}
+							}
+							else if( _tcsicmp(pstrName, _T("value")) == 0 ) {
+								pControlValue = pstrValue;
+							}
+							else if( _tcsicmp(pstrName, _T("shared")) == 0 ) {
+								shared = (_tcsicmp(pstrValue, _T("true")) == 0);
+							}
+						}
+
+						if( pControlName || pStyleId ) {
+							pManager->AddDefaultAttributeList(pControlName, pStyleId, pControlValue, shared);
+						}
+					}
+					else if( _tcsicmp(pstrClass, _T("Style")) == 0 ) 
+					{ // <style>  <button textcolor=.../>  </style>
+						XMarkupNode child = node.GetChild();
+						while(child.IsValid())
+						{
+							bool shared = false;
+							Style* style = new Style{};
+							if( _tcsicmp(child.GetName(), _T("Default")) != 0 ) {
+								style->name = child.GetName();
+							}
+							size_t i = 0, length=child.GetAttributeCount();
+							style->styles.reserve(length);
+							int index=0;
+							for (; i < length; i++)
+							{
+								pstrName = child.GetAttributeName(i);
+								pstrValue = child.GetAttributeValue(i);
+								if( _tcsicmp(pstrName, _T("id")) == 0 ) {
+									style->id = pstrValue;
+								}
+								else if( _tcsicmp(pstrName, _T("apply")) == 0 ) {
+								}
+								else if( _tcsicmp(pstrName, _T("shared")) == 0 ) {
+									shared = (_tcsicmp(pstrValue, _T("true")) == 0);
+								}
+								else
+								{
+									style->styles.resize(++index);
+									StyleDefine & styleDef = style->styles[index-1];
+									styleDef.name = pstrName;
+									styleDef.value = pstrValue;
+								}
+							}
+							pManager->AddStyle(style, shared); // 添加样式
+							child = child.GetSibling();
+						}
+					}
+					else if (_tcsicmp(pstrClass, _T("Import")) == 0) 
+					{
+						nAttributes = node.GetAttributeCount();
+						LPCTSTR pstrPath = NULL;
+						for (int i = 0; i < nAttributes; i++) {
+							pstrName = node.GetAttributeName(i);
+							pstrValue = node.GetAttributeValue(i);
+							if (_tcsicmp(pstrName, _T("fontfile")) == 0) {
+								pstrPath = pstrValue;
+							}
+						}
+						if (pstrPath) {
+							pManager->AddFontArray(pstrPath);
+						}
+					}
+					else if( _tcscmp(pstrClass, _T("EffectsStyles")) == 0 ) {
+						if(!node.HasChildren())  continue;
+						nAttributes = node.GetAttributeCount();
+						LPCTSTR pStrStyleName = NULL;
+						LPCTSTR pStrStyleValue = NULL;
+						for( int i = 0; i < nAttributes; i++ ) {
+							pstrName = node.GetAttributeName(i);
+							pstrValue = node.GetAttributeValue(i);
+
+							if( _tcscmp(pstrName, _T("stylefile")) == 0 ){
+								XMarkupParser mEffectsStyleFile;
+								if(mEffectsStyleFile.LoadFromFile(pstrValue))
+								{
+									for( XMarkupNode nEffectsStyleNode = mEffectsStyleFile.GetRoot(); nEffectsStyleNode.IsValid(); nEffectsStyleNode = nEffectsStyleNode.GetSibling() ) {
+										LPCTSTR pstrClass = nEffectsStyleNode.GetName();
+
+										if( _tcscmp(pstrClass, _T("EffectsStyle")) != 0)
+											continue;
+
+										nAttributes = nEffectsStyleNode.GetAttributeCount();
+										LPCTSTR pControlName = NULL;
+										LPCTSTR pControlValue = NULL;
+										for( int i = 0; i < nAttributes; i++ ) {
+											pstrName = nEffectsStyleNode.GetAttributeName(i);
+											pstrValue = nEffectsStyleNode.GetAttributeValue(i);
+											if( _tcscmp(pstrName, _T("name")) == 0 ) {
+												pControlName = pstrValue;
+											}
+											else if( _tcscmp(pstrName, _T("value")) == 0 ) {
+												pControlValue = pstrValue;
+											}
+										}
+										if( pControlName ) {
+											pManager->AddEffectsStyle(pControlName, pControlValue);
+										}
+									}
+								}
+								break;
+							}
+						}
+						for( XMarkupNode nEffectsStyleNode = node.GetChild() ; nEffectsStyleNode.IsValid(); nEffectsStyleNode = nEffectsStyleNode.GetSibling() ) {
+							LPCTSTR pstrClass = nEffectsStyleNode.GetName();
+
+							if( _tcscmp(pstrClass, _T("EffectsStyle")) != 0)
+								continue;
+
+							nAttributes = nEffectsStyleNode.GetAttributeCount();
+							LPCTSTR pControlName = NULL;
+							LPCTSTR pControlValue = NULL;
+							for( int i = 0; i < nAttributes; i++ ) {
+								pstrName = nEffectsStyleNode.GetAttributeName(i);
+								pstrValue = nEffectsStyleNode.GetAttributeValue(i);
+								if( _tcscmp(pstrName, _T("name")) == 0 ) {
+									pControlName = pstrValue;
+								}
+								else if( _tcscmp(pstrName, _T("value")) == 0 ) {
+									pControlValue = pstrValue;
+								}
+							}
+							if( pControlName ) {
+								pManager->AddEffectsStyle(pControlName, pControlValue);
+							}
+						}
+					}
+					else if(!start) {
+						root = node;
+						start = &root;
+					}
+				}
 			}
 		}
+		if(!windowed) {
+			start = &root;
+		}
 		QkString tagNameBuffer;
-		CControlUI* ret =  _Parse(&root, tagNameBuffer, pParent, pManager, windowed);
+		CControlUI* ret =  _Parse(&root, tagNameBuffer, pParent, pManager, start);
 		if(pManager) pManager->_inflaing = 0;
 		return ret;
 	}
@@ -473,20 +479,15 @@ namespace DuiLib {
 
 	// 递归分析xml建立控件树
 	CControlUI* CDialogBuilder::_Parse(XMarkupNode* pRoot, QkString & tagNameBuffer
-			, CControlUI* pParent, CPaintManagerUI* pManager, boolean windowed)
+			, CControlUI* pParent, CPaintManagerUI* pManager, XMarkupNode* pStart)
 	{
 		IContainerUI* pContainer = NULL;
 		CControlUI* pReturn = NULL;
 		LPCWSTR pstrClass;
-		for( XMarkupNode node = windowed?pRoot->GetChild():*pRoot ; node.IsValid(); node = node.GetSibling() ) {
+		for( XMarkupNode node = pStart?*pStart:pRoot->GetChild() ; node.IsValid(); node = node.GetSibling() ) {
 			tagNameBuffer = node.GetName();
 			tagNameBuffer.MakeLower();
 			pstrClass = tagNameBuffer;
-			if( _tcscmp(pstrClass, _T("image")) == 0 || _tcscmp(pstrClass, _T("font")) == 0
-				|| _tcscmp(pstrClass, _T("default")) == 0 || _tcscmp(pstrClass, _T("style")) == 0 
-				|| _tcscmp(pstrClass, _T("import")) == 0
-				) continue;
-
 			CControlUI* pControl = NULL;
 			if( _tcscmp(pstrClass, _T("include")) == 0 ) {
 				if( !node.HasAttributes() ) continue;
