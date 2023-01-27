@@ -32,6 +32,8 @@ namespace DuiLib
 		if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible() ) availWidth -= m_pHorizontalScrollBar->GetFixedHeight();
 
 		m_cxyFixedLast = GetFixedSize();
+		if(m_cxyFixed.cx < 0) m_cxyFixedLast.cx = szAvailable.cx;
+		if(m_cxyFixed.cy < 0) m_cxyFixedLast.cy = szAvailable.cy;
 		if(_manager != NULL)
 			_manager->GetDPIObj()->Scale(&m_cxyFixedLast);
 		if (m_bAutoCalcHeight || m_bAutoCalcWidth)
@@ -52,8 +54,8 @@ namespace DuiLib
 				szControlAvailable.cy -= rcPadding.top + rcPadding.bottom;
 				iControlMaxWidth = pControl->GetFixedWidth();
 				iControlMaxHeight = pControl->GetFixedHeight();
-				if (iControlMaxWidth <= 0) iControlMaxWidth = pControl->GetMaxWidth(); 
-				if (iControlMaxHeight <= 0) iControlMaxHeight = pControl->GetMaxHeight();
+				 iControlMaxWidth = pControl->GetMaxWidth(); 
+				 iControlMaxHeight = pControl->GetMaxHeight();
 				if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
 				if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
 				SIZE sz = pControl->EstimateSize(szControlAvailable);
@@ -79,6 +81,9 @@ namespace DuiLib
 			m_cxyFixedLast.cx = m_bAutoCalcWidth?cxFixed:MAX(cxFixed, availWidth);
 
 		}
+		// m_cxyFixedLast.cx = 100000; // 当同时设置了 autocalcwidth 与 width, VBOX处width被当作maxWidh，于是此数值过大时无效
+		// 当废除 autocalcwidth 变量，使得 width 等于 -2 时代表计算内容尺寸。
+		//m_cxyFixedLast.cx = 0;
 		return m_cxyFixedLast;
 	}
 
@@ -121,8 +126,8 @@ namespace DuiLib
 			szControlAvailable.cy -= rcPadding.top + rcPadding.bottom;
 			iControlMaxWidth = pControl->GetFixedWidth();
 			iControlMaxHeight = pControl->GetFixedHeight();
-			if (iControlMaxWidth <= 0) iControlMaxWidth = pControl->GetMaxWidth(); 
-			if (iControlMaxHeight <= 0) iControlMaxHeight = pControl->GetMaxHeight();
+			  iControlMaxWidth = pControl->GetMaxWidth(); 
+			 iControlMaxHeight = pControl->GetMaxHeight();
 			if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
 			if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
 			SIZE sz = pControl->EstimateSize(szControlAvailable);
@@ -185,8 +190,8 @@ namespace DuiLib
 			szControlAvailable.cy -= rcPadding.top + rcPadding.bottom;
 			iControlMaxWidth = pControl->GetFixedWidth();
 			iControlMaxHeight = pControl->GetFixedHeight();
-			if (iControlMaxWidth <= 0) iControlMaxWidth = pControl->GetMaxWidth(); 
-			if (iControlMaxHeight <= 0) iControlMaxHeight = pControl->GetMaxHeight();
+			  iControlMaxWidth = pControl->GetMaxWidth(); 
+			iControlMaxHeight = pControl->GetMaxHeight();
 			if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
 			if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
 			cxFixedRemaining = cxFixedRemaining - (rcPadding.left + rcPadding.right);

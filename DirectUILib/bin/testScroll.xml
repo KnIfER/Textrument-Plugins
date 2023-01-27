@@ -46,26 +46,37 @@
 	inset="5,5,5,5"
 	>
 	
-		<WinFrame inset="0,0,0,0" autocalcheight="true" height="100">
-			<VBox autocalcheight="true">	
-				<HBox name="menuBar" height="38" bkcolor="#FFfafafa" bkcolor2="#FFe7e7e7" bkcolor3xs="#FFff0000" gradient="ver"/>
-			
-				<Edit  height="50"
-					textcolor="#ff000000" font="edit"   
-					bkcolor="#fff4f4f4"
-					bkround="false"
-					bordercolor="#77000000"
-					bordersize="1" 
-					borderround="4"
-					borderinset="3,4,10,4"
-					inset="10,4"
-					vcenter="true"
-					text="asd 从来散之必有其统也，分之必有其合也，以故天壤间四面八方，纷纷者各有所属，" 
-					name="etSearch" 
-					hscrollbar="truex"
-				/>
-			</VBox>	 
-		</WinFrame>
+	
+	<HBox autocalcheight="true"  height="100" bkcolor="#FFfafa00"
+	
+				bordersize="2" 
+				bordercolor="#7700FFFF"
+	>	
+		
+		<Button  
+				width="50" 
+				height="50"
+				text=" WinQkUI 界面测试 123 " 
+				name="btn" 
+				align="vcenter"
+				valign="vcenter"
+				wordbreak="false"
+				textpadding="5,5,5,5"
+				
+				textcolor="#FF0"
+				
+				bkcolor="#FF238ef9"
+				hotbkcolor="#FF3399fe"
+				
+				bordersize="2" 
+				bordercolor="#7700FFFF"
+				borderround="20,20"
+				roundclip="true"
+				font="btn"   
+				enabled="true"
+					/>
+					
+	</HBox>	
 		
 		<Button  
 				width="50" 

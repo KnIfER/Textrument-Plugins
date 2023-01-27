@@ -94,6 +94,8 @@ namespace DuiLib
 	{
 		if (_manager && _LastScaleProfile!=_manager->GetDPIObj()->ScaleProfile())
 			OnDPIChanged();
+		if(m_cxyFixed.cx < 0) m_cxyFixScaled.cx = szAvailable.cx;
+		if(m_cxyFixed.cy < 0) m_cxyFixScaled.cy = szAvailable.cy;
 		if (m_cxyFixed.cx > 0 && m_cxyFixed.cy > 0) {
 			return m_cxyFixScaled;
 		}
@@ -170,7 +172,6 @@ namespace DuiLib
 				}
 			}
 			// accoring to the doc, no way to handle the case !m_bAutoCalcHeight && m_bAutoCalcWidth in multiline mode
-
 		}
 		if (m_items.GetSize())
 		{

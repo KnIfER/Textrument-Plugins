@@ -32,9 +32,9 @@ namespace DuiLib {
 		,_view_states(0)
 	{
 		m_cXY.cx = m_cXY.cy = 0;
-		m_cxyFixed.cx = m_cxyFixed.cy = 0;
+		m_cxyFixed.cx = m_cxyFixed.cy = -1;
 		m_cxyMin.cx = m_cxyMin.cy = 0;
-		m_cxyMax.cx = m_cxyMax.cy = 9999;
+		m_cxyMax.cx = m_cxyMax.cy = LONG_MAX;
 		m_cxyBorderRound.cx = m_cxyBorderRound.cy = 0;
 
 		_view_states |= VIEWSTATEMASK_Enabled;
@@ -1532,6 +1532,8 @@ namespace DuiLib {
 	{
 		if (_manager && _LastScaleProfile!=_manager->GetDPIObj()->ScaleProfile())
 			OnDPIChanged();
+		if(m_cxyFixed.cx < 0) m_cxyFixScaled.cx = szAvailable.cx;
+		if(m_cxyFixed.cy < 0) m_cxyFixScaled.cy = szAvailable.cy;
 		//if (!m_bAutoCalcHeight && m_bAutoCalcHeight)
 		//{
 			return m_cxyFixScaled;

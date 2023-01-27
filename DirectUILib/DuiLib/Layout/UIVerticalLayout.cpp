@@ -33,6 +33,8 @@ namespace DuiLib
 		if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible() ) availWidth -= m_pHorizontalScrollBar->GetFixedHeight();
 
 		m_cxyFixedLast = GetFixedSize();
+		if(m_cxyFixed.cx < 0) m_cxyFixedLast.cx = szAvailable.cx;
+		if(m_cxyFixed.cy < 0) m_cxyFixedLast.cy = szAvailable.cy;
 		if(_manager != NULL)
 			_manager->GetDPIObj()->Scale(&m_cxyFixedLast);
 		if (m_bAutoCalcHeight || m_bAutoCalcWidth)
@@ -56,8 +58,8 @@ namespace DuiLib
 					iControlMaxWidth = pControl->GetFixedWidth();
 					iControlMaxHeight = pControl->GetFixedHeight();
 
-					if (iControlMaxWidth <= 0) iControlMaxWidth = pControl->GetMaxWidth(); 
-					if (iControlMaxHeight <= 0) iControlMaxHeight = pControl->GetMaxHeight();
+					if (iControlMaxWidth < 0) iControlMaxWidth = pControl->GetMaxWidth(); 
+					if (iControlMaxHeight < 0) iControlMaxHeight = pControl->GetMaxHeight();
 					if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
 					if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
 					
@@ -133,8 +135,8 @@ namespace DuiLib
 			iControlMaxWidth = pControl->GetFixedWidth();
 			iControlMaxHeight = pControl->GetFixedHeight();
 
-			if (iControlMaxWidth <= 0) iControlMaxWidth = pControl->GetMaxWidth(); 
-			if (iControlMaxHeight <= 0) iControlMaxHeight = pControl->GetMaxHeight();
+			if (iControlMaxWidth < 0) iControlMaxWidth = pControl->GetMaxWidth(); 
+			if (iControlMaxHeight < 0) iControlMaxHeight = pControl->GetMaxHeight();
 			if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
 			if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
 			
@@ -197,8 +199,8 @@ namespace DuiLib
 			szControlAvailable.cx -= rcPadding.left + rcPadding.right;
 			iControlMaxWidth = pControl->GetFixedWidth();
 			iControlMaxHeight = pControl->GetFixedHeight();
-			if (iControlMaxWidth <= 0) iControlMaxWidth = pControl->GetMaxWidth(); 
-			if (iControlMaxHeight <= 0) iControlMaxHeight = pControl->GetMaxHeight();
+			if (iControlMaxWidth < 0||pControl->GetAutoCalcWidth()) iControlMaxWidth = pControl->GetMaxWidth(); 
+			if (iControlMaxHeight < 0||pControl->GetAutoCalcHeight()) iControlMaxHeight = pControl->GetMaxHeight();
 			if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
 			if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
 			cyFixedRemaining = cyFixedRemaining - (rcPadding.top + rcPadding.bottom);
