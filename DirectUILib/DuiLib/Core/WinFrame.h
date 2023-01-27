@@ -17,6 +17,7 @@ namespace DuiLib {
 
 		void Init() override;
 		void SetPos(RECT rc, bool bNeedInvalidate = true) override;
+		SIZE EstimateSize(const SIZE & szAvailable) override;
 		CControlUI* FindControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags) override;
 	protected:
 		CWindowWnd* wEmbedded;

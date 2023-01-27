@@ -195,6 +195,22 @@ namespace DuiLib {
 
 	}
 
+	SIZE WinFrame::EstimateSize(const SIZE& szAvailable)
+	{
+		if (_manager && _LastScaleProfile!=_manager->GetDPIObj()->ScaleProfile())
+			OnDPIChanged();
+		if(wEmbedded && ((WndBase*)wEmbedded)->root_layout) {
+			SIZE & ret = ((WndBase*)wEmbedded)->root_layout->EstimateSize(szAvailable);
+			if(m_cxyFixScaled.cx>=0 && !GetAutoCalcWidth())
+				ret.cx = m_cxyFixScaled.cx;
+			if(m_cxyFixScaled.cy>=0 && !GetAutoCalcHeight())
+				ret.cy = m_cxyFixScaled.cy;
+			return ret;
+		}
+		//return __super::EstimateSize(szAvailable);
+		return m_cxyFixScaled;
+	}
+
 	CControlUI* WinFrame::FindControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags)
 	{
 		CControlUI* ret = __super::FindControl(Proc, pData, uFlags);

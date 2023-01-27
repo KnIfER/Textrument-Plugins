@@ -627,6 +627,7 @@ namespace DuiLib {
             else
             {
                 pControl = _adapter->CreateItemView();
+                ASSERT(pControl);
                 // todo check not null
                 if( _manager ) _manager->InitControls(pControl, this);
             }
