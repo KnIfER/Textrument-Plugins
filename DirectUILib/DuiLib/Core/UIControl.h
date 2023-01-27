@@ -89,7 +89,7 @@ namespace DuiLib {
 		int GetFont() const {
 			return _font;
 		}
-		void SetFont(int index);
+		void SetFont(LPCTSTR pstrValue, int parsedId=-1);
 
 		virtual bool IsResourceText() const;
 		virtual void SetResourceText(bool bResource);

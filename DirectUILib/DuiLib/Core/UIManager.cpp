@@ -2616,8 +2616,7 @@ namespace DuiLib {
 		for (int i = 0; i < richEditList->GetSize(); i++)
 		{
 			CRichEditUI* pT = static_cast<CRichEditUI*>((*richEditList)[i]);
-			pT->SetFont(pT->GetFont());
-
+			pT->SetFont(0, pT->GetFont());
 		}
 	}
 
@@ -3283,13 +3282,14 @@ namespace DuiLib {
 			return m_ResInfo.m_CustomFonts.GetSize();
 	}
 
-	HFONT CPaintManagerUI::AddFont(int id, LPCTSTR pStrFontName, int nSize, bool bBold, bool bUnderline, bool bItalic, bool bShared)
+	HFONT CPaintManagerUI::AddFont(LPCTSTR pStrFontId, LPCTSTR pStrFontName, int nSize, bool bBold, bool bUnderline, bool bItalic, bool bShared)
 	{
 		if(_parent)
 		{
-			return _parent->AddFont(id, pStrFontName, nSize, bBold, bUnderline, bItalic, bShared);
+			return _parent->AddFont(pStrFontId, pStrFontName, nSize, bBold, bUnderline, bItalic, bShared);
 		}
 		LOGFONT lf = { 0 };
+		BOOL failed = 0;
 		::GetObject(::GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf);
 		if(lstrlen(pStrFontName) > 0) {
 			TCHAR szFaceName[32] = {0};//_T("@");
@@ -3318,44 +3318,58 @@ namespace DuiLib {
 			::GetTextMetrics(m_hDcPaint, &pFontInfo->tm);
 			::SelectObject(m_hDcPaint, hOldFont);
 		}
-		TCHAR idBuffer[16];
-		::ZeroMemory(idBuffer, sizeof(idBuffer));
-		_itot(id, idBuffer, 10);
-		if (bShared || m_bForceUseSharedRes)
-		{
-			TFontInfo* pOldFontInfo = static_cast<TFontInfo*>(m_SharedResInfo.m_CustomFonts.Find(idBuffer));
+		bool tmp = pStrFontId==g_tmpFontId; // isTmpId for html
+		//LogIs(L"id=str=%s", pStrFontId);
+		if(tmp || *pStrFontId>='0' && *pStrFontId<='9') {
+			TResInfo & resInfo = bShared || m_bForceUseSharedRes?m_SharedResInfo:m_ResInfo;
+			TCHAR idBuffer[16];
+			::ZeroMemory(idBuffer, sizeof(idBuffer));
+			LPTSTR pstr = NULL;
+			int id = tmp?(int)pStrFontId:_tcstol(pStrFontId, &pstr, 10);
+			_itot(id, idBuffer, 10);
+
+			TFontInfo* pOldFontInfo = static_cast<TFontInfo*>(resInfo.m_CustomFonts.Find(idBuffer));
 			if (pOldFontInfo)
 			{
 				::DeleteObject(pOldFontInfo->hFont);
 				delete pOldFontInfo;
-				m_SharedResInfo.m_CustomFonts.Remove(idBuffer);
+				resInfo.m_CustomFonts.Remove(idBuffer);
 			}
-
-			if( !m_SharedResInfo.m_CustomFonts.Insert(idBuffer, pFontInfo) ) 
+			if( !resInfo.m_CustomFonts.Insert(idBuffer, pFontInfo) ) 
 			{
-				::DeleteObject(hFont);
-				delete pFontInfo;
-				return NULL;
+				failed = 1;
+			}
+		} 
+		else {
+			tmp = bShared || m_bForceUseSharedRes; // is shared named font
+			TResInfo & resInfo = tmp?m_SharedResInfo:m_ResInfo;
+			int slot = tmp?MAX_UNSHAREDFONT_ID:MAX_UNNAMEDFONT_ID;
+			int id = (int)resInfo._namedFontsMap.Find(pStrFontId);
+			if (!id)
+			{
+				if(resInfo._namedFontsMap.Insert(pStrFontId, (LPVOID)(resInfo._namedFonts.size()+slot))) {
+					resInfo._namedFonts.push_back(pFontInfo);
+				}
+				else failed = 1;
+			} else {
+				id = id-slot;
+				if(id>=0 && id<resInfo._namedFonts.size()) { // sanity check
+					TFontInfo* pOldFontInfo = resInfo._namedFonts[id];
+					if (pOldFontInfo)
+					{
+						::DeleteObject(pOldFontInfo->hFont);
+						delete pOldFontInfo;
+					}
+					resInfo._namedFonts[id] = pFontInfo;
+				}
+				else failed = 1;
 			}
 		}
-		else
-		{
-			TFontInfo* pOldFontInfo = static_cast<TFontInfo*>(m_ResInfo.m_CustomFonts.Find(idBuffer));
-			if (pOldFontInfo)
-			{
-				::DeleteObject(pOldFontInfo->hFont);
-				delete pOldFontInfo;
-				m_ResInfo.m_CustomFonts.Remove(idBuffer);
-			}
-
-			if( !m_ResInfo.m_CustomFonts.Insert(idBuffer, pFontInfo) ) 
-			{
-				::DeleteObject(hFont);
-				delete pFontInfo;
-				return NULL;
-			}
+		if(failed) {
+			::DeleteObject(hFont);
+			delete pFontInfo;
+			return NULL;
 		}
-
 		return hFont;
 	}
 
@@ -3452,12 +3466,26 @@ namespace DuiLib {
 	HFONT CPaintManagerUI::GetFont(int id)
 	{
 		if (id < 0) return GetDefaultFontInfo()->hFont;
-
-		TCHAR idBuffer[16];
-		::ZeroMemory(idBuffer, sizeof(idBuffer));
-		_itot(id, idBuffer, 10);
-		TFontInfo* pFontInfo = static_cast<TFontInfo*>(m_ResInfo.m_CustomFonts.Find(idBuffer));
-		if( !pFontInfo ) pFontInfo = static_cast<TFontInfo*>(m_SharedResInfo.m_CustomFonts.Find(idBuffer));
+		TFontInfo* pFontInfo = 0;
+		if(id < MAX_UNNAMEDFONT_ID) {
+			TCHAR idBuffer[16];
+			::ZeroMemory(idBuffer, sizeof(idBuffer));
+			_itot(id, idBuffer, 10);
+			pFontInfo = static_cast<TFontInfo*>(m_ResInfo.m_CustomFonts.Find(idBuffer));
+			if( !pFontInfo ) pFontInfo = static_cast<TFontInfo*>(m_SharedResInfo.m_CustomFonts.Find(idBuffer));
+		}
+		else if(id < MAX_UNSHAREDFONT_ID) {
+			id -= MAX_UNNAMEDFONT_ID;
+			if(id>=0 && id < m_ResInfo._namedFonts.size()) {
+				pFontInfo = m_ResInfo._namedFonts[id];
+			}
+		}
+		else {
+			id -= MAX_UNSHAREDFONT_ID;
+			if(id>=0 && id < m_SharedResInfo._namedFonts.size()) {
+				pFontInfo = m_SharedResInfo._namedFonts[id];
+			}
+		}
 		if (!pFontInfo) return GetDefaultFontInfo()->hFont;
 		return pFontInfo->hFont;
 	}

@@ -1,8 +1,7 @@
 #include "StdAfx.h"
 
 namespace DuiLib {
-	static int g_iFontID = MAX_FONT_ID;
-	
+	// todo render markdown 
 	void CRenderEngine::DrawHtmlText(HDC hDC, CPaintManagerUI* pManager, RECT& rc, LPCTSTR pstrText, DWORD dwTextColor, RECT* prcLinks, QkString* sLinks, int& nLinkRects, int iFont, UINT uStyle)
 	{
 		// 考虑到在xml编辑器中使用<>符号不方便，可以使用{}符号代替
@@ -176,7 +175,7 @@ namespace DuiLib {
 							if( aFontArray.GetSize() > 0 ) pFontInfo = (TFontInfo*)aFontArray.GetAt(aFontArray.GetSize() - 1);
 							if( pFontInfo->bUnderline == false ) {
 								HFONT hFont = pManager->GetFont(pFontInfo->sFontName, pFontInfo->iSize, pFontInfo->bBold, true, pFontInfo->bItalic);
-								if( hFont == NULL ) hFont = pManager->AddFont(g_iFontID, pFontInfo->sFontName, pFontInfo->iSize, pFontInfo->bBold, true, pFontInfo->bItalic);
+								if( hFont == NULL ) hFont = pManager->AddFont(g_tmpFontId, pFontInfo->sFontName, pFontInfo->iSize, pFontInfo->bBold, true, pFontInfo->bItalic);
 								pFontInfo = pManager->GetFontInfo(hFont);
 								aFontArray.Add(pFontInfo);
 								pTm = &pFontInfo->tm;
@@ -194,7 +193,7 @@ namespace DuiLib {
 							if( aFontArray.GetSize() > 0 ) pFontInfo = (TFontInfo*)aFontArray.GetAt(aFontArray.GetSize() - 1);
 							if( pFontInfo->bBold == false ) {
 								HFONT hFont = pManager->GetFont(pFontInfo->sFontName, pFontInfo->iSize, true, pFontInfo->bUnderline, pFontInfo->bItalic);
-								if( hFont == NULL ) hFont = pManager->AddFont(g_iFontID, pFontInfo->sFontName, pFontInfo->iSize, true, pFontInfo->bUnderline, pFontInfo->bItalic);
+								if( hFont == NULL ) hFont = pManager->AddFont(g_tmpFontId, pFontInfo->sFontName, pFontInfo->iSize, true, pFontInfo->bUnderline, pFontInfo->bItalic);
 								pFontInfo = pManager->GetFontInfo(hFont);
 								aFontArray.Add(pFontInfo);
 								pTm = &pFontInfo->tm;
@@ -254,7 +253,7 @@ namespace DuiLib {
 								if( sFontAttr.Find(_T("underline")) >= 0 ) bUnderline = true;
 								if( sFontAttr.Find(_T("italic")) >= 0 ) bItalic = true;
 								HFONT hFont = pManager->GetFont(sFontName, iFontSize, bBold, bUnderline, bItalic);
-								if( hFont == NULL ) hFont = pManager->AddFont(g_iFontID, sFontName, iFontSize, bBold, bUnderline, bItalic);
+								if( hFont == NULL ) hFont = pManager->AddFont(g_tmpFontId, sFontName, iFontSize, bBold, bUnderline, bItalic);
 								TFontInfo* pFontInfo = pManager->GetFontInfo(hFont);
 								aFontArray.Add(pFontInfo);
 								pTm = &pFontInfo->tm;
@@ -285,7 +284,7 @@ namespace DuiLib {
 								if( aFontArray.GetSize() > 0 ) pFontInfo = (TFontInfo*)aFontArray.GetAt(aFontArray.GetSize() - 1);
 								if( pFontInfo->bItalic == false ) {
 									HFONT hFont = pManager->GetFont(pFontInfo->sFontName, pFontInfo->iSize, pFontInfo->bBold, pFontInfo->bUnderline, true);
-									if( hFont == NULL ) hFont = pManager->AddFont(g_iFontID, pFontInfo->sFontName, pFontInfo->iSize, pFontInfo->bBold, pFontInfo->bUnderline, true);
+									if( hFont == NULL ) hFont = pManager->AddFont(g_tmpFontId, pFontInfo->sFontName, pFontInfo->iSize, pFontInfo->bBold, pFontInfo->bUnderline, true);
 									pFontInfo = pManager->GetFontInfo(hFont);
 									aFontArray.Add(pFontInfo);
 									pTm = &pFontInfo->tm;
@@ -418,7 +417,7 @@ namespace DuiLib {
 							if( aFontArray.GetSize() > 0 ) pFontInfo = (TFontInfo*)aFontArray.GetAt(aFontArray.GetSize() - 1);
 							if( pFontInfo->bUnderline == false ) {
 								HFONT hFont = pManager->GetFont(pFontInfo->sFontName, pFontInfo->iSize, pFontInfo->bBold, true, pFontInfo->bItalic);
-								if( hFont == NULL ) hFont = pManager->AddFont(g_iFontID, pFontInfo->sFontName, pFontInfo->iSize, pFontInfo->bBold, true, pFontInfo->bItalic);
+								if( hFont == NULL ) hFont = pManager->AddFont(g_tmpFontId, pFontInfo->sFontName, pFontInfo->iSize, pFontInfo->bBold, true, pFontInfo->bItalic);
 								pFontInfo = pManager->GetFontInfo(hFont);
 								aFontArray.Add(pFontInfo);
 								pTm = &pFontInfo->tm;

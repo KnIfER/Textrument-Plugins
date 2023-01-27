@@ -1222,9 +1222,9 @@ err:
 		return _font;
 	}
 
-	void CRichEditUI::SetFont(int index)
+	void CRichEditUI::SetFont(LPCTSTR pStrFontId, int parsedId)
 	{
-		__super::SetFont(index);
+		__super::SetFont(pStrFontId, parsedId);
 		if( m_pTwh ) {
 			m_pTwh->SetFont(GetManager()->GetFont(_font));
 		}

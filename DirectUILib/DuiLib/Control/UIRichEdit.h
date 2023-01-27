@@ -36,7 +36,7 @@ namespace DuiLib {
 		bool IsWordWrap();
 		void SetWordWrap(bool bWordWrap = true);
 		int GetFont();
-		void SetFont(int index);
+		void SetFont(LPCTSTR pStrFontId, int parsedId=-1);
 		void SetFont(LPCTSTR pStrFontName, int nSize, bool bBold, bool bUnderline, bool bItalic);
 		LONG GetWinStyle();
 		void SetWinStyle(LONG lStyle);

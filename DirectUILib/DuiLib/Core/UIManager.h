@@ -309,13 +309,15 @@ namespace DuiLib {
 		DWORD m_dwDefaultLinkHoverFontColor;
 		DWORD m_dwDefaultSelectedBkColor;
 		TFontInfo m_DefaultFontInfo;
-		QkStringPtrMap m_CustomFonts;
+		QkStringPtrMap m_CustomFonts; // todo use sparse array
 		QkStringPtrMap m_ImageHash;
 		//QkStringPtrMap m_AttrHash;
 		//QkStringPtrMap m_StyleHash;
 		QkStringPtrMap m_DrawInfoHash;
 		QkStringPtrMap m_StyleIdHash; // 样式名 - 样式 映射
 		QkStringPtrMap m_StyleControlHash; // 控件名 - 样式 映射
+		QkStringPtrMap _namedFontsMap; // 具名字体 - 虚拟id 映射
+		std::vector<TFontInfo*> _namedFonts; // 具名字体
 	} TResInfo;
 
 	// Structure for notifications from the system
@@ -475,7 +477,7 @@ namespace DuiLib {
 		void SetDefaultFont(LPCTSTR pStrFontName, int nSize, bool bBold, bool bUnderline, bool bItalic, bool bShared = false);
 		DWORD GetCustomFontCount(bool bShared = false) const;
 		void AddFontArray(LPCTSTR pstrPath);
-		HFONT AddFont(int id, LPCTSTR pStrFontName, int nSize, bool bBold, bool bUnderline, bool bItalic, bool bShared = false);
+		HFONT AddFont(LPCTSTR pStrFontId, LPCTSTR pStrFontName, int nSize, bool bBold, bool bUnderline, bool bItalic, bool bShared = false);
 		HFONT GetFont(int id);
 		HFONT GetFont(LPCTSTR pStrFontName, int nSize, bool bBold, bool bUnderline, bool bItalic);
 		int GetFontIndex(HFONT hFont, bool bShared = false);
@@ -630,6 +632,9 @@ namespace DuiLib {
 		std::list<CControlUI*> _WNDList;
 
 		POINT m_ptLastMousePos;
+
+		TResInfo m_ResInfo;
+		static TResInfo m_SharedResInfo;
 	private:
 		CStdPtrArray* GetFoundControls();
 		static CControlUI* CALLBACK __FindControlFromNameHash(CControlUI* pThis, LPVOID pData);
@@ -645,7 +650,6 @@ namespace DuiLib {
 		static void AdjustSharedImagesHSL();
 		void AdjustImagesHSL();
 		void PostAsyncNotify();
-
 	private:
 		QkString m_sName;
 		HWND m_hWndPaint;	//所附加的窗体的句柄
@@ -718,7 +722,6 @@ namespace DuiLib {
 		QkStringPtrMap m_mEffectsStyle;
 		
 		bool m_bForceUseSharedRes;
-		TResInfo m_ResInfo;
 		CPaintManagerUI* _parent;
 		
 		// 窗口阴影
@@ -748,7 +751,6 @@ namespace DuiLib {
 		static HANDLE m_hResourceZip;
 		static bool m_bCachedResourceZip;
 		static int m_nResType;
-		static TResInfo m_SharedResInfo;
 		static bool m_bUseHSL;
 		static short m_H;
 		static short m_S;

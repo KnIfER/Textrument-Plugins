@@ -228,9 +228,32 @@ namespace DuiLib {
 		Invalidate();
 	}
 
-	void CControlUI::SetFont(int index) 
+	void CControlUI::SetFont(LPCTSTR pStrFontId, int parsedId) 
 	{
-		_font = index;
+		//LogIs("SetFont %ld", _manager);
+		if(parsedId>=0 || !pStrFontId) 
+			_font = parsedId;
+		else if(*pStrFontId>='0' && *pStrFontId<='9')
+			_font = _ttoi(pStrFontId);
+		else {
+			TResInfo* resInfo;
+			int parsed = 0;
+			if(_manager) {
+				resInfo = &_manager->m_ResInfo;
+				parsed = (int)resInfo->_namedFontsMap.Find(pStrFontId);
+			}
+			if(!parsed) {
+				resInfo = &CPaintManagerUI::m_SharedResInfo;
+				parsed = (int)resInfo->_namedFontsMap.Find(pStrFontId);
+				if(!parsed) {
+					parsed = resInfo->_namedFonts.size()+MAX_UNSHAREDFONT_ID;
+					if(resInfo->_namedFontsMap.Insert(pStrFontId, (LPVOID)parsed)) {
+						resInfo->_namedFonts.push_back(nullptr);
+					}
+				}
+			}
+			_font = parsed;
+		}
 		_view_states |= VIEWSTATEMASK_NeedEstimateSize;
 		VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
 		Invalidate();
@@ -1289,7 +1312,7 @@ namespace DuiLib {
 		}
 		else if(c<='f') // d e f
 		{
-			if( _tcsicmp(pstrName, _T("font")) == 0 ) SetFont(_ttoi(pstrValue));
+			if( _tcsicmp(pstrName, _T("font")) == 0 ) SetFont(pstrValue);
 			else if( _tcsicmp(pstrName, _T("forecolor")) == 0 ) {
 				STR2ARGB(pstrValue, m_dwForeColor);
 				VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);

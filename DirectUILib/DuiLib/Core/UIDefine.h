@@ -3,7 +3,10 @@
 namespace DuiLib
 {
 #define MAX_FONT_ID		30000
+#define MAX_UNNAMEDFONT_ID	60000
+#define MAX_UNSHAREDFONT_ID	90000
 #define CARET_TIMERID	0x1999
+static LPCTSTR g_tmpFontId = (LPCTSTR)MAX_FONT_ID;
 
 	// 列表类型
 	enum ListType

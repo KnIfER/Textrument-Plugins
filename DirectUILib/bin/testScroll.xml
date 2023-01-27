@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window caption="0,0,0,30"  inset="0,0,0,0" roundcorner="5,5,5,5"  inset="10,10,10,10" sizebox="4,4,4,4" showdirty="false" layered="false">
- <Font id="0" name="宋体" size="50" bold="false"/>
+
  <Font id="1" name="宋体" size="22"/>
  <Font id="2" name="宋体" size="18"/>
+ <Font id="btn" name="宋体" size="25" bold="true"/>
  <Font id="3" name="宋体" size="25"/>
+
  
 	<EffectsStyles>
 		<EffectsStyle name="sysMenu" value="anim='zoom+' offset='80' " />
@@ -61,7 +63,7 @@
 				bordercolor="#7700FFFF"
 				borderround="20,20"
 				roundclip="true"
-				font="1"   
+				font="btn"   
 				enabled="true"
 					/>
 					
