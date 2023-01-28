@@ -1549,6 +1549,21 @@ namespace DuiLib {
 			OnDPIChanged();
 		if(m_bFillParentWidth)  m_cxyFixScaled.cx = szAvailable.cx;
 		if(m_bFillParentHeight) m_cxyFixScaled.cy = szAvailable.cy;
+
+		if (m_bAutoCalcWidth || m_bAutoCalcHeight)
+		{
+			if(m_bAutoCalcWidth) m_cxyFixScaled.cx += _rcBorderSizeScaled.left + _rcBorderSizeScaled.right;
+			if(m_bAutoCalcHeight) m_cxyFixScaled.cy += _rcBorderSizeScaled.top + _rcBorderSizeScaled.bottom;
+			if(/*m_bIsViewGroup && */m_items.GetSize()) {
+				SIZE szControlAvailable = szAvailable;
+				for( int it = 0; it < m_items.GetSize(); it++ ) {
+					CControlUI* pControl = static_cast<CControlUI*>(m_items[it]);
+					SIZE sz = pControl->EstimateSize(szControlAvailable);
+					if(m_bAutoCalcWidth) m_cxyFixScaled.cx = MAX(m_cxyFixScaled.cx, sz.cx);
+					if(m_bAutoCalcHeight) m_cxyFixScaled.cy = MAX(m_cxyFixScaled.cy, sz.cy);
+				}
+			}
+		}
 		//if (!m_bAutoCalcHeight && m_bAutoCalcHeight)
 		//{
 			return m_cxyFixScaled;

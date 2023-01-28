@@ -44,8 +44,7 @@
 	inset="5,5,5,5"
 	>
 	
-	<HBox height="-2"  width="-2"  bkcolor="#FFfafa00" bordersize="10"  bordercolor="#7700FFFF" inset="5,5,5,5" >	
-		
+	<Container height="-2"  width="-2"  bkcolor="#FFfafa00" bordersize="10"  bordercolor="#7700FFFF" inset="5,5,5,5" >	
 		<Button  
 				width="-2" 
 				height="50"
@@ -69,7 +68,7 @@
 				enabled="true"
 					/>
 					
-	</HBox>	
+	</Container>	
 		
 		<Button  
 				width="50" 
