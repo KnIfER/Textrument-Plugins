@@ -31,7 +31,7 @@ namespace DuiLib {
 		m_cXY.cx = m_cXY.cy = 0;
 		m_cxyFixed.cx = m_cxyFixed.cy = -1;
 		m_cxyMin.cx = m_cxyMin.cy = 0;
-		m_cxyMax.cx = m_cxyMax.cy = LONG_MAX;
+		m_cxyMax.cx = m_cxyMax.cy = -1;
 		m_cxyBorderRound.cx = m_cxyBorderRound.cy = 0;
 
 		_view_states |= VIEWSTATEMASK_Enabled;
@@ -742,37 +742,37 @@ namespace DuiLib {
 
 	int CControlUI::GetMaxWidth() const
 	{
-		if (_manager != NULL) {
+		if (_manager != NULL && m_cxyMax.cx>0) {
 			return _manager->GetDPIObj()->Scale(m_cxyMax.cx);
 		}
-		return m_cxyMax.cx;
+		return m_cxyMax.cx<0?LONG_MAX:m_cxyMax.cx;
 	}
 
-	void CControlUI::SetMaxWidth(int cx)
+	int CControlUI::GetMaxHeight() const
 	{
-		if( m_cxyMax.cx == cx ) return;
+		if (_manager != NULL && m_cxyMax.cx>0) {
+			return _manager->GetDPIObj()->Scale(m_cxyMax.cy);
+		}
 
-		if( cx < 0 ) return; 
-		m_cxyMax.cx = cx;
-		NeedParentUpdate();
+		return m_cxyMax.cy<0?LONG_MAX:m_cxyMax.cy;
 	}
 
 
 	int CControlUI::GetMaxAvailWidth() const
 	{
 		int ret = max(m_cxyFixed.cx, m_cxyMax.cx);
-		if (_manager != NULL) {
+		if (_manager != NULL && ret>0) {
 			return _manager->GetDPIObj()->Scale(ret);
 		}
-		return ret;
+		return ret<0?LONG_MAX:ret;
 	}
 	int CControlUI::GetMaxAvailHeight() const
 	{
 		int ret = max(m_cxyFixed.cy, m_cxyMax.cy);
-		if (_manager != NULL) {
+		if (_manager != NULL && ret>0) {
 			return _manager->GetDPIObj()->Scale(ret);
 		}
-		return ret;
+		return ret<0?LONG_MAX:ret;
 	}
 
 	int CControlUI::GetMinHeight() const
@@ -793,20 +793,20 @@ namespace DuiLib {
 		NeedParentUpdate();
 	}
 
-	int CControlUI::GetMaxHeight() const
+	void CControlUI::SetMaxWidth(int cx)
 	{
-		if (_manager != NULL) {
-			return _manager->GetDPIObj()->Scale(m_cxyMax.cy);
-		}
+		if( m_cxyMax.cx == cx ) return;
 
-		return m_cxyMax.cy;
+		//if( cx < 0 ) return; 
+		m_cxyMax.cx = cx;
+		NeedParentUpdate();
 	}
 
 	void CControlUI::SetMaxHeight(int cy)
 	{
 		if( m_cxyMax.cy == cy ) return;
 
-		if( cy < 0 ) return; 
+		//if( cy < 0 ) return; 
 		m_cxyMax.cy = cy;
 		NeedParentUpdate();
 	}
@@ -1547,7 +1547,7 @@ namespace DuiLib {
 	{
 		if (_manager && _LastScaleProfile!=_manager->GetDPIObj()->ScaleProfile())
 			OnDPIChanged();
-		if(m_bFillParentWidth) m_cxyFixScaled.cx = szAvailable.cx;
+		if(m_bFillParentWidth)  m_cxyFixScaled.cx = szAvailable.cx;
 		if(m_bFillParentHeight) m_cxyFixScaled.cy = szAvailable.cy;
 		//if (!m_bAutoCalcHeight && m_bAutoCalcHeight)
 		//{
