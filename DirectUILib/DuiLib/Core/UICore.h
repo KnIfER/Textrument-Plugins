@@ -19,6 +19,11 @@
 #include <list>
 #include <set>
 
+#define m_bAutoCalcWidth            (m_cxyFixed.cx==-2)
+#define m_bAutoCalcHeight           (m_cxyFixed.cy==-2)
+#define m_bFillParentWidth          (m_cxyFixed.cx==-1)
+#define m_bFillParentHeight         (m_cxyFixed.cy==-1)
+
 #include "Utils/Utils.h"
 #include "Utils/unzip.h"
 #include "Utils/VersionHelpers.h"

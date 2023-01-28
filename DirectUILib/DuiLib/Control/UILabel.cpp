@@ -94,8 +94,8 @@ namespace DuiLib
 	{
 		if (_manager && _LastScaleProfile!=_manager->GetDPIObj()->ScaleProfile())
 			OnDPIChanged();
-		if(m_cxyFixed.cx < 0) m_cxyFixScaled.cx = szAvailable.cx;
-		if(m_cxyFixed.cy < 0) m_cxyFixScaled.cy = szAvailable.cy;
+		if(m_bFillParentWidth) m_cxyFixScaled.cx = szAvailable.cx;
+		if(m_bFillParentHeight) m_cxyFixScaled.cy = szAvailable.cy;
 		if (m_cxyFixed.cx > 0 && m_cxyFixed.cy > 0) {
 			return m_cxyFixScaled;
 		}
@@ -188,6 +188,8 @@ namespace DuiLib
 					m_cxyFixedLast.cy = childSz.cy + rcTextPadding.top +  rcTextPadding.bottom;
 			}
 		}
+		if(m_bFillParentWidth) m_cxyFixScaled.cx = szAvailable.cx;
+		if(m_bFillParentHeight) m_cxyFixScaled.cy = szAvailable.cy;
 		return m_cxyFixedLast;
 	}
 

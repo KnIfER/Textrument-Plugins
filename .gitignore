@@ -9,8 +9,12 @@ packages
 *.lnk
 *.zip
 *.aps
-*.lib
+//*.lib
 LocalStorage
+Release_*
+Debug_*
+bin
+TinyXML
 
 *.exe
 *.exp

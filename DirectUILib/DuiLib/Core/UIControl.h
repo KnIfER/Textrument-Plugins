@@ -176,6 +176,8 @@ namespace DuiLib {
 		virtual void SetMinHeight(int cy);
 		virtual int GetMaxHeight() const;
 		virtual void SetMaxHeight(int cy);
+		virtual int GetMaxAvailWidth() const;
+		virtual int GetMaxAvailHeight() const;
 		virtual TPercentInfo GetFloatPercent() const;
 		virtual void SetFloatPercent(TPercentInfo piFloatPercent);
 		virtual void SetFloatAlign(UINT uAlign);
@@ -318,13 +320,13 @@ namespace DuiLib {
 			return m_bAutoCalcWidth;
 		}
 		void SetAutoCalcWidth(bool bAutoCalcWidth) {
-			m_bAutoCalcWidth = bAutoCalcWidth;
+			m_cxyFixed.cx = bAutoCalcWidth?-2:-1;
 		}
 		bool GetAutoCalcHeight() const {
 			return m_bAutoCalcHeight;
 		}
 		void SetAutoCalcHeight(bool bAutoCalcHeight) {
-			m_bAutoCalcHeight = bAutoCalcHeight;
+			m_cxyFixed.cy = bAutoCalcHeight?-2:-1;
 		}
 	public:
 		CEventSource OnInit;
@@ -364,8 +366,8 @@ namespace DuiLib {
 		UINT m_uFloatAlign;
 		TRelativePosUI m_tRelativePos;
 
-		bool	m_bAutoCalcWidth;
-		bool	m_bAutoCalcHeight;
+		//bool	m_bAutoCalcWidth;
+		//bool	m_bAutoCalcHeight;
 
 		SIZE    m_szAvailableLast;
 		SIZE    m_cxyFixedLast;

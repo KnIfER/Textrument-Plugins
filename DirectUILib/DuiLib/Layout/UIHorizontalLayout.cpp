@@ -43,8 +43,6 @@ namespace DuiLib
 			int cxFixed = 0;
 			int nEstimateNum = 0;
 			SIZE szControlAvailable;
-			int iControlMaxWidth = 0;
-			int iControlMaxHeight = 0;
 			for( int it1 = 0; it1 < m_items.GetSize(); it1++ ) {
 				CControlUI* pControl = static_cast<CControlUI*>(m_items[it1]);
 				if( !pControl->IsVisible() ) continue;
@@ -52,12 +50,8 @@ namespace DuiLib
 				szControlAvailable = szAvailable;
 				RECT rcPadding = pControl->GetPadding();
 				szControlAvailable.cy -= rcPadding.top + rcPadding.bottom;
-				iControlMaxWidth = pControl->GetFixedWidth();
-				iControlMaxHeight = pControl->GetFixedHeight();
-				 iControlMaxWidth = pControl->GetMaxWidth(); 
-				 iControlMaxHeight = pControl->GetMaxHeight();
-				if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
-				if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
+				if (szControlAvailable.cx > pControl->GetMaxAvailWidth()) szControlAvailable.cx = pControl->GetMaxAvailWidth();
+				if (szControlAvailable.cy > pControl->GetMaxAvailHeight()) szControlAvailable.cy = pControl->GetMaxAvailHeight();
 				SIZE sz = pControl->EstimateSize(szControlAvailable);
 				if( sz.cx == 0 ) {
 					nAdjustables++;
@@ -115,8 +109,6 @@ namespace DuiLib
 		int cxFixed = 0;
 		int nEstimateNum = 0;
 		SIZE szControlAvailable;
-		int iControlMaxWidth = 0;
-		int iControlMaxHeight = 0;
 		for( int it1 = 0; it1 < m_items.GetSize(); it1++ ) {
 			CControlUI* pControl = static_cast<CControlUI*>(m_items[it1]);
 			if( !pControl->IsVisible() ) continue;
@@ -124,12 +116,8 @@ namespace DuiLib
 			szControlAvailable = szAvailable;
 			RECT rcPadding = pControl->GetPadding();
 			szControlAvailable.cy -= rcPadding.top + rcPadding.bottom;
-			iControlMaxWidth = pControl->GetFixedWidth();
-			iControlMaxHeight = pControl->GetFixedHeight();
-			  iControlMaxWidth = pControl->GetMaxWidth(); 
-			 iControlMaxHeight = pControl->GetMaxHeight();
-			if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
-			if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
+			if (szControlAvailable.cx > pControl->GetMaxAvailWidth()) szControlAvailable.cx = pControl->GetMaxAvailWidth();
+			if (szControlAvailable.cy > pControl->GetMaxAvailHeight()) szControlAvailable.cy = pControl->GetMaxAvailHeight();
 			SIZE sz = pControl->EstimateSize(szControlAvailable);
 			if( sz.cx == 0 ) {
 				nAdjustables++;
@@ -188,12 +176,8 @@ namespace DuiLib
 
 			szControlAvailable = szRemaining;
 			szControlAvailable.cy -= rcPadding.top + rcPadding.bottom;
-			iControlMaxWidth = pControl->GetFixedWidth();
-			iControlMaxHeight = pControl->GetFixedHeight();
-			  iControlMaxWidth = pControl->GetMaxWidth(); 
-			iControlMaxHeight = pControl->GetMaxHeight();
-			if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
-			if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
+			if (szControlAvailable.cx > pControl->GetMaxAvailWidth()) szControlAvailable.cx = pControl->GetMaxAvailWidth();
+			if (szControlAvailable.cy > pControl->GetMaxAvailHeight()) szControlAvailable.cy = pControl->GetMaxAvailHeight();
 			cxFixedRemaining = cxFixedRemaining - (rcPadding.left + rcPadding.right);
 			if (iEstimate > 1) cxFixedRemaining = cxFixedRemaining - m_iChildPadding;
 

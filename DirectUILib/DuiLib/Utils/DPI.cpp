@@ -238,15 +238,15 @@ namespace DuiLib
 
 	void CDPI::Scale(SIZE *pSize)
 	{
-		pSize->cx = Scale(pSize->cx);
-		pSize->cy = Scale(pSize->cy);
+		pSize->cx = pSize->cx<=0?pSize->cx:Scale(pSize->cx);
+		pSize->cy = pSize->cy<=0?pSize->cy:Scale(pSize->cy);
 	}
 
 	SIZE CDPI::Scale(SIZE szSize)
 	{
 		SIZE szScale = szSize;
-		szScale.cx = Scale(szSize.cx);
-		szScale.cy = Scale(szSize.cy);
+		szScale.cx = szSize.cx<=0?szSize.cx:Scale(szSize.cx);
+		szScale.cy = szSize.cy<=0?szSize.cy:Scale(szSize.cy);
 		return szScale;
 	}
 }

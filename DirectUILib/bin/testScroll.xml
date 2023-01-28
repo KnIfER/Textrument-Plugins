@@ -14,8 +14,6 @@
 	</EffectsStyles>
 	
 	<style>
-			
-			
 		 <Button
 			id="btn_style"
 			apply="true"
@@ -46,15 +44,10 @@
 	inset="5,5,5,5"
 	>
 	
-	
-	<HBox autocalcheight="true"  height="100" bkcolor="#FFfafa00"
-	
-				bordersize="2" 
-				bordercolor="#7700FFFF"
-	>	
+	<HBox height="-2"  width="-2"  bkcolor="#FFfafa00" bordersize="2"  bordercolor="#7700FFFF" inset="5,5,5,5">	
 		
 		<Button  
-				width="50" 
+				width="200"
 				height="50"
 				text=" WinQkUI 界面测试 123 " 
 				name="btn" 
@@ -72,7 +65,7 @@
 				bordercolor="#7700FFFF"
 				borderround="20,20"
 				roundclip="true"
-				font="btn"   
+				font="btn"
 				enabled="true"
 					/>
 					

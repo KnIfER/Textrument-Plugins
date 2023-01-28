@@ -26,9 +26,6 @@ namespace DuiLib {
 		,_hCursor(CPaintManagerUI::hCursorArrow)
 
 		,_LastScaleProfile(-1)
-
-		,m_bAutoCalcWidth(false)
-		,m_bAutoCalcHeight(false)
 		,_view_states(0)
 	{
 		m_cXY.cx = m_cXY.cy = 0;
@@ -695,7 +692,7 @@ namespace DuiLib {
 	int CControlUI::GetFixedWidth() const
 	{
 		if (_manager != NULL) {
-			return _manager->GetDPIObj()->Scale(m_cxyFixed.cx);
+			return m_cxyFixed.cx<=0?m_cxyFixed.cx:_manager->GetDPIObj()->Scale(m_cxyFixed.cx);
 		}
 
 		return m_cxyFixed.cx;
@@ -703,7 +700,7 @@ namespace DuiLib {
 
 	void CControlUI::SetFixedWidth(int cx)
 	{
-		if( cx < 0 ) return; 
+		if( cx < -2 ) return; 
 		m_cxyFixed.cx = cx;
 		_LastScaleProfile = -1;
 		NeedParentUpdate();
@@ -712,7 +709,7 @@ namespace DuiLib {
 	int CControlUI::GetFixedHeight() const
 	{
 		if (_manager != NULL) {
-			return _manager->GetDPIObj()->Scale(m_cxyFixed.cy);
+			return m_cxyFixed.cy<=0?m_cxyFixed.cy:_manager->GetDPIObj()->Scale(m_cxyFixed.cy);
 		}
 		
 		return m_cxyFixed.cy;
@@ -720,7 +717,7 @@ namespace DuiLib {
 
 	void CControlUI::SetFixedHeight(int cy)
 	{
-		if( cy < 0 ) return; 
+		if( cy < -2 ) return; 
 		m_cxyFixed.cy = cy;
 		_LastScaleProfile = -1;
 		NeedParentUpdate();
@@ -758,6 +755,24 @@ namespace DuiLib {
 		if( cx < 0 ) return; 
 		m_cxyMax.cx = cx;
 		NeedParentUpdate();
+	}
+
+
+	int CControlUI::GetMaxAvailWidth() const
+	{
+		int ret = max(m_cxyFixed.cx, m_cxyMax.cx);
+		if (_manager != NULL) {
+			return _manager->GetDPIObj()->Scale(ret);
+		}
+		return ret;
+	}
+	int CControlUI::GetMaxAvailHeight() const
+	{
+		int ret = max(m_cxyFixed.cy, m_cxyMax.cy);
+		if (_manager != NULL) {
+			return _manager->GetDPIObj()->Scale(ret);
+		}
+		return ret;
 	}
 
 	int CControlUI::GetMinHeight() const
@@ -1532,8 +1547,8 @@ namespace DuiLib {
 	{
 		if (_manager && _LastScaleProfile!=_manager->GetDPIObj()->ScaleProfile())
 			OnDPIChanged();
-		if(m_cxyFixed.cx < 0) m_cxyFixScaled.cx = szAvailable.cx;
-		if(m_cxyFixed.cy < 0) m_cxyFixScaled.cy = szAvailable.cy;
+		if(m_bFillParentWidth) m_cxyFixScaled.cx = szAvailable.cx;
+		if(m_bFillParentHeight) m_cxyFixScaled.cy = szAvailable.cy;
 		//if (!m_bAutoCalcHeight && m_bAutoCalcHeight)
 		//{
 			return m_cxyFixScaled;
