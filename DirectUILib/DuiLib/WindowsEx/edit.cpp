@@ -241,7 +241,7 @@ inline void EDIT_InvalidateUniscribeData(EDITSTATE *es)
 	}
 	if (es->ssa)
 	{
-		// Critical error detected c0000374 when deleting '/' from 'http://127.0.0.1:8080/'
+		// FIXME : Critical error detected c0000374 when deleting the last char from 'xx:/xxxx'
 		ScriptStringFree(&es->ssa);
 		es->ssa = NULL;
 	}
