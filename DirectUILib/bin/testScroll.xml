@@ -42,9 +42,10 @@
 <VerticalLayout bkcolor="#FFFFFFFF"
 	clipchild="false" 
 	inset="5,5,5,5"
+	vscrollbar="true"
 	>
 	
-	<Container height="-2"  width="-2"  bkcolor="#FFfafa00" bordersize="10"  bordercolor="#7700FFFF" inset="5,5,5,5" >	
+	<HBox height="-2"  width="-2"  bkcolor="#FFfafa00" bordersize="10"  bordercolor="#7700FFFF" inset="5,5,5,5" >
 		<Button  
 				width="-2" 
 				height="50"
@@ -68,61 +69,56 @@
 				enabled="true"
 					/>
 					
-	</Container>	
-		
 		<Button  
-				width="50" 
-				height="50"
+				width="50"  height="50"
 				text=" WinQkUI 界面测试 123 " 
-				name="btn" 
 				align="vcenter"
 				valign="vcenter"
 				wordbreak="false"
 				textpadding="5,5,5,5"
 				
 				textcolor="#FF0"
-				
 				bkcolor="#FF238ef9"
 				hotbkcolor="#FF3399fe"
-				
 				bordersize="2" 
 				bordercolor="#7700FFFF"
 				borderround="20,20"
 				roundclip="true"
 				font="btn"   
 				enabled="true"
-					/>
-					
-		
-			<Edit  height="50"
-			
-					textcolor="#ff000000" font="3"   
-				
-					bkcolor="#FF00fafa"
-					bkround="false"
-				
-				
-					bordercolor="#77000000"
-					bordersize="1" 
-					borderround="10"
-					borderinset="1,4,10,4"
-
-					inset="10,4"
-					vcenter="true"
-
-					text="从来散之必有其统也，分之必有其合也，以故天壤间四面八方，纷纷者各有所属，" 
-				name="etSearch" 
-				hscrollbar="truex"
 				/>
+	</HBox>	
 		
 	
+	<control height="-2"  width="-1">	
+		<Edit  height="50"
+		
+				textcolor="#ff000000" font="3"   
+			
+				bkcolor="#FF00fafa"
+				bkround="false"
+			
+			
+				bordercolor="#77000000"
+				bordersize="1" 
+				borderround="10"
+				borderinset="1,4,10,4"
 
-		<WebBrowser height="500" homepage="http://chartjs.cn/" autonavi="true"/>	
+				inset="10,4"
+				vcenter="true"
+
+				text="http://127.0.0.1:8080/" 
+			name="etSearch" 
+			hscrollbar="truex"
+			/>
+	</control>	
+	
+
+	<WebBrowser height="500" homepage="http://127.0.0.1:8080/" autonavi="true"/>	
 			
 		<Ring height="100"/>	
 		
 		<control height="10"/>	
-		
 		
 		 <RichEdit name="at_run" wanttab="false" bkcolor="#0000FFFF" font="2" password="false" mutiline="false" rich="false" text="启动时自动运行" vscrollbar="false" hscrollbar="false" autohscroll="true" readonly="a" padding="2,2.8,0,0"/>
 					
@@ -185,6 +181,8 @@
 			bordersize="10" 
 			bordercolor="#7700FFFF"  
 			borderround="15,15"
+			minHeight="100"
+			height="-2"
 			>
 			
 			
