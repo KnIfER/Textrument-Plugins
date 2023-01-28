@@ -75,11 +75,18 @@ namespace DuiLib
 				}
 			}
 			cyFixed += (nEstimateNum - 1) * m_iChildPadding;
-			cyFixed += rcInnerPadding.top + rcInnerPadding.bottom;
-			cxNeeded += rcInnerPadding.left + rcInnerPadding.right;
-			m_cxyFixedLast.cy = m_bAutoCalcHeight?cyFixed:max(cyFixed,availHeight);
-			m_cxyFixedLast.cx = m_bAutoCalcWidth?cyFixed:max(cxNeeded,availWidth);
-
+			cyFixed += rcInnerPadding.top + rcInnerPadding.bottom + _rcBorderSizeScaled.top + _rcBorderSizeScaled.bottom;
+			cxNeeded += rcInnerPadding.left + rcInnerPadding.right + _rcBorderSizeScaled.left + _rcBorderSizeScaled.right;
+			if(m_bAutoCalcHeight) {
+				m_cxyFixedLast.cy = cyFixed;
+			} else {
+				m_cxyFixedLast.cy = MAX(cyFixed,availHeight);
+			}
+			if(m_bAutoCalcWidth) { 
+				m_cxyFixedLast.cx = cxNeeded; // cyFixed WTF???
+			} else {
+				m_cxyFixedLast.cx = MAX(cxNeeded,availWidth);
+			}
 		}
 		return m_cxyFixedLast;
 	}

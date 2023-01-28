@@ -38,44 +38,16 @@
 			pushedimage="file='Button/btn.png' corner='5,11,5,11' source='0,48,96,72'"
 		 />
 	</style>
-	
- 	<xContainer height="50"  width="50"  bkcolor="#FFfafa00" bordersize="2"  bordercolor="#7700FFFF" inset="5,5,5,5">
-	
- 	<Container height="50"  width="50"  bkcolor="#FFfafaff" bordersize="2"  bordercolor="#7700FFFF" inset="5,5,5,5">
-		<Button  
-			width="200"
-			height="200"
-			text=" WinQkUI 界面测试 123 " 
-			name="btn" 
-			align="vcenter"
-			valign="vcenter"
-			wordbreak="false"
-			textpadding="5,5,5,5"
-			
-			textcolor="#FF0"
-			
-			bkcolor="#FF238ef9"
-			hotbkcolor="#FF3399fe"
-			
-			bordersize="2" 
-			bordercolor="#7700FFFF"
-			borderround="20,20"
-			roundclip="true"
-			font="btn"
-			enabled="true"
-				/>
-	</Container>	
-	</xContainer>	
-	
+ 
 <VerticalLayout bkcolor="#FFFFFFFF"
 	clipchild="false" 
 	inset="5,5,5,5"
 	>
 	
-	<Control height="50"  width="50"  bkcolor="#FFfafa00" bordersize="2"  bordercolor="#7700FFFF" inset="5,5,5,5">	
+	<HBox height="-2"  width="-2"  bkcolor="#FFfafa00" bordersize="10"  bordercolor="#7700FFFF" inset="5,5,5,5" >	
 		
 		<Button  
-				width="200"
+				width="-2" 
 				height="50"
 				text=" WinQkUI 界面测试 123 " 
 				name="btn" 
@@ -93,11 +65,11 @@
 				bordercolor="#7700FFFF"
 				borderround="20,20"
 				roundclip="true"
-				font="btn"
+				font="btn"   
 				enabled="true"
 					/>
 					
-	</Control>	
+	</HBox>	
 		
 		<Button  
 				width="50" 

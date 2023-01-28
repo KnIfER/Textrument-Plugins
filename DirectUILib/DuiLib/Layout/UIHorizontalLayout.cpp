@@ -69,11 +69,18 @@ namespace DuiLib
 				nEstimateNum++;
 			}
 			cxFixed += (nEstimateNum - 1) * m_iChildPadding;
-			cyNeeded += rcInnerPadding.top + rcInnerPadding.bottom;
-			cxFixed += rcInnerPadding.left + rcInnerPadding.right;
-			m_cxyFixedLast.cy = m_bAutoCalcHeight?cyNeeded:MAX(cyNeeded, availHeight);
-			m_cxyFixedLast.cx = m_bAutoCalcWidth?cxFixed:MAX(cxFixed, availWidth);
-
+			cyNeeded += rcInnerPadding.top + rcInnerPadding.bottom + _rcBorderSizeScaled.top + _rcBorderSizeScaled.bottom;
+			cxFixed += rcInnerPadding.left + rcInnerPadding.right + _rcBorderSizeScaled.left + _rcBorderSizeScaled.right;
+			if(m_bAutoCalcHeight) {
+				m_cxyFixedLast.cy = cyNeeded;
+			} else {
+				m_cxyFixedLast.cy = MAX(cyNeeded, availHeight);
+			}
+			if(m_bAutoCalcWidth) {
+				m_cxyFixedLast.cx = cxFixed;
+			} else {
+				m_cxyFixedLast.cx = MAX(cxFixed, availWidth);
+			}
 		}
 		// m_cxyFixedLast.cx = 100000; // 当同时设置了 autocalcwidth 与 width, VBOX处width被当作maxWidh，于是此数值过大时无效
 		// 当废除 autocalcwidth 变量，使得 width 等于 -2 时代表计算内容尺寸。
