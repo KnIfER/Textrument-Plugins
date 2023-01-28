@@ -1632,7 +1632,7 @@ namespace DuiLib {
 
 		// 依序绘制：背景颜色->背景图->状态图->文本->边框
 		DWORD bordercolor = IsFocused()&&m_dwFocusBorderColor?m_dwFocusBorderColor:m_dwBorderColor;
-		if( (_borderSizeType==2 && bordercolor>0x00FFFFFF || m_bRoundClip) && (_sizeBorderRoundScaled.cx || _sizeBorderRoundScaled.cy) ) 
+		if( (_borderSizeType==2 && (bordercolor & 0xFF000000) || m_bRoundClip) && (_sizeBorderRoundScaled.cx || _sizeBorderRoundScaled.cy) ) 
 		{ // 为不均匀大小的边框裁切出圆角效果
 			PaintBkColor(hDC);
 			if (m_bRoundClip)
@@ -1723,7 +1723,7 @@ namespace DuiLib {
 	{
 		DWORD backcolor = m_dwBackColor;
 		GetBkFillColor(backcolor);
-		if( backcolor>0x00FFFFFF ) 
+		if( backcolor & 0xFF000000 ) 
 		{
 			backcolor = GetAdjustColor(backcolor);
 			if (_sizeBorderRoundScaled.cx && m_bBkRound)
@@ -1742,10 +1742,10 @@ namespace DuiLib {
 					, Gdiplus::Color(backcolor));
 				// todo 圆角渐变色
 			}
-			else if( m_dwBackColor2>0x00FFFFFF ) 
+			else if( m_dwBackColor2 & 0xFF000000 ) 
 			{ // 渐变色
 				bool bVer = (m_sGradient.CompareNoCase(_T("hor")) != 0);
-				if( m_dwBackColor3>0x00FFFFFF ) 
+				if( m_dwBackColor3 & 0xFF000000 ) 
 				{
 					RECT rc = m_rcItem;
 					rc.bottom = (rc.bottom + rc.top) / 2;
@@ -1759,7 +1759,7 @@ namespace DuiLib {
 					CRenderEngine::DrawGradient(hDC, m_rcItem, backcolor, GetAdjustColor(m_dwBackColor2), bVer, 16);
 				}
 			}
-			else if( backcolor>=0xFF000000 ) 
+			else if( backcolor & 0xFF000000 ) 
 			{
 				CRenderEngine::DrawColor(hDC, m_rcPaint, backcolor);
 
@@ -1805,7 +1805,7 @@ namespace DuiLib {
 	{
 		//if (!_borderSizeType) return;
 		DWORD bordercolor = IsFocused()&&m_dwFocusBorderColor?m_dwFocusBorderColor:m_dwBorderColor;
-		if(bordercolor>0x00FFFFFF) 
+		if(bordercolor & 0xFF000000) 
 		{
 			bordercolor = GetAdjustColor(bordercolor);
 			SIZE & cxyBorderRound = _sizeBorderRoundScaled;
@@ -1853,7 +1853,7 @@ namespace DuiLib {
 			{ // 直角边框
 				if(_borderSizeType==2) 
 				{ // 不等大小
-					if (bordercolor>=0xFF000000)
+					if ((bordercolor&0xFF000000)==0xFF000000)
 					{
 						CRenderEngine::FillRectHeteroSized(hDC, m_rcItem, rcBorderSize, _borderInsetScaled, bordercolor);
 					}

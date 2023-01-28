@@ -1617,7 +1617,7 @@ namespace DuiLib {
 
 	void CRenderEngine::DrawColor(HDC hDC, const RECT& rc, DWORD color)
 	{
-		if( color <= 0x00FFFFFF ) return;
+		if( (color & 0xFF000000)==0 ) return;
 
 		Gdiplus::Graphics graphics( hDC );
 		Gdiplus::SolidBrush brush(Gdiplus::Color((LOBYTE((color)>>24)), GetBValue(color), GetGValue(color), GetRValue(color)));
@@ -1804,7 +1804,7 @@ namespace DuiLib {
 	void CRenderEngine::DrawRect(HDC hDC, const RECT& rc, int nSize, DWORD dwPenColor,int nStyle /*= PS_SOLID*/)
 	{
 		// Gdiplus更易于叠加透明图形，性能上没啥区别。
-		if (dwPenColor >= 0xFF000000)
+		if ((dwPenColor&0xFF000000)==0xFF000000)
 		{
 			ASSERT(::GetObjectType(hDC) == OBJ_DC || ::GetObjectType(hDC) == OBJ_MEMDC);
 			HPEN hPen = ::CreatePen(PS_SOLID | PS_INSIDEFRAME, nSize, RGB(GetBValue(dwPenColor), GetGValue(dwPenColor), GetRValue(dwPenColor)));
@@ -2251,7 +2251,7 @@ namespace DuiLib {
 			HBITMAP hOldBitmap = (HBITMAP) ::SelectObject(hCloneDC, hBitmap);
 			::BitBlt(hCloneDC, 0, 0, cx, cy, hPaintDC, rc.left, rc.top, SRCCOPY);
 			RECT rcClone = {0, 0, cx, cy};
-			if (dwFilterColor > 0x00FFFFFF) DrawColor(hCloneDC, rcClone, dwFilterColor);
+			if (dwFilterColor & 0xFF000000) DrawColor(hCloneDC, rcClone, dwFilterColor);
 			::SelectObject(hCloneDC, hOldBitmap);
 			::DeleteDC(hCloneDC);  
 			::GdiFlush();
@@ -2296,7 +2296,7 @@ namespace DuiLib {
 			HBITMAP hOldBitmap = (HBITMAP) ::SelectObject(hCloneDC, hBitmap);
 			::BitBlt(hCloneDC, 0, 0, cx, cy, hPaintDC, rc.left, rc.top, SRCCOPY);
 			RECT rcClone = {0, 0, cx, cy};
-			if (dwFilterColor > 0x00FFFFFF) DrawColor(hCloneDC, rcClone, dwFilterColor);
+			if (dwFilterColor & 0xFF000000) DrawColor(hCloneDC, rcClone, dwFilterColor);
 			::SelectObject(hCloneDC, hOldBitmap);
 			::DeleteDC(hCloneDC);  
 			::GdiFlush();
