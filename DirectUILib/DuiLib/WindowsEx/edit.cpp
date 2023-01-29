@@ -241,7 +241,7 @@ inline void EDIT_InvalidateUniscribeData(EDITSTATE *es)
 	}
 	if (es->ssa)
 	{
-		// FIXME : Critical error detected c0000374 when deleting the last char from 'xx:/xxxx'
+		// GHOSTDEBUG : Critical error detected c000 0374 when deleting the last char from 'xx:/xxxx'
 		ScriptStringFree(&es->ssa);
 		es->ssa = NULL;
 	}
