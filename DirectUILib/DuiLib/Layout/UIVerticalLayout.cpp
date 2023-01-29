@@ -33,8 +33,8 @@ namespace DuiLib
 		if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible() ) availWidth -= m_pHorizontalScrollBar->GetFixedHeight();
 
 		m_cxyFixedLast = GetFixedSize();
-		if(m_cxyFixed.cx < 0) m_cxyFixedLast.cx = szAvailable.cx;
-		if(m_cxyFixed.cy < 0) m_cxyFixedLast.cy = szAvailable.cy;
+		if(m_bFillParentWidth) m_cxyFixedLast.cx = szAvailable.cx;
+		if(m_bFillParentHeight) m_cxyFixedLast.cy = szAvailable.cy;
 		if(_manager != NULL)
 			_manager->GetDPIObj()->Scale(&m_cxyFixedLast);
 		if (m_bAutoCalcHeight || m_bAutoCalcWidth)
@@ -119,10 +119,11 @@ namespace DuiLib
 		///////////////////////////////////////////////
 
 		int cxNeeded = 0;
-		int nAdjustables = 0;
+		int weights = 0;
 		int cyFixed = 0;
 		int nEstimateNum = 0;
 		SIZE szControlAvailable;
+		CControlUI* lastAdjust = nullptr;
 		for( int it1 = 0; it1 < m_items.GetSize(); it1++ ) {
 			CControlUI* pControl = static_cast<CControlUI*>(m_items[it1]);
 			if( !pControl->IsVisible() ) continue;
@@ -134,8 +135,14 @@ namespace DuiLib
 			if (szControlAvailable.cy > pControl->GetMaxAvailHeight()) szControlAvailable.cy = pControl->GetMaxAvailHeight();
 			
 			SIZE sz = pControl->EstimateSize(szControlAvailable);
-			if( sz.cy == 0 ) {
-				nAdjustables++;
+			if( sz.cy == 0 ) { // 垂直填充剩余空间
+				weights+=3;
+				lastAdjust = pControl;
+			}
+			else if( sz.cy < -2 ) { // 计算权重
+				weights-=sz.cy;
+				lastAdjust = pControl;
+				sz.cy = 0;
 			}
 			else {
 				if( sz.cy < pControl->GetMinHeight() ) sz.cy = pControl->GetMinHeight();
@@ -154,7 +161,7 @@ namespace DuiLib
 		// Place elements
 		int cyNeeded = 0;
 		int cyExpand = 0;
-		if( nAdjustables > 0 ) cyExpand = MAX(0, (szAvailable.cy - cyFixed) / nAdjustables);
+		if( weights > 0 ) cyExpand = MAX(0, (szAvailable.cy - cyFixed) / weights);
 		// Position the elements
 		SIZE szRemaining = szAvailable;
 		int iPosY = rc.top;
@@ -163,7 +170,7 @@ namespace DuiLib
 		}
 		else {
 			// 子控件垂直对其方式
-			if(nAdjustables <= 0) {
+			if(weights <= 0) {
 				UINT iChildAlign = GetChildVAlign(); 
 				if (iChildAlign == DT_VCENTER) {
 					iPosY += (szAvailable.cy -cyFixed) / 2;
@@ -174,7 +181,6 @@ namespace DuiLib
 			}
 		}
 		int iEstimate = 0;
-		int iAdjustable = 0;
 		int cyFixedRemaining = cyFixed;
 		for( int it2 = 0; it2 < m_items.GetSize(); it2++ ) {
 			CControlUI* pControl = static_cast<CControlUI*>(m_items[it2]);
@@ -195,11 +201,11 @@ namespace DuiLib
 			cyFixedRemaining = cyFixedRemaining - (rcPadding.top + rcPadding.bottom);
 			if (iEstimate > 1) cyFixedRemaining = cyFixedRemaining - m_iChildPadding;
 			SIZE sz = pControl->EstimateSize(szControlAvailable);
-			if( sz.cy == 0 ) {
-				iAdjustable++;
-				sz.cy = cyExpand;
+			if( sz.cy == 0 || sz.cy < -2 ) {  // 按照权重垂直填充剩余空间
+				int weight = sz.cy?-sz.cy:3;
+				sz.cy = cyExpand * weight;
 				// Distribute remaining to last element (usually round-off left-overs)
-				if( iAdjustable == nAdjustables ) {
+				if( pControl == lastAdjust ) {
 					sz.cy = MAX(0, szRemaining.cy - rcPadding.bottom - cyFixedRemaining);
 				} 
 				if( sz.cy < pControl->GetMinHeight() ) sz.cy = pControl->GetMinHeight();

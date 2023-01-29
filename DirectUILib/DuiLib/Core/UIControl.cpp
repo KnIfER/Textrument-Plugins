@@ -700,7 +700,7 @@ namespace DuiLib {
 
 	void CControlUI::SetFixedWidth(int cx)
 	{
-		if( cx < -2 ) return; 
+		//if( cx < -2 ) return; 
 		m_cxyFixed.cx = cx;
 		_LastScaleProfile = -1;
 		NeedParentUpdate();
@@ -717,7 +717,7 @@ namespace DuiLib {
 
 	void CControlUI::SetFixedHeight(int cy)
 	{
-		if( cy < -2 ) return; 
+		//if( cy < -2 ) return; 
 		m_cxyFixed.cy = cy;
 		_LastScaleProfile = -1;
 		NeedParentUpdate();

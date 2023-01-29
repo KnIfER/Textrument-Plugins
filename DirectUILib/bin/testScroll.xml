@@ -88,34 +88,26 @@
 				enabled="true"
 				/>
 	</HBox>	
-		
 	
-	<HBox height="50" 
-		bkcolor="#5500fafa" bkround="false" 
-		inset="10,4"
-		bordercolor="#77000000" bordersize="1" borderround="10" borderinset="1,4,10,4"> 
-		<!--Edit width="0" textcolor="#ff000000" font="3"   
-				vcenter="true"
-				text="http://127.0.0.1:8080/" 
-				name="etSearch" 
-				hscrollbar="truex"
-				/-->
-		<Button    height="50"  width="50"
-				text=" WinQkUI 界面测试 123 " 
-				align="vcenter"
-				valign="vcenter"
-				wordbreak="false"
-				textpadding="5,5,5,5"
-				textcolor="#FF0"
-				bkcolor="#ff00fafa"
-				hotbkcolor="#FF3399fe"
-				bordersize="2" 
-				bordercolor="#7700FFFF"
-				borderround="20,20"
-				roundclip="true"
-				font="btn"   
-				enabled="true"
-				/>
+	<HBox height="50" name="schbar"> 
+		<HBox width="-6"
+			bkcolor="#5500fafa" bkround="false" 
+			inset="10,4"
+			bordercolor="#77000000" bordersize="1" borderround="10" borderinset="1,4,10,4"> 
+				<Edit width="0" textcolor="#ff000000" font="3"   
+						vcenter="true"
+						text="http://127.10.0.1:8080/"/>
+				<Button width="50" text=" WinQkUI 界面测试 123 " align="vcenter" valign="vcenter" wordbreak="false" textpadding="5,5,5,5" textcolor="#FF0" bkcolor="#ff00fafa" hotbkcolor="#FF3399fe" bordersize="2" bordercolor="#7700FFFF" borderround="20,20" roundclip="true" font="btn" enabled="true" />
+		</HBox>	
+		
+		<HBox width="-3"
+			bkcolor="#5500fafa" bkround="false" 
+			inset="10,4"
+			bordercolor="#77000000" bordersize="1" borderround="10" borderinset="1,4,10,4"> 
+				<Edit textcolor="#ff000000" font="3"   
+					vcenter="true"
+					text="http://127.20.0.1:8080/" />
+		</HBox>	
 	</HBox>	
 	
 	<control height="-2"  width="-1" visible="false">	
