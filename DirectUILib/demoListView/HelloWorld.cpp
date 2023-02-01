@@ -61,16 +61,16 @@ public:
             pList->SetAdapter(this);
         }
 
-        CHorizontalLayoutUI* menuBar = static_cast<CHorizontalLayoutUI*>(m_pm.FindControl(_T("menuBar")));
-        for (size_t i = 0; i < 10; i++)
-        {
-            auto menu = builder.Create(L"menu_item.xml", 0, 0, &m_pm);
-            menu->SetFixedWidth(0);
-            menu->GetText().Format(L"菜单#%d", i);
-            menu->GetText().Format(L"文件#%d", i);
-            menu->GetText().Format(L"文件(&F)", i);
-            menuBar->Add(menu);
-        }
+        //CHorizontalLayoutUI* menuBar = static_cast<CHorizontalLayoutUI*>(m_pm.FindControl(_T("menuBar")));
+        //for (size_t i = 0; i < 10; i++)
+        //{
+        //    auto menu = builder.Create(L"menu_item.xml", 0, 0, &m_pm);
+        //    menu->SetFixedWidth(0);
+        //    menu->GetText().Format(L"菜单#%d", i);
+        //    menu->GetText().Format(L"文件#%d", i);
+        //    menu->GetText().Format(L"文件(&F)", i);
+        //    menuBar->Add(menu);
+        //}
     }
 
     size_t GetItemCount()

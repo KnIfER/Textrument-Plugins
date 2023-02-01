@@ -97,7 +97,7 @@ namespace DuiLib {
 		int GetLevel();
 
 		// 获取索引，指向分析下来的节点内容
-		int XMarkupNode::GetMarkedPos()
+		int GetMarkedPos()
 		{
 			return m_iPos;
 		}

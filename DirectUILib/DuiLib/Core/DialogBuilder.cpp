@@ -485,7 +485,10 @@ namespace DuiLib {
 		IContainerUI* pContainer = NULL;
 		CControlUI* pReturn = NULL;
 		LPCWSTR pstrClass;
-		for( XMarkupNode node = pStart?*pStart:pRoot->GetChild() ; node.IsValid(); node = node.GetSibling() ) {
+		XMarkupNode node = pStart?*pStart:pRoot->GetChild();
+		LogIs(L"layout_Parse, tagName=%s, id=%s, pManager=%ld", (LPCWSTR)node.GetName(), (LPCWSTR)node.GetAttributeValue(L"name"), pManager);
+
+		for(  ; node.IsValid(); node = node.GetSibling() ) {
 			tagNameBuffer = node.GetName();
 			tagNameBuffer.MakeLower();
 			pstrClass = tagNameBuffer;

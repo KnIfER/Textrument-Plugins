@@ -93,7 +93,7 @@ namespace DuiLib
 		void SetType(LPCTSTR handyStr=0, int type=BS_OWNERDRAW);
 		int GetType();
 
-		QkString & Button::GetNote() { 
+		QkString & GetNote() { 
 			return _note; 
 		}
 

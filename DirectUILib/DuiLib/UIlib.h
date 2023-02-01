@@ -202,3 +202,6 @@ const int VIEWSTATEMASK_BKColorNonRound  =   0x1<<26;
 #define VIEWSTATE_MARK_DIRTY(mask) _view_states |= mask;
 
 #define VIEWSTATE_MARK_SYNCED(mask) _view_states &= ~mask;
+
+using namespace DuiLib;
+

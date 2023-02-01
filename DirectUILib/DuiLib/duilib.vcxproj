@@ -302,6 +302,8 @@
     <ClInclude Include="Layout\UIVerticalLayout.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="UIlib.h" />
+    <ClInclude Include="Utils\backward.hpp" />
+    <ClInclude Include="Utils\basic_debugbuf.h" />
     <ClInclude Include="Utils\DemoUitls.h" />
     <ClInclude Include="Utils\downloadmgr.h" />
     <ClInclude Include="Utils\DPI.h" />

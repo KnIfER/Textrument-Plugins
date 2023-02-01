@@ -106,6 +106,8 @@ namespace DuiLib {
 
 	void CControlUI::SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit)
 	{
+		LogIs(4, L"CControlUI::SetManager, tagName=%s, id=%s, text=%s, bInit=%d, _parent=%ld\n", (LPCWSTR)GetClass(), (LPCWSTR)GetName(), (LPCWSTR)GetText(), bInit, _parent);
+
 		_manager = pManager;
 		_parent = pParent;
 		for( int it = 0; it < m_items.GetSize(); it++ ) {

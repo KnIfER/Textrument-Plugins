@@ -209,6 +209,12 @@
     <ClInclude Include="Utils\DemoUitls.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\backward.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\basic_debugbuf.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils\DPI.cpp">
