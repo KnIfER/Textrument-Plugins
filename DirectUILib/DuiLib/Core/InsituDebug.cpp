@@ -83,6 +83,7 @@ void LogIs(int show, HWND hWnd, const TCHAR* msg, va_list & args)
 			if (show==1 || show==4)
 			{
 				::OutputDebugString(buffer);
+				::OutputDebugStringA("\n");
 				if(show==4) 
 				{
 					//dbg::dostream as;
@@ -98,8 +99,8 @@ void LogIs(int show, HWND hWnd, const TCHAR* msg, va_list & args)
 					p.print(st, stream);
 
 					::OutputDebugStringA(stream.str().c_str());
+					::OutputDebugStringA("\n");
 				}
-				::OutputDebugStringA("\n");
 			}
 			else if (show==2)
 			{
@@ -139,7 +140,6 @@ void LogIs(const TCHAR* msg, ...)
 
 void LogIs(int show, HWND hWnd, const CHAR* msg, va_list & args)
 {
-	::OutputDebugString(L"LogIs\n");
 	if (!msg)
 	{
 		return;
@@ -170,10 +170,22 @@ void LogIs(int show, HWND hWnd, const CHAR* msg, va_list & args)
 				::OutputDebugStringA(buffer);
 				if (bNeedLF)
 					::OutputDebugStringA("\n");
-				if(show==4) {
+				if(show==4) 
+				{
+					//dbg::dostream as;
 					using namespace backward;
-					StackTrace st; st.load_here(32);
-					Printer p; p.print(st);
+					StackTrace st; st.load_here(8);
+					st.skip_n_firsts(2);
+					Printer p;
+					std::stringstream stream;
+					stream.clear();
+					p.snippet  = false;
+					//p.color_mode  = backward::ColorMode::always;
+					p.reverse = false;
+					p.print(st, stream);
+
+					::OutputDebugStringA(stream.str().c_str());
+					::OutputDebugStringA("\n");
 				}
 			}
 			else if (show==2)

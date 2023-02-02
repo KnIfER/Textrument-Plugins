@@ -1021,13 +1021,16 @@ namespace DuiLib {
 	{
 		if( _manager && m_bFocusable ) 
 			_manager->SetFocus(this);
-		StatFocus();
+		//if(!m_bFocused)
+		{
+			m_bFocused_YES;
+			StatFocus();
+		}
 	}
 	
 	void CControlUI::StatFocus()
 	{
-		if(m_bRedrawOnFocusChanged) 
-			Invalidate();
+		if(m_bRedrawOnFocusChanged) Invalidate();
 	}
 
 	bool CControlUI::HasFocus() const
@@ -1209,13 +1212,13 @@ namespace DuiLib {
 		if( event.Type == UIEVENT_SETFOCUS ) 
 		{
 			m_bFocused_YES;
-			Invalidate();
+			StatFocus();
 			return;
 		}
 		if( event.Type == UIEVENT_KILLFOCUS ) 
 		{
 			m_bFocused_NO;
-			Invalidate();
+			StatFocus();
 			return;
 		}
 		if( event.Type == UIEVENT_TIMER )

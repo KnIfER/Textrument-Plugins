@@ -176,7 +176,7 @@ namespace DuiLib
 
 			_Paint(infoPtr, hDC, &rcPaint);
 
-			ShowCaretIfVisible(true);
+			ShowCaretIfFocused(true);
 		}
 	}
 
@@ -296,10 +296,11 @@ namespace DuiLib
 		else infoPtr->style &= ~ES_MULTILINE;
 	}
 
-	void InputBox::ShowCaretIfVisible(bool update)
+	void InputBox::ShowCaretIfFocused(bool update)
 	{
-		bool visible = IsFocused();
-		if (visible)
+		bool foc = IsFocused();
+		//LogIs("ShowCaretIfFocused::foc=%d _twinkleMark=%d", foc, _twinkleMark);
+		if (foc)
 		{
 			LRESULT res = EDIT_EM_PosFromChar(infoPtr, infoPtr->selection_end, infoPtr->flags & EF_AFTER_WRAP);
 			short x=(short)LOWORD(res), y=(short)HIWORD(res);
@@ -310,26 +311,25 @@ namespace DuiLib
 			{
 				if (!::IntersectRect(&tmp, &rcMark, &svp->GetPos()))
 				{
-					visible = false;
+					foc = false;
 					break;
 				}
 				rcMark = tmp;
 				svp=svp->GetParent();
 			}
-			if (visible && tmp.bottom-tmp.top<infoPtr->line_height/2)
+			if (foc && tmp.bottom-tmp.top<infoPtr->line_height/2)
 			{
-				visible = false;
+				foc = false;
 			}
 		}
-		//LogIs("ShowCaretIfVisible::%d %d", visible, _twinkleMark);
-		if (visible ^ _twinkleMark)
+		if (foc ^ _twinkleMark)
 		{
-			if (_twinkleMark = visible)
+			if (_twinkleMark = foc)
 				::ShowCaret(_manager->GetPaintWindow());
 			else
 				::HideCaret(_manager->GetPaintWindow());
 		}
-
+		//update = 1;
 		if (update && _twinkleMark)
 			EDIT_SetCaretPos(infoPtr, infoPtr->selection_end, infoPtr->flags & EF_AFTER_WRAP);
 	}
@@ -341,155 +341,142 @@ namespace DuiLib
 			else __super::DoEvent(event);
 			return;
 		}
-		
-		if( event.Type == UIEVENT_CHAR)
-		{
-			EDIT_LockBuffer(infoPtr);
-			_Char(infoPtr, event.wParam);
-			EDIT_UnlockBuffer(infoPtr, false);
-			return;
-		}
-		if( event.Type == UIEVENT_IME_REQUEST)
-		{
-			if (event.wParam == IMR_QUERYCHARPOSITION)
-			{
-				HIMC hIMC = ImmGetContext(GetManager()->GetPaintWindow());
-				if (hIMC)  {
-					POINT point;
-					GetCaretPos(&point);
-
-					COMPOSITIONFORM Composition;
-					Composition.dwStyle = CFS_POINT;
-					Composition.ptCurrentPos.x = point.x;
-					Composition.ptCurrentPos.y = point.y;
-					ImmSetCompositionWindow(hIMC, &Composition);
-
-					ImmReleaseContext(GetManager()->GetPaintWindow(),hIMC);
+		switch(event.Type) {
+			default :  __super::DoEvent(event); break;
+			case UIEVENT_CHAR:
+				if(m_bFocused) {
+					EDIT_LockBuffer(infoPtr);
+					_Char(infoPtr, event.wParam);
+					EDIT_UnlockBuffer(infoPtr, false);
 				}
-			}
-			return;
-		}
-		if( event.Type == UIEVENT_BUTTONDOWN)
-		{
-			_manager->SetCapture();
-			//__super::DoEvent(event);
-			EDIT_LockBuffer(infoPtr);
-			_LButtonDown(infoPtr, event.wParam, (short)LOWORD(event.lParam), (short)HIWORD(event.lParam));
-			EDIT_UnlockBuffer(infoPtr, false);
-			ShowCaretIfVisible(false);
-			return;
-		}
-		if( event.Type == UIEVENT_BUTTONUP)
-		{
-			_manager->ReleaseCapture();
-			_LButtonUp(infoPtr);
-			return;
-		}
-		if( event.Type == UIEVENT_MOUSEMOVE ) 
-		{
-			// https://docs.microsoft.com/en-us/windows/win32/inputdev/using-mouse-input
-			if (infoPtr->bCaptureState && (event.wParam & MK_LBUTTON))
-			{
-				_MouseMove(infoPtr, (short)LOWORD(event.lParam), (short)HIWORD(event.lParam));
-			}
-			return;
+			break;
+			case UIEVENT_IME_REQUEST:
+				if (event.wParam == IMR_QUERYCHARPOSITION)
+				{
+					HIMC hIMC = ImmGetContext(GetManager()->GetPaintWindow());
+					if (hIMC)  {
+						POINT point;
+						GetCaretPos(&point);
+
+						COMPOSITIONFORM Composition;
+						Composition.dwStyle = CFS_POINT;
+						Composition.ptCurrentPos.x = point.x;
+						Composition.ptCurrentPos.y = point.y;
+						ImmSetCompositionWindow(hIMC, &Composition);
+
+						ImmReleaseContext(GetManager()->GetPaintWindow(),hIMC);
+					}
+				}
+			break;
+			case UIEVENT_BUTTONDOWN:
+				_manager->SetCapture();
+				//__super::DoEvent(event);
+				EDIT_LockBuffer(infoPtr);
+				_LButtonDown(infoPtr, event.wParam, (short)LOWORD(event.lParam), (short)HIWORD(event.lParam));
+				EDIT_UnlockBuffer(infoPtr, false);
+				ShowCaretIfFocused(false);
+				if(IsEnabled()) _manager->ReleaseCapture();
+			break;
+			case UIEVENT_BUTTONUP:
+				_manager->ReleaseCapture();
+				_LButtonUp(infoPtr);
+			break;
+			case UIEVENT_MOUSEMOVE:
+				// https://docs.microsoft.com/en-us/windows/win32/inputdev/using-mouse-input
+				if (infoPtr->bCaptureState && (event.wParam & MK_LBUTTON))
+				{
+					_MouseMove(infoPtr, (short)LOWORD(event.lParam), (short)HIWORD(event.lParam));
+				}
+			break;
+			case UIEVENT_KEYDOWN:
+				_KeyDown(infoPtr, (INT)event.wParam);
+			break;
+			case UIEVENT_DBLCLICK:
+				_manager->SetCapture();
+				_LButtonDblClk(infoPtr);
+				if(IsEnabled()) GetManager()->ReleaseCapture();
+			break;
+			case UIEVENT_CONTEXTMENU:
+				EDIT_WM_ContextMenu(infoPtr, (short)LOWORD(event.lParam), (short)HIWORD(event.lParam));
+			break;
+			case UIEVENT_SETFOCUS:
+				if(IsEnabled()) 
+				{
+					//LogIs(4, "edit::UIEVENT_SETFOCUS");
+					m_bFocused_YES;
+					infoPtr->flags |= EF_FOCUSED;
+					CreateCaret(_manager->GetPaintWindow(), 0, 1, infoPtr->line_height);
+					_twinkleMark = 0;
+					EDIT_SetCaretPos(infoPtr, infoPtr->selection_end, infoPtr->flags & EF_AFTER_WRAP);
+					ShowCaretIfFocused(true);
+					StatFocus();
+					return;
+				}
+			break;
+			case UIEVENT_KILLFOCUS:
+				if( IsEnabled() ) 
+				{
+					m_bFocused_NO;
+					infoPtr->flags &= ~EF_FOCUSED;
+					ShowCaretIfFocused(false);
+					StatFocus();
+					return;
+				}
+			break;
+			case UIEVENT_RBUTTONDOWN:
+				if( IsEnabled() ) {
+					GetManager()->ReleaseCapture();
+					//if( IsFocused() && m_pWindow == NULL )
+					//{
+					//	m_pWindow = new CEditWnd();
+					//	ASSERT(m_pWindow);
+					//	m_pWindow->Init(this);
+					//
+					//	if( PtInRect(&m_rcItem, event.ptMouse) )
+					//	{
+					//		int nSize = GetWindowTextLength(*m_pWindow);
+					//		if( nSize == 0 ) nSize = 1;
+					//		Edit_SetSel(*m_pWindow, 0, nSize);
+					//	}
+					//}
+					//else if( m_pWindow != NULL )
+					//{
+					//	if (!m_bAutoSelAll) {
+					//		POINT pt = event.ptMouse;
+					//		pt.x -= m_rcItem.left + m_rcTextPadding.left;
+					//		pt.y -= m_rcItem.top + m_rcTextPadding.top;
+					//		Edit_SetSel(*m_pWindow, 0, 0);
+					//		::SendMessage(*m_pWindow, WM_LBUTTONDOWN, event.wParam, MAKELPARAM(pt.x, pt.y));
+					//	}
+					//}
+				}
+			break;
+			case UIEVENT_MOUSEENTER:
+				if( ::PtInRect(&m_rcItem, event.ptMouse ) ) {
+					if( IsEnabled() ) {
+						if( (m_uButtonState & UISTATE_HOT) == 0  ) {
+							m_uButtonState |= UISTATE_HOT;
+							Invalidate(); // todo opt
+						}
+					}
+				}
+			break;
+			case UIEVENT_MOUSELEAVE:
+				if( IsEnabled() ) {
+					m_uButtonState &= ~UISTATE_HOT;
+					Invalidate(); // todo opt
+				}
+			break;
 		}
 		//if( event.Type == UIEVENT_SCROLLWHEEL)
 		//{
 		//	_MouseWheel(infoPtr, event.wParam, event.lParam);
 		//	return;
 		//}
-		if( event.Type == UIEVENT_KEYDOWN ) 
-		{
-			_KeyDown(infoPtr, (INT)event.wParam);
-			return;
-		}
-		if( event.Type == UIEVENT_DBLCLICK )
-		{
-			_manager->SetCapture();
-			_LButtonDblClk(infoPtr);
-			return;
-		}
-		if( event.Type == UIEVENT_CONTEXTMENU )
-		{
-			EDIT_WM_ContextMenu(infoPtr, (short)LOWORD(event.lParam), (short)HIWORD(event.lParam));
-			return;
-		}
-		if( event.Type == UIEVENT_SETFOCUS && IsEnabled() ) 
-		{
-			m_bFocused_YES;
-			infoPtr->flags |= EF_FOCUSED;
-			CreateCaret(_manager->GetPaintWindow(), 0, 1, infoPtr->line_height);
-			EDIT_SetCaretPos(infoPtr, infoPtr->selection_end, infoPtr->flags & EF_AFTER_WRAP);
-			ShowCaretIfVisible(true);
-			//Invalidate();
-			return;
-		}
-		if( event.Type == UIEVENT_KILLFOCUS && IsEnabled() ) 
-		{
-			TCHAR buffer[100]={0};
-			wsprintf(buffer,TEXT("UIEVENT_KILLFOCUS"), TEXT("GOGO"));
-			//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
-
-			m_bFocused_NO;
-			infoPtr->flags &= ~EF_FOCUSED;
-			//Invalidate();
-			ShowCaretIfVisible(false);
-			return;
-		}
-		if( event.Type == UIEVENT_BUTTONDOWN || event.Type == UIEVENT_DBLCLICK || event.Type == UIEVENT_RBUTTONDOWN) 
-		{
-			if( IsEnabled() ) {
-				GetManager()->ReleaseCapture();
-				//if( IsFocused() && m_pWindow == NULL )
-				//{
-				//	m_pWindow = new CEditWnd();
-				//	ASSERT(m_pWindow);
-				//	m_pWindow->Init(this);
-				//
-				//	if( PtInRect(&m_rcItem, event.ptMouse) )
-				//	{
-				//		int nSize = GetWindowTextLength(*m_pWindow);
-				//		if( nSize == 0 ) nSize = 1;
-				//		Edit_SetSel(*m_pWindow, 0, nSize);
-				//	}
-				//}
-				//else if( m_pWindow != NULL )
-				//{
-				//	if (!m_bAutoSelAll) {
-				//		POINT pt = event.ptMouse;
-				//		pt.x -= m_rcItem.left + m_rcTextPadding.left;
-				//		pt.y -= m_rcItem.top + m_rcTextPadding.top;
-				//		Edit_SetSel(*m_pWindow, 0, 0);
-				//		::SendMessage(*m_pWindow, WM_LBUTTONDOWN, event.wParam, MAKELPARAM(pt.x, pt.y));
-				//	}
-				//}
-			}
-			return;
-		}
-		if( event.Type == UIEVENT_BUTTONUP ) 
-		{
-			return;
-		}
-		if( event.Type == UIEVENT_MOUSEENTER )
-		{
-			if( ::PtInRect(&m_rcItem, event.ptMouse ) ) {
-				if( IsEnabled() ) {
-					if( (m_uButtonState & UISTATE_HOT) == 0  ) {
-						m_uButtonState |= UISTATE_HOT;
-						Invalidate();
-					}
-				}
-			}
-		}
-		if( event.Type == UIEVENT_MOUSELEAVE )
-		{
-			if( IsEnabled() ) {
-				m_uButtonState &= ~UISTATE_HOT;
-				Invalidate();
-			}
-			return;
-		}
+		//if( event.Type == UIEVENT_BUTTONUP ) 
+		//{
+		//	return;
+		//}
 		__super::DoEvent(event);
 	}
 

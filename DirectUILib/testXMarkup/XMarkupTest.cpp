@@ -85,7 +85,7 @@ public:
 
     void Notify( TNotifyUI &msg ) override
     {
-        LogIs(L"Notify %s %s", (LPCWSTR)msg.sType, msg.pSender->GetClass());
+        //LogIs(L"Notify %s %s", (LPCWSTR)msg.sType, msg.pSender->GetClass());
         if (msg.sType==L"setfocus")
         {
             if(lstrcmp(msg.pSender->GetClass(), L"InputBox")==0) {

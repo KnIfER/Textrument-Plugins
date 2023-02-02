@@ -2260,7 +2260,7 @@ namespace DuiLib {
 			return true;
 		case WM_SETFOCUS:
 			{
-			LogIs(L"WM_SETFOCUS");
+				LogIs(L"WM_SETFOCUS");
 				if( m_pFocus != NULL ) {
 					TEventUI event = { 0 };
 					event.Type = UIEVENT_SETFOCUS;
@@ -2269,24 +2269,26 @@ namespace DuiLib {
 					event.pSender = m_pFocus;
 					event.dwTimestamp = ::GetTickCount();
 					m_pFocus->Event(event);
+					SendNotify(m_pFocus, DUI_MSGTYPE_SETFOCUS);
 				}
 				break;
 			}
 		case WM_KILLFOCUS:
 			{
-			LogIs(L"WM_KILLFOCUS");
+				LogIs(L"WM_KILLFOCUS %s", m_pFocus?m_pFocus->GetClass():L"0");
 				if(IsCaptured()) ReleaseCapture();
-				//SetFocus();
+				SetFocus(NULL);
 				//m_pFocus = NULL; // 如此当窗口重获焦点时，不恢复焦点所在。
-				if( m_pFocus != NULL ) {
-					TEventUI event = { 0 };
-					event.Type = UIEVENT_KILLFOCUS;
-					event.wParam = wParam;
-					event.lParam = lParam;
-					event.pSender = m_pFocus;
-					event.dwTimestamp = ::GetTickCount();
-					m_pFocus->Event(event);
-				}
+				//if( m_pFocus != NULL ) {
+				//	TEventUI event = { 0 };
+				//	event.Type = UIEVENT_KILLFOCUS;
+				//	event.wParam = wParam;
+				//	event.lParam = lParam;
+				//	event.pSender = m_pFocus;
+				//	event.dwTimestamp = ::GetTickCount();
+				//	m_pFocus->Event(event);
+				//	SendNotify(m_pFocus, DUI_MSGTYPE_KILLFOCUS);
+				//}
 				break;
 			}
 		case WM_NOTIFY:
@@ -2651,14 +2653,21 @@ namespace DuiLib {
 
 	void CPaintManagerUI::SetFocus(CControlUI* pControl)
 	{
+		//LogIs(4, L"SetFocus %s %s", pControl?pControl->GetClass():L"0", m_pFocus?m_pFocus->GetClass():L"0");
 		// Paint manager window has focus?
-		HWND hFocusWnd = ::GetFocus();
 		if(pControl) {
+			HWND hFocusWnd = ::GetFocus();
 			HWND ctrlWnd = pControl->GetManager()->GetPaintWindow();
-			if( hFocusWnd != ctrlWnd ) ::SetFocus(ctrlWnd);
-		} else if(hFocusWnd != m_hWndPaint && pControl != m_pFocus) {
-			::SetFocus(m_hWndPaint);
-		}
+			if(hFocusWnd!=ctrlWnd) {
+				if( hFocusWnd != ctrlWnd ) ::SetFocus(ctrlWnd);
+				if(pControl==m_pFocus)
+					m_pFocus = NULL;
+			}
+		} 
+		//else if(hFocusWnd != m_hWndPaint && pControl != m_pFocus)
+		//{
+		//	::SetFocus(m_hWndPaint); // WTF ???
+		//}
 		// Already has focus?
 		if( pControl == m_pFocus ) return;
 		// Remove focus from old control
@@ -2670,8 +2679,7 @@ namespace DuiLib {
 			event.dwTimestamp = ::GetTickCount();
 			m_pFocus->Event(event);
 			SendNotify(m_pFocus, DUI_MSGTYPE_KILLFOCUS);
-			m_pFocus->StatFocus();
-			m_pFocus = NULL;
+			//m_pFocus = NULL;
 		}
 		if( pControl == NULL ) return;
 		// Set focus to new control

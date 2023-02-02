@@ -73,7 +73,7 @@ namespace DuiLib
 		bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
 		virtual void PaintText(HDC hDC);
 
-		void ShowCaretIfVisible(bool update);
+		void ShowCaretIfFocused(bool update);
 		void SetVCenter(bool value);
 		void SetMultiline(bool value);
 	protected:
