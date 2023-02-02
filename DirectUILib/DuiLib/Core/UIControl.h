@@ -119,22 +119,33 @@ namespace DuiLib {
 		LPCTSTR GetForeImage() const;
 		void SetForeImage(LPCTSTR pStrImage);
 
-		DWORD GetFocusBorderColor() const;
-		void SetFocusBorderColor(DWORD dwBorderColor);
 		bool IsColorHSL() const;
 		void SetColorHSL(bool bColorHSL);
+		bool DrawImage(HDC hDC, LPCTSTR pStrImage, LPCTSTR pStrModify = NULL);
+
 		// 是否裁切出圆角内容
 		void SetRoundClip(bool bClip);
 		void SetBkRound(bool val);
+
+		//边框相关
 		SIZE GetBorderRound() const;
 		void SetBorderRound(SIZE cxyRound, LPCTSTR handyStr=0);
-		bool DrawImage(HDC hDC, LPCTSTR pStrImage, LPCTSTR pStrModify = NULL);
+		// 指示均匀粗细的圆角边框的绘制方式：0=自动，边框过粗时绘制空心矩形；1=强制绘制路径; 2=强制绘制空心矩形
+		void SetBorderArc(int val);
+		//int GetBorderRoundForceEvenType();
+		// 高亮加粗
+		void SetBorderEnhanced(bool val);	
+		bool GetBorderEnhanced();	
 
 		//边框相关
 		int GetBorderSize() const;
 		void SetBorderSize(int nSize);
+
 		DWORD GetBorderColor() const;
 		void SetBorderColor(DWORD dwBorderColor);
+		DWORD GetFocusBorderColor() const;
+		void SetFocusBorderColor(DWORD dwBorderColor);
+
 		void SetBorderSize(const RECT & rc, LPCTSTR handyStr = 0);
 		int GetLeftBorderSize() const;
 		void SetLeftBorderSize(int nSize);
@@ -220,6 +231,7 @@ namespace DuiLib {
 		virtual void SetKeyboardEnabled(bool bEnable = true);
 		virtual bool IsFocused() const;
 		virtual void SetFocus();
+		virtual void StatFocus();
 		virtual bool HasFocus() const;
 		virtual bool IsFloat() const;
 		virtual void SetFloat(bool bFloat = true);
@@ -418,6 +430,7 @@ namespace DuiLib {
 
 		// 0=zero_sized; 1=even_sized; 2=hetero_sized
 		BYTE _borderSizeType;
+		BYTE _round;
 		// ...
 		BYTE m_nBorderStyle;
 		SIZE m_cxyBorderRound;

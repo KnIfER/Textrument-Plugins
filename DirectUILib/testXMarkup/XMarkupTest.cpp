@@ -85,6 +85,21 @@ public:
 
     void Notify( TNotifyUI &msg ) override
     {
+        LogIs(L"Notify %s %s", (LPCWSTR)msg.sType, msg.pSender->GetClass());
+        if (msg.sType==L"setfocus")
+        {
+            if(lstrcmp(msg.pSender->GetClass(), L"InputBox")==0) {
+                msg.pSender->GetParent()->SetBorderEnhanced(true);
+                msg.pSender->GetParent()->SetBorderColor(0xff039ed3);
+            }
+        }
+        if (msg.sType==L"killfocus")
+        {
+            if(lstrcmp(msg.pSender->GetClass(), L"InputBox")==0) {
+                msg.pSender->GetParent()->SetBorderEnhanced(false);
+                msg.pSender->GetParent()->SetBorderColor(0x9f454545);
+            }
+        }
         if (msg.sType==L"click")
         {
             m_pm.SetDPI(125);

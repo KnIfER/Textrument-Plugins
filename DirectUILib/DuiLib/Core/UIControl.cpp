@@ -540,6 +540,27 @@ namespace DuiLib {
 			Invalidate();
 	}
 
+	void CControlUI::SetBorderArc(int val)
+	{
+		if(m_iBorderRoundByArc != val) {
+			VIEWSTATEMASK_APPLY_INT(VIEWSTATEMASK_BorderRoundByArc, val, 27);
+			Invalidate();
+		}
+	}
+
+	void CControlUI::SetBorderEnhanced(bool val)
+	{
+		if(m_bBorderEnhanced != val) {
+			VIEWSTATEMASK_APPLY(VIEWSTATEMASK_BorderEnhanced, val);
+			Invalidate();
+		}
+	}
+
+	bool CControlUI::GetBorderEnhanced()
+	{
+		return m_bBorderEnhanced;
+	}
+
 	bool CControlUI::DrawImage(HDC hDC, LPCTSTR pStrImage, LPCTSTR pStrModify)
 	{
 		return CRenderEngine::DrawImageString(hDC, _manager, m_rcItem, m_rcPaint, pStrImage, pStrModify, _instance);
@@ -998,7 +1019,15 @@ namespace DuiLib {
 
 	void CControlUI::SetFocus()
 	{
-		if( _manager && m_bFocusable ) _manager->SetFocus(this);
+		if( _manager && m_bFocusable ) 
+			_manager->SetFocus(this);
+		StatFocus();
+	}
+	
+	void CControlUI::StatFocus()
+	{
+		if(m_bRedrawOnFocusChanged) 
+			Invalidate();
 	}
 
 	bool CControlUI::HasFocus() const
@@ -1287,6 +1316,10 @@ namespace DuiLib {
 			else if( _tcsicmp(pstrName, _T("autocalcheight")) == 0 ) {
 				SetAutoCalcHeight(_tcsicmp(pstrValue, _T("true")) == 0);
 			}
+			else if( _tcsicmp(pstrName, _T("autoenhance")) == 0 ) {
+				VIEWSTATEMASK_APPLY(VIEWSTATEMASK_BorderAutoEnhance, _tcsicmp(pstrValue, _T("true")) == 0);
+				VIEWSTATEMASK_APPLY(VIEWSTATEMASK_RedrawOnFocusChanged, true);
+			}
 			else if( _tcsicmp(pstrName, _T("bkcolor")) == 0 || _tcsicmp(pstrName, _T("bkcolor1")) == 0 ) {
 				STR2ARGB(pstrValue, m_dwBackColor);
 				VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
@@ -1309,6 +1342,8 @@ namespace DuiLib {
 			else if( _tcsicmp(pstrName, _T("bottombordersize")) == 0 ) SetBottomBorderSize(ParseInt(pstrValue));
 			else if( _tcsicmp(pstrName, _T("borderstyle")) == 0 ) SetBorderStyle(ParseInt(pstrValue));
 			else if( _tcsicmp(pstrName, _T("borderround")) == 0 ) SetBorderRound(m_cxyBorderRound, pstrValue);
+			else if( _tcsicmp(pstrName, _T("borderarc")) == 0 ) SetBorderArc(_ttoi(pstrValue));
+			//else if( _tcsicmp(pstrName, _T("borderenhance")) == 0 ) SetBorderEnhanced(_tcsicmp(pstrValue, _T("true"));
 			else if( _tcsicmp(pstrName, _T("bkround")) == 0 ) SetBkRound(_tcsicmp(pstrValue, _T("true")) == 0);
 			else if( _tcsicmp(pstrName, _T("colorhsl")) == 0 ) SetColorHSL(_tcsicmp(pstrValue, _T("true")) == 0);
 			else if( _tcsicmp(pstrName, _T("cursor")) == 0 && pstrValue) {
@@ -1403,6 +1438,7 @@ namespace DuiLib {
 			else if( _tcsicmp(pstrName, _T("focusbordercolor")) == 0 ) {
 				STR2ARGB(pstrValue, m_dwFocusBorderColor);
 				VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
+				VIEWSTATEMASK_APPLY(VIEWSTATEMASK_RedrawOnFocusChanged, true);
 			}
 			else if( _tcsncicmp(pstrName, _T("fx_"), 3) == 0 ) 
 			{
@@ -1823,9 +1859,11 @@ namespace DuiLib {
 				::InflateRect(&rc, -bordersizen/2, -bordersizen/2);
 				float width = rc.right - rc.left - 1 - _borderInset.right -_borderInset.left;
 				float height = rc.bottom - rc.top - 1 - _borderInset.bottom - _borderInset.top;
-				if (bordersizen<8 && cxyBorderRound.cx<=(MIN(width,height)-bordersizen)/2+1)
-				//if (1)
-				{ // 勾勒
+				int drawAsPath = m_iBorderRoundByArc;
+				if(drawAsPath==0)
+					drawAsPath = bordersizen<8 && cxyBorderRound.cx<=(MIN(width,height)-bordersizen)/2+1;
+				if (drawAsPath==1)
+				{ // 勾勒 draw as path
 					CRenderEngine::DrawRoundRectangle(hDC
 						, rc.left + _borderInset.left
 						, rc.top + _borderInset.top
@@ -1838,7 +1876,7 @@ namespace DuiLib {
 						, Gdiplus::Color(bordercolor));
 				}
 				else
-				{ // 空心圆角矩形
+				{ // 空心圆角矩形 draw as round rect hollow
 					RECT & rc = m_rcItem;
 					CRenderEngine::DrawRoundRectangleHollow(hDC
 						, rc.left + _borderInset.left
@@ -1872,6 +1910,20 @@ namespace DuiLib {
 					ApplyBorderInsetToRect(rc);
 					CRenderEngine::DrawRect(hDC, rc, bordersizen, bordercolor, 5);
 				}
+			}
+			if(m_bBorderEnhanced || m_bAutoEnhanceFocus && m_bFocused) {
+				int pad=2;
+				RECT & rc = m_rcItem;
+				CRenderEngine::DrawRoundRectangleHollow(hDC
+					, rc.left + _borderInset.left - pad
+					, rc.top + _borderInset.top - pad
+					, rc.right - rc.left - 1 - _borderInset.right -_borderInset.left+ pad*2
+					, rc.bottom - rc.top - 1 - _borderInset.bottom - _borderInset.top+ pad*2
+					, cxyBorderRound.cx
+					, 5
+					, Gdiplus::Color(bordercolor&0x19ffffff)
+					, true
+					, Gdiplus::Color(bordercolor&0x19ffffff));
 			}
 		}
 	}

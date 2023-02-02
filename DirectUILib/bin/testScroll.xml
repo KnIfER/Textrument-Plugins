@@ -91,9 +91,11 @@
 	
 	<HBox height="50" name="schbar"> 
 		<HBox width="-6"
+			bordercolor="#9f454545" 
+			focusbordercolor="#ff039ed3" 
 			bkcolor="#5500fafa" bkround="false" 
 			inset="10,4"
-			bordercolor="#77000000" bordersize="1" borderround="10" borderinset="1,4,10,4"> 
+			bordersize="1"  borderarc="1" borderround="10" borderinset="1,4,10,4"> 
 				<Edit width="0" textcolor="#ff000000" font="3"   
 						vcenter="true"
 						text="http://127.10.0.1:8080/"/>
@@ -103,7 +105,7 @@
 		<HBox width="-3"
 			bkcolor="#5500fafa" bkround="false" 
 			inset="10,4"
-			bordercolor="#77000000" bordersize="1" borderround="10" borderinset="1,4,10,4"> 
+			bordercolor="#ffffffff" bordersize="5" borderarc="2" borderround="10" borderinset="1,4,10,4"> 
 				<Edit textcolor="#ff000000" font="3"   
 					vcenter="true"
 					text="http://127.20.0.1:8080/" />

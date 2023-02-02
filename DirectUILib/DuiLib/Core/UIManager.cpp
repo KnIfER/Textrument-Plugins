@@ -2260,6 +2260,7 @@ namespace DuiLib {
 			return true;
 		case WM_SETFOCUS:
 			{
+			LogIs(L"WM_SETFOCUS");
 				if( m_pFocus != NULL ) {
 					TEventUI event = { 0 };
 					event.Type = UIEVENT_SETFOCUS;
@@ -2273,6 +2274,7 @@ namespace DuiLib {
 			}
 		case WM_KILLFOCUS:
 			{
+			LogIs(L"WM_KILLFOCUS");
 				if(IsCaptured()) ReleaseCapture();
 				//SetFocus();
 				//m_pFocus = NULL; // 如此当窗口重获焦点时，不恢复焦点所在。
@@ -2668,6 +2670,7 @@ namespace DuiLib {
 			event.dwTimestamp = ::GetTickCount();
 			m_pFocus->Event(event);
 			SendNotify(m_pFocus, DUI_MSGTYPE_KILLFOCUS);
+			m_pFocus->StatFocus();
 			m_pFocus = NULL;
 		}
 		if( pControl == NULL ) return;

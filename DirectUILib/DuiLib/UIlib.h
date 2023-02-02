@@ -165,7 +165,11 @@ const int VIEWSTATEMASK_ResourceText     =   0x1<<22;
 const int VIEWSTATEMASK_ColorHSL         =   0x1<<23;
 const int VIEWSTATEMASK_RoundClip        =   0x1<<24;
 const int VIEW_INFO_DIRTY_COLORS         =   0x1<<25;
-const int VIEWSTATEMASK_BKColorNonRound  =   0x1<<26;
+const int VIEWSTATEMASK_BKColorNonRound     =   0x1<<26;
+const int VIEWSTATEMASK_BorderRoundByArc    =   0x3<<27;
+const int VIEWSTATEMASK_BorderEnhanced      =   0x1<<29;
+const int VIEWSTATEMASK_BorderAutoEnhance   =   0x1<<30;
+const int VIEWSTATEMASK_RedrawOnFocusChanged    =   0x1<<31;
 
 #define m_bEnabled                 (_view_states&VIEWSTATEMASK_Enabled)
 #define m_bVisible                 (_view_states&VIEWSTATEMASK_Visibility)
@@ -192,12 +196,22 @@ const int VIEWSTATEMASK_BKColorNonRound  =   0x1<<26;
 #define m_bRoundClip               (_view_states&VIEWSTATEMASK_RoundClip)
 #define m_bInfoDirtyColors         (_view_states&VIEW_INFO_DIRTY_COLORS)
 #define m_bBkRound                 ((_view_states&VIEWSTATEMASK_BKColorNonRound)==0)
+// 0=自动；1=路径; 2=矩形
+#define m_iBorderRoundByArc        ((_view_states&VIEWSTATEMASK_BorderRoundByArc)>>27)
+#define m_bBorderEnhanced		   (_view_states&VIEWSTATEMASK_BorderEnhanced)
+#define m_bAutoEnhanceFocus        (_view_states&VIEWSTATEMASK_BorderAutoEnhance)
+#define m_bRedrawOnFocusChanged    (_view_states&VIEWSTATEMASK_RedrawOnFocusChanged)
 
 #define m_bFocused_YES _view_states|=VIEWSTATEMASK_Focused
 #define m_bFocused_NO _view_states&=~VIEWSTATEMASK_Focused
 
 #define VIEWSTATEMASK_APPLY(mask, value) if(value) _view_states |= mask; \
 			else _view_states &= ~mask;
+
+#define VIEWSTATEMASK_APPLY(mask, value) if(value) _view_states |= mask; \
+			else _view_states &= ~mask;
+
+#define VIEWSTATEMASK_APPLY_INT(mask, value, flagPos) _view_states = (_view_states&~mask)|(value<<flagPos);
 
 #define VIEWSTATE_MARK_DIRTY(mask) _view_states |= mask;
 

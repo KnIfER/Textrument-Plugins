@@ -1955,11 +1955,11 @@ namespace DuiLib {
 		}
 
 		//LinearGradientBrush gradBrush(Point(x, y), Point(x, y+height), Color(255, 255, 0, 0), Color(255, 0, 0, 255));
-		//Color colors[] = {
-		//	Color(255, 255,	0,	 0),		//red   
-		//	Color(255, 255,	255, 0),		//yellow   
-		//	Color(255, 0,	0,	 255),		//blue   
-		//	Color(255, 0,	255, 0)			//green 
+		//Gdiplus::Color colors[] = {
+		//	Gdiplus::Color(255, 255,	0,	 0),		//red   
+		//	Gdiplus::Color(255, 255,	255, 0),		//yellow   
+		//	Gdiplus::Color(255, 0,	0,	 255),		//blue   
+		//	Gdiplus::Color(255, 0,	255, 0)			//green 
 		//};		  
 		//
 		////按红黄蓝绿的顺序四种颜色渐变,四种颜色,各占四分之一
