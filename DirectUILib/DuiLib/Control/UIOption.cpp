@@ -24,9 +24,9 @@ namespace DuiLib
 		return Button::GetInterface(pstrName);
 	}
 
-	void OptionBtn::SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit)
+	void OptionBtn::SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit, bool setChild)
 	{
-		__super::SetManager(pManager, pParent, bInit);
+		__super::SetManager(pManager, pParent, bInit, setChild);
 		if( bInit && !m_sGroupName.IsEmpty() ) {
 			if (_manager) _manager->AddOptionGroup(m_sGroupName, this);
 		}

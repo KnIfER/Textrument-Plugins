@@ -676,12 +676,12 @@ namespace DuiLib
 		else CControlUI::SetAttribute(pstrName, pstrValue);
 	}
 
-	void CContainerUI::SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit)
+	void CContainerUI::SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit, bool setChild)
 	{
 		_manager = pManager;
-		if( m_pVerticalScrollBar != NULL ) m_pVerticalScrollBar->SetManager(pManager, this, bInit);
-		if( m_pHorizontalScrollBar != NULL ) m_pHorizontalScrollBar->SetManager(pManager, this, bInit);
-		CControlUI::SetManager(pManager, pParent, bInit);
+		if( m_pVerticalScrollBar != NULL ) m_pVerticalScrollBar->SetManager(pManager, this, bInit, setChild);
+		if( m_pHorizontalScrollBar != NULL ) m_pHorizontalScrollBar->SetManager(pManager, this, bInit, setChild);
+		CControlUI::SetManager(pManager, pParent, bInit, setChild);
 	}
 
 	CControlUI* CContainerUI::FindControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags)

@@ -44,7 +44,7 @@ namespace DuiLib {
 
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
-		void SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit = true);
+		void SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit = true, bool setChild = true);
 		CControlUI* FindControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags);
 
 		bool SetSubControlText(LPCTSTR pstrSubControlName,LPCTSTR pstrText);

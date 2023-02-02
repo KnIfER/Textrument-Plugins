@@ -44,7 +44,7 @@ namespace DuiLib {
 
 		virtual bool Activate();
 		virtual CPaintManagerUI* GetManager() const;
-		virtual void SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit = true);
+		virtual void SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit = true, bool setChild = true);
 		virtual CControlUI* GetParent() const;
 	    void setInstance(HINSTANCE instance = NULL);
 		HWND GetHWND();
