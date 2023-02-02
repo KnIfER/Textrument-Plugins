@@ -325,6 +325,7 @@ namespace DuiLib {
 		m_uTimerID(0x1000),
 		m_pRoot(NULL),
 		m_pFocus(NULL),
+		_wndFocus(NULL),
 		m_pEventHover(NULL),
 		m_pEventClick(NULL),
 		m_pEventKey(NULL),
@@ -2260,8 +2261,12 @@ namespace DuiLib {
 			return true;
 		case WM_SETFOCUS:
 			{
-				LogIs(L"WM_SETFOCUS");
-				if( m_pFocus != NULL ) {
+				//LogIs(L"WM_SETFOCUS");
+				if( _wndFocus && ::IsWindow(_wndFocus) ) {
+					::SetFocus(_wndFocus);
+				}
+				else if( m_pFocus != NULL ) 
+				{
 					TEventUI event = { 0 };
 					event.Type = UIEVENT_SETFOCUS;
 					event.wParam = wParam;
@@ -2275,9 +2280,10 @@ namespace DuiLib {
 			}
 		case WM_KILLFOCUS:
 			{
-				LogIs(L"WM_KILLFOCUS %s", m_pFocus?m_pFocus->GetClass():L"0");
+				//LogIs(L"WM_KILLFOCUS %s %ld", m_pFocus?m_pFocus->GetClass():L"0", ::GetFocus());
 				if(IsCaptured()) ReleaseCapture();
 				SetFocus(NULL);
+				_wndFocus = ::GetFocus();
 				//m_pFocus = NULL; // 如此当窗口重获焦点时，不恢复焦点所在。
 				//if( m_pFocus != NULL ) {
 				//	TEventUI event = { 0 };
@@ -2656,6 +2662,7 @@ namespace DuiLib {
 		//LogIs(4, L"SetFocus %s %s", pControl?pControl->GetClass():L"0", m_pFocus?m_pFocus->GetClass():L"0");
 		// Paint manager window has focus?
 		if(pControl) {
+			if(_wndFocus) _wndFocus=0; // 证悟圆通大自在
 			HWND hFocusWnd = ::GetFocus();
 			HWND ctrlWnd = pControl->GetManager()->GetPaintWindow();
 			if(hFocusWnd!=ctrlWnd) {

@@ -668,6 +668,8 @@ namespace DuiLib {
 		bool m_bNoActivate;
 		bool m_bShowUpdateRect;
 
+		HWND _wndFocus;
+
 		//
 		CControlUI* m_pRoot;
 		CControlUI* m_pFocus;
