@@ -602,14 +602,29 @@ namespace DuiLib
 
 	LPCSTR QkString::GetData(std::string & buffer) const
 	{
-		size_t max_cap = GetLength()*2;
+		size_t max_cap = GetLength()*2.5;
 		if (buffer.capacity()<max_cap)
 		{
-			buffer.resize(MAX(max_cap*1.2, max_cap));
+			buffer.resize(MAX(max_cap*1.25, max_cap));
 		}
+		max_cap = buffer.capacity() - 1;
 		CHAR* data = (CHAR*)buffer.c_str();
 		size_t len = ::WideCharToMultiByte(::GetACP(), 0, GetData(), GetLength(), data, max_cap, NULL, NULL);
+		if(len==0) {
+			int max_cap_ = max_cap;
+			max_cap = GetLength()*4;
+			if (buffer.capacity()<max_cap)
+			{
+				buffer.resize(max_cap);
+				max_cap = buffer.capacity() - 1;
+				if(max_cap > max_cap_) {
+					data = (CHAR*)buffer.c_str();
+					len = ::WideCharToMultiByte(::GetACP(), 0, GetData(), GetLength(), data, max_cap, NULL, NULL);
+				}
+			}
+		}
 		data[len] = '\0';
+		//LogIs(2, "GetData::bufferSz=%d, len=%d", max_cap, len);
 		return buffer.c_str();
 	}
 
@@ -621,8 +636,22 @@ namespace DuiLib
 		{
 			buffer.resize(MAX(max_cap*1.2, max_cap));
 		}
+		max_cap = buffer.capacity() - 1;
 		CHAR* data = (CHAR*)buffer.c_str();
 		size_t len = ::WideCharToMultiByte(::GetACP(), 0, pStr, length, data, max_cap, NULL, NULL);
+		if(len==0) {
+			int max_cap_ = max_cap;
+			max_cap = length*4;
+			if (buffer.capacity()<max_cap)
+			{
+				buffer.resize(max_cap);
+				max_cap = buffer.capacity() - 1;
+				if(max_cap > max_cap_) {
+					data = (CHAR*)buffer.c_str();
+					len = ::WideCharToMultiByte(::GetACP(), 0, pStr, length, data, max_cap, NULL, NULL);
+				}
+			}
+		}
 		data[len] = '\0';
 		return data;
 	}
