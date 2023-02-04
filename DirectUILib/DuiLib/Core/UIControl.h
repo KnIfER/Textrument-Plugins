@@ -3,11 +3,7 @@
 
 #pragma once
 
-#ifdef _WIN64
-#define LONG_FLAG long
-#else
-#define LONG_FLAG long long
-#endif
+#define LONG_FLAG __int64
 
 namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
