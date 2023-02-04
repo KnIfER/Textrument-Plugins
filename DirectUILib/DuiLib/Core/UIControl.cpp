@@ -107,7 +107,7 @@ namespace DuiLib {
 	void CControlUI::SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit, bool setChild)
 	{
 		/* DEBUG_PARSE_LAYOUT */
-		//LogIs(4, L"CControlUI::SetManager, tagName=%s, id=%s, text=%s, bInit=%d, _parent=%ld\n", (LPCWSTR)GetClass(), (LPCWSTR)GetName(), (LPCWSTR)GetText(), bInit, _parent);
+		//LogIs(4, L"CControlUI::SetManager, tagName=%s, id=%s, text=%s, bInit=%d, _parent=%ld", (LPCWSTR)GetClass(), (LPCWSTR)GetName(), (LPCWSTR)GetText(), bInit, _parent);
 
 		_manager = pManager;
 		_parent = pParent;
@@ -2089,7 +2089,10 @@ namespace DuiLib {
 			if( static_cast<CControlUI*>(m_items[it]) == pControl ) {
 				NeedUpdate();
 				if( m_bAutoDestroy ) {
-					if( m_bDelayedDestroy && _manager ) _manager->AddDelayedCleanup(pControl);             
+					if( m_bDelayedDestroy && _manager ) _manager->AddDelayedCleanup(pControl);  
+					else if(pControl->m_bCustomWidget){
+						// Intentionally leave blank
+					}           
 					else delete pControl;
 				}
 				return m_items.Remove(it);
@@ -2114,6 +2117,9 @@ namespace DuiLib {
 			CControlUI* pItem = static_cast<CControlUI*>(m_items[it]);
 			if( m_bDelayedDestroy && _manager && !_manager->_bIsLayoutOnly ) {
 				_manager->AddDelayedCleanup(pItem);             
+			}
+			else if(pItem->m_bCustomWidget){
+				// Intentionally leave blank
 			}
 			else {
 				delete pItem;

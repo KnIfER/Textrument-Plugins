@@ -170,6 +170,8 @@ const int VIEWSTATEMASK_BorderRoundByArc    =   0x3<<27;
 const int VIEWSTATEMASK_BorderEnhanced      =   0x1<<29;
 const int VIEWSTATEMASK_BorderAutoEnhance   =   0x1<<30;
 const int VIEWSTATEMASK_RedrawOnFocusChanged    =   0x1<<31;
+const LONGFLAG VIEWSTATEMASK_CustomWidget            =   0x1LL<<32L;
+const LONGFLAG VIEWSTATEMASK_PlainCustomWidget       =   0x1LL<<33;
 
 #define m_bEnabled                 (_view_states&VIEWSTATEMASK_Enabled)
 #define m_bVisible                 (_view_states&VIEWSTATEMASK_Visibility)
@@ -201,6 +203,8 @@ const int VIEWSTATEMASK_RedrawOnFocusChanged    =   0x1<<31;
 #define m_bBorderEnhanced		   (_view_states&VIEWSTATEMASK_BorderEnhanced)
 #define m_bAutoEnhanceFocus        (_view_states&VIEWSTATEMASK_BorderAutoEnhance)
 #define m_bRedrawOnFocusChanged    (_view_states&VIEWSTATEMASK_RedrawOnFocusChanged)
+#define m_bCustomWidget            _view_states&VIEWSTATEMASK_CustomWidget
+#define m_bPlainCustomWidget       _view_states&VIEWSTATEMASK_PlainCustomWidget
 
 #define m_bFocused_YES _view_states|=VIEWSTATEMASK_Focused
 #define m_bFocused_NO _view_states&=~VIEWSTATEMASK_Focused

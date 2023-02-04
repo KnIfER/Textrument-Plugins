@@ -3,6 +3,12 @@
 
 #pragma once
 
+#ifdef _WIN64
+#define LONG_FLAG long
+#else
+#define LONG_FLAG long long
+#endif
+
 namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -348,10 +354,10 @@ namespace DuiLib {
 		CEventSource OnNotify;
 		char* m_sUserDataTally;
 		int _marked;
+		LONG_FLAG _view_states;
 	protected:
 		CPaintManagerUI* _manager;
 		CControlUI* _parent;
-		int _view_states;
 		int _LastScaleProfile;
 
 		QkString m_sName;

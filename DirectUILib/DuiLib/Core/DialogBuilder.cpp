@@ -530,9 +530,13 @@ namespace DuiLib {
 							if( pControl != NULL ) break;
 						}
 					}
-				}
-				if( pControl == NULL && m_pCallback != NULL ) {
-					pControl = m_pCallback->CreateControl(pstrClass);
+					if( pControl == NULL && m_pCallback != NULL ) {
+						pControl = m_pCallback->CreateControl(pstrClass);
+						if(pControl && !(pControl->m_bPlainCustomWidget)) 
+						{
+							pControl->_view_states |= VIEWSTATEMASK_CustomWidget;
+						}
+					}
 				}
 			}
 
