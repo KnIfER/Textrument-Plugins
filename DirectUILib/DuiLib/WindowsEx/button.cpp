@@ -469,11 +469,12 @@ LRESULT _Destory(BUTTON_INFO* infoPtr)
     else if (infoPtr->image_type == IMAGE_ICON)
         DestroyIcon(infoPtr->u.icon);
     heap_free(infoPtr->note);
-    heap_free(infoPtr);
 
     delete infoPtr->opts;
     delete infoPtr->bg_opts;
     delete infoPtr;
+    //heap_free(infoPtr);
+
     //::DestroyWindow(hDelegate);
     //SetWindowLongPtrW( hDelegate, 0, 0 );
     //_Destroy(infoPtr);
