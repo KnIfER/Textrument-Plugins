@@ -1571,18 +1571,22 @@ namespace DuiLib {
 	}
 
 	bool CRenderEngine::DrawImageInfo(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint
-			, const TDrawInfo* pDrawInfo, HINSTANCE instance)
+			, const TDrawInfo* pDrawInfo, const RECT* rcDestMod, HINSTANCE instance)
 	{
 		if( pManager == NULL || hDC == NULL || pDrawInfo == NULL ) return false;
 		RECT rcDest = rcItem;
 		// 计算绘制目标区域
-		if( pDrawInfo->rcDest.left != 0 || pDrawInfo->rcDest.top != 0 || pDrawInfo->rcDest.right != 0 || pDrawInfo->rcDest.bottom != 0 ) {
-				rcDest.left = rcItem.left + pDrawInfo->rcDest.left;
-				rcDest.top = rcItem.top + pDrawInfo->rcDest.top;
-				rcDest.right = rcItem.left + pDrawInfo->rcDest.right;
-				if( rcDest.right > rcItem.right ) rcDest.right = rcItem.right;
-				rcDest.bottom = rcItem.top + pDrawInfo->rcDest.bottom;
-				if( rcDest.bottom > rcItem.bottom ) rcDest.bottom = rcItem.bottom;
+		if(!rcDestMod && pDrawInfo->DRAWABLE_SET_rcDest) {
+			rcDestMod = &pDrawInfo->rcDest;
+		}
+		if(rcDestMod) {
+			//if( pDrawInfo->rcDest.left != 0 || pDrawInfo->rcDest.top != 0 || pDrawInfo->rcDest.right != 0 || pDrawInfo->rcDest.bottom != 0 ) {
+			rcDest.left = rcItem.left + rcDestMod->left;
+			rcDest.top = rcItem.top + rcDestMod->top;
+			rcDest.right = rcItem.left + rcDestMod->right;
+			rcDest.bottom = rcItem.top + rcDestMod->bottom;
+			if( rcDest.right > rcItem.right ) rcDest.right = rcItem.right;
+			if( rcDest.bottom > rcItem.bottom ) rcDest.bottom = rcItem.bottom;
 		}
 		// 根据对齐方式计算目标区域
 		CDuiSize szImage = pDrawInfo->szImage;
@@ -1631,17 +1635,15 @@ namespace DuiLib {
 		return data;  
 	}
 
-	bool CRenderEngine::DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, TDrawInfo* modify, HINSTANCE instance)
+	bool CRenderEngine::DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, TDrawInfo* modify, const RECT* rcDest, HINSTANCE instance)
 	{
 		if ((pManager == NULL) || (hDC == NULL)) return false;
 		const TDrawInfo* pDrawInfo = pManager->GetDrawInfo(pStrImage);
 		if(modify) {
 			// modify...
 
-
-
 		}
-		return DrawImageInfo(hDC, pManager, rcItem, rcPaint, pDrawInfo, instance);
+		return DrawImageInfo(hDC, pManager, rcItem, rcPaint, pDrawInfo, rcDest, instance);
 	}
 
 	void CRenderEngine::DrawColor(HDC hDC, const RECT& rc, DWORD color)

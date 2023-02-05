@@ -48,7 +48,7 @@ namespace DuiLib
 			// make modify string
 
 			TDrawInfo drawableTmp;
-			drawableTmp.Parse(m_sArrowImage, _manager);
+			drawableTmp.Parse(m_sArrowImage, _manager); // todo optimise
 			
 			m_nArrowWidth = (drawableTmp.rcSource.right - drawableTmp.rcSource.left) / 5;
 			drawableTmp.rcSource.left += nIndex * m_nArrowWidth;

@@ -791,9 +791,7 @@ namespace DuiLib {
 			};
 			//QkString pStrImage;
 			//pStrImage.Format(_T("dest='%d,%d,%d,%d'"), rcDest.left, rcDest.top, rcDest.right, rcDest.bottom);
-			TDrawInfo drawableTmp;
-			drawableTmp.rcDest = rcDest;
-			DrawImage(hDC, m_strIcon, &drawableTmp);
+			DrawImageAt(hDC, m_strIcon, &rcDest);
 		}
 	}
 
@@ -821,9 +819,7 @@ namespace DuiLib {
 				(cxyFixed.cy - pImageInfo->nY) / 2 + pImageInfo->nY
 			};
 			GetManager()->GetDPIObj()->ScaleBack(&rcDest);
-			TDrawInfo drawableTmp;
-			drawableTmp.rcDest = rcDest;
-			DrawImage(hDC, strExplandIcon, &drawableTmp);
+			DrawImageAt(hDC, strExplandIcon, &rcDest);
 		}
 	}
 

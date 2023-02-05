@@ -475,6 +475,8 @@ namespace DuiLib
 #define STR(QKSTR) ((LPCWSTR)QKSTR)
 #define PRINT_RECT(LABEL, rc, way) LogIs(way, ""#LABEL" (%d, %d, %d, %d)", rc.left, rc.top, rc.right, rc.bottom);
 
+#define DrawImageAt(hdc, str, dest) DrawImage(hdc, str, 0, dest)
+
 }// namespace DuiLib
 
 #endif // __UTILS_H__

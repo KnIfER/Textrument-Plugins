@@ -412,8 +412,7 @@ namespace DuiLib {
 
 			//m_sSepImageModify.Empty();
 			//m_sSepImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
-			drawableTmp.rcDest = rcThumb;
-			if (!DrawImage(hDC, (LPCTSTR)m_sSepImage, &drawableTmp)) {}
+			if (!DrawImageAt(hDC, (LPCTSTR)m_sSepImage, &rcThumb)) {}
 		}
 	}
 

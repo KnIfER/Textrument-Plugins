@@ -284,8 +284,7 @@ namespace DuiLib
 			if( !m_sThumbPushedImage.IsEmpty() ) {
 				//m_sImageModify.Empty();
 				//m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
-				drawableTmp.rcDest = rcThumb;
-				if( !DrawImage(hDC, (LPCTSTR)m_sThumbPushedImage, &drawableTmp) ) {}
+				if( !DrawImageAt(hDC, (LPCTSTR)m_sThumbPushedImage, &rcThumb) ) {}
 				else return;
 			}
 		}
@@ -293,8 +292,7 @@ namespace DuiLib
 			if( !m_sThumbHotImage.IsEmpty() ) {
 				//m_sImageModify.Empty();
 				//m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
-				drawableTmp.rcDest = rcThumb;
-				if( !DrawImage(hDC, (LPCTSTR)m_sThumbHotImage, &drawableTmp) ) {}
+				if( !DrawImageAt(hDC, (LPCTSTR)m_sThumbHotImage, &rcThumb) ) {}
 				else return;
 			}
 		}
@@ -302,8 +300,7 @@ namespace DuiLib
 		if( !m_sThumbImage.IsEmpty() ) {
 			//m_sImageModify.Empty();
 			//m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
-			drawableTmp.rcDest = rcThumb;
-			if( !DrawImage(hDC, (LPCTSTR)m_sThumbImage, &drawableTmp) ) {}
+			if( !DrawImageAt(hDC, (LPCTSTR)m_sThumbImage, &rcThumb) ) {}
 			else return;
 		}
 	}

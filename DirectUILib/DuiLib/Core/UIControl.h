@@ -122,8 +122,7 @@ namespace DuiLib {
 
 		bool IsColorHSL() const;
 		void SetColorHSL(bool bColorHSL);
-		bool DrawImage(HDC hDC, LPCTSTR pStrImage );
-		bool DrawImage(HDC hDC, LPCTSTR pStrImage, TDrawInfo* modify);
+		bool DrawImage(HDC hDC, LPCTSTR pStrImage, TDrawInfo* modify = NULL, RECT* rcDest = NULL);
 
 		// 是否裁切出圆角内容
 		void SetRoundClip(bool bClip);

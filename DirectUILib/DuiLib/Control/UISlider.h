@@ -44,7 +44,6 @@ namespace DuiLib
 		QkString m_sThumbHotImage;
 		QkString m_sThumbPushedImage;
 
-		TDrawInfo drawableTmp;
 		bool	   m_bSendMove;
 	};
 }
