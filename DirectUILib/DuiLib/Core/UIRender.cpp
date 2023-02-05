@@ -920,7 +920,7 @@ namespace DuiLib {
 	Gdiplus::Image* CRenderEngine::GdiplusLoadImage(LPCTSTR pstrPath1)
 	{
 		tagTDrawInfo drawInfo;
-		drawInfo.Parse(pstrPath1, NULL, NULL);
+		drawInfo.Parse(pstrPath1, NULL);
 		QkString sImageName = drawInfo.sImageName;
 
 		LPBYTE pData = NULL;
@@ -1617,7 +1617,7 @@ namespace DuiLib {
 
 	const TImageInfo* CRenderEngine::ParseImageString(CPaintManagerUI* pManager, LPCTSTR pStrImage, LPCTSTR pStrModify, HINSTANCE instance)
 	{
-		const TDrawInfo* pDrawInfo = pManager->GetDrawInfo(pStrImage, pStrModify);
+		const TDrawInfo* pDrawInfo = pManager->GetDrawInfo(pStrImage);
 		if( pManager == NULL || pDrawInfo == NULL ) return false;
 		if (pDrawInfo->sImageName.IsEmpty()) {
 			return NULL;
@@ -1632,10 +1632,10 @@ namespace DuiLib {
 		return data;  
 	}
 
-	bool CRenderEngine::DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, LPCTSTR pStrModify, HINSTANCE instance)
+	bool CRenderEngine::DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, HINSTANCE instance)
 	{
 		if ((pManager == NULL) || (hDC == NULL)) return false;
-		const TDrawInfo* pDrawInfo = pManager->GetDrawInfo(pStrImage, pStrModify);
+		const TDrawInfo* pDrawInfo = pManager->GetDrawInfo(pStrImage);
 		return DrawImageInfo(hDC, pManager, rcItem, rcPaint, pDrawInfo, instance);
 	}
 

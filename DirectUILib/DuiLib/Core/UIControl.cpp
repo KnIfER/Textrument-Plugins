@@ -572,9 +572,9 @@ namespace DuiLib {
 		return m_bBorderEnhanced;
 	}
 
-	bool CControlUI::DrawImage(HDC hDC, LPCTSTR pStrImage, LPCTSTR pStrModify)
+	bool CControlUI::DrawImage(HDC hDC, LPCTSTR pStrImage)
 	{
-		return CRenderEngine::DrawImageString(hDC, _manager, m_rcItem, m_rcPaint, pStrImage, pStrModify, _instance);
+		return CRenderEngine::DrawImageString(hDC, _manager, m_rcItem, m_rcPaint, pStrImage, _instance);
 	}
 
 	const RECT& CControlUI::GetPos() const

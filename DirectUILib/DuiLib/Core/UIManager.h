@@ -271,7 +271,7 @@ namespace DuiLib {
 	typedef struct UILIB_API tagTDrawInfo
 	{
 		tagTDrawInfo();
-		void Parse(LPCTSTR pStrImage, LPCTSTR pStrModify, CPaintManagerUI *pManager);
+		void Parse(LPCTSTR pStrImage, CPaintManagerUI *pManager);
 		void Clear();
 
 		QkString sDrawString;
@@ -498,7 +498,7 @@ namespace DuiLib {
 		static void ReloadSharedImages();
 		void ReloadImages();
 
-		const TDrawInfo* GetDrawInfo(LPCTSTR pStrImage, LPCTSTR pStrModify);
+		const TDrawInfo* GetDrawInfo(LPCTSTR pStrImage);
 		void RemoveDrawInfo(LPCTSTR pStrImage, LPCTSTR pStrModify);
 		void RemoveAllDrawInfos();
 

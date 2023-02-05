@@ -691,7 +691,7 @@ namespace DuiLib
 		if(!m_sStateImage.IsEmpty() && m_nStateCount > 0)
 		{
 			TDrawInfo info;
-			info.Parse(m_sStateImage, _T(""), _manager);
+			info.Parse(m_sStateImage, _manager);
 			const TImageInfo* pImage = _manager->GetImageEx(info.sImageName, info.sResType, info.dwMask, info.bHSL);
 			if(m_sNormalImage.IsEmpty() && pImage != NULL)
 			{

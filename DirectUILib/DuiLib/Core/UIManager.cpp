@@ -152,14 +152,14 @@ namespace DuiLib {
 		Clear();
 	}
 
-	void tagTDrawInfo::Parse(LPCTSTR pStrImage, LPCTSTR pStrModify,CPaintManagerUI *pManager)
+	void tagTDrawInfo::Parse(LPCTSTR pStrImage,	CPaintManagerUI *pManager)
 	{
 		// 1、aaa.jpg
 		// 2、file='aaa.jpg' res='' restype='0' dest='0,0,0,0' source='0,0,0,0' corner='0,0,0,0' 
 		// mask='#FF0000' fade='255' hole='false' xtiled='false' ytiled='false'
 		// size='25,25' align='left' padding='0,0,0,0' by DuiLib_Ultimate
 		sDrawString = pStrImage;
-		sDrawModify = pStrModify;
+		// sDrawModify = pStrModify;
 		sImageName = pStrImage;
 
 		QkString sItem;
@@ -4040,20 +4040,17 @@ namespace DuiLib {
 		if( m_pRoot ) m_pRoot->Invalidate();
 	}
 
-	const TDrawInfo* CPaintManagerUI::GetDrawInfo(LPCTSTR pStrImage, LPCTSTR pStrModify)
+	const TDrawInfo* CPaintManagerUI::GetDrawInfo(LPCTSTR pStrImage)
 	{
 		if(_parent)
 		{
-			return _parent->GetDrawInfo(pStrImage, pStrModify);
+			return _parent->GetDrawInfo(pStrImage);
 		}
-		QkString sStrImage = pStrImage;
-		QkString sStrModify = pStrModify;
-		QkString sKey = sStrImage + sStrModify;
-		TDrawInfo* pDrawInfo = static_cast<TDrawInfo*>(m_ResInfo.m_DrawInfoHash.Find(sKey));
-		if(pDrawInfo == NULL && !sKey.IsEmpty()) {
+		TDrawInfo* pDrawInfo = static_cast<TDrawInfo*>(m_ResInfo.m_DrawInfoHash.Find(pStrImage));
+		if(pDrawInfo == NULL) { //  && !sKey.IsEmpty()
 			pDrawInfo = new TDrawInfo();
-			pDrawInfo->Parse(pStrImage, pStrModify,this);
-			m_ResInfo.m_DrawInfoHash.Insert(sKey, pDrawInfo);
+			pDrawInfo->Parse(pStrImage, this);
+			m_ResInfo.m_DrawInfoHash.Insert(pStrImage, pDrawInfo);
 		}
 		return pDrawInfo;
 	}
