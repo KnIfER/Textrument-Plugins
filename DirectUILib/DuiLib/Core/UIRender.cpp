@@ -1070,6 +1070,7 @@ namespace DuiLib {
 
 	bool CRenderEngine::MakeImageDest(const RECT& rcControl, const CDuiSize& szImage, short iAlign, const RECT& rcPadding, RECT& rcDest)
 	{
+		if(szImage.cx>0)
 		if((iAlign&GRAVITY_HCENTER)==GRAVITY_HCENTER)
 		{
 			rcDest.left = rcControl.left + ((rcControl.right - rcControl.left) - szImage.cx)/2;  
@@ -1085,7 +1086,8 @@ namespace DuiLib {
 			rcDest.left = rcControl.right - szImage.cx;  
 			rcDest.right = rcDest.left + szImage.cx;
 		}
-		
+
+		if(szImage.cy>0)
 		if((iAlign&GRAVITY_VCENTER)==GRAVITY_VCENTER)
 		{
 			rcDest.top = rcControl.top + ((rcControl.bottom - rcControl.top) - szImage.cy)/2;
@@ -1586,8 +1588,6 @@ namespace DuiLib {
 		// 根据对齐方式计算目标区域
 		CDuiSize szImage = pDrawInfo->szImage;
 		if(szImage.cx==-2 || szImage.cy==-2) {
-			szImage.cx = 50;
-			szImage.cy = 50;
 			if (!pDrawInfo->sImageName.IsEmpty()) {
 				const TImageInfo* data = NULL;
 				if( pDrawInfo->sResType.IsEmpty() ) {
@@ -1602,17 +1602,17 @@ namespace DuiLib {
 				}
 			}
 		}
-		if(szImage.cx > 0 && szImage.cy > 0) {
+		if(szImage.cx > 0 || szImage.cy > 0) {
 			MakeImageDest(rcItem, szImage, pDrawInfo->iAlign, pDrawInfo->rcPadding, rcDest);
 		}
 
-		bool bRet = DuiLib::GetImageInfoAndDraw(hDC, pManager, rcItem, rcPaint, pDrawInfo->sImageName
+		bool ret = DuiLib::GetImageInfoAndDraw(hDC, pManager, rcItem, rcPaint, pDrawInfo->sImageName
 			, pDrawInfo->sResType
 			, rcDest, pDrawInfo->rcSource, pDrawInfo->rcCorner
 			, pDrawInfo->dwMask, pDrawInfo->uFade, pDrawInfo->bHole
 			, pDrawInfo->bTiledX, pDrawInfo->bTiledY, instance);
 
-		return bRet;
+		return ret;
 	}
 
 	const TImageInfo* CRenderEngine::ParseImageString(CPaintManagerUI* pManager, LPCTSTR pStrImage, LPCTSTR pStrModify, HINSTANCE instance)
