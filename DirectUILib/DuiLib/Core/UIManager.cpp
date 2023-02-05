@@ -242,27 +242,28 @@ namespace DuiLib {
 					}
 					else if( sItem == _T("align") ) {
 						// todo optimize by separate by '|'
+						//LogIs(2, L"%s", STR(sValue));
 						if(sValue.Find(_T("center")) != -1) {
 							iAlign = GRAVITY_CENTER;
 						}
 						else {
 							if(sValue.Find(_T("hcenter")) != -1) {
-								iAlign = GRAVITY_HCENTER;
+								iAlign |= GRAVITY_HCENTER;
 							}
 							else if(sValue.Find(_T("left")) != -1) {
-								iAlign = GRAVITY_LEFT;
+								iAlign |= GRAVITY_LEFT;
 							}
 							else if(sValue.Find(_T("right")) != -1) {
-								iAlign = GRAVITY_RIGHT;
+								iAlign |= GRAVITY_RIGHT;
 							}
 							if(sValue.Find(_T("vcenter")) != -1) {
-								iAlign = GRAVITY_VCENTER;
+								iAlign |= GRAVITY_VCENTER;
 							}
 							else if(sValue.Find(_T("top")) != -1) {
-								iAlign = GRAVITY_TOP;
+								iAlign |= GRAVITY_TOP;
 							}
 							else if(sValue.Find(_T("bottom")) != -1) {
-								iAlign = GRAVITY_BOTTOM;
+								iAlign |= GRAVITY_BOTTOM;
 							}
 						}
 					}

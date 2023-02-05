@@ -287,6 +287,7 @@ namespace DuiLib {
 		bool bTiledX;
 		bool bTiledY;
 		bool bHSL;
+		//bool bNameOnlyInfo;
 
 		CDuiSize szImage;
 		RECT rcPadding;

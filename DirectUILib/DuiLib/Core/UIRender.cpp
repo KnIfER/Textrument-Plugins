@@ -1070,7 +1070,6 @@ namespace DuiLib {
 
 	bool CRenderEngine::MakeImageDest(const RECT& rcControl, const CDuiSize& szImage, short iAlign, const RECT& rcPadding, RECT& rcDest)
 	{
-		iAlign = GRAVITY_RIGHT|GRAVITY_BOTTOM;
 		if((iAlign&GRAVITY_HCENTER)==GRAVITY_HCENTER)
 		{
 			rcDest.left = rcControl.left + ((rcControl.right - rcControl.left) - szImage.cx)/2;  
@@ -1585,8 +1584,26 @@ namespace DuiLib {
 				if( rcDest.bottom > rcItem.bottom ) rcDest.bottom = rcItem.bottom;
 		}
 		// 根据对齐方式计算目标区域
-		if(pDrawInfo->szImage.cx > 0 && pDrawInfo->szImage.cy > 0) {
-			MakeImageDest(rcItem, pDrawInfo->szImage, pDrawInfo->iAlign, pDrawInfo->rcPadding, rcDest);
+		CDuiSize szImage = pDrawInfo->szImage;
+		if(szImage.cx==-2 || szImage.cy==-2) {
+			szImage.cx = 50;
+			szImage.cy = 50;
+			if (!pDrawInfo->sImageName.IsEmpty()) {
+				const TImageInfo* data = NULL;
+				if( pDrawInfo->sResType.IsEmpty() ) {
+					data = pManager->GetImageEx((LPCTSTR)pDrawInfo->sImageName, NULL, pDrawInfo->dwMask, false, instance);
+				}
+				else {
+					data = pManager->GetImageEx((LPCTSTR)pDrawInfo->sImageName, (LPCTSTR)pDrawInfo->sResType, pDrawInfo->dwMask, false, instance);
+				}
+				if(data) {
+					if(szImage.cx==-2) szImage.cx = data->nX;
+					if(szImage.cy==-2) szImage.cy = data->nY;
+				}
+			}
+		}
+		if(szImage.cx > 0 && szImage.cy > 0) {
+			MakeImageDest(rcItem, szImage, pDrawInfo->iAlign, pDrawInfo->rcPadding, rcDest);
 		}
 
 		bool bRet = DuiLib::GetImageInfoAndDraw(hDC, pManager, rcItem, rcPaint, pDrawInfo->sImageName
