@@ -39,7 +39,7 @@ namespace DuiLib
 		int m_nMin;
 		int m_nValue;
 
-		QkString m_sForeImageModify;
+		TDrawInfo drawableTmp;
 	};
 
 } // namespace DuiLib

@@ -1576,8 +1576,7 @@ namespace DuiLib {
 		if( pManager == NULL || hDC == NULL || pDrawInfo == NULL ) return false;
 		RECT rcDest = rcItem;
 		// 计算绘制目标区域
-		if( pDrawInfo->rcDest.left != 0 || pDrawInfo->rcDest.top != 0 ||
-			pDrawInfo->rcDest.right != 0 || pDrawInfo->rcDest.bottom != 0 ) {
+		if( pDrawInfo->rcDest.left != 0 || pDrawInfo->rcDest.top != 0 || pDrawInfo->rcDest.right != 0 || pDrawInfo->rcDest.bottom != 0 ) {
 				rcDest.left = rcItem.left + pDrawInfo->rcDest.left;
 				rcDest.top = rcItem.top + pDrawInfo->rcDest.top;
 				rcDest.right = rcItem.left + pDrawInfo->rcDest.right;
@@ -1632,10 +1631,16 @@ namespace DuiLib {
 		return data;  
 	}
 
-	bool CRenderEngine::DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, HINSTANCE instance)
+	bool CRenderEngine::DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, TDrawInfo* modify, HINSTANCE instance)
 	{
 		if ((pManager == NULL) || (hDC == NULL)) return false;
 		const TDrawInfo* pDrawInfo = pManager->GetDrawInfo(pStrImage);
+		if(modify) {
+			// modify...
+
+
+
+		}
 		return DrawImageInfo(hDC, pManager, rcItem, rcPaint, pDrawInfo, instance);
 	}
 

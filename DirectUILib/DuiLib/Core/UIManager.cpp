@@ -165,9 +165,10 @@ namespace DuiLib {
 		QkString sItem;
 		QkString sValue;
 		LPTSTR pstr = NULL;
-		for( int i = 0; i < 2; ++i ) {
-			if( i == 1) pStrImage = pStrModify;
-			if( !pStrImage ) continue;
+		//for( int i = 0; i < 2; ++i ) 
+		{
+			//if( i == 1) pStrImage = pStrModify;
+			if( pStrImage )
 			while( *pStrImage != _T('\0') ) {
 				sItem.Empty();
 				sValue.Empty();
@@ -293,7 +294,7 @@ namespace DuiLib {
 	void tagTDrawInfo::Clear()
 	{
 		sDrawString.Empty();
-		sDrawModify.Empty();
+		//sDrawModify.Empty();
 		sImageName.Empty();
 
 		memset(&rcDest, 0, sizeof(RECT));

@@ -410,9 +410,10 @@ namespace DuiLib {
 			rcThumb.right -= m_rcItem.left;
 			rcThumb.bottom -= m_rcItem.top;
 
-			m_sSepImageModify.Empty();
-			m_sSepImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
-			if (!DrawImage(hDC, (LPCTSTR)m_sSepImage, (LPCTSTR)m_sSepImageModify)) {}
+			//m_sSepImageModify.Empty();
+			//m_sSepImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
+			drawableTmp.rcDest = rcThumb;
+			if (!DrawImage(hDC, (LPCTSTR)m_sSepImage, &drawableTmp)) {}
 		}
 	}
 

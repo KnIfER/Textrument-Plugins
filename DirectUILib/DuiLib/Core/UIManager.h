@@ -275,7 +275,7 @@ namespace DuiLib {
 		void Clear();
 
 		QkString sDrawString;
-		QkString sDrawModify;
+		//QkString sDrawModify;
 		QkString sImageName;
 		QkString sResType;
 		RECT rcDest;

@@ -46,39 +46,22 @@ namespace DuiLib
 				nIndex = 3;
 
 			// make modify string
-			QkString sModify = m_sArrowImage;
 
-			int nPos1 = sModify.Find(_T("source"));
-			int nPos2 = sModify.Find(_T("'"), nPos1 + 7);
-			if (nPos2 == -1) return; //first
-			int nPos3 = sModify.Find(_T("'"), nPos2 + 1);
-			if (nPos3 == -1) return; //second
+			TDrawInfo drawableTmp;
+			drawableTmp.Parse(m_sArrowImage, _manager);
+			
+			m_nArrowWidth = (drawableTmp.rcSource.right - drawableTmp.rcSource.left) / 5;
+			drawableTmp.rcSource.left += nIndex * m_nArrowWidth;
+			drawableTmp.rcSource.right = drawableTmp.rcSource.left + m_nArrowWidth;
 
-			CDuiRect rcBmpPart;
-			LPTSTR lpszValue = NULL;
-			rcBmpPart.left = _tcstol(sModify.GetData() + nPos2 + 1, &lpszValue, 10);  ASSERT(lpszValue);    
-			rcBmpPart.top = _tcstol(lpszValue + 1, &lpszValue, 10);    ASSERT(lpszValue);    
-			rcBmpPart.right = _tcstol(lpszValue + 1, &lpszValue, 10);  ASSERT(lpszValue);    
-			rcBmpPart.bottom = _tcstol(lpszValue + 1, &lpszValue, 10); ASSERT(lpszValue); 
-
-			m_nArrowWidth = rcBmpPart.GetWidth() / 5;
-			rcBmpPart.left += nIndex * m_nArrowWidth;
-			rcBmpPart.right = rcBmpPart.left + m_nArrowWidth;
-
-			CDuiRect rcDest(0, 0, m_rcItem.right - m_rcItem.left, m_rcItem.bottom - m_rcItem.top);
+			CDuiRect rcDest(drawableTmp.rcDest);
 			rcDest.Deflate(GetBorderSize(), GetBorderSize());
 			rcDest.left = rcDest.right - m_nArrowWidth;
 
-			QkString sSource = sModify.Mid(nPos1, nPos3 + 1 - nPos1);
-			QkString sReplace;
-			sReplace.SmallFormat(_T("source='%d,%d,%d,%d' dest='%d,%d,%d,%d'"),
-				rcBmpPart.left, rcBmpPart.top, rcBmpPart.right, rcBmpPart.bottom,
-				rcDest.left, rcDest.top, rcDest.right, rcDest.bottom);
-
-			sModify.Replace(sSource, sReplace);
+			drawableTmp.rcDest = rcDest;
 
 			// draw image
-			if (!DrawImage(hDC, m_sArrowImage, sModify))
+			if (!DrawImage(hDC, m_sArrowImage, &drawableTmp))
 				{}
 		}
 	}

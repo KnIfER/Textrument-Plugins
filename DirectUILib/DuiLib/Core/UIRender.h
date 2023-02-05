@@ -56,7 +56,7 @@ namespace DuiLib {
 			bool bHole, bool bTiledX, bool bTiledY, HINSTANCE instance = NULL);
 		static const TImageInfo* ParseImageString(CPaintManagerUI* pManager, LPCTSTR pStrImage, LPCTSTR pStrModify, HINSTANCE instance = NULL);
 		static bool DrawImageInfo(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, const TDrawInfo* pDrawInfo, HINSTANCE instance = NULL);
-		static bool DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, HINSTANCE instance = NULL);
+		static bool DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, TDrawInfo* modify, HINSTANCE instance = NULL);
 
 		static void DrawColor(HDC hDC, const RECT& rc, DWORD color);
 		static void DrawGradient(HDC hDC, const RECT& rc, DWORD dwFirst, DWORD dwSecond, bool bVertical, int nSteps);

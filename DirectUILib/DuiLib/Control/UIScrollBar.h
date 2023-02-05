@@ -150,7 +150,7 @@ namespace DuiLib
 		QkString m_sRailPushedImage;
 		QkString m_sRailDisabledImage;
 
-		QkString m_sImageModify;
+		TDrawInfo drawableTmp;
 	};
 }
 

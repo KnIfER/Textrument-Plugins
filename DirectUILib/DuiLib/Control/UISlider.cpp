@@ -282,25 +282,28 @@ namespace DuiLib
 
 		if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
 			if( !m_sThumbPushedImage.IsEmpty() ) {
-				m_sImageModify.Empty();
-				m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
-				if( !DrawImage(hDC, (LPCTSTR)m_sThumbPushedImage, (LPCTSTR)m_sImageModify) ) {}
+				//m_sImageModify.Empty();
+				//m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
+				drawableTmp.rcDest = rcThumb;
+				if( !DrawImage(hDC, (LPCTSTR)m_sThumbPushedImage, &drawableTmp) ) {}
 				else return;
 			}
 		}
 		else if( (m_uButtonState & UISTATE_HOT) != 0 ) {
 			if( !m_sThumbHotImage.IsEmpty() ) {
-				m_sImageModify.Empty();
-				m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
-				if( !DrawImage(hDC, (LPCTSTR)m_sThumbHotImage, (LPCTSTR)m_sImageModify) ) {}
+				//m_sImageModify.Empty();
+				//m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
+				drawableTmp.rcDest = rcThumb;
+				if( !DrawImage(hDC, (LPCTSTR)m_sThumbHotImage, &drawableTmp) ) {}
 				else return;
 			}
 		}
 
 		if( !m_sThumbImage.IsEmpty() ) {
-			m_sImageModify.Empty();
-			m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
-			if( !DrawImage(hDC, (LPCTSTR)m_sThumbImage, (LPCTSTR)m_sImageModify) ) {}
+			//m_sImageModify.Empty();
+			//m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
+			drawableTmp.rcDest = rcThumb;
+			if( !DrawImage(hDC, (LPCTSTR)m_sThumbImage, &drawableTmp) ) {}
 			else return;
 		}
 	}

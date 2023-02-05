@@ -789,9 +789,11 @@ namespace DuiLib {
 				(rcTextPadding.left - szIconSize.cx) / 2 + szIconSize.cx,
 				(cxyFixed.cy - szIconSize.cy) / 2 + szIconSize.cy
 			};
-			QkString pStrImage;
-			pStrImage.Format(_T("dest='%d,%d,%d,%d'"), rcDest.left, rcDest.top, rcDest.right, rcDest.bottom);
-			DrawImage(hDC, m_strIcon, pStrImage);
+			//QkString pStrImage;
+			//pStrImage.Format(_T("dest='%d,%d,%d,%d'"), rcDest.left, rcDest.top, rcDest.right, rcDest.bottom);
+			TDrawInfo drawableTmp;
+			drawableTmp.rcDest = rcDest;
+			DrawImage(hDC, m_strIcon, &drawableTmp);
 		}
 	}
 
@@ -819,9 +821,9 @@ namespace DuiLib {
 				(cxyFixed.cy - pImageInfo->nY) / 2 + pImageInfo->nY
 			};
 			GetManager()->GetDPIObj()->ScaleBack(&rcDest);
-			QkString pStrImage;
-			pStrImage.Format(_T("dest='%d,%d,%d,%d'"), rcDest.left, rcDest.top, rcDest.right, rcDest.bottom);
-			DrawImage(hDC, strExplandIcon, pStrImage);
+			TDrawInfo drawableTmp;
+			drawableTmp.rcDest = rcDest;
+			DrawImage(hDC, strExplandIcon, &drawableTmp);
 		}
 	}
 

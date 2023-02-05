@@ -62,7 +62,7 @@ namespace DuiLib {
 		QkString m_sPushedImage;
 		QkString m_sFocusedImage;
 		QkString m_sSepImage;
-		QkString m_sSepImageModify;
+		TDrawInfo drawableTmp;
 		int m_nScale;
 	};
 
