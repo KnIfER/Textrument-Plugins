@@ -41,7 +41,7 @@ namespace DuiLib {
 		static Gdiplus::Image*	GdiplusLoadImage(LPCTSTR pstrPath);
 		static Gdiplus::Image* GdiplusLoadImage(LPVOID pBuf, size_t dwSize);
 
-		static bool MakeImageDest(const RECT& rcControl, const CDuiSize& szImage, const QkString& sAlign, const RECT& rcPadding, RECT& rcDest);
+		static bool MakeImageDest(const RECT& rcControl, const CDuiSize& szImage, short iAlign, const RECT& rcPadding, RECT& rcDest);
 
 		static void DrawImage(HDC hDC, HBITMAP hBitmap, const RECT& rc, const RECT& rcPaint, \
 			const RECT& rcBmpPart, const RECT& rcCorners, bool bAlpha, BYTE uFade = 255, 

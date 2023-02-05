@@ -290,7 +290,7 @@ namespace DuiLib {
 
 		CDuiSize szImage;
 		RECT rcPadding;
-		QkString sAlign;
+		SHORT iAlign;
 	} TDrawInfo;
 
 	typedef struct UILIB_API tagTPercentInfo

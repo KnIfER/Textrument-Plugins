@@ -463,6 +463,18 @@ namespace DuiLib
 
 	void SetRectInt(RECT & rc, int value);
 
+#define GRAVITY_LEFT 0x1
+#define GRAVITY_RIGHT 0x2
+#define GRAVITY_HCENTER 0x3
+#define GRAVITY_TOP 0x4
+#define GRAVITY_BOTTOM 0x8
+#define GRAVITY_VCENTER 0xC
+#define GRAVITY_CENTER 0xF
+
+#define LONG_FLAG __int64
+#define STR(QKSTR) ((LPCWSTR)QKSTR)
+#define PRINT_RECT(LABEL, rc, way) LogIs(way, ""#LABEL" (%d, %d, %d, %d)", rc.left, rc.top, rc.right, rc.bottom);
+
 }// namespace DuiLib
 
 #endif // __UTILS_H__

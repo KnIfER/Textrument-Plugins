@@ -225,9 +225,12 @@ namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 	//
-	bool GetImageInfoAndDraw(HDC hDC, CPaintManagerUI* pManager, const RECT& rc, const RECT& rcPaint, const QkString& sImageName, \
-		const QkString& sImageResType, RECT rcItem, RECT rcBmpPart, RECT rcCorner, DWORD dwMask, BYTE bFade, \
-		bool bHole, bool bTiledX, bool bTiledY, HINSTANCE instance = NULL)
+	bool GetImageInfoAndDraw(HDC hDC, CPaintManagerUI* pManager, const RECT& rc
+		, const RECT& rcPaint, const QkString& sImageName
+		, const QkString& sImageResType
+		, RECT rcItem, RECT rcBmpPart, RECT rcCorner
+		, DWORD dwMask, BYTE bFade
+		, bool bHole, bool bTiledX, bool bTiledY, HINSTANCE instance = NULL)
 	{
 		if (sImageName.IsEmpty()) {
 			return false;
@@ -260,7 +263,6 @@ namespace DuiLib {
 		else
 #endif
 		CRenderEngine::DrawImage(hDC, data->hBitmap, rcItem, rcPaint, rcBmpPart, rcCorner, pManager->IsLayered() ? true : data->bAlpha, bFade, bHole, bTiledX, bTiledY);
-		
 		
 		//if (false)
 		//{
@@ -1066,35 +1068,36 @@ namespace DuiLib {
 		}
 	}
 
-	bool CRenderEngine::MakeImageDest(const RECT& rcControl, const CDuiSize& szImage, const QkString& sAlign, const RECT& rcPadding, RECT& rcDest)
+	bool CRenderEngine::MakeImageDest(const RECT& rcControl, const CDuiSize& szImage, short iAlign, const RECT& rcPadding, RECT& rcDest)
 	{
-		if(sAlign.Find(_T("left")) != -1)
-		{
-			rcDest.left = rcControl.left;  
-			rcDest.right = rcDest.left + szImage.cx;
-		}
-		else if(sAlign.Find(_T("center")) != -1)
+		iAlign = GRAVITY_RIGHT|GRAVITY_BOTTOM;
+		if((iAlign&GRAVITY_HCENTER)==GRAVITY_HCENTER)
 		{
 			rcDest.left = rcControl.left + ((rcControl.right - rcControl.left) - szImage.cx)/2;  
 			rcDest.right = rcDest.left + szImage.cx;
 		}
-		else if(sAlign.Find(_T("right")) != -1)
+		else if(iAlign&GRAVITY_LEFT)
+		{
+			rcDest.left = rcControl.left;  
+			rcDest.right = rcDest.left + szImage.cx;
+		}
+		else if(iAlign&GRAVITY_RIGHT)
 		{
 			rcDest.left = rcControl.right - szImage.cx;  
 			rcDest.right = rcDest.left + szImage.cx;
 		}
-
-		if(sAlign.Find(_T("top")) != -1)
-		{
-			rcDest.top = rcControl.top;
-			rcDest.bottom = rcDest.top + szImage.cy;
-		}
-		else if(sAlign.Find(_T("vcenter")) != -1)
+		
+		if((iAlign&GRAVITY_VCENTER)==GRAVITY_VCENTER)
 		{
 			rcDest.top = rcControl.top + ((rcControl.bottom - rcControl.top) - szImage.cy)/2;
 			rcDest.bottom = rcDest.top + szImage.cy;
 		}
-		else if(sAlign.Find(_T("bottom")) != -1)
+		else if(iAlign&GRAVITY_TOP)
+		{
+			rcDest.top = rcControl.top;
+			rcDest.bottom = rcDest.top + szImage.cy;
+		}
+		else if(iAlign&GRAVITY_BOTTOM)
 		{
 			rcDest.top = rcControl.bottom - szImage.cy;
 			rcDest.bottom = rcDest.top + rcDest.top;
@@ -1566,7 +1569,8 @@ namespace DuiLib {
 		::DeleteDC(hCloneDC);
 	}
 
-	bool CRenderEngine::DrawImageInfo(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, const TDrawInfo* pDrawInfo, HINSTANCE instance)
+	bool CRenderEngine::DrawImageInfo(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint
+			, const TDrawInfo* pDrawInfo, HINSTANCE instance)
 	{
 		if( pManager == NULL || hDC == NULL || pDrawInfo == NULL ) return false;
 		RECT rcDest = rcItem;
@@ -1582,11 +1586,14 @@ namespace DuiLib {
 		}
 		// 根据对齐方式计算目标区域
 		if(pDrawInfo->szImage.cx > 0 && pDrawInfo->szImage.cy > 0) {
-			MakeImageDest(rcItem, pDrawInfo->szImage, pDrawInfo->sAlign, pDrawInfo->rcPadding, rcDest);
+			MakeImageDest(rcItem, pDrawInfo->szImage, pDrawInfo->iAlign, pDrawInfo->rcPadding, rcDest);
 		}
 
-		bool bRet = DuiLib::GetImageInfoAndDraw(hDC, pManager, rcItem, rcPaint, pDrawInfo->sImageName, pDrawInfo->sResType, rcDest, \
-			pDrawInfo->rcSource, pDrawInfo->rcCorner, pDrawInfo->dwMask, pDrawInfo->uFade, pDrawInfo->bHole, pDrawInfo->bTiledX, pDrawInfo->bTiledY, instance);
+		bool bRet = DuiLib::GetImageInfoAndDraw(hDC, pManager, rcItem, rcPaint, pDrawInfo->sImageName
+			, pDrawInfo->sResType
+			, rcDest, pDrawInfo->rcSource, pDrawInfo->rcCorner
+			, pDrawInfo->dwMask, pDrawInfo->uFade, pDrawInfo->bHole
+			, pDrawInfo->bTiledX, pDrawInfo->bTiledY, instance);
 
 		return bRet;
 	}

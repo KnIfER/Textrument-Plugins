@@ -157,6 +157,7 @@ namespace DuiLib {
 		// 1、aaa.jpg
 		// 2、file='aaa.jpg' res='' restype='0' dest='0,0,0,0' source='0,0,0,0' corner='0,0,0,0' 
 		// mask='#FF0000' fade='255' hole='false' xtiled='false' ytiled='false'
+		// size='25,25' align='left' padding='0,0,0,0' by DuiLib_Ultimate
 		sDrawString = pStrImage;
 		sDrawModify = pStrModify;
 		sImageName = pStrImage;
@@ -240,7 +241,30 @@ namespace DuiLib {
 						szImage.cy = _tcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);
 					}
 					else if( sItem == _T("align") ) {
-						sAlign = sValue;
+						// todo optimize by separate by '|'
+						if(sValue.Find(_T("center")) != -1) {
+							iAlign = GRAVITY_CENTER;
+						}
+						else {
+							if(sValue.Find(_T("hcenter")) != -1) {
+								iAlign = GRAVITY_HCENTER;
+							}
+							else if(sValue.Find(_T("left")) != -1) {
+								iAlign = GRAVITY_LEFT;
+							}
+							else if(sValue.Find(_T("right")) != -1) {
+								iAlign = GRAVITY_RIGHT;
+							}
+							if(sValue.Find(_T("vcenter")) != -1) {
+								iAlign = GRAVITY_VCENTER;
+							}
+							else if(sValue.Find(_T("top")) != -1) {
+								iAlign = GRAVITY_TOP;
+							}
+							else if(sValue.Find(_T("bottom")) != -1) {
+								iAlign = GRAVITY_BOTTOM;
+							}
+						}
 					}
 					else if( sItem == _T("padding") ) {
 						rcPadding.left = _tcstol(sValue.GetData(), &pstr, 10);  ASSERT(pstr);    
@@ -282,7 +306,7 @@ namespace DuiLib {
 		bHSL = false;
 
 		szImage.cx = szImage.cy = 0;
-		sAlign.Empty();
+		iAlign = 0;
 		memset(&rcPadding, 0, sizeof(RECT));
 	}
 
