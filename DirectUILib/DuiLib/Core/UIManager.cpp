@@ -470,6 +470,7 @@ namespace DuiLib {
 	CPaintManagerUI::~CPaintManagerUI()
 	{
 		LogIs("CPaintManagerUI::解构 %lxd", this);
+		//if(1) return;
 		// Delete the control-tree structures
 		for( int i = 0; i < m_aDelayedCleanup.GetSize(); i++ ) delete static_cast<CControlUI*>(m_aDelayedCleanup[i]);
 		m_aDelayedCleanup.Resize(0);
@@ -3598,25 +3599,45 @@ namespace DuiLib {
 				}
 			}
 		}
+		// todo ... 
 	}
 
 	void CPaintManagerUI::RemoveFont(int id, bool bShared)
 	{
+		TResInfo & resInfo = (bShared)?m_SharedResInfo:m_ResInfo; //  || m_bForceUseSharedRes
+		TFontInfo* pFontInfo;
 		if(_parent)
 		{
 			return _parent->RemoveFont(id, bShared);
 		}
-		TCHAR idBuffer[16];
-		::ZeroMemory(idBuffer, sizeof(idBuffer));
-		_itot(id, idBuffer, 10);
+		if(id < MAX_UNNAMEDFONT_ID) {
+			TCHAR idBuffer[16];
+			::ZeroMemory(idBuffer, sizeof(idBuffer));
+			_itot(id, idBuffer, 10);
 
-		TResInfo & resInfo = (bShared)?m_SharedResInfo:m_ResInfo; //  || m_bForceUseSharedRes
-		TFontInfo* pFontInfo = static_cast<TFontInfo*>(resInfo.m_CustomFonts.Find(idBuffer));
-		if (pFontInfo)
-		{
-			::DeleteObject(pFontInfo->hFont);
-			delete pFontInfo;
-			resInfo.m_CustomFonts.Remove(idBuffer);
+			pFontInfo = static_cast<TFontInfo*>(resInfo.m_CustomFonts.Find(idBuffer));
+			if (pFontInfo)
+			{
+				::DeleteObject(pFontInfo->hFont);
+				delete pFontInfo;
+				resInfo.m_CustomFonts.Remove(idBuffer);
+			}
+		}
+		else if(id < MAX_UNSHAREDFONT_ID) {
+			id -= MAX_UNNAMEDFONT_ID;
+			if(id>=0 && id < m_ResInfo._namedFonts.size()) {
+				pFontInfo = m_ResInfo._namedFonts[id];
+				m_ResInfo._namedFonts[id] = nullptr;
+				delete pFontInfo;
+			}
+		}
+		else {
+			id -= MAX_UNSHAREDFONT_ID;
+			if(id>=0 && id < m_SharedResInfo._namedFonts.size()) {
+				pFontInfo = m_SharedResInfo._namedFonts[id];
+				m_SharedResInfo._namedFonts[id] = nullptr;
+				delete pFontInfo;
+			}
 		}
 	}
 
@@ -3634,6 +3655,8 @@ namespace DuiLib {
 				delete pFontInfo;
 			}
 		}
+		resInfo._namedFonts.clear();
+		resInfo._namedFontsMap.RemoveAll();
 		resInfo.m_CustomFonts.RemoveAll();
 	}
 

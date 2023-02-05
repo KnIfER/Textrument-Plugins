@@ -440,7 +440,7 @@ LRESULT _Create(HWND hWnd, WPARAM wParam, LPARAM lParam)
         }
         infoPtr->hwnd = hDelegate;
     }
-    else
+    else if(lParam)
     {
         infoPtr = new BUTTON_INFO{0};//(BUTTON_INFO*)heap_alloc_zero( sizeof(*infoPtr) );
         CREATESTRUCTW *cs = (CREATESTRUCTW *)lParam;
@@ -451,6 +451,7 @@ LRESULT _Create(HWND hWnd, WPARAM wParam, LPARAM lParam)
         infoPtr->hwnd = hWnd;
         infoPtr->is_delegate = false;
     }
+    else return -1;
     infoPtr->split_style = BCSS_STRETCH;
     infoPtr->glyph = (HIMAGELIST)0x36;  /* Marlett down arrow char code */
     infoPtr->glyph_size.cx = get_default_glyph_size(infoPtr);
@@ -459,6 +460,24 @@ LRESULT _Create(HWND hWnd, WPARAM wParam, LPARAM lParam)
     ((DTTOPTS*)infoPtr->opts)->dwSize = sizeof(DTTOPTS);
     ((DTBGOPTS*)infoPtr->bg_opts)->dwSize = sizeof(DTBGOPTS);
     return TRUE;
+}
+
+LRESULT _Destory(BUTTON_INFO* infoPtr)
+{
+    if (infoPtr->image_type == IMAGE_BITMAP)
+        DeleteObject(infoPtr->u.bitmap);
+    else if (infoPtr->image_type == IMAGE_ICON)
+        DestroyIcon(infoPtr->u.icon);
+    heap_free(infoPtr->note);
+    heap_free(infoPtr);
+
+    delete infoPtr->opts;
+    delete infoPtr->bg_opts;
+    delete infoPtr;
+    //::DestroyWindow(hDelegate);
+    //SetWindowLongPtrW( hDelegate, 0, 0 );
+    //_Destroy(infoPtr);
+    return 0;
 }
 
 LRESULT _Paint(BUTTON_INFO* infoPtr, WPARAM wParam, HWND hWnd)
@@ -525,6 +544,8 @@ static INT _StyleChanged(BUTTON_INFO *infoPtr, WPARAM wStyleType, const STYLESTR
 
 static LRESULT CALLBACK BUTTON_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    //LogIs("BUTTON_WindowProc %d", uMsg);
+    //if(uMsg==WM_NCDESTROY) return 0;
     BUTTON_INFO *infoPtr = (BUTTON_INFO *)GetWindowLongPtrW(hWnd, 0);
     RECT rect;
     POINT pt;
@@ -571,17 +592,6 @@ static LRESULT CALLBACK BUTTON_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
     case WM_NCCREATE: return _Create(hWnd, wParam, lParam);
 
     case WM_NCDESTROY:
-        SetWindowLongPtrW( hWnd, 0, 0 );
-        if (!infoPtr->is_delegate)
-        {
-            //_Destroy(infoPtr);
-            if (infoPtr->image_type == IMAGE_BITMAP)
-                DeleteObject(infoPtr->u.bitmap);
-            else if (infoPtr->image_type == IMAGE_ICON)
-                DestroyIcon(infoPtr->u.icon);
-            heap_free(infoPtr->note);
-            heap_free(infoPtr);
-        }
         break;
 
     case WM_CREATE:

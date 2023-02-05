@@ -28,6 +28,14 @@ namespace DuiLib
 		Init();
 	}
 
+	Button::~Button()
+	{
+		if(infoPtr) {
+			_Destory(infoPtr);
+			infoPtr = 0;
+		}
+	}
+
 	LPCTSTR Button::GetClass() const
 	{
 		return _T("ButtonUI");
@@ -558,6 +566,7 @@ namespace DuiLib
 			infoPtr->rcDraw = &m_rcItem;
 			infoPtr->rcPadding = &m_rcInsetScaled;
 		}
+
 		if (!infoPtr->hwnd)
 		{
 			if (_parent)

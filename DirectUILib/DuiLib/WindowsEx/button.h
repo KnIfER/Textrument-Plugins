@@ -134,6 +134,8 @@ namespace Button
 {
     LRESULT _Create(HWND hWnd, WPARAM wParam, LPARAM lParam);
 
+    LRESULT _Destory(BUTTON_INFO* infoPtr);
+
     LRESULT _Paint(BUTTON_INFO* infoPtr, WPARAM wParam, HWND hWnd=0);
 
     void BUTTON_QueryPreempterSize(BUTTON_INFO* infoPtr, WPARAM _preSizeX);

@@ -13,6 +13,7 @@ namespace DuiLib
 
 	public:
 		Button();
+		~Button();
 		CControlUI* Duplicate();
 
 		LPCTSTR GetClass() const;

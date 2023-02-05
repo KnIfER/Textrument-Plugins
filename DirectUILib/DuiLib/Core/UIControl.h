@@ -36,6 +36,7 @@ namespace DuiLib {
 	public:
 		CControlUI();
 		virtual ~CControlUI();
+		virtual void Free();
 
 	public:
 		virtual QkString GetName() const;

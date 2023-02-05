@@ -62,7 +62,18 @@ namespace DuiLib {
 	CControlUI::~CControlUI()
 	{
 		if( OnDestroy ) OnDestroy(this);
+		_view_states &= ~VIEWSTATEMASK_DelayedDestroy;
 		RemoveAllCustomAttribute();	
+		RemoveAll();
+		if( _manager != NULL ) _manager->ReapObjects(this);
+	}
+	
+	void CControlUI::Free()
+	{
+		if( OnDestroy ) OnDestroy(this);
+		_view_states &= ~VIEWSTATEMASK_DelayedDestroy;
+		RemoveAllCustomAttribute();	
+		RemoveAll();
 		if( _manager != NULL ) _manager->ReapObjects(this);
 	}
 
@@ -2092,6 +2103,7 @@ namespace DuiLib {
 					if( m_bDelayedDestroy && _manager ) _manager->AddDelayedCleanup(pControl);  
 					else if(pControl->m_bCustomWidget){
 						// Intentionally leave blank
+						if(pControl!=this) pControl->Free();
 					}           
 					else delete pControl;
 				}
@@ -2120,6 +2132,7 @@ namespace DuiLib {
 			}
 			else if(pItem->m_bCustomWidget){
 				// Intentionally leave blank
+				if(pItem!=this) pItem->Free();
 			}
 			else {
 				delete pItem;

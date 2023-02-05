@@ -34,8 +34,6 @@ namespace DuiLib
 
 	CContainerUI::~CContainerUI()
 	{
-		_view_states &= ~VIEWSTATEMASK_DelayedDestroy;
-		RemoveAll();
 		if( m_pVerticalScrollBar ) {
 			delete m_pVerticalScrollBar;
 			m_pVerticalScrollBar = NULL;
