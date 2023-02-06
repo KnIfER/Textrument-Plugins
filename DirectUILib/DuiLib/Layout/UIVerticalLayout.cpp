@@ -8,6 +8,7 @@ namespace DuiLib
 
 	CVerticalLayoutUI::CVerticalLayoutUI() : CContainerUI()
 	{
+		VIEWSTATEMASK_APPLY(VIEWSTATEMASK_SPREADY, true);
 	}
 
 	LPCTSTR CVerticalLayoutUI::GetClass() const

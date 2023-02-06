@@ -50,4 +50,6 @@ protected:
 	void OnTimer(TNotifyUI& msg);
 };
 
+#define DebugRes
+
 #endif // MAINFRAME_HPP

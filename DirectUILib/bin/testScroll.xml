@@ -14,7 +14,7 @@
 	</EffectsStyles>
 	
 	<style>
-		 <Button
+		 <Buttonx
 			id="btn_style"
 			apply="true"
 			shared="true"
@@ -49,24 +49,8 @@
 		<Button  
 				width="-2" 
 				height="50"
-				text=" WinQkUI 界面测试 123 " 
-				name="btn" 
-				align="vcenter"
-				valign="vcenter"
-				wordbreak="false"
-				textpadding="5,5,5,5"
-				
-				textcolor="#FF0"
-				
-				bkcolor="#FF238ef9"
-				hotbkcolor="#FF3399fe"
-				
-				bordersize="2" 
-				bordercolor="#7700FFFF"
-				borderround="20,20"
-				roundclip="true"
-				font="btn"   
-				enabled="true"
+				text=" WinQkUI 界面测试 123 "  
+				StateCount="5"  
 			stateimage="file='Button/btn.png' corner='5,11,5,11' source='0,24,96,48'" 
 					/>
 					

@@ -68,15 +68,22 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 QkString MainFrame::GetSkinType()
 {
+#ifdef DebugRes
+	return TEXT("");
+#else
 	return TEXT("xml");
+#endif
 }
 
 QkString MainFrame::GetSkinFile()
 {
+#ifdef DebugRes
+	return TEXT("skin.xml");
+#else
 	TCHAR szBuf[MAX_PATH] = {0};
 	_stprintf_s(szBuf, MAX_PATH - 1, _T("%d"), IDR_SKINXML);
 	return szBuf;
-	//return TEXT("skin.xml");
+#endif
 	//return IDR_SKINXML;
 }
 
@@ -87,8 +94,11 @@ QkString MainFrame::GetSkinFolder()
 
 UILIB_RESOURCETYPE MainFrame::GetResourceType() const
 {
-	//return DuiLib::UILIB_FILE;
+#ifdef DebugRes
+	return DuiLib::UILIB_FILE;
+#else
 	return UILIB_RESOURCE;
+#endif
 }
 
 LRESULT MainFrame::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)

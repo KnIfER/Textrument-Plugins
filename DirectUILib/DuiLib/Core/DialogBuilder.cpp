@@ -513,6 +513,7 @@ namespace DuiLib {
 						pControl = builder.Create((LPCTSTR)szValue, (UINT)0, m_pCallback, pManager, pParent);
 					}
 				}
+				//LogIs(2, L"pControl %ld %s", pControl, (LPCTSTR)szValue);
 				continue;
 			}
 			else {
@@ -558,6 +559,10 @@ namespace DuiLib {
 					delete pControl;
 					continue;
 				}
+				if(pParent->_view_states&VIEWSTATEMASK_SPREADX)
+					pControl->SetFixedWidth(0);
+				if(pParent->_view_states&VIEWSTATEMASK_SPREADY)
+					pControl->SetFixedHeight(0);
 			}
 			if( pControl == NULL ) continue;
 

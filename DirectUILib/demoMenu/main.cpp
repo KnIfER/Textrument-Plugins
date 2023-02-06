@@ -23,7 +23,7 @@
 void InitResource()
 {	
 	// 资源类型
-#if 0
+#if 1
 	CPaintManagerUI::SetResourceType(UILIB_FILE);
 #else
 	CPaintManagerUI::SetResourceType(UILIB_ZIPRESOURCE);
@@ -90,6 +90,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 #endif
 {
 	CPaintManagerUI::SetInstance(hInstance);
+
+#ifdef DebugRes
+	CPaintManagerUI::SetResourcePath(L"D:\\Code\\FigureOut\\Textrument\\plugins\\DirectUILib\\demoMenu\\res\\");
+#endif
+
 
 #if defined(WIN32) && !defined(UNDER_CE)
 	HRESULT Hr = ::CoInitialize(NULL);

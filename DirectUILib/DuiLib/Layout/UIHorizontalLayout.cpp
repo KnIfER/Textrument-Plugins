@@ -7,6 +7,7 @@ namespace DuiLib
 
 	CHorizontalLayoutUI::CHorizontalLayoutUI() : CContainerUI()
 	{
+		VIEWSTATEMASK_APPLY(VIEWSTATEMASK_SPREADX, true);
 	}
 
 	LPCTSTR CHorizontalLayoutUI::GetClass() const

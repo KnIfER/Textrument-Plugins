@@ -1151,6 +1151,7 @@ namespace DuiLib {
 
 	void CControlUI::NeedParentUpdate()
 	{
+		if(!_manager || _manager->_inflaing) return;
 		if( GetParent() ) {
 			GetParent()->NeedUpdate();
 			GetParent()->Invalidate();

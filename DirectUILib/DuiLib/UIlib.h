@@ -172,6 +172,8 @@ const int VIEWSTATEMASK_BorderAutoEnhance   =   0x1<<30;
 const int VIEWSTATEMASK_RedrawOnFocusChanged    =   0x1<<31;
 const LONG_FLAG VIEWSTATEMASK_CustomWidget            =   0x1LL<<32L;
 const LONG_FLAG VIEWSTATEMASK_PlainCustomWidget       =   0x1LL<<33;
+const LONG_FLAG VIEWSTATEMASK_SPREADX       =   0x1LL<<34;
+const LONG_FLAG VIEWSTATEMASK_SPREADY       =   0x1LL<<35;
 
 #define m_bEnabled                 (_view_states&VIEWSTATEMASK_Enabled)
 #define m_bVisible                 (_view_states&VIEWSTATEMASK_Visibility)
