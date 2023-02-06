@@ -851,7 +851,7 @@ namespace DuiLib {
 	{
 		tagTDrawInfo drawInfo;
 		drawInfo.Parse(pstrPath1, NULL);
-		QkString sImageName = drawInfo.sImageName;
+		QkString sName = drawInfo.sName;
 
 		LPBYTE pData = NULL;
 		DWORD dwSize = 0;
@@ -860,7 +860,7 @@ namespace DuiLib {
 		{
 			QkString sFile = CPaintManagerUI::GetResourcePath();
 			if( CPaintManagerUI::GetResourceZip().IsEmpty() ) {
-				sFile += sImageName;
+				sFile += sName;
 				HANDLE hFile = ::CreateFile(sFile.GetData(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, \
 					FILE_ATTRIBUTE_NORMAL, NULL);
 				if( hFile == INVALID_HANDLE_VALUE ) break;
@@ -895,7 +895,7 @@ namespace DuiLib {
 				if( hz == NULL ) break;
 				ZIPENTRY ze; 
 				int i = 0; 
-				QkString key = sImageName;
+				QkString key = sName;
 				key.Replace(_T("\\"), _T("/"));
 				if( FindZipItem(hz, key, true, &i, &ze) != 0 ) break;
 				dwSize = ze.unc_size;
@@ -916,7 +916,7 @@ namespace DuiLib {
 		while (!pData)
 		{
 			//读不到图片, 则直接去读取bitmap.m_lpstr指向的路径
-			HANDLE hFile = ::CreateFile(sImageName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+			HANDLE hFile = ::CreateFile(sName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 			if( hFile == INVALID_HANDLE_VALUE ) break;
 			dwSize = ::GetFileSize(hFile, NULL);
 			if( dwSize == 0 ) { ::CloseHandle( hFile ); break; }
@@ -998,39 +998,39 @@ namespace DuiLib {
 		}
 	}
 
-	bool CRenderEngine::MakeImageDest(const RECT& rcControl, const CDuiSize& szImage, short iAlign, const RECT& rcPadding, RECT& rcDest)
+	bool CRenderEngine::MakeImageDest(const RECT& rcControl, const CDuiSize& szIcon, short iAlign, const RECT& rcPadding, RECT& rcDest)
 	{
-		if(szImage.cx>0)
+		if(szIcon.cx>0)
 		if((iAlign&GRAVITY_HCENTER)==GRAVITY_HCENTER)
 		{
-			rcDest.left = rcControl.left + ((rcControl.right - rcControl.left) - szImage.cx)/2;  
-			rcDest.right = rcDest.left + szImage.cx;
+			rcDest.left = rcControl.left + ((rcControl.right - rcControl.left) - szIcon.cx)/2;  
+			rcDest.right = rcDest.left + szIcon.cx;
 		}
 		else if(iAlign&GRAVITY_LEFT)
 		{
 			rcDest.left = rcControl.left;  
-			rcDest.right = rcDest.left + szImage.cx;
+			rcDest.right = rcDest.left + szIcon.cx;
 		}
 		else if(iAlign&GRAVITY_RIGHT)
 		{
-			rcDest.left = rcControl.right - szImage.cx;  
-			rcDest.right = rcDest.left + szImage.cx;
+			rcDest.left = rcControl.right - szIcon.cx;  
+			rcDest.right = rcDest.left + szIcon.cx;
 		}
 
-		if(szImage.cy>0)
+		if(szIcon.cy>0)
 		if((iAlign&GRAVITY_VCENTER)==GRAVITY_VCENTER)
 		{
-			rcDest.top = rcControl.top + ((rcControl.bottom - rcControl.top) - szImage.cy)/2;
-			rcDest.bottom = rcDest.top + szImage.cy;
+			rcDest.top = rcControl.top + ((rcControl.bottom - rcControl.top) - szIcon.cy)/2;
+			rcDest.bottom = rcDest.top + szIcon.cy;
 		}
 		else if(iAlign&GRAVITY_TOP)
 		{
 			rcDest.top = rcControl.top;
-			rcDest.bottom = rcDest.top + szImage.cy;
+			rcDest.bottom = rcDest.top + szIcon.cy;
 		}
 		else if(iAlign&GRAVITY_BOTTOM)
 		{
-			rcDest.top = rcControl.bottom - szImage.cy;
+			rcDest.top = rcControl.bottom - szIcon.cy;
 			rcDest.bottom = rcDest.top + rcDest.top;
 		}
 
@@ -1507,7 +1507,7 @@ namespace DuiLib {
 	{
 		if( pManager == NULL || hDC == NULL || pDrawInfo == NULL ) return false;
 
-		const TImageInfo* data = ParseImageString(pManager, (LPCTSTR)pDrawInfo->sImageName, 0, instance);
+		const TImageInfo* data = GetImageInfo(pManager, pDrawInfo, instance);
 		if(!data) return false;
 		RECT rcDraw; // 默认绘制于 rcItem
 		CDuiSize szDraw{};
@@ -1521,11 +1521,11 @@ namespace DuiLib {
 		{
 			rcDraw = rcItem;
 			// 默认绘制于 rcItem
-			szDraw = pDrawInfo->szImage;
+			szDraw = pDrawInfo->szIcon;
 		}
 		if(szDraw.cx==-2 || szDraw.cy==-2) {
 			// 尺寸 -2 代表绘制时使用原图宽高
-			if (!pDrawInfo->sImageName.IsEmpty()) {
+			if (!pDrawInfo->sName.IsEmpty()) {
 				if(szDraw.cx==-2) szDraw.cx = data->nX;
 				if(szDraw.cy==-2) szDraw.cy = data->nY;
 			}
@@ -1540,7 +1540,7 @@ namespace DuiLib {
 		if( !::IntersectRect(&rcTemp, &rcItem, &rcPaint) ) return true;
 
 		//bool ret = DuiLib::GetImageInfoAndDraw(hDC, pManager, rcDraw, rcPaint
-		//	, pDrawInfo->sImageName, pDrawInfo->sResType
+		//	, pDrawInfo->sName, pDrawInfo->sResType
 		//	, pDrawInfo->rcSource, pDrawInfo->rcCorner
 		//	, pDrawInfo->dwMask, pDrawInfo->uFade, pDrawInfo->bHole
 		//	, pDrawInfo->bTiledX, pDrawInfo->bTiledY, instance);
@@ -1593,19 +1593,19 @@ namespace DuiLib {
 		return true;
 	}
 
-	const TImageInfo* CRenderEngine::ParseImageString(CPaintManagerUI* pManager, LPCTSTR pStrImage, LPCTSTR pStrModify, HINSTANCE instance)
+	const TImageInfo* CRenderEngine::GetImageInfo(CPaintManagerUI* pManager, const TDrawInfo* pDrawInfo, HINSTANCE instance)
 	{
-		const TDrawInfo* pDrawInfo = pManager->GetDrawInfo(pStrImage);
+		//sconst TDrawInfo* pDrawInfo = pManager->GetDrawInfo(pStrImage);
 		if( pManager == NULL || pDrawInfo == NULL ) return false;
-		if (pDrawInfo->sImageName.IsEmpty()) {
+		if (pDrawInfo->sName.IsEmpty()) {
 			return NULL;
 		}
 		const TImageInfo* data = NULL;
 		if( pDrawInfo->sResType.IsEmpty() ) {
-			data = pManager->GetImageEx(pDrawInfo->sImageName, NULL, pDrawInfo->dwMask, false, instance);
+			data = pManager->GetImageEx(pDrawInfo->sName, NULL, pDrawInfo->dwMask, false, instance);
 		}
 		else {
-			data = pManager->GetImageEx(pDrawInfo->sImageName, pDrawInfo->sResType, pDrawInfo->dwMask, false, instance);
+			data = pManager->GetImageEx(pDrawInfo->sName, pDrawInfo->sResType, pDrawInfo->dwMask, false, instance);
 		}
 		return data;  
 	}

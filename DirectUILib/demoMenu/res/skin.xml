@@ -25,7 +25,7 @@
 	
     <VBox name="body" padding="2,0,2,2">
       <HBox padding="10,10,10,10">
-        <Button name="btn_menu" text="菜单测试" width="120" height="30" normalimage="res='115' restype='png'" hotimage="res='116' restype='png'" pushedimage="res='117' restype='png'"/>
+        <Button name="btn_menu" text="弹出菜单测试" width="120" height="30" normalimage="res='115' restype='png'" hotimage="res='116' restype='png'" pushedimage="res='117' restype='png'"/>
       </HBox>
     </VBox>
 	

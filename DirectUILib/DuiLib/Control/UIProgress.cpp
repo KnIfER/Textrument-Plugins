@@ -122,16 +122,16 @@ namespace DuiLib
 
 		RECT rc = {0};
 		if( m_bHorizontal ) {
-			rc.right = (m_nValue - m_nMin) * (m_rcItem.right - m_rcItem.left) * 1.0f / (m_nMax - m_nMin);
+			rc.right = (m_nValue - m_nMin) * 1.0f / (m_nMax - m_nMin) * (m_rcItem.right - m_rcItem.left);
 			rc.bottom = m_rcItem.bottom - m_rcItem.top;
 		}
 		else {
-			rc.top = (m_rcItem.bottom - m_rcItem.top) * (m_nMax - m_nValue) * 1.0f / (m_nMax - m_nMin);
+			rc.top = (m_nMax - m_nValue) * 1.0f / (m_nMax - m_nMin) * (m_rcItem.bottom - m_rcItem.top);
 			rc.right = m_rcItem.right - m_rcItem.left;
 			rc.bottom = m_rcItem.bottom - m_rcItem.top;
 		}
 
-		if( !m_tForeImage.sImageName.IsEmpty() ) {
+		if( !m_tForeImage.sName.IsEmpty() ) {
 			//m_sForeImageModify.Empty();
 			int sw = MulDiv(rc.right - rc.left, 100, GetManager()->GetDPIObj()->GetScale());
 			int sh = MulDiv(rc.bottom - rc.top, 100, GetManager()->GetDPIObj()->GetScale());

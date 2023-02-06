@@ -302,7 +302,7 @@ namespace DuiLib {
 
 								if( _tcsstr(sImageString.GetData(), _T("file=\'")) != NULL || _tcsstr(sImageString.GetData(), _T("res=\'")) != NULL ) {
 									QkString sImageResType;
-									QkString sImageName;
+									QkString sName;
 									LPCTSTR pStrImage = sImageString.GetData();
 									QkString sItem;
 									QkString sValue;
@@ -329,7 +329,7 @@ namespace DuiLib {
 										if( *pStrImage++ != _T('\'') ) break;
 										if( !sValue.IsEmpty() ) {
 											if( sItem == _T("file") || sItem == _T("res") ) {
-												sImageName = sValue;
+												sName = sValue;
 											}
 											else if( sItem == _T("restype") ) {
 												sImageResType = sValue;
@@ -338,7 +338,7 @@ namespace DuiLib {
 										if( *pStrImage++ != _T(' ') ) break;
 									}
 
-									pImageInfo = pManager->GetImageEx((LPCTSTR)sImageName, sImageResType);
+									pImageInfo = pManager->GetImageEx((LPCTSTR)sName, sImageResType);
 								}
 								else
 									pImageInfo = pManager->GetImageEx((LPCTSTR)sName);

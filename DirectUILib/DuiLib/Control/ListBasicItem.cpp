@@ -205,7 +205,7 @@ namespace DuiLib {
 			if (!DrawImage(hDC, m_tBkImage)) {}
 		}
 
-		if (m_tBkImage.sImageName.IsEmpty()) {
+		if (m_tBkImage.sName.IsEmpty()) {
 			if (!pInfo->sBkImage.IsEmpty()) {
 				if (!DrawImage(hDC, (LPCTSTR)pInfo->sBkImage)) {}
 				else return;
@@ -838,13 +838,13 @@ namespace DuiLib {
 				else return;
 			}
 		}
-		if (!m_tBkImage.sImageName.IsEmpty()) {
+		if (!m_tBkImage.sName.IsEmpty()) {
 			if (!pInfo->bAlternateBk || m_iIndex % 2 == 0) {
 				if (!DrawImage(hDC, m_tBkImage)) {}
 			}
 		}
 
-		if (m_tBkImage.sImageName.IsEmpty()) {
+		if (m_tBkImage.sName.IsEmpty()) {
 			if (!pInfo->sBkImage.IsEmpty()) {
 				if (!DrawImage(hDC, (LPCTSTR)pInfo->sBkImage)) {}
 				else return;

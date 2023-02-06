@@ -41,7 +41,7 @@ namespace DuiLib {
 		static Gdiplus::Image*	GdiplusLoadImage(LPCTSTR pstrPath);
 		static Gdiplus::Image* GdiplusLoadImage(LPVOID pBuf, size_t dwSize);
 
-		static bool MakeImageDest(const RECT& rcControl, const CDuiSize& szImage, short iAlign, const RECT& rcPadding, RECT& rcDest);
+		static bool MakeImageDest(const RECT& rcControl, const CDuiSize& szIcon, short iAlign, const RECT& rcPadding, RECT& rcDest);
 
 		static void DrawImage(HDC hDC, HBITMAP hBitmap, const RECT& rc, const RECT& rcPaint, \
 			const RECT& rcBmpPart, const RECT& rcCorners, bool bAlpha, BYTE uFade = 255, 
@@ -51,10 +51,11 @@ namespace DuiLib {
 			const RECT& rcBmpPart, const RECT& rcCorners, bool bAlpha, 
 			BYTE uFade, bool hole, bool xtiled, bool ytiled);
 
-		static bool DrawImage(HDC hDC, CPaintManagerUI* pManager, const RECT& rc, const RECT& rcPaint, const QkString& sImageName, \
+		static bool DrawImage(HDC hDC, CPaintManagerUI* pManager, const RECT& rc, const RECT& rcPaint, const QkString& sName, \
 			const QkString& sImageResType, RECT rcItem, RECT rcBmpPart, RECT rcCorner, DWORD dwMask, BYTE bFade, \
 			bool bHole, bool bTiledX, bool bTiledY, HINSTANCE instance = NULL);
-		static const TImageInfo* ParseImageString(CPaintManagerUI* pManager, LPCTSTR pStrImage, LPCTSTR pStrModify, HINSTANCE instance = NULL);
+		// ParseImageString
+		static const TImageInfo* GetImageInfo(CPaintManagerUI* pManager, const TDrawInfo* pDrawInfo, HINSTANCE instance = NULL);
 		static bool DrawImageInfo(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, const TDrawInfo* pDrawInfo, const RECT* rcDest = NULL, HINSTANCE instance = NULL);
 		static bool DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, const RECT* rcDest = NULL, HINSTANCE instance = NULL);
 

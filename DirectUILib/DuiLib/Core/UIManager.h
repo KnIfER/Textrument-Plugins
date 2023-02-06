@@ -274,11 +274,8 @@ namespace DuiLib {
 		void Parse(LPCTSTR pStrImage, CPaintManagerUI *pManager);
 		void Clear();
 
-		//QkString sDrawString;
-		//QkString sDrawModify;
-		QkString sImageName;
+		QkString sName;
 		QkString sResType;
-		//RECT rcDest;
 		RECT rcSource;
 		RECT rcCorner;
 		DWORD dwMask;
@@ -287,9 +284,8 @@ namespace DuiLib {
 		bool bTiledX;
 		bool bTiledY;
 		bool bHSL;
-		//bool bNameOnlyInfo;
 
-		CDuiSize szImage;
+		CDuiSize szIcon;
 		RECT rcPadding;
 		SHORT iAlign;
 	} TDrawInfo;

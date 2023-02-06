@@ -12,6 +12,7 @@
 
 HWND mainAppWnd;
 
+#define defStackLevel 16
 
 namespace dbg {
 	dostream cout;
@@ -88,7 +89,7 @@ void LogIs(int show, HWND hWnd, const TCHAR* msg, va_list & args)
 				{
 					//dbg::dostream as;
 					using namespace backward;
-					StackTrace st; st.load_here(8);
+					StackTrace st; st.load_here(defStackLevel);
 					st.skip_n_firsts(2);
 					Printer p;
 					std::stringstream stream;
@@ -174,7 +175,7 @@ void LogIs(int show, HWND hWnd, const CHAR* msg, va_list & args)
 				{
 					//dbg::dostream as;
 					using namespace backward;
-					StackTrace st; st.load_here(8);
+					StackTrace st; st.load_here(defStackLevel);
 					st.skip_n_firsts(2);
 					Printer p;
 					std::stringstream stream;

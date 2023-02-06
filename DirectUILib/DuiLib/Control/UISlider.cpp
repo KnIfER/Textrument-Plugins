@@ -273,12 +273,12 @@ namespace DuiLib
 		CProgressUI::PaintForeImage(hDC);
 
 		RECT rcThumb = GetThumbRect();
-		rcThumb.left -= m_rcItem.left;
-		rcThumb.top -= m_rcItem.top;
-		rcThumb.right -= m_rcItem.left;
-		rcThumb.bottom -= m_rcItem.top;
+		//rcThumb.left -= m_rcItem.left;
+		//rcThumb.top -= m_rcItem.top;
+		//rcThumb.right -= m_rcItem.left;
+		//rcThumb.bottom -= m_rcItem.top;
 
-		GetManager()->GetDPIObj()->ScaleBack(&rcThumb);
+		//GetManager()->GetDPIObj()->ScaleBack(&rcThumb);
 
 		if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
 			if( !m_sThumbPushedImage.IsEmpty() ) {

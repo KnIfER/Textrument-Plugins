@@ -160,7 +160,8 @@ namespace DuiLib {
 		// size='25,25' align='left' padding='0,0,0,0' by DuiLib_Ultimate
 		//sDrawString = pStrImage;
 		// sDrawModify = pStrModify;
-		sImageName = pStrImage;
+		sName = pStrImage;
+		//LogIs(L"Parse=%s", STR(sName));
 
 		QkString sItem;
 		QkString sValue;
@@ -190,9 +191,10 @@ namespace DuiLib {
 					}
 				}
 				if( *pStrImage++ != _T('\'') ) break;
+				//LogIs(L"sItem=%s sValue=%s %d", STR(sItem), STR(sValue), 0);
 				if( !sValue.IsEmpty() ) {
 					if( sItem == _T("file") || sItem == _T("res") ) {
-						sImageName = sValue;
+						sName = sValue;
 					}
 					else if( sItem == _T("restype") ) {
 						sResType = sValue;
@@ -238,8 +240,8 @@ namespace DuiLib {
 						bHSL = (_tcsicmp(sValue.GetData(), _T("true")) == 0);
 					}
 					else if( sItem == _T("size") ) {
-						szImage.cx = _tcstol(sValue.GetData(), &pstr, 10);  ASSERT(pstr);
-						szImage.cy = _tcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);
+						szIcon.cx = _tcstol(sValue.GetData(), &pstr, 10);  ASSERT(pstr);
+						szIcon.cy = _tcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);
 					}
 					else if( sItem == _T("align") ) {
 						// todo optimize by separate by '|'
@@ -281,14 +283,14 @@ namespace DuiLib {
 		}
 
 		//TCHAR buffer[100]={0};
-		//wsprintf(buffer,TEXT("position=%s"), sImageName);
+		//wsprintf(buffer,TEXT("position=%s"), sName);
 		//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
 
 		//// 调整DPI资源
 		//if (pManager != NULL && pManager->GetDPIObj()->GetScale() != 100) {
 		//	QkString sScale;
 		//	sScale.Format(_T("@%d."), pManager->GetDPIObj()->GetScale());
-		//	sImageName.Replace(_T("."), sScale);
+		//	sName.Replace(_T("."), sScale);
 		//}
 	}
 
@@ -296,7 +298,7 @@ namespace DuiLib {
 	{
 		//sDrawString.Empty();
 		//sDrawModify.Empty();
-		sImageName.Empty();
+		sName.Empty();
 
 		//memset(&rcDest, 0, sizeof(RECT));
 		memset(&rcSource, 0, sizeof(RECT));
@@ -308,7 +310,7 @@ namespace DuiLib {
 		bTiledY = false;
 		bHSL = false;
 
-		szImage.cx = szImage.cy = 0;
+		szIcon.cx = szIcon.cy = 0;
 		iAlign = 0;
 		memset(&rcPadding, 0, sizeof(RECT));
 	}
@@ -1074,7 +1076,7 @@ namespace DuiLib {
 
 	LPCTSTR CPaintManagerUI::GetLayeredImage()
 	{
-		return m_diLayered.sImageName;
+		return m_diLayered.sName;
 	}
 
 	void CPaintManagerUI::SetLayeredImage(LPCTSTR pstrImage)
@@ -1609,7 +1611,7 @@ namespace DuiLib {
 					if( m_bLayered ) {
 						RECT rcWnd = { 0 };
 						::GetWindowRect(m_hWndPaint, &rcWnd);
-						if(!m_diLayered.sImageName.IsEmpty()) {
+						if(!m_diLayered.sName.IsEmpty()) {
 							DWORD dwWidth = rcClient.right - rcClient.left;
 							DWORD dwHeight = rcClient.bottom - rcClient.top;
 							RECT rcLayeredClient = rcClient;
@@ -1624,7 +1626,7 @@ namespace DuiLib {
 							BYTE R = 0;
 							BYTE G = 0;
 							BYTE B = 0;
-							if (!m_diLayered.sImageName.IsEmpty()) {
+							if (!m_diLayered.sName.IsEmpty()) {
 								if( m_hbmpBackground == NULL) {
 									m_hDcBackground = ::CreateCompatibleDC(m_hDcPaint);
 									m_hbmpBackground = CRenderEngine::CreateARGB32Bitmap(m_hDcPaint, dwWidth, dwHeight, (BYTE**)&m_pBackgroundBits); 
@@ -3771,6 +3773,7 @@ namespace DuiLib {
 
 	const TImageInfo* CPaintManagerUI::AddImage(LPCTSTR bitmap, LPCTSTR type, DWORD mask, bool bUseHSL, bool bShared, HINSTANCE instance)
 	{
+		LogIs(L"AddImage:: %s %s", bitmap?bitmap:L"",type?type:L"" );
 		if(_parent)
 		{
 			return _parent->AddImage(bitmap, type, mask, bUseHSL, bShared, instance);
@@ -4501,7 +4504,7 @@ namespace DuiLib {
 
 	const TImageInfo* CPaintManagerUI::GetImageString(LPCTSTR pStrImage, LPCTSTR pStrModify)
 	{
-		QkString sImageName = pStrImage;
+		QkString sName = pStrImage;
 		QkString sImageResType = _T("");
 		DWORD dwMask = 0;
 		QkString sItem;
@@ -4537,7 +4540,7 @@ namespace DuiLib {
 				if( *pStrImage++ != _T('\'') ) break;
 				if( !sValue.IsEmpty() ) {
 					if( sItem == _T("file") || sItem == _T("res") ) {
-						sImageName = sValue;
+						sName = sValue;
 					}
 					else if( sItem == _T("restype") ) {
 						sImageResType = sValue;
@@ -4551,7 +4554,7 @@ namespace DuiLib {
 				if( *pStrImage++ != _T(' ') ) break;
 			}
 		}
-		return GetImageEx(sImageName, sImageResType, dwMask);
+		return GetImageEx(sName, sImageResType, dwMask);
 	}
 
 	bool CPaintManagerUI::EnableDragDrop(bool bEnable)
