@@ -1506,11 +1506,11 @@ namespace DuiLib {
 			, const TDrawInfo* pDrawInfo, const RECT* rcDest, HINSTANCE instance)
 	{
 		if( pManager == NULL || hDC == NULL || pDrawInfo == NULL ) return false;
-		RECT rcDraw = rcItem; // 默认绘制于 rcItem
-		CDuiSize szDraw{};
 
 		const TImageInfo* data = ParseImageString(pManager, (LPCTSTR)pDrawInfo->sImageName, 0, instance);
 		if(!data) return false;
+		RECT rcDraw; // 默认绘制于 rcItem
+		CDuiSize szDraw{};
 
 		// 计算绘制目标区域
 		if(rcDest) {
@@ -1519,14 +1519,15 @@ namespace DuiLib {
 		}
 		else 
 		{
+			rcDraw = rcItem;
 			// 默认绘制于 rcItem
 			szDraw = pDrawInfo->szImage;
-			if(szDraw.cx==-2 || szDraw.cy==-2) {
-				// 尺寸 -2 代表绘制时使用原图宽高
-				if (!pDrawInfo->sImageName.IsEmpty()) {
-					if(szDraw.cx==-2) szDraw.cx = data->nX;
-					if(szDraw.cy==-2) szDraw.cy = data->nY;
-				}
+		}
+		if(szDraw.cx==-2 || szDraw.cy==-2) {
+			// 尺寸 -2 代表绘制时使用原图宽高
+			if (!pDrawInfo->sImageName.IsEmpty()) {
+				if(szDraw.cx==-2) szDraw.cx = data->nX;
+				if(szDraw.cy==-2) szDraw.cy = data->nY;
 			}
 		}
 

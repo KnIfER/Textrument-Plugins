@@ -44,6 +44,12 @@ static LPCTSTR g_tmpFontId = (LPCTSTR)MAX_FONT_ID;
 	// 核心控件
 	class CControlUI;
 
+	class IDrawable
+	{
+	public:
+		virtual bool Draw(HDC hDC, CControlUI* pControl, int state) const = 0;
+	};
+
 	// Structure for notifications to the outside world
 	typedef struct tagTNotifyUI
 	{

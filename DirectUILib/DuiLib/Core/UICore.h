@@ -39,8 +39,6 @@
 #include "Core/UIManager.h"
 #include "Core/UIDxAnimation.h"
 
-#include "Drawable/drawable.h"
-
 #include "Core/UIBase.h"
 #include "Core/ControlFactory.h"
 #include "Core/UIControl.h"

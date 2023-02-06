@@ -29,8 +29,6 @@ namespace DuiLib
 		int Toggle();
 		int GetCheckedValue();
 
-		void SetStateCount(int nCount);
-		int GetStateCount() const;
 		virtual TDrawInfo & GetStateImage();
 		virtual void SetStateImage(LPCTSTR pStrImage);
 
@@ -119,7 +117,7 @@ namespace DuiLib
 		//QkString m_sDisabledImage;
 
 		int m_nStateCount;
-		TDrawInfo m_tStateIcon;
+		TDrawInfo _stateIcon;
 		IDrawable* btnForeDrawable;
 
 		int			m_iBindTabIndex;

@@ -218,9 +218,6 @@
     <ClInclude Include="Utils\basic_debugbuf.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Drawable\drawable.h">
-      <Filter>Drawable</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils\DPI.cpp">

@@ -19,7 +19,6 @@ namespace DuiLib
 		, m_dwPushedBkColor(0)
 		, m_dwDisabledBkColor(0)
 		, m_iBindTabIndex(-1)
-		, m_nStateCount(0)
 		, btnForeDrawable(0)
 		, _hotTrack(true)
 	{
@@ -296,27 +295,16 @@ namespace DuiLib
 		return m_dwFocusedTextColor;
 	}
 
-	void Button::SetStateCount(int nCount)
-	{
-		m_nStateCount = nCount;
-		Invalidate();
-	}
-
-	int Button::GetStateCount() const
-	{
-		return m_nStateCount;
-	}
-
 	TDrawInfo & Button::GetStateImage()
 	{
-		return m_tStateIcon;
+		return _stateIcon;
 	}
 
 	void Button::SetStateImage( LPCTSTR pStrImage )
 	{
 		//imgAttrs.at(imgNormal).sImageName.Empty();
 		//m_sStateImage = pStrImage;
-		m_tStateIcon.Parse(pStrImage, _manager);
+		_stateIcon.Parse(pStrImage, _manager);
 		if(_statusDrawable) {
 			delete _statusDrawable;
 			_statusDrawable = 0;
@@ -372,7 +360,6 @@ namespace DuiLib
 		//else if( _tcsicmp(pstrName, _T("disabledimage")) == 0 ) SetDisabledImage(pstrValue);
 		//else if( _tcsicmp(pstrName, _T("hotforeimage")) == 0 ) SetHotForeImage(pstrValue);
 		if( _tcsicmp(pstrName, _T("stateimage")) == 0 ) SetStateImage(pstrValue);
-		else if( _tcsicmp(pstrName, _T("statecount")) == 0 ) SetStateCount(_ttoi(pstrValue));
 		else if( _tcsicmp(pstrName, _T("bindtabindex")) == 0 ) BindTabIndex(_ttoi(pstrValue));
 		else if( _tcsicmp(pstrName, _T("bindtablayoutname")) == 0 ) BindTabLayoutName(pstrValue);
 		else if( _tcsicmp(pstrName, _T("type")) == 0 ) SetType(pstrValue);
@@ -641,51 +628,31 @@ namespace DuiLib
 		{
 			return;
 		}
-		if(m_nStateCount > 0)
+		if(!_stateIcon.sImageName.IsEmpty())
 		{
-			// 根据  StateImage 生成状态图像
-			const TImageInfo* pImage = _manager->GetImageEx(m_tStateIcon.sImageName, m_tStateIcon.sResType, m_tStateIcon.dwMask, m_tStateIcon.bHSL);
+			// 根据按下状态在不同位置绘制 StateImage
+			const TImageInfo* pImage = _manager->GetImageEx(_stateIcon.sImageName, _stateIcon.sResType, _stateIcon.dwMask, _stateIcon.bHSL);
 			if(pImage != NULL)
 			{
-				RECT srcRaw = m_tStateIcon.rcSource;
-				RECT & rc = m_tStateIcon.rcSource;
-				SIZE szImage = {pImage->nX, pImage->nY};
-				SIZE szStatus = {pImage->nX / m_nStateCount, pImage->nY};
-				if( szImage.cx > 0 && szImage.cy > 0 )
-				{
-					RECT rcSrc = {0, 0, szImage.cx, szImage.cy};
-					bool draw = true;
-					if( (m_uButtonState & UISTATE_DISABLED) && m_nStateCount > 3) {
-						rc.left = rcSrc.left + 3 * szStatus.cx;
-						rc.right = rc.left + szStatus.cx;
-						rc.top = rcSrc.top;
-						rc.bottom = rc.top + szStatus.cy;
-					}
-					else if((m_uButtonState & UISTATE_PUSHED) && m_nStateCount > 2) {
-						rc.left = rcSrc.left + 2 * szStatus.cx;
-						rc.right = rc.left + szStatus.cx;
-						rc.top = rcSrc.top;
-						rc.bottom = rc.top + szStatus.cy;
-					}
-					else if((m_uButtonState & UISTATE_HOT) && m_nStateCount > 1) {
-						rc.left = rcSrc.left + 1 * szStatus.cx;
-						rc.right = rc.left + szStatus.cx;
-						rc.top = rcSrc.top;
-						rc.bottom = rc.top + szStatus.cy;
-					}
-					else if((m_uButtonState & UISTATE_FOCUSED) && m_nStateCount > 0) {
-						rc.left = rcSrc.left + 0 * szStatus.cx;
-						rc.right = rc.left + szStatus.cx;
-						rc.top = rcSrc.top;
-						rc.bottom = rc.top + szStatus.cy;
-					}
-					else draw = false;
-					if( !draw || !DrawImage(hDC, m_tStateIcon) )
-					{
-						DrawImage(hDC, m_tStateIcon);
-					}
+				RECT rcItem = m_rcItem; // todo FIXME draw oversize
+				bool draw = true;
+				BYTE uFade = _stateIcon.uFade;
+				if( (m_uButtonState & UISTATE_DISABLED)) {
+					_stateIcon.uFade = uFade / 2;
 				}
-				rc = srcRaw;
+				else if((m_uButtonState & UISTATE_PUSHED)) {
+					int delta = 3;
+					rcItem.left += delta;
+					rcItem.right += delta;
+					rcItem.top += delta;
+					rcItem.bottom += delta;
+				}
+				else draw = false;
+				if( !draw || !DrawImage(hDC, _stateIcon, &rcItem) )
+				{
+					DrawImage(hDC, _stateIcon);
+				}
+				_stateIcon.uFade = uFade;
 			}
 		}
 	}
