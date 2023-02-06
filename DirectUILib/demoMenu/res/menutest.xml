@@ -38,19 +38,19 @@
         <MenuElement text="     菜单测试2        " />
       </MenuElement>
       <MenuElement text="     菜单测试3        " />
-      <MenuElement text="     菜单测试4        ">
+      <MenuElement text="     菜单测试  一，宽度自测出问题        ">
         <HBox>
           <Label />
           <Label width="20"  bkimage="res='122' restype='png' source='0,0,16,16' dest='0,5,15,20'"/>
         </HBox>
+        <MenuElement text="     测        " />
+		
         <MenuElement text="     菜单测试5        ">
-          <HBox>
-            <Label />
-            <Label width="20"  bkimage="res='122' restype='png' source='0,0,16,16' dest='0,5,15,20'"/>
-          </HBox>
-          <MenuElement text="     菜单测试6        " />
-          <MenuElement text="     菜单测试7        " />
+          <MenuElement width="-2" text="     菜单测试6        " />
+          <MenuElement width="-2" text="     菜单测试7        " />
+            <Label width="10"  bkimage="res='122' restype='png' source='0,0,16,16' dest='0,5,15,20'"/>
         </MenuElement>
+		
         <MenuElement text="     菜单测试8        " >
           <HBox>
             <Label />

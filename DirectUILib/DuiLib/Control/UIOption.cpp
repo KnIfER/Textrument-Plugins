@@ -257,7 +257,7 @@ namespace DuiLib
 			{ // 根据 StateImage 生成
 				TDrawInfo info;
 				info.Parse(m_sSelectedStateImage, _manager);
-				const TImageInfo* pImage = _manager->GetImageEx(info.sImageName, info.sResType, info.dwMask, info.bHSL);
+				const TImageInfo* pImage = _manager->GetImageEx(info.sName, info.sResType, info.dwMask, info.bHSL);
 				if(m_sSelectedImage.IsEmpty() && pImage != NULL)
 				{
 					SIZE szImage = {pImage->nX, pImage->nY};
@@ -270,22 +270,22 @@ namespace DuiLib
 							int iRight = iLeft + szStatus.cx;
 							int iTop = rcSrc.top;
 							int iBottom = iTop + szStatus.cy;
-							m_sSelectedImage.Format(_T("res='%s' restype='%s' source='%d,%d,%d,%d'"), info.sImageName.GetData(), info.sResType.GetData(), iLeft, iTop, iRight, iBottom);
+							m_sSelectedImage.Format(_T("res='%s' restype='%s' source='%d,%d,%d,%d'"), info.sName.GetData(), info.sResType.GetData(), iLeft, iTop, iRight, iBottom);
 						}
 						if(m_nSelectedStateCount > 1) {
 							int iLeft = rcSrc.left + 1 * szStatus.cx;
 							int iRight = iLeft + szStatus.cx;
 							int iTop = rcSrc.top;
 							int iBottom = iTop + szStatus.cy;
-							m_sSelectedHotImage.Format(_T("res='%s' restype='%s' source='%d,%d,%d,%d'"), info.sImageName.GetData(), info.sResType.GetData(), iLeft, iTop, iRight, iBottom);
-							m_sSelectedPushedImage.Format(_T("res='%s' restype='%s' source='%d,%d,%d,%d'"), info.sImageName.GetData(), info.sResType.GetData(), iLeft, iTop, iRight, iBottom);
+							m_sSelectedHotImage.Format(_T("res='%s' restype='%s' source='%d,%d,%d,%d'"), info.sName.GetData(), info.sResType.GetData(), iLeft, iTop, iRight, iBottom);
+							m_sSelectedPushedImage.Format(_T("res='%s' restype='%s' source='%d,%d,%d,%d'"), info.sName.GetData(), info.sResType.GetData(), iLeft, iTop, iRight, iBottom);
 						}
 						if(m_nSelectedStateCount > 2) {
 							int iLeft = rcSrc.left + 2 * szStatus.cx;
 							int iRight = iLeft + szStatus.cx;
 							int iTop = rcSrc.top;
 							int iBottom = iTop + szStatus.cy;
-							m_sSelectedPushedImage.Format(_T("res='%s' restype='%s' source='%d,%d,%d,%d'"), info.sImageName.GetData(), info.sResType.GetData(), iLeft, iTop, iRight, iBottom);
+							m_sSelectedPushedImage.Format(_T("res='%s' restype='%s' source='%d,%d,%d,%d'"), info.sName.GetData(), info.sResType.GetData(), iLeft, iTop, iRight, iBottom);
 						}
 					}
 				}

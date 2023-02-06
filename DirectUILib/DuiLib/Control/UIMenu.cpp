@@ -871,7 +871,8 @@ namespace DuiLib {
 			cXY.cy += sz.cy;
 			if( cXY.cx < sz.cx ) cXY.cx = sz.cx;
 		}
-		if(cXY.cy == 0) {
+		//if(cXY.cy == 0)
+		{
 			QkString sText = GetText();
 			TListInfoUI* pInfo = GetOwner()?(TListInfoUI*)GetOwner()->GetAttribute(L"ListInfo"):NULL;
 			if (!pInfo) return cXY;
@@ -889,8 +890,10 @@ namespace DuiLib {
 			else {
 				CRenderEngine::DrawPlainText(_manager->GetPaintDC(), _manager, rcText, sText, iTextColor, pInfo->nFont, DT_CALCRECT | pInfo->uTextStyle);
 			}
-			cXY.cx = rcText.right - rcText.left + rcTextPadding.left + rcTextPadding.right ;
-			cXY.cy = rcText.bottom - rcText.top + rcTextPadding.top + rcTextPadding.bottom;
+			LONG cx = rcText.right - rcText.left + rcTextPadding.left + rcTextPadding.right ;
+			LONG cy = rcText.bottom - rcText.top + rcTextPadding.top + rcTextPadding.bottom;
+			if ( cXY.cx < cx ) cXY.cx = cx;
+			if ( cXY.cy < cy ) cXY.cy = cy;
 		}
 
 		if( cxyFixed.cy != 0 ) cXY.cy = cxyFixed.cy;
