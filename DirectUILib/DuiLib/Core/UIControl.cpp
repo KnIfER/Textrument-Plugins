@@ -68,6 +68,7 @@ namespace DuiLib {
 		RemoveAllCustomAttribute();	
 		RemoveAll();
 		if( _manager != NULL ) _manager->ReapObjects(this);
+		if( _statusDrawable ) delete _statusDrawable;
 	}
 	
 	void CControlUI::Free()
@@ -1828,7 +1829,7 @@ namespace DuiLib {
 
 	void CControlUI::PaintBkImage(HDC hDC)
 	{
-		if( m_tBkImage.sImageName.IsEmpty() ) return;
+		if( m_tBkImage.sName.IsEmpty() ) return;
 		if( !DrawImage(hDC, m_tBkImage) ) {}
 	}
 
@@ -1844,7 +1845,7 @@ namespace DuiLib {
 	
 	void CControlUI::PaintForeImage(HDC hDC)
 	{
-		if( m_tForeImage.sImageName.IsEmpty() ) return;
+		if( m_tForeImage.sName.IsEmpty() ) return;
 		DrawImage(hDC, m_tForeImage);
 	}
 

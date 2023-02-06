@@ -29,6 +29,8 @@ namespace DuiLib
 		int Toggle();
 		int GetCheckedValue();
 
+		virtual void AddStatusImage(LPCTSTR pStrImage, int state, bool reset=false);
+
 		virtual TDrawInfo & GetStateImage();
 		virtual void SetStateImage(LPCTSTR pStrImage);
 

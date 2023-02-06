@@ -295,6 +295,19 @@ namespace DuiLib
 		return m_dwFocusedTextColor;
 	}
 
+
+	void Button::AddStatusImage(LPCTSTR pStrImage, int state, bool reset)
+	{
+		if(pStrImage) {
+			if(reset && _statusDrawable) delete _statusDrawable;
+			if(!_statusDrawable) 
+			{
+				_statusDrawable = new BasicStatusDrawable();
+			}
+			_statusDrawable->AddStatusImage(pStrImage, state, true, reset);
+		}
+	}
+
 	TDrawInfo & Button::GetStateImage()
 	{
 		return _stateIcon;
@@ -302,7 +315,7 @@ namespace DuiLib
 
 	void Button::SetStateImage( LPCTSTR pStrImage )
 	{
-		//imgAttrs.at(imgNormal).sImageName.Empty();
+		//imgAttrs.at(imgNormal).sName.Empty();
 		//m_sStateImage = pStrImage;
 		_stateIcon.Parse(pStrImage, _manager);
 		if(_statusDrawable) {
@@ -353,13 +366,13 @@ namespace DuiLib
 
 	void Button::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
 	{
-		//if( _tcsicmp(pstrName, _T("normalimage")) == 0 ) SetNormalImage(pstrValue);
-		//else if( _tcsicmp(pstrName, _T("hotimage")) == 0 ) SetHotImage(pstrValue);
-		//else if( _tcsicmp(pstrName, _T("pushedimage")) == 0 ) SetPushedImage(pstrValue);
-		//else if( _tcsicmp(pstrName, _T("focusedimage")) == 0 ) SetFocusedImage(pstrValue);
-		//else if( _tcsicmp(pstrName, _T("disabledimage")) == 0 ) SetDisabledImage(pstrValue);
+		if( _tcsicmp(pstrName, _T("normalimage")) == 0 ) AddStatusImage(pstrValue, 0);
+		else if( _tcsicmp(pstrName, _T("hotimage")) == 0 ) AddStatusImage(pstrValue, UISTATE_HOT);
+		else if( _tcsicmp(pstrName, _T("pushedimage")) == 0 ) AddStatusImage(pstrValue, UISTATE_PUSHED);
+		else if( _tcsicmp(pstrName, _T("focusedimage")) == 0 ) AddStatusImage(pstrValue, UISTATE_FOCUSED);
+		else if( _tcsicmp(pstrName, _T("disabledimage")) == 0 ) AddStatusImage(pstrValue, UISTATE_DISABLED);
 		//else if( _tcsicmp(pstrName, _T("hotforeimage")) == 0 ) SetHotForeImage(pstrValue);
-		if( _tcsicmp(pstrName, _T("stateimage")) == 0 ) SetStateImage(pstrValue);
+		else if( _tcsicmp(pstrName, _T("stateimage")) == 0 ) SetStateImage(pstrValue);
 		else if( _tcsicmp(pstrName, _T("bindtabindex")) == 0 ) BindTabIndex(_ttoi(pstrValue));
 		else if( _tcsicmp(pstrName, _T("bindtablayoutname")) == 0 ) BindTabLayoutName(pstrValue);
 		else if( _tcsicmp(pstrName, _T("type")) == 0 ) SetType(pstrValue);
@@ -620,18 +633,17 @@ namespace DuiLib
 		else m_uButtonState &= ~ UISTATE_FOCUSED;
 		if( !IsEnabled() ) m_uButtonState |= UISTATE_DISABLED;
 		else m_uButtonState &= ~ UISTATE_DISABLED;
-		if(!::IsWindowEnabled(_manager->GetPaintWindow())) {
-			m_uButtonState &= UISTATE_DISABLED;
-		}
+		//if(!::IsWindowEnabled(_manager->GetPaintWindow()))
+		//	m_uButtonState &= UISTATE_DISABLED;
 
 		if(_statusDrawable && _statusDrawable->Draw(hDC, this, m_uButtonState)) 
 		{
 			return;
 		}
-		if(!_stateIcon.sImageName.IsEmpty())
+		if(!_stateIcon.sName.IsEmpty())
 		{
 			// 根据按下状态在不同位置绘制 StateImage
-			const TImageInfo* pImage = _manager->GetImageEx(_stateIcon.sImageName, _stateIcon.sResType, _stateIcon.dwMask, _stateIcon.bHSL);
+			const TImageInfo* pImage = _manager->GetImageEx(_stateIcon.sName, _stateIcon.sResType, _stateIcon.dwMask, _stateIcon.bHSL);
 			if(pImage != NULL)
 			{
 				RECT rcItem = m_rcItem; // todo FIXME draw oversize

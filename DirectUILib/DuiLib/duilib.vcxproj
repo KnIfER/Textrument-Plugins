@@ -228,6 +228,7 @@
     <ClCompile Include="Core\XMLMarkup.cpp" />
     <ClCompile Include="Core\UIRender.cpp" />
     <ClCompile Include="Core\UIResourceManager.cpp" />
+    <ClCompile Include="Drawable\drawable.cpp" />
     <ClCompile Include="Layout\UIChildLayout.cpp" />
     <ClCompile Include="Layout\UIHorizontalLayout.cpp" />
     <ClCompile Include="Layout\UITabLayout.cpp" />
@@ -295,6 +296,7 @@
     <ClInclude Include="Core\XMLMarkup.h" />
     <ClInclude Include="Core\UIRender.h" />
     <ClInclude Include="Core\UIResourceManager.h" />
+    <ClInclude Include="Drawable\drawable.h" />
     <ClInclude Include="Layout\UIChildLayout.h" />
     <ClInclude Include="Layout\UIHorizontalLayout.h" />
     <ClInclude Include="Layout\UITabLayout.h" />

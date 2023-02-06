@@ -48,6 +48,7 @@ static LPCTSTR g_tmpFontId = (LPCTSTR)MAX_FONT_ID;
 	{
 	public:
 		virtual bool Draw(HDC hDC, CControlUI* pControl, int state) const = 0;
+		virtual void AddStatusImage(LPCTSTR pStrImage, int state, bool replace, bool reset) = 0;
 	};
 
 	// Structure for notifications to the outside world

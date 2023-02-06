@@ -218,6 +218,9 @@
     <ClInclude Include="Utils\basic_debugbuf.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Drawable\drawable.h">
+      <Filter>Drawable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils\DPI.cpp">
@@ -398,6 +401,9 @@
     </ClCompile>
     <ClCompile Include="Core\UIRenderFx.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawable\drawable.cpp">
+      <Filter>Drawable</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
