@@ -200,11 +200,13 @@ namespace DuiLib {
 						sResType = sValue;
 					}
 					else if( sItem == _T("dest") ) {
-						//rcDest.left = _tcstol(sValue.GetData(), &pstr, 10);  ASSERT(pstr);    
-						//rcDest.top = _tcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);    
-						//rcDest.right = _tcstol(pstr + 1, &pstr, 10);  ASSERT(pstr);    
-						//rcDest.bottom = _tcstol(pstr + 1, &pstr, 10); ASSERT(pstr);  
-						//if(pManager != NULL) pManager->GetDPIObj()->Scale(&rcDest);
+						int left = _tcstol(sValue.GetData(), &pstr, 10);  ASSERT(pstr);    
+						int top = _tcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);    
+						int right = _tcstol(pstr + 1, &pstr, 10);  ASSERT(pstr);    
+						int bottom = _tcstol(pstr + 1, &pstr, 10); ASSERT(pstr);  
+						szIcon.cx = right - left;
+						szIcon.cy = bottom - top;
+						iAlign = GRAVITY_LEFT|GRAVITY_VCENTER;
 					}
 					else if( sItem == _T("source") ) {
 						rcSource.left = _tcstol(sValue.GetData(), &pstr, 10);  ASSERT(pstr);    

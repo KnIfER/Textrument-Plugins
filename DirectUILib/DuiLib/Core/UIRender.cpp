@@ -1519,11 +1519,12 @@ namespace DuiLib {
 		}
 		else 
 		{
-			rcDraw = rcItem;
 			// 默认绘制于 rcItem
+			rcDraw = rcItem;
 			szDraw = pDrawInfo->szIcon;
 		}
-		if(szDraw.cx==-2 || szDraw.cy==-2) {
+		if(szDraw.cx==-2 || szDraw.cy==-2) 
+		{
 			// 尺寸 -2 代表绘制时使用原图宽高
 			if (!pDrawInfo->sName.IsEmpty()) {
 				if(szDraw.cx==-2) szDraw.cx = data->nX;
