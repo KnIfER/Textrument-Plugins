@@ -20,6 +20,7 @@ namespace DuiLib
 		, m_dwDisabledBkColor(0)
 		, m_iBindTabIndex(-1)
 		, m_nStateCount(0)
+		, btnForeDrawable(0)
 		, _hotTrack(true)
 	{
 		m_uTextStyle = DT_SINGLELINE | DT_VCENTER | DT_CENTER;
@@ -295,72 +296,6 @@ namespace DuiLib
 		return m_dwFocusedTextColor;
 	}
 
-	LPCTSTR Button::GetNormalImage()
-	{
-		return m_sNormalImage;
-	}
-
-	void Button::SetNormalImage(LPCTSTR pStrImage)
-	{
-		m_sNormalImage = pStrImage;
-		Invalidate();
-	}
-
-	LPCTSTR Button::GetHotImage()
-	{
-		return m_sHotImage;
-	}
-
-	void Button::SetHotImage(LPCTSTR pStrImage)
-	{
-		m_sHotImage = pStrImage;
-		Invalidate();
-	}
-
-	LPCTSTR Button::GetPushedImage()
-	{
-		return m_sPushedImage;
-	}
-
-	void Button::SetPushedImage(LPCTSTR pStrImage)
-	{
-		m_sPushedImage = pStrImage;
-		Invalidate();
-	}
-
-	LPCTSTR Button::GetFocusedImage()
-	{
-		return m_sFocusedImage;
-	}
-
-	void Button::SetFocusedImage(LPCTSTR pStrImage)
-	{
-		m_sFocusedImage = pStrImage;
-		Invalidate();
-	}
-
-	LPCTSTR Button::GetDisabledImage()
-	{
-		return m_sDisabledImage;
-	}
-
-	void Button::SetDisabledImage(LPCTSTR pStrImage)
-	{
-		m_sDisabledImage = pStrImage;
-		Invalidate();
-	}
-
-	LPCTSTR Button::GetHotForeImage()
-	{
-		return m_sHotForeImage;
-	}
-
-	void Button::SetHotForeImage( LPCTSTR pStrImage )
-	{
-		m_sHotForeImage = pStrImage;
-		Invalidate();
-	}
-
 	void Button::SetStateCount(int nCount)
 	{
 		m_nStateCount = nCount;
@@ -372,15 +307,20 @@ namespace DuiLib
 		return m_nStateCount;
 	}
 
-	LPCTSTR Button::GetStateImage()
+	TDrawInfo & Button::GetStateImage()
 	{
-		return m_sStateImage;
+		return m_tStateIcon;
 	}
 
 	void Button::SetStateImage( LPCTSTR pStrImage )
 	{
-		m_sNormalImage.Empty();
-		m_sStateImage = pStrImage;
+		//imgAttrs.at(imgNormal).sImageName.Empty();
+		//m_sStateImage = pStrImage;
+		m_tStateIcon.Parse(pStrImage, _manager);
+		if(_statusDrawable) {
+			delete _statusDrawable;
+			_statusDrawable = 0;
+		}
 		Invalidate();
 	}
 
@@ -425,13 +365,13 @@ namespace DuiLib
 
 	void Button::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
 	{
-		if( _tcsicmp(pstrName, _T("normalimage")) == 0 ) SetNormalImage(pstrValue);
-		else if( _tcsicmp(pstrName, _T("hotimage")) == 0 ) SetHotImage(pstrValue);
-		else if( _tcsicmp(pstrName, _T("pushedimage")) == 0 ) SetPushedImage(pstrValue);
-		else if( _tcsicmp(pstrName, _T("focusedimage")) == 0 ) SetFocusedImage(pstrValue);
-		else if( _tcsicmp(pstrName, _T("disabledimage")) == 0 ) SetDisabledImage(pstrValue);
-		else if( _tcsicmp(pstrName, _T("hotforeimage")) == 0 ) SetHotForeImage(pstrValue);
-		else if( _tcsicmp(pstrName, _T("stateimage")) == 0 ) SetStateImage(pstrValue);
+		//if( _tcsicmp(pstrName, _T("normalimage")) == 0 ) SetNormalImage(pstrValue);
+		//else if( _tcsicmp(pstrName, _T("hotimage")) == 0 ) SetHotImage(pstrValue);
+		//else if( _tcsicmp(pstrName, _T("pushedimage")) == 0 ) SetPushedImage(pstrValue);
+		//else if( _tcsicmp(pstrName, _T("focusedimage")) == 0 ) SetFocusedImage(pstrValue);
+		//else if( _tcsicmp(pstrName, _T("disabledimage")) == 0 ) SetDisabledImage(pstrValue);
+		//else if( _tcsicmp(pstrName, _T("hotforeimage")) == 0 ) SetHotForeImage(pstrValue);
+		if( _tcsicmp(pstrName, _T("stateimage")) == 0 ) SetStateImage(pstrValue);
 		else if( _tcsicmp(pstrName, _T("statecount")) == 0 ) SetStateCount(_ttoi(pstrValue));
 		else if( _tcsicmp(pstrName, _T("bindtabindex")) == 0 ) BindTabIndex(_ttoi(pstrValue));
 		else if( _tcsicmp(pstrName, _T("bindtablayoutname")) == 0 ) BindTabLayoutName(pstrValue);
@@ -686,53 +626,9 @@ namespace DuiLib
 		}
 	}
 
+
 	void Button::PaintStatusImage(HDC hDC)
 	{
-		if(!m_sStateImage.IsEmpty() && m_nStateCount > 0)
-		{
-			TDrawInfo info;
-			info.Parse(m_sStateImage, _manager);
-			const TImageInfo* pImage = _manager->GetImageEx(info.sImageName, info.sResType, info.dwMask, info.bHSL);
-			if(m_sNormalImage.IsEmpty() && pImage != NULL)
-			{
-				SIZE szImage = {pImage->nX, pImage->nY};
-				SIZE szStatus = {pImage->nX / m_nStateCount, pImage->nY};
-				if( szImage.cx > 0 && szImage.cy > 0 )
-				{
-					RECT rcSrc = {0, 0, szImage.cx, szImage.cy};
-					if(m_nStateCount > 0) {
-						int iLeft = rcSrc.left + 0 * szStatus.cx;
-						int iRight = iLeft + szStatus.cx;
-						int iTop = rcSrc.top;
-						int iBottom = iTop + szStatus.cy;
-						m_sNormalImage.Format(_T("res='%s' restype='%s' dest='%d,%d,%d,%d' source='%d,%d,%d,%d'"), info.sImageName.GetData(), info.sResType.GetData(), info.rcDest.left, info.rcDest.top, info.rcDest.right, info.rcDest.bottom, iLeft, iTop, iRight, iBottom);
-					}
-					if(m_nStateCount > 1) {
-						int iLeft = rcSrc.left + 1 * szStatus.cx;
-						int iRight = iLeft + szStatus.cx;
-						int iTop = rcSrc.top;
-						int iBottom = iTop + szStatus.cy;
-						m_sHotImage.Format(_T("res='%s' restype='%s' dest='%d,%d,%d,%d' source='%d,%d,%d,%d'"), info.sImageName.GetData(), info.sResType.GetData(), info.rcDest.left, info.rcDest.top, info.rcDest.right, info.rcDest.bottom, iLeft, iTop, iRight, iBottom);
-						m_sPushedImage.Format(_T("res='%s' restype='%s' dest='%d,%d,%d,%d' source='%d,%d,%d,%d'"), info.sImageName.GetData(), info.sResType.GetData(), info.rcDest.left, info.rcDest.top, info.rcDest.right, info.rcDest.bottom, iLeft, iTop, iRight, iBottom);
-					}
-					if(m_nStateCount > 2) {
-						int iLeft = rcSrc.left + 2 * szStatus.cx;
-						int iRight = iLeft + szStatus.cx;
-						int iTop = rcSrc.top;
-						int iBottom = iTop + szStatus.cy;
-						m_sPushedImage.Format(_T("res='%s' restype='%s' dest='%d,%d,%d,%d' source='%d,%d,%d,%d'"), info.sImageName.GetData(), info.sResType.GetData(), info.rcDest.left, info.rcDest.top, info.rcDest.right, info.rcDest.bottom, iLeft, iTop, iRight, iBottom);
-					}
-					if(m_nStateCount > 3) {
-						int iLeft = rcSrc.left + 3 * szStatus.cx;
-						int iRight = iLeft + szStatus.cx;
-						int iTop = rcSrc.top;
-						int iBottom = iTop + szStatus.cy;
-						m_sDisabledImage.Format(_T("res='%s' restype='%s' dest='%d,%d,%d,%d' source='%d,%d,%d,%d'"), info.sImageName.GetData(), info.sResType.GetData(), info.rcDest.left, info.rcDest.top, info.rcDest.right, info.rcDest.bottom, iLeft, iTop, iRight, iBottom);
-					}
-				}
-			}
-		}
-
 		if( IsFocused() ) m_uButtonState |= UISTATE_FOCUSED;
 		else m_uButtonState &= ~ UISTATE_FOCUSED;
 		if( !IsEnabled() ) m_uButtonState |= UISTATE_DISABLED;
@@ -740,53 +636,68 @@ namespace DuiLib
 		if(!::IsWindowEnabled(_manager->GetPaintWindow())) {
 			m_uButtonState &= UISTATE_DISABLED;
 		}
-		if( (m_uButtonState & UISTATE_DISABLED) != 0 ) {
-			if( !m_sDisabledImage.IsEmpty() ) {
-				if( !DrawImage(hDC, (LPCTSTR)m_sDisabledImage) ) {}
-				else return;
-			}
-		}
-		else if( (m_uButtonState & UISTATE_PUSHED) != 0 ) {
-			if( !m_sPushedImage.IsEmpty() ) {
-				if( !DrawImage(hDC, (LPCTSTR)m_sPushedImage) ) {}
-				else return;
-			}
-		}
-		else if( (m_uButtonState & UISTATE_HOT) != 0 ) {
-			if( !m_sHotImage.IsEmpty() ) {
-				if( !DrawImage(hDC, (LPCTSTR)m_sHotImage) ) {}
-				else return;
-			}
-		}
-		else if( (m_uButtonState & UISTATE_FOCUSED) != 0 ) {
-			if( !m_sFocusedImage.IsEmpty() ) {
-				if( !DrawImage(hDC, (LPCTSTR)m_sFocusedImage) ) {}
-				else return;
-			}
-		}
 
-		if( !m_sNormalImage.IsEmpty() ) {
-			if( !DrawImage(hDC, (LPCTSTR)m_sNormalImage) ) {}
+		if(_statusDrawable && _statusDrawable->Draw(hDC, this, m_uButtonState)) 
+		{
+			return;
+		}
+		if(m_nStateCount > 0)
+		{
+			// 根据  StateImage 生成状态图像
+			const TImageInfo* pImage = _manager->GetImageEx(m_tStateIcon.sImageName, m_tStateIcon.sResType, m_tStateIcon.dwMask, m_tStateIcon.bHSL);
+			if(pImage != NULL)
+			{
+				RECT srcRaw = m_tStateIcon.rcSource;
+				RECT & rc = m_tStateIcon.rcSource;
+				SIZE szImage = {pImage->nX, pImage->nY};
+				SIZE szStatus = {pImage->nX / m_nStateCount, pImage->nY};
+				if( szImage.cx > 0 && szImage.cy > 0 )
+				{
+					RECT rcSrc = {0, 0, szImage.cx, szImage.cy};
+					bool draw = true;
+					if( (m_uButtonState & UISTATE_DISABLED) && m_nStateCount > 3) {
+						rc.left = rcSrc.left + 3 * szStatus.cx;
+						rc.right = rc.left + szStatus.cx;
+						rc.top = rcSrc.top;
+						rc.bottom = rc.top + szStatus.cy;
+					}
+					else if((m_uButtonState & UISTATE_PUSHED) && m_nStateCount > 2) {
+						rc.left = rcSrc.left + 2 * szStatus.cx;
+						rc.right = rc.left + szStatus.cx;
+						rc.top = rcSrc.top;
+						rc.bottom = rc.top + szStatus.cy;
+					}
+					else if((m_uButtonState & UISTATE_HOT) && m_nStateCount > 1) {
+						rc.left = rcSrc.left + 1 * szStatus.cx;
+						rc.right = rc.left + szStatus.cx;
+						rc.top = rcSrc.top;
+						rc.bottom = rc.top + szStatus.cy;
+					}
+					else if((m_uButtonState & UISTATE_FOCUSED) && m_nStateCount > 0) {
+						rc.left = rcSrc.left + 0 * szStatus.cx;
+						rc.right = rc.left + szStatus.cx;
+						rc.top = rcSrc.top;
+						rc.bottom = rc.top + szStatus.cy;
+					}
+					else draw = false;
+					if( !draw || !DrawImage(hDC, m_tStateIcon) )
+					{
+						DrawImage(hDC, m_tStateIcon);
+					}
+				}
+				rc = srcRaw;
+			}
 		}
 	}
 
 	void Button::PaintForeImage(HDC hDC)
 	{
-		if( (m_uButtonState & UISTATE_PUSHED) != 0 ) {
-			if( !m_sPushedForeImage.IsEmpty() ) {
-				if( !DrawImage(hDC, (LPCTSTR)m_sPushedForeImage) ) {}
-				else return;
+		if(btnForeDrawable && (m_uButtonState & (UISTATE_HOT|UISTATE_PUSHED))) {
+			if(btnForeDrawable->Draw(hDC, this, m_uButtonState)) {
+				return;
 			}
 		}
-		else if( (m_uButtonState & UISTATE_HOT) != 0 ) {
-			if( !m_sHotForeImage.IsEmpty() ) {
-				if( !DrawImage(hDC, (LPCTSTR)m_sHotForeImage) ) {}
-				else return;
-			}
-		}
-		if(!m_sForeImage.IsEmpty() ) {
-			if( !DrawImage(hDC, (LPCTSTR)m_sForeImage) ) {}
-		}
+		if( !DrawImage(hDC, m_tForeImage) ) {}
 	}
 
 	CControlUI* Button::Duplicate()

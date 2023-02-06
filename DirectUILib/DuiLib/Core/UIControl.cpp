@@ -25,6 +25,8 @@ namespace DuiLib {
 		,m_wCursor((WORD)IDC_ARROW)
 		,_hCursor(CPaintManagerUI::hCursorArrow)
 
+		,_statusDrawable(NULL)
+
 		,_LastScaleProfile(-1)
 		,_view_states(0)
 	{
@@ -384,29 +386,18 @@ namespace DuiLib {
 		Invalidate();
 	}
 
-	LPCTSTR CControlUI::GetBkImage()
-	{
-		return m_sBkImage;
-	}
 
 	void CControlUI::SetBkImage(LPCTSTR pStrImage)
 	{
-		if( m_sBkImage == pStrImage ) return;
-
-		m_sBkImage = pStrImage;
+		//if( m_sBkImage == pStrImage ) return;
+		m_tBkImage.Parse(pStrImage, _manager);
 		Invalidate();
-	}
-	
-	LPCTSTR CControlUI::GetForeImage() const
-	{
-		return m_sForeImage;
 	}
 
 	void CControlUI::SetForeImage(LPCTSTR pStrImage)
 	{
-		if( m_sForeImage == pStrImage ) return;
-
-		m_sForeImage = pStrImage;
+		//if( m_sForeImage == pStrImage ) return;
+		m_tForeImage.Parse(pStrImage, _manager);
 		Invalidate();
 	}
 
@@ -572,9 +563,14 @@ namespace DuiLib {
 		return m_bBorderEnhanced;
 	}
 
-	bool CControlUI::DrawImage(HDC hDC, LPCTSTR pStrImage, TDrawInfo* modify, RECT* rcDest)
+	bool CControlUI::DrawImage(HDC hDC, LPCTSTR pStrImage, RECT* rcDest)
 	{
-		return CRenderEngine::DrawImageString(hDC, _manager, m_rcItem, m_rcPaint, pStrImage, modify, rcDest, _instance);
+		return CRenderEngine::DrawImageString(hDC, _manager, m_rcItem, m_rcPaint, pStrImage, rcDest, _instance);
+	}
+
+	bool CControlUI::DrawImage(HDC hDC, const TDrawInfo & info, RECT* rcDest)
+	{
+		return CRenderEngine::DrawImageInfo(hDC, _manager, m_rcItem, m_rcPaint, &info, rcDest, _instance);
 	}
 	
 
@@ -1831,8 +1827,8 @@ namespace DuiLib {
 
 	void CControlUI::PaintBkImage(HDC hDC)
 	{
-		if( m_sBkImage.IsEmpty() ) return;
-		if( !DrawImage(hDC, (LPCTSTR)m_sBkImage) ) {}
+		if( m_tBkImage.sImageName.IsEmpty() ) return;
+		if( !DrawImage(hDC, m_tBkImage) ) {}
 	}
 
 	void CControlUI::PaintStatusImage(HDC hDC)
@@ -1847,8 +1843,8 @@ namespace DuiLib {
 	
 	void CControlUI::PaintForeImage(HDC hDC)
 	{
-		if( m_sForeImage.IsEmpty() ) return;
-		DrawImage(hDC, (LPCTSTR)m_sForeImage);
+		if( m_tForeImage.sImageName.IsEmpty() ) return;
+		DrawImage(hDC, m_tForeImage);
 	}
 
 	void CControlUI::PaintText(HDC hDC)

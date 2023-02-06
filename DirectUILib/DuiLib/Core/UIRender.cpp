@@ -225,76 +225,6 @@ namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
 	//
-	bool GetImageInfoAndDraw(HDC hDC, CPaintManagerUI* pManager, const RECT& rc
-		, const RECT& rcPaint, const QkString& sImageName
-		, const QkString& sImageResType
-		, RECT rcItem, RECT rcBmpPart, RECT rcCorner
-		, DWORD dwMask, BYTE bFade
-		, bool bHole, bool bTiledX, bool bTiledY, HINSTANCE instance = NULL)
-	{
-		if (sImageName.IsEmpty()) {
-			return false;
-		}
-		const TImageInfo* data = NULL;
-		if( sImageResType.IsEmpty() ) {
-			data = pManager->GetImageEx((LPCTSTR)sImageName, NULL, dwMask, false, instance);
-		}
-		else {
-			data = pManager->GetImageEx((LPCTSTR)sImageName, (LPCTSTR)sImageResType, dwMask, false, instance);
-		}
-		if( !data ) return false;    
-
-		if( rcBmpPart.left == 0 && rcBmpPart.right == 0 && rcBmpPart.top == 0 && rcBmpPart.bottom == 0 ) {
-			rcBmpPart.right = data->nX;
-			rcBmpPart.bottom = data->nY;
-		}
-		if (rcBmpPart.right > data->nX) rcBmpPart.right = data->nX;
-		if (rcBmpPart.bottom > data->nY) rcBmpPart.bottom = data->nY;
-
-		RECT rcTemp;
-		if( !::IntersectRect(&rcTemp, &rcItem, &rc) ) return true;
-		if( !::IntersectRect(&rcTemp, &rcItem, &rcPaint) ) return true;
-
-
-
-#ifdef MODULE_SKIA_RENDERER
-		if(true)
-			CRenderEngine::DrawSkImage(pManager, data, rcItem, rcPaint, rcBmpPart, rcCorner, pManager->IsLayered() ? true : data->bAlpha, bFade, bHole, bTiledX, bTiledY);
-		else
-#endif
-		CRenderEngine::DrawImage(hDC, data->hBitmap, rcItem, rcPaint, rcBmpPart, rcCorner, pManager->IsLayered() ? true : data->bAlpha, bFade, bHole, bTiledX, bTiledY);
-		
-		//if (false)
-		//{
-		//	HDC hCloneDC = ::CreateCompatibleDC(hDC);
-		//	HBITMAP hOldBitmap = (HBITMAP) ::SelectObject(hCloneDC, data->hBitmap);
-		//	::SetStretchBltMode(hDC, HALFTONE);
-		//	::StretchBlt(hDC, rcItem.left, rcItem.top, rcItem.right-rcItem.left, rcItem.bottom-rcItem.top, hCloneDC, \
-		//		0, 0, data->nX, data->nY, SRCCOPY);
-		//	::SelectObject(hCloneDC, hOldBitmap);
-		//	::DeleteDC(hCloneDC);
-		//}
-		//else
-		//{
-		//	// kOpaque_SkAlphaType
-		//	auto decodeInfo = SkImageInfo::MakeN32(data->nX, data->nY, kPremul_SkAlphaType);
-		//
-		//	SkBitmap skBitmap;
-		//
-		//	skBitmap.setInfo(decodeInfo);
-		//
-		//	skBitmap.setPixels(data->pBits);
-		//
-		//	SkRect rect{rcItem.left, rcItem.top, rcItem.right, rcItem.bottom};
-		//
-		//	SkSamplingOptions options(SkFilterMode::kNearest, SkMipmapMode::kNone);
-		//
-		//	pManager->GetSkiaCanvas()->drawImageRect(skImage, rect, options);
-		//}
-
-		return true;
-	}
-
 	void CRenderEngine::DrawSkImage(CPaintManagerUI* pManager, const TImageInfo* data, const RECT& rc, const RECT& rcPaint,
 		const RECT& rcBmpPart, const RECT& rcCorners, bool bAlpha, 
 		BYTE uFade, bool hole, bool xtiled, bool ytiled)
@@ -368,7 +298,7 @@ namespace DuiLib {
 										lDrawWidth -= lDestRight - rcDest.right;
 										lDestRight = rcDest.right;
 									}
-									//::BitBlt(hDC, rcDest.left + lWidth * i, rcDest.top + lHeight * j, \
+									//::BitBlt(hDC, rcDraw.left + lWidth * i, rcDraw.top + lHeight * j, \
 									//	lDestRight - lDestLeft, lDestBottom - lDestTop, hCloneDC, \
 									//	rcBmpPart.left + rcCorners.left, rcBmpPart.top + rcCorners.top, SRCCOPY);
 								}
@@ -419,14 +349,14 @@ namespace DuiLib {
 
 				//// bottom
 				//if( rcCorners.bottom > 0 ) {
-				//	rcDest.left = rc.left + rcCorners.left;
-				//	rcDest.top = rc.bottom - rcCorners.bottom;
-				//	rcDest.right = rc.right - rc.left - rcCorners.left - rcCorners.right;
-				//	rcDest.bottom = rcCorners.bottom;
-				//	rcDest.right += rcDest.left;
-				//	rcDest.bottom += rcDest.top;
-				//	if( ::IntersectRect(&rcTemp, &rcPaint, &rcDest) ) {
-				//		SkRect rect{rcDest.left, rcDest.top, rcDest.right, rcDest.bottom};
+				//	rcDraw.left = rc.left + rcCorners.left;
+				//	rcDraw.top = rc.bottom - rcCorners.bottom;
+				//	rcDraw.right = rc.right - rc.left - rcCorners.left - rcCorners.right;
+				//	rcDraw.bottom = rcCorners.bottom;
+				//	rcDraw.right += rcDraw.left;
+				//	rcDraw.bottom += rcDraw.top;
+				//	if( ::IntersectRect(&rcTemp, &rcPaint, &rcDraw) ) {
+				//		SkRect rect{rcDraw.left, rcDraw.top, rcDraw.right, rcDraw.bottom};
 				//		SkRect rectSrc{rcBmpPart.left + rcCorners.left
 				//			, rcBmpPart.bottom - rcCorners.bottom
 				//			, rcBmpPart.left + rcCorners.left + rcBmpPart.right - rcBmpPart.left - rcCorners.left - rcCorners.right
@@ -1104,8 +1034,10 @@ namespace DuiLib {
 			rcDest.bottom = rcDest.top + rcDest.top;
 		}
 
-		::OffsetRect(&rcDest, rcPadding.left, rcPadding.top);		
-		::OffsetRect(&rcDest, -rcPadding.right, -rcPadding.bottom);
+		rcDest.left +=   rcPadding.left;
+		rcDest.top +=    rcPadding.top;
+		rcDest.right -=  rcPadding.right;
+		rcDest.bottom -= rcPadding.bottom;
 
 		if (rcDest.right > rcControl.right) 
 			rcDest.right = rcControl.right;
@@ -1571,51 +1503,93 @@ namespace DuiLib {
 	}
 
 	bool CRenderEngine::DrawImageInfo(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint
-			, const TDrawInfo* pDrawInfo, const RECT* rcDestMod, HINSTANCE instance)
+			, const TDrawInfo* pDrawInfo, const RECT* rcDest, HINSTANCE instance)
 	{
 		if( pManager == NULL || hDC == NULL || pDrawInfo == NULL ) return false;
-		RECT rcDest = rcItem;
+		RECT rcDraw = rcItem; // 默认绘制于 rcItem
+		CDuiSize szDraw{};
+
+		const TImageInfo* data = ParseImageString(pManager, (LPCTSTR)pDrawInfo->sImageName, 0, instance);
+		if(!data) return false;
+
 		// 计算绘制目标区域
-		if(!rcDestMod && pDrawInfo->DRAWABLE_SET_rcDest) {
-			rcDestMod = &pDrawInfo->rcDest;
+		if(rcDest) {
+			// 绘制在 rcDest 参数指定的位置
+			rcDraw = *rcDest;
 		}
-		if(rcDestMod) {
-			//if( pDrawInfo->rcDest.left != 0 || pDrawInfo->rcDest.top != 0 || pDrawInfo->rcDest.right != 0 || pDrawInfo->rcDest.bottom != 0 ) {
-			rcDest.left = rcItem.left + rcDestMod->left;
-			rcDest.top = rcItem.top + rcDestMod->top;
-			rcDest.right = rcItem.left + rcDestMod->right;
-			rcDest.bottom = rcItem.top + rcDestMod->bottom;
-			if( rcDest.right > rcItem.right ) rcDest.right = rcItem.right;
-			if( rcDest.bottom > rcItem.bottom ) rcDest.bottom = rcItem.bottom;
-		}
-		// 根据对齐方式计算目标区域
-		CDuiSize szImage = pDrawInfo->szImage;
-		if(szImage.cx==-2 || szImage.cy==-2) {
-			if (!pDrawInfo->sImageName.IsEmpty()) {
-				const TImageInfo* data = NULL;
-				if( pDrawInfo->sResType.IsEmpty() ) {
-					data = pManager->GetImageEx((LPCTSTR)pDrawInfo->sImageName, NULL, pDrawInfo->dwMask, false, instance);
-				}
-				else {
-					data = pManager->GetImageEx((LPCTSTR)pDrawInfo->sImageName, (LPCTSTR)pDrawInfo->sResType, pDrawInfo->dwMask, false, instance);
-				}
-				if(data) {
-					if(szImage.cx==-2) szImage.cx = data->nX;
-					if(szImage.cy==-2) szImage.cy = data->nY;
+		else 
+		{
+			// 默认绘制于 rcItem
+			szDraw = pDrawInfo->szImage;
+			if(szDraw.cx==-2 || szDraw.cy==-2) {
+				// 尺寸 -2 代表绘制时使用原图宽高
+				if (!pDrawInfo->sImageName.IsEmpty()) {
+					if(szDraw.cx==-2) szDraw.cx = data->nX;
+					if(szDraw.cy==-2) szDraw.cy = data->nY;
 				}
 			}
 		}
-		if(szImage.cx > 0 || szImage.cy > 0) {
-			MakeImageDest(rcItem, szImage, pDrawInfo->iAlign, pDrawInfo->rcPadding, rcDest);
+
+		// 根据对齐方式计算目标区域
+		MakeImageDest(rcItem, szDraw, pDrawInfo->iAlign, pDrawInfo->rcPadding, rcDraw);
+
+
+		RECT rcTemp;
+		if( !::IntersectRect(&rcTemp, &rcItem, &rcItem) ) return true;
+		if( !::IntersectRect(&rcTemp, &rcItem, &rcPaint) ) return true;
+
+		//bool ret = DuiLib::GetImageInfoAndDraw(hDC, pManager, rcDraw, rcPaint
+		//	, pDrawInfo->sImageName, pDrawInfo->sResType
+		//	, pDrawInfo->rcSource, pDrawInfo->rcCorner
+		//	, pDrawInfo->dwMask, pDrawInfo->uFade, pDrawInfo->bHole
+		//	, pDrawInfo->bTiledX, pDrawInfo->bTiledY, instance);
+
+		RECT rcBmpPart = pDrawInfo->rcSource;
+		const RECT & rcCorner = pDrawInfo->rcCorner;
+
+		if( rcBmpPart.left == 0 && rcBmpPart.right == 0 && rcBmpPart.top == 0 && rcBmpPart.bottom == 0 ) {
+			rcBmpPart.right = data->nX;
+			rcBmpPart.bottom = data->nY;
 		}
+		if (rcBmpPart.right > data->nX) rcBmpPart.right = data->nX;
+		if (rcBmpPart.bottom > data->nY) rcBmpPart.bottom = data->nY;
 
-		bool ret = DuiLib::GetImageInfoAndDraw(hDC, pManager, rcItem, rcPaint, pDrawInfo->sImageName
-			, pDrawInfo->sResType
-			, rcDest, pDrawInfo->rcSource, pDrawInfo->rcCorner
-			, pDrawInfo->dwMask, pDrawInfo->uFade, pDrawInfo->bHole
-			, pDrawInfo->bTiledX, pDrawInfo->bTiledY, instance);
 
-		return ret;
+#ifdef MODULE_SKIA_RENDERER
+		if(true)
+			CRenderEngine::DrawSkImage(pManager, data, rcItem, rcPaint, rcBmpPart, rcCorner, pManager->IsLayered() ? true : data->bAlpha, bFade, bHole, bTiledX, bTiledY);
+		else
+#endif
+			CRenderEngine::DrawImage(hDC, data->hBitmap, rcDraw, rcPaint, rcBmpPart, rcCorner, pManager->IsLayered() ? true : data->bAlpha, pDrawInfo->uFade, pDrawInfo->bHole, pDrawInfo->bTiledX, pDrawInfo->bTiledY);
+
+		//if (false)
+		//{
+		//	HDC hCloneDC = ::CreateCompatibleDC(hDC);
+		//	HBITMAP hOldBitmap = (HBITMAP) ::SelectObject(hCloneDC, data->hBitmap);
+		//	::SetStretchBltMode(hDC, HALFTONE);
+		//	::StretchBlt(hDC, rcItem.left, rcItem.top, rcItem.right-rcItem.left, rcItem.bottom-rcItem.top, hCloneDC, \
+		//		0, 0, data->nX, data->nY, SRCCOPY);
+		//	::SelectObject(hCloneDC, hOldBitmap);
+		//	::DeleteDC(hCloneDC);
+		//}
+		//else
+		//{
+		//	// kOpaque_SkAlphaType
+		//	auto decodeInfo = SkImageInfo::MakeN32(data->nX, data->nY, kPremul_SkAlphaType);
+		//
+		//	SkBitmap skBitmap;
+		//
+		//	skBitmap.setInfo(decodeInfo);
+		//
+		//	skBitmap.setPixels(data->pBits);
+		//
+		//	SkRect rect{rcItem.left, rcItem.top, rcItem.right, rcItem.bottom};
+		//
+		//	SkSamplingOptions options(SkFilterMode::kNearest, SkMipmapMode::kNone);
+		//
+		//	pManager->GetSkiaCanvas()->drawImageRect(skImage, rect, options);
+		//}
+		return true;
 	}
 
 	const TImageInfo* CRenderEngine::ParseImageString(CPaintManagerUI* pManager, LPCTSTR pStrImage, LPCTSTR pStrModify, HINSTANCE instance)
@@ -1635,14 +1609,10 @@ namespace DuiLib {
 		return data;  
 	}
 
-	bool CRenderEngine::DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, TDrawInfo* modify, const RECT* rcDest, HINSTANCE instance)
+	bool CRenderEngine::DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, const RECT* rcDest, HINSTANCE instance)
 	{
 		if ((pManager == NULL) || (hDC == NULL)) return false;
 		const TDrawInfo* pDrawInfo = pManager->GetDrawInfo(pStrImage);
-		if(modify) {
-			// modify...
-
-		}
 		return DrawImageInfo(hDC, pManager, rcItem, rcPaint, pDrawInfo, rcDest, instance);
 	}
 

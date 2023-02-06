@@ -274,11 +274,11 @@ namespace DuiLib {
 		void Parse(LPCTSTR pStrImage, CPaintManagerUI *pManager);
 		void Clear();
 
-		QkString sDrawString;
+		//QkString sDrawString;
 		//QkString sDrawModify;
 		QkString sImageName;
 		QkString sResType;
-		RECT rcDest;
+		//RECT rcDest;
 		RECT rcSource;
 		RECT rcCorner;
 		DWORD dwMask;

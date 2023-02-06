@@ -67,6 +67,7 @@
 				roundclip="true"
 				font="btn"   
 				enabled="true"
+			stateimage="file='Button/btn.png' corner='5,11,5,11' source='0,24,96,48'" 
 					/>
 					
 		<Button  

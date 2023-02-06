@@ -13,6 +13,9 @@
     <Filter Include="Control">
       <UniqueIdentifier>{9ee45b32-9fa8-4d0a-9a8f-0a3f173fc205}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Drawable">
+      <UniqueIdentifier>{1fd2fdd3-b8fb-4ec9-9f96-4a2be50f43eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils\downloadmgr.h">
@@ -214,6 +217,9 @@
     </ClInclude>
     <ClInclude Include="Utils\basic_debugbuf.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawable\drawable.h">
+      <Filter>Drawable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

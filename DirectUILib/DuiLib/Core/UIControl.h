@@ -115,14 +115,15 @@ namespace DuiLib {
 		void SetBkColor3(DWORD dwBackColor);
 		DWORD GetForeColor() const;
 		void SetForeColor(DWORD dwForeColor);
-		LPCTSTR GetBkImage();
+		//LPCTSTR GetBkImage();
 		void SetBkImage(LPCTSTR pStrImage);
-		LPCTSTR GetForeImage() const;
+		//LPCTSTR GetForeImage() const;
 		void SetForeImage(LPCTSTR pStrImage);
 
 		bool IsColorHSL() const;
 		void SetColorHSL(bool bColorHSL);
-		bool DrawImage(HDC hDC, LPCTSTR pStrImage, TDrawInfo* modify = NULL, RECT* rcDest = NULL);
+		bool DrawImage(HDC hDC, LPCTSTR pStrImage, RECT* rcDest = NULL);
+		bool DrawImage(HDC hDC, const TDrawInfo & info, RECT* rcDest = NULL);
 
 		// 是否裁切出圆角内容
 		void SetRoundClip(bool bClip);
@@ -350,6 +351,10 @@ namespace DuiLib {
 		char* m_sUserDataTally;
 		int _marked;
 		LONG_FLAG _view_states;
+
+		TDrawInfo m_tBkImage;
+		TDrawInfo m_tForeImage;
+
 	protected:
 		CPaintManagerUI* _manager;
 		CControlUI* _parent;
@@ -423,8 +428,6 @@ namespace DuiLib {
 		DWORD m_dwBackColor2;
 		DWORD m_dwBackColor3;
 		DWORD m_dwForeColor;
-		QkString m_sBkImage;
-		QkString m_sForeImage;
 
 		DWORD m_dwBorderColor;
 		DWORD m_dwFocusBorderColor;
@@ -445,6 +448,8 @@ namespace DuiLib {
 		WORD m_wCursor;
 		HCURSOR _hCursor;
 		RECT m_rcPaint;
+
+		IDrawable* _statusDrawable;
 
 		QkStringPtrMap m_mCustomAttrHash;
 

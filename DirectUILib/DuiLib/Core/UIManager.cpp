@@ -158,7 +158,7 @@ namespace DuiLib {
 		// 2、file='aaa.jpg' res='' restype='0' dest='0,0,0,0' source='0,0,0,0' corner='0,0,0,0' 
 		// mask='#FF0000' fade='255' hole='false' xtiled='false' ytiled='false'
 		// size='25,25' align='left' padding='0,0,0,0' by DuiLib_Ultimate
-		sDrawString = pStrImage;
+		//sDrawString = pStrImage;
 		// sDrawModify = pStrModify;
 		sImageName = pStrImage;
 
@@ -198,10 +198,10 @@ namespace DuiLib {
 						sResType = sValue;
 					}
 					else if( sItem == _T("dest") ) {
-						rcDest.left = _tcstol(sValue.GetData(), &pstr, 10);  ASSERT(pstr);    
-						rcDest.top = _tcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);    
-						rcDest.right = _tcstol(pstr + 1, &pstr, 10);  ASSERT(pstr);    
-						rcDest.bottom = _tcstol(pstr + 1, &pstr, 10); ASSERT(pstr);  
+						//rcDest.left = _tcstol(sValue.GetData(), &pstr, 10);  ASSERT(pstr);    
+						//rcDest.top = _tcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);    
+						//rcDest.right = _tcstol(pstr + 1, &pstr, 10);  ASSERT(pstr);    
+						//rcDest.bottom = _tcstol(pstr + 1, &pstr, 10); ASSERT(pstr);  
 						//if(pManager != NULL) pManager->GetDPIObj()->Scale(&rcDest);
 					}
 					else if( sItem == _T("source") ) {
@@ -291,13 +291,14 @@ namespace DuiLib {
 		//	sImageName.Replace(_T("."), sScale);
 		//}
 	}
+
 	void tagTDrawInfo::Clear()
 	{
-		sDrawString.Empty();
+		//sDrawString.Empty();
 		//sDrawModify.Empty();
 		sImageName.Empty();
 
-		memset(&rcDest, 0, sizeof(RECT));
+		//memset(&rcDest, 0, sizeof(RECT));
 		memset(&rcSource, 0, sizeof(RECT));
 		memset(&rcCorner, 0, sizeof(RECT));
 		dwMask = 0;
@@ -1073,12 +1074,13 @@ namespace DuiLib {
 
 	LPCTSTR CPaintManagerUI::GetLayeredImage()
 	{
-		return m_diLayered.sDrawString;
+		return m_diLayered.sImageName;
 	}
 
 	void CPaintManagerUI::SetLayeredImage(LPCTSTR pstrImage)
 	{
-		m_diLayered.sDrawString = pstrImage;
+		//m_diLayered.sDrawString = pstrImage;
+		m_diLayered.Parse(pstrImage, this);
 		RECT rcNull = {0};
 		CRenderEngine::DrawImageInfo(NULL, this, rcNull, rcNull, &m_diLayered);
 		m_bLayeredChanged = true;
@@ -1607,7 +1609,7 @@ namespace DuiLib {
 					if( m_bLayered ) {
 						RECT rcWnd = { 0 };
 						::GetWindowRect(m_hWndPaint, &rcWnd);
-						if(!m_diLayered.sDrawString.IsEmpty()) {
+						if(!m_diLayered.sImageName.IsEmpty()) {
 							DWORD dwWidth = rcClient.right - rcClient.left;
 							DWORD dwHeight = rcClient.bottom - rcClient.top;
 							RECT rcLayeredClient = rcClient;
@@ -1622,7 +1624,7 @@ namespace DuiLib {
 							BYTE R = 0;
 							BYTE G = 0;
 							BYTE B = 0;
-							if (!m_diLayered.sDrawString.IsEmpty()) {
+							if (!m_diLayered.sImageName.IsEmpty()) {
 								if( m_hbmpBackground == NULL) {
 									m_hDcBackground = ::CreateCompatibleDC(m_hDcPaint);
 									m_hbmpBackground = CRenderEngine::CreateARGB32Bitmap(m_hDcPaint, dwWidth, dwHeight, (BYTE**)&m_pBackgroundBits); 

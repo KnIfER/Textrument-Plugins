@@ -201,13 +201,11 @@ namespace DuiLib {
 			}
 		}
 
-		if (!m_sBkImage.IsEmpty()) {
-			if (!pInfo->bAlternateBk || m_iIndex % 2 == 0) {
-				if (!DrawImage(hDC, (LPCTSTR)m_sBkImage)) {}
-			}
+		if (!pInfo->bAlternateBk || m_iIndex % 2 == 0) {
+			if (!DrawImage(hDC, m_tBkImage)) {}
 		}
 
-		if (m_sBkImage.IsEmpty()) {
+		if (m_tBkImage.sImageName.IsEmpty()) {
 			if (!pInfo->sBkImage.IsEmpty()) {
 				if (!DrawImage(hDC, (LPCTSTR)pInfo->sBkImage)) {}
 				else return;
@@ -840,13 +838,13 @@ namespace DuiLib {
 				else return;
 			}
 		}
-		if (!m_sBkImage.IsEmpty()) {
+		if (!m_tBkImage.sImageName.IsEmpty()) {
 			if (!pInfo->bAlternateBk || m_iIndex % 2 == 0) {
-				if (!DrawImage(hDC, (LPCTSTR)m_sBkImage)) {}
+				if (!DrawImage(hDC, m_tBkImage)) {}
 			}
 		}
 
-		if (m_sBkImage.IsEmpty()) {
+		if (m_tBkImage.sImageName.IsEmpty()) {
 			if (!pInfo->sBkImage.IsEmpty()) {
 				if (!DrawImage(hDC, (LPCTSTR)pInfo->sBkImage)) {}
 				else return;

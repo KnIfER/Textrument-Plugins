@@ -25,21 +25,20 @@ namespace DuiLib
 
 		LPCTSTR GetSelectedHotImage();
 		void SetSelectedHotImage(LPCTSTR pStrImage);
-
 		LPCTSTR GetSelectedPushedImage();
 		void SetSelectedPushedImage(LPCTSTR pStrImage);
-
-		void SetSelectedTextColor(DWORD dwTextColor);
-		DWORD GetSelectedTextColor();
-
-		void SetSelectedBkColor(DWORD dwBkColor);
-		DWORD GetSelectBkColor();
-
 		LPCTSTR GetSelectedForedImage();
 		void SetSelectedForedImage(LPCTSTR pStrImage);
 
+		void SetSelectedTextColor(DWORD dwTextColor);
+		DWORD GetSelectedTextColor();
+		void SetSelectedBkColor(DWORD dwBkColor);
+		DWORD GetSelectBkColor();
+
+
 		void SetSelectedStateCount(int nCount);
 		int GetSelectedStateCount() const;
+
 		virtual LPCTSTR GetSelectedStateImage();
 		virtual void SetSelectedStateImage(LPCTSTR pStrImage);
 

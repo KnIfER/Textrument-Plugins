@@ -295,6 +295,7 @@
     <ClInclude Include="Core\XMLMarkup.h" />
     <ClInclude Include="Core\UIRender.h" />
     <ClInclude Include="Core\UIResourceManager.h" />
+    <ClInclude Include="Drawable\drawable.h" />
     <ClInclude Include="Layout\UIChildLayout.h" />
     <ClInclude Include="Layout\UIHorizontalLayout.h" />
     <ClInclude Include="Layout\UITabLayout.h" />

@@ -282,24 +282,18 @@ namespace DuiLib
 
 		if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
 			if( !m_sThumbPushedImage.IsEmpty() ) {
-				//m_sImageModify.Empty();
-				//m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
 				if( !DrawImageAt(hDC, (LPCTSTR)m_sThumbPushedImage, &rcThumb) ) {}
 				else return;
 			}
 		}
 		else if( (m_uButtonState & UISTATE_HOT) != 0 ) {
 			if( !m_sThumbHotImage.IsEmpty() ) {
-				//m_sImageModify.Empty();
-				//m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
 				if( !DrawImageAt(hDC, (LPCTSTR)m_sThumbHotImage, &rcThumb) ) {}
 				else return;
 			}
 		}
 
 		if( !m_sThumbImage.IsEmpty() ) {
-			//m_sImageModify.Empty();
-			//m_sImageModify.SmallFormat(_T("dest='%d,%d,%d,%d'"), rcThumb.left, rcThumb.top, rcThumb.right, rcThumb.bottom);
 			if( !DrawImageAt(hDC, (LPCTSTR)m_sThumbImage, &rcThumb) ) {}
 			else return;
 		}

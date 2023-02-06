@@ -54,14 +54,13 @@ namespace DuiLib
 			drawableTmp.rcSource.left += nIndex * m_nArrowWidth;
 			drawableTmp.rcSource.right = drawableTmp.rcSource.left + m_nArrowWidth;
 
-			CDuiRect rcDest(drawableTmp.rcDest);
-			rcDest.Deflate(GetBorderSize(), GetBorderSize());
-			rcDest.left = rcDest.right - m_nArrowWidth;
-
-			drawableTmp.rcDest = rcDest;
-
+			//CDuiRect rcDest(drawableTmp.rcDest);
+			//rcDest.Deflate(GetBorderSize(), GetBorderSize());
+			//rcDest.left = rcDest.right - m_nArrowWidth;
+			//drawableTmp.rcDest = rcDest;
+			
 			// draw image
-			if (!DrawImage(hDC, m_sArrowImage, &drawableTmp))
+			if (!DrawImage(hDC, drawableTmp))
 				{}
 		}
 	}

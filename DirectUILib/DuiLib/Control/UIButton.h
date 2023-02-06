@@ -29,21 +29,9 @@ namespace DuiLib
 		int Toggle();
 		int GetCheckedValue();
 
-		virtual LPCTSTR GetNormalImage();
-		virtual void SetNormalImage(LPCTSTR pStrImage);
-		virtual LPCTSTR GetHotImage();
-		virtual void SetHotImage(LPCTSTR pStrImage);
-		virtual LPCTSTR GetPushedImage();
-		virtual void SetPushedImage(LPCTSTR pStrImage);
-		virtual LPCTSTR GetFocusedImage();
-		virtual void SetFocusedImage(LPCTSTR pStrImage);
-		virtual LPCTSTR GetDisabledImage();
-		virtual void SetDisabledImage(LPCTSTR pStrImage);
-		virtual LPCTSTR GetHotForeImage();
-		virtual void SetHotForeImage(LPCTSTR pStrImage);
 		void SetStateCount(int nCount);
 		int GetStateCount() const;
-		virtual LPCTSTR GetStateImage();
+		virtual TDrawInfo & GetStateImage();
 		virtual void SetStateImage(LPCTSTR pStrImage);
 
 		void BindTabIndex(int _BindTabIndex);
@@ -121,15 +109,18 @@ namespace DuiLib
 		DWORD m_dwPushedTextColor;
 		DWORD m_dwFocusedTextColor;
 
-		QkString m_sNormalImage;
-		QkString m_sHotImage;
-		QkString m_sHotForeImage;
-		QkString m_sPushedImage;
-		QkString m_sPushedForeImage;
-		QkString m_sFocusedImage;
-		QkString m_sDisabledImage;
+		//QkString m_sNormalImage;
+		//QkString m_sHotImage;
+		//QkString m_sHotForeImage;
+		//QkString m_sPushedImage;
+		//QkString m_sPushedForeImage;
+
+		//QkString m_sFocusedImage;
+		//QkString m_sDisabledImage;
+
 		int m_nStateCount;
-		QkString m_sStateImage;
+		TDrawInfo m_tStateIcon;
+		IDrawable* btnForeDrawable;
 
 		int			m_iBindTabIndex;
 		QkString	m_sBindTabLayoutName;
