@@ -1480,6 +1480,7 @@ namespace DuiLib {
 		{
 			if( _tcsicmp(pstrName, _T("height")) == 0 ) SetFixedHeight(ParseInt(pstrValue));
 			if( _tcsicmp(pstrName, _T("inset")) == 0 ) SetInset(m_rcInset, pstrValue);
+			if( _tcsicmp(pstrName, _T("id")) == 0 ) id = ParseInt(pstrValue);
 			else if( _tcsicmp(pstrName, _T("minwidth")) == 0 ) SetMinWidth(ParseInt(pstrValue));
 			else if( _tcsicmp(pstrName, _T("minheight")) == 0 ) SetMinHeight(ParseInt(pstrValue));
 			else if( _tcsicmp(pstrName, _T("maxwidth")) == 0 ) SetMaxWidth(ParseInt(pstrValue));

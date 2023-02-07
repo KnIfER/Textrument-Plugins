@@ -182,6 +182,11 @@ namespace DuiLib
 			}
 			BindTriggerTabSel();
 		}
+		if(id!=0) 
+		{
+			CPaintManagerUI* manager = _manager->GetRealManager();
+			::SendMessage(manager->GetPaintWindow(), WM_COMMAND, id, (LPARAM)this);
+		}
 		return true;
 	}
 

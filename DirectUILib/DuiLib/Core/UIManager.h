@@ -375,6 +375,7 @@ namespace DuiLib {
 		void reInit(CPaintManagerUI* as);
 
 		void SetParent(CPaintManagerUI* parent);
+		CPaintManagerUI* GetRealManager();
 	public:
 		void Init(HWND hWnd, LPCTSTR pstrName = NULL);
 		bool IsUpdateNeeded() const;

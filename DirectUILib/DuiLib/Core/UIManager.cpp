@@ -480,6 +480,8 @@ namespace DuiLib {
 		LogIs("CPaintManagerUI::再初始化 %lxd = %lxd", this, parent);
 		if (parent)
 		{
+			parent = parent->GetRealManager();
+			if(parent==this) return;
 			if (_parent!=parent)
 			{
 				RemoveAllFonts(0);
@@ -495,7 +497,19 @@ namespace DuiLib {
 
 	void CPaintManagerUI::SetParent(CPaintManagerUI* parent)
 	{
-		_parent = parent;
+		if(parent!=this)
+			_parent = parent;
+	}
+
+	CPaintManagerUI* CPaintManagerUI::GetRealManager()
+	{
+		CPaintManagerUI* ret = this;
+		if(_parent) {
+			ret = _parent;
+			while(ret->_parent) 
+				ret = ret->_parent;
+		}
+		return ret;
 	}
 
 	CPaintManagerUI::~CPaintManagerUI()
@@ -4459,7 +4473,7 @@ namespace DuiLib {
 
 						pT->PreMessageHandler(pMsg->message, pMsg->wParam, pMsg->lParam, lRes);
 					}
-					hTempParent = GetParent(hTempParent);
+					hTempParent = ::GetParent(hTempParent);
 				}
 			}
 		}

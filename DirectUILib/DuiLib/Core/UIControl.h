@@ -366,6 +366,7 @@ namespace DuiLib {
 
 		QkString m_sName;
 		CStdPtrArray m_items;
+		UINT id;
 
 		HWND _hWnd;
 		HWND _hParent;
