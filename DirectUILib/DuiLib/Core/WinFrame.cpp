@@ -44,8 +44,9 @@ namespace DuiLib {
 			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 		}
 
-		void Init(WinFrame* pOwner) {
+		void Init(WinFrame* pOwner, bool handleMsg) {
 			wParent = pOwner;
+			bHandleCustomMessage = handleMsg;
 			RECT rcPos = pOwner->GetPos();
 			UINT uStyle = uStyle = WS_CHILD;
 			Create(wParent->GetParent()->GetHWND(), NULL, uStyle, 0, rcPos);
@@ -98,6 +99,7 @@ namespace DuiLib {
 			}
 			LRESULT lRes = 0;
 			if( root_layout && m_pm.MessageHandler(uMsg, wParam, lParam, lRes) ) return lRes;
+			if( bHandleCustomMessage && wParent->HandleCustomMessage(uMsg, wParam, lParam, lRes) ) return lRes;
 			//if( wParent->GetManager()->MessageHandler(uMsg, wParam, lParam, lRes) ) return lRes;
 			return __super::HandleMessage(uMsg, wParam, lParam);
 		}
@@ -129,6 +131,7 @@ namespace DuiLib {
 		//protected:
 		CPaintManagerUI m_pm;
 		WinFrame* wParent = 0;
+		bool bHandleCustomMessage = 0;
 		CControlUI* root_layout = 0;
 	};
 
@@ -173,7 +176,7 @@ namespace DuiLib {
 		{ // create default duilib window
 			__hParent = _hParent;
 			wEmbedded = new WndBase;
-			((WndBase*)wEmbedded)->Init(this);
+			((WndBase*)wEmbedded)->Init(this, _handleMsg);
 			_hWnd = wEmbedded->GetHWND();
 		}
 		if (_hWnd && _hParent != __hParent)
@@ -223,5 +226,12 @@ namespace DuiLib {
 			ret = ((WndBase*)wEmbedded)->root_layout->FindControl(Proc, pData, uFlags);
 		}
 		return ret;
+	}
+
+	void WinFrame::SetHandleCustomMessage(bool val)
+	{
+		_handleMsg = val;
+		if(wEmbedded) 
+			((WndBase*)wEmbedded)->bHandleCustomMessage = val;
 	}
 }

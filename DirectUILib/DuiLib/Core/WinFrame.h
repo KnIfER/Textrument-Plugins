@@ -19,9 +19,12 @@ namespace DuiLib {
 		void SetPos(RECT rc, bool bNeedInvalidate = true) override;
 		SIZE EstimateSize(const SIZE & szAvailable) override;
 		CControlUI* FindControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags) override;
+		virtual bool HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& ret){ return 0; };
+		void SetHandleCustomMessage(bool val);
 	protected:
 		CWindowWnd* wEmbedded;
 		HWND __hParent;
+		bool _handleMsg;
 	};
 
 } // namespace DuiLib
