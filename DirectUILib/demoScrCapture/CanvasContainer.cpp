@@ -119,14 +119,14 @@ LPTSTR CCanvasContainerUI::GetSizerCursor(POINT& pt, int& iCursor)
 
 void CCanvasContainerUI::PaintBorder(HDC hDC) {
 	for (int i = 0; i < 9; ++i) {
-		CRenderEngine::DrawColor(hDC, GetSizerRect(i), m_dwBorderColor);
+		CRenderEngine::DrawColor(hDC, GetSizerRect(i), _borderColor);
 	}
 	RECT rc = m_rcItem;
 	rc.left += m_rcInset.left;
 	rc.top += m_rcInset.left;
 	rc.right -= m_rcInset.left;
 	rc.bottom -= m_rcInset.left;
-	CRenderEngine::DrawRect(hDC, rc, m_rcBorderSize.left, m_dwBorderColor);
+	CRenderEngine::DrawRect(hDC, rc, m_rcBorderSize.left, _borderColor);
 }
 
 void CCanvasContainerUI::DoEvent(TEventUI& event) 

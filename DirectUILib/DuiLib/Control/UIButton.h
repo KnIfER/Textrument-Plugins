@@ -96,8 +96,6 @@ namespace DuiLib
 			Invalidate();
 		}
 	protected:
-		UINT m_uButtonState;
-
 		int		m_iHotFont;
 		int		m_iPushedFont;
 		int		m_iFocusedFont;

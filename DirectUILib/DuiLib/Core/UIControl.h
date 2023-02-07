@@ -353,8 +353,12 @@ namespace DuiLib {
 		LONG_FLAG _view_states;
 
 		TDrawInfo m_tBkImage;
-		TDrawInfo m_tForeImage;
+		TDrawInfo m_tForeImage;	
 
+		DWORD _borderColor;
+		DWORD _focusedBorderColor;
+		DWORD _pushedBorderColor;
+		DWORD _hotBorderColor;
 	protected:
 		CPaintManagerUI* _manager;
 		CControlUI* _parent;
@@ -429,8 +433,8 @@ namespace DuiLib {
 		DWORD m_dwBackColor3;
 		DWORD m_dwForeColor;
 
-		DWORD m_dwBorderColor;
-		DWORD m_dwFocusBorderColor;
+		UINT m_uButtonState;
+
 
 		// 0=zero_sized; 1=even_sized; 2=hetero_sized
 		BYTE _borderSizeType;

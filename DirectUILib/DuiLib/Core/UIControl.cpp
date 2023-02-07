@@ -17,8 +17,8 @@ namespace DuiLib {
 		,m_dwBackColor2(0)
 		,m_dwBackColor3(0)
 		,m_dwForeColor(0)
-		,m_dwBorderColor(0)
-		,m_dwFocusBorderColor(0)
+		,_borderColor(0)
+		,_focusedBorderColor(0)
 		,_borderSizeType(0)
 		,m_nBorderStyle(PS_SOLID)
 		,m_nTooltipWidth(300)
@@ -29,6 +29,7 @@ namespace DuiLib {
 
 		,_LastScaleProfile(-1)
 		,_view_states(0)
+		,m_uButtonState(0)
 	{
 		m_cXY.cx = m_cXY.cy = 0;
 		m_cxyFixed.cx = m_cxyFixed.cy = -1;
@@ -404,29 +405,35 @@ namespace DuiLib {
 
 	DWORD CControlUI::GetBorderColor() const
 	{
-		return m_dwBorderColor;
+		if(m_bFocused) if(_focusedBorderColor) return _focusedBorderColor;
+		if(m_uButtonState) 
+		{
+			if(m_uButtonState & UISTATE_PUSHED) {if(_pushedBorderColor) return _pushedBorderColor;}
+			else if(m_uButtonState & UISTATE_HOT) {if(_hotBorderColor) return _hotBorderColor;}
+		}
+		return _borderColor;
 	}
 
 	void CControlUI::SetBorderColor(DWORD dwBorderColor)
 	{
-		if( m_dwBorderColor == dwBorderColor ) return;
+		if( _borderColor == dwBorderColor ) return;
 
 		VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
-		m_dwBorderColor = dwBorderColor;
+		_borderColor = dwBorderColor;
 		Invalidate();
 	}
 
 	DWORD CControlUI::GetFocusBorderColor() const
 	{
-		return m_dwFocusBorderColor;
+		return _focusedBorderColor;
 	}
 
 	void CControlUI::SetFocusBorderColor(DWORD dwBorderColor)
 	{
-		if( m_dwFocusBorderColor == dwBorderColor ) return;
+		if( _focusedBorderColor == dwBorderColor ) return;
 
 		VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
-		m_dwFocusBorderColor = dwBorderColor;
+		_focusedBorderColor = dwBorderColor;
 		Invalidate();
 	}
 
@@ -1347,7 +1354,7 @@ namespace DuiLib {
 				VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
 			}
 			else if( _tcsicmp(pstrName, _T("bordercolor")) == 0 ) {
-				STR2ARGB(pstrValue, m_dwBorderColor);
+				STR2ARGB(pstrValue, _borderColor);
 				VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
 			}
 			else if( _tcsicmp(pstrName, _T("bordersize")) == 0 ) SetBorderSize(m_rcBorderSize, pstrValue);
@@ -1449,7 +1456,7 @@ namespace DuiLib {
 			else if( _tcsicmp(pstrName, _T("drop")) == 0 ) SetDropEnable(_tcsicmp(pstrValue, _T("true")) == 0);
 			else if( _tcsicmp(pstrName, _T("float")) == 0 ) SetFloat(_tcsicmp(pstrValue, _T("true")) == 0);
 			else if( _tcsicmp(pstrName, _T("focusbordercolor")) == 0 ) {
-				STR2ARGB(pstrValue, m_dwFocusBorderColor);
+				STR2ARGB(pstrValue, _focusedBorderColor);
 				VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
 				VIEWSTATEMASK_APPLY(VIEWSTATEMASK_RedrawOnFocusChanged, true);
 			}
@@ -1479,6 +1486,11 @@ namespace DuiLib {
 			else if( _tcsicmp(pstrName, _T("maxheight")) == 0 ) SetMaxHeight(ParseInt(pstrValue));
 			else if( _tcsicmp(pstrName, _T("leftbordersize")) == 0 ) SetLeftBorderSize(ParseInt(pstrValue));
 
+			else if( _tcsicmp(pstrName, _T("hotbordercolor")) == 0 ) {
+				STR2ARGB(pstrValue, _hotBorderColor);
+				VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
+				VIEWSTATEMASK_APPLY(VIEWSTATEMASK_RedrawOnFocusChanged, true);
+			}
 			else if( _tcsicmp(pstrName, _T("mouse")) == 0 ) SetMouseEnabled(_tcsicmp(pstrValue, _T("true")) == 0);
 			else if( _tcsicmp(pstrName, _T("menu")) == 0 ) SetContextMenuUsed(_tcsicmp(pstrValue, _T("true")) == 0);
 			else if( _tcsicmp(pstrName, _T("keyboard")) == 0 ) SetKeyboardEnabled(_tcsicmp(pstrValue, _T("true")) == 0);
@@ -1505,6 +1517,11 @@ namespace DuiLib {
 			}
 			else if( _tcsicmp(pstrName, _T("padding")) == 0 ) {
 				SetPadding(m_rcPadding, pstrValue);
+			}
+			else if( _tcsicmp(pstrName, _T("pushedbordercolor")) == 0 ) {
+				STR2ARGB(pstrValue, _pushedBorderColor);
+				VIEWSTATE_MARK_DIRTY(VIEW_INFO_DIRTY_COLORS);
+				VIEWSTATEMASK_APPLY(VIEWSTATEMASK_RedrawOnFocusChanged, true);
 			}
 			else if( _tcsicmp(pstrName, _T("roundclip")) == 0 ) SetRoundClip(_tcsicmp(pstrValue, _T("true")) == 0);
 			else if( _tcsicmp(pstrName, _T("topbordersize")) == 0 ) SetTopBorderSize(ParseInt(pstrValue));
@@ -1684,8 +1701,7 @@ namespace DuiLib {
 
 
 		// 依序绘制：背景颜色->背景图->状态图->文本->边框
-		DWORD bordercolor = IsFocused()&&m_dwFocusBorderColor?m_dwFocusBorderColor:m_dwBorderColor;
-		if( (_borderSizeType==2 && (bordercolor & 0xFF000000) || m_bRoundClip) && (_sizeBorderRoundScaled.cx || _sizeBorderRoundScaled.cy) ) 
+		if( (_borderSizeType==2 && (GetBorderColor() & 0xFF000000) || m_bRoundClip) && (_sizeBorderRoundScaled.cx || _sizeBorderRoundScaled.cy) ) 
 		{ // 为不均匀大小的边框裁切出圆角效果
 			PaintBkColor(hDC);
 			if (m_bRoundClip)
@@ -1857,7 +1873,7 @@ namespace DuiLib {
 	void CControlUI::PaintBorder(HDC hDC)
 	{
 		//if (!_borderSizeType) return;
-		DWORD bordercolor = IsFocused()&&m_dwFocusBorderColor?m_dwFocusBorderColor:m_dwBorderColor;
+		DWORD bordercolor = GetBorderColor();
 		if(bordercolor & 0xFF000000) 
 		{
 			bordercolor = GetAdjustColor(bordercolor);

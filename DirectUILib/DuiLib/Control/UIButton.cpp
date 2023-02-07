@@ -8,8 +8,7 @@ namespace DuiLib
 	IMPLEMENT_QKCONTROL(Button)
 
 	Button::Button()
-		: m_uButtonState(0)
-		, m_iHotFont(-1)
+		: m_iHotFont(-1)
 		, m_iPushedFont(-1)
 		, m_iFocusedFont(-1)
 		, m_dwHotTextColor(0)
