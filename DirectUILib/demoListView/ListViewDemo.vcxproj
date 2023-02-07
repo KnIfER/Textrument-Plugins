@@ -264,6 +264,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ImageList.cpp" />
     <ClCompile Include="TestEmptyButtonLarge.cpp" />
     <ClCompile Include="TestListHeader.cpp" />
     <ClCompile Include="HelloWorld.cpp" />

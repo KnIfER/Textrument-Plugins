@@ -52,6 +52,9 @@
     <ClCompile Include="webkit\WndControl.cpp">
       <Filter>Source Files\webkit</Filter>
     </ClCompile>
+    <ClCompile Include="ImageList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">

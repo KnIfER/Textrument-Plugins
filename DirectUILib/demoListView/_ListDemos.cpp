@@ -9,8 +9,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     auto pFrame = CreateDemoBox();
     
     pFrame->Create(NULL, _T("列表测试"), UI_WNDSTYLE_FRAME, WS_EX_APPWINDOW , 0, 0, 500, 800);
-    NamedDemos.at(2)(hInstance, 0);
-    pFrame->ShowModal();
+    NamedDemos.at(0)(hInstance, 0);
+    pFrame->ShowWindow();
+    //pFrame->ShowModal();
+
+    CPaintManagerUI::MessageLoop();
 
     return 0;
 }
