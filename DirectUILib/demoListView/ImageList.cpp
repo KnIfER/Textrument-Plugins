@@ -10,8 +10,10 @@ namespace ImageList{
 QkString Name = L"图片列表";
 
 
+//#define USEDDBLT
 
 HBITMAP hBitmap;
+HBITMAP hDBBitmap = 0;
 BITMAPINFO bmpInfo;
 LPBYTE pDest;
 int _srcWidth;
@@ -20,6 +22,9 @@ int _srcHeight;
 int _translationX = 0;
 int _translationY = 0;
 
+HDC hdcMem;
+
+#define USEDDBLT
 
 class ImageView : public CControlUI{
 public:
@@ -135,6 +140,21 @@ public:
 
         SetStretchBltMode(hDC, COLORONCOLOR);
 
+#ifdef USEDDBLT
+        if (!hdcMem)
+        {
+            hdcMem = CreateCompatibleDC(NULL);
+            {
+                drawWidth = _srcWidth;
+                drawHeight = _srcHeight;
+                hDBBitmap = CreateDIBitmap(hDC, &bmpInfo.bmiHeader,CBM_INIT, pDest, &bmpInfo, DIB_RGB_COLORS);
+                HBITMAP oldbmp = (HBITMAP)::SelectObject(hdcMem, hDBBitmap);
+            }
+        }
+        StretchBlt(hDC, rcItem.left+left, rcItem.top+top, calcW, calcH
+            , hdcMem, tX, tY, W, H, SRCCOPY);
+#else
+
         StretchDIBits(  hDC, rcItem.left+left, rcItem.top+top, calcW, calcH,
             tX, tY, W, H,
             pDest, &bmpInfo,
@@ -145,6 +165,7 @@ public:
         //    0, 0, 100, 100,
         //    pDest, &bmpInfo,
         //    DIB_RGB_COLORS, SRCCOPY );
+#endif
 
 
 #define 调试图片控件
