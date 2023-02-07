@@ -2317,6 +2317,8 @@ namespace DuiLib {
 				if(IsCaptured()) ReleaseCapture();
 				SetFocus(NULL);
 				_wndFocus = ::GetFocus();
+				if(!::IsChild(m_hWndPaint, _wndFocus))
+					_wndFocus = nullptr;
 				//m_pFocus = NULL; // 如此当窗口重获焦点时，不恢复焦点所在。
 				//if( m_pFocus != NULL ) {
 				//	TEventUI event = { 0 };
