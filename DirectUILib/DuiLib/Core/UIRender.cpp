@@ -1039,11 +1039,11 @@ namespace DuiLib {
 		rcDest.right -=  rcPadding.right;
 		rcDest.bottom -= rcPadding.bottom;
 
-		if (rcDest.right > rcControl.right) 
-			rcDest.right = rcControl.right;
+		//if (rcDest.right > rcControl.right) 
+		//	rcDest.right = rcControl.right;
 
-		if (rcDest.bottom > rcControl.bottom) 
-			rcDest.bottom = rcControl.bottom;
+		//if (rcDest.bottom > rcControl.bottom) 
+		//	rcDest.bottom = rcControl.bottom;
 
 		return true;
 	}

@@ -120,6 +120,7 @@ namespace DuiLib
 
 		int m_nStateCount;
 		TDrawInfo _stateIcon;
+		TDrawInfo _foreIcon;
 		IDrawable* btnForeDrawable;
 
 		int			m_iBindTabIndex;

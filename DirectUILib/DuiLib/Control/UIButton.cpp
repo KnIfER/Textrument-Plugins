@@ -653,7 +653,7 @@ namespace DuiLib
 					_stateIcon.uFade = uFade / 2;
 				}
 				else if((m_uButtonState & UISTATE_PUSHED)) {
-					int delta = 3;
+					int delta = 1;
 					rcItem.left += delta;
 					rcItem.right += delta;
 					rcItem.top += delta;
@@ -671,12 +671,36 @@ namespace DuiLib
 
 	void Button::PaintForeImage(HDC hDC)
 	{
-		if(btnForeDrawable && (m_uButtonState & (UISTATE_HOT|UISTATE_PUSHED))) {
-			if(btnForeDrawable->Draw(hDC, this, m_uButtonState)) {
-				return;
+		if(btnForeDrawable && btnForeDrawable->Draw(hDC, this, m_uButtonState)) {
+			return;
+		}
+		if(!m_tForeImage.sName.IsEmpty())
+		{
+			// 根据按下状态在不同位置绘制 StateImage
+			const TImageInfo* pImage = _manager->GetImageEx(m_tForeImage.sName, m_tForeImage.sResType, m_tForeImage.dwMask, _stateIcon.bHSL);
+			if(pImage != NULL)
+			{
+				RECT rcItem = m_rcItem; // todo FIXME draw oversize
+				bool draw = true;
+				BYTE uFade = m_tForeImage.uFade;
+				if( (m_uButtonState & UISTATE_DISABLED)) {
+					m_tForeImage.uFade = uFade / 2;
+				}
+				else if((m_uButtonState & UISTATE_PUSHED)) {
+					int delta = 1;
+					rcItem.left += delta;
+					rcItem.right += delta;
+					rcItem.top += delta;
+					rcItem.bottom += delta;
+				}
+				else draw = false;
+				if( !draw || !DrawImage(hDC, m_tForeImage, &rcItem) )
+				{
+					DrawImage(hDC, m_tForeImage);
+				}
+				m_tForeImage.uFade = uFade;
 			}
 		}
-		if( !DrawImage(hDC, m_tForeImage) ) {}
 	}
 
 	CControlUI* Button::Duplicate()
