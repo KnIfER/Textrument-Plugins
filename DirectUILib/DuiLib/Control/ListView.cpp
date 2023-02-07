@@ -404,7 +404,10 @@ namespace DuiLib {
 
     static INT64 TicksLastDraw, TicksPerSecond;
 
-    bool ListView::SetScrollPos(SIZE szPos, bool bMsg)
+    UINT_PTR timer_smooth_scroll=0x123;
+    int timer_smooth_scroll_interval=10;
+
+    bool ListView::SetScrollPos(SIZE szPos, bool bMsg, bool seeking)
     {
         int cx = 0;
         int cy = 0;
@@ -441,16 +444,31 @@ namespace DuiLib {
         //}
         if (cx || cy)
         {
-            LogIs("SetScrollPos:: %d, %d, fY=%d", cx, cy, _scrollY + cy);
-            LogIs("SetScrollPos:: %d, %d  %d/%d", szPos.cx, szPos.cy, m_pVerticalScrollBar->GetScrollPos(), m_pVerticalScrollBar->GetScrollRange());
+            //LogIs("SetScrollPos:: %d, %d, fY=%d", cx, cy, _scrollY + cy);
+            //LogIs("SetScrollPos:: %d, %d  %d/%d", szPos.cx, szPos.cy, m_pVerticalScrollBar->GetScrollPos(), m_pVerticalScrollBar->GetScrollRange());
             if (_bUseSmoothScroll) // _bUseSmoothScroll
             {
                 _scrollX += cx;
                 _scrollY += cy;
-                ::QueryPerformanceFrequency((LARGE_INTEGER*)&TicksPerSecond);
-                ::QueryPerformanceCounter((LARGE_INTEGER*)&TicksLastDraw);
-                LogIs("TicksPerSecond=%d", TicksPerSecond);
-                SetTimer(0x100, 15, true);
+                //::QueryPerformanceFrequency((LARGE_INTEGER*)&TicksPerSecond);
+                //::QueryPerformanceCounter((LARGE_INTEGER*)&TicksLastDraw);
+                //LogIs("TicksPerSecond=%d", TicksPerSecond);
+                if(!_smoothScrolling) {
+                    _smoothScrolling = true;
+                    _scrollSpeed = 6;
+                    SetTimer(timer_smooth_scroll, timer_smooth_scroll_interval, true);
+                } 
+                else {
+                    float spd = 5;
+                    float spdFac = fabs(_scrollY/35)/fmax(3, 1);
+                    if (spdFac>1)
+                        spd *= spdFac;
+                    if (spd>_scrollSpeed)
+                    {
+                        _scrollSpeed = spd;
+                    }
+                }
+                _seeking = seeking;
             }
             else
             {
@@ -464,6 +482,47 @@ namespace DuiLib {
 
     void ListView::DoEvent(TEventUI& event)
     {
+        if( event.Type == UIEVENT_TIMER ) 
+        {
+            if (event.wParam==timer_smooth_scroll) //  && _bUseSmoothScroll
+            {
+                int scrollY = 0;
+                if (_scrollY)
+                {
+                    INT64 tk;
+                    scrollY = _scrollY*10*1.2/25;
+                    //scrollY = 1;
+                    scrollY = _scrollY>0?_scrollSpeed:-_scrollSpeed;
+                    if (_seeking  )
+                    {
+                        scrollY = _scrollY*10*1.2/25;
+                    }
+                    if (std::abs(scrollY)<1)
+                    {
+                        scrollY = _scrollY>0?1:-1;
+                    }
+                    if ((_scrollY-scrollY>0) ^ (_scrollY>0))
+                    {
+                        scrollY = _scrollY;
+                        _scrollY = 0;
+                    }
+                    else
+                    {
+                        _scrollY -= scrollY;
+                    }
+                }
+                //if(scrollY*_scrollY<0) LogIs("213213");
+                if(scrollY)
+                    DoScroll(0, scrollY);
+                if (!_scrollY)
+                {
+                    KillTimer(event.wParam);
+                    _smoothScrolling = false;
+                   // _seeking = false;
+                }
+            }
+            return;
+        }
         __super::DoEvent(event);
     }
 

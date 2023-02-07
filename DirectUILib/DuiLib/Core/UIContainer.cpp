@@ -300,7 +300,7 @@ namespace DuiLib
 		return sz;
 	}
 
-	bool CContainerUI::SetScrollPos(SIZE szPos, bool bMsg)
+	bool CContainerUI::SetScrollPos(SIZE szPos, bool bMsg, bool seeking)
 	{
 		int cx = 0;
 		int cy = 0;

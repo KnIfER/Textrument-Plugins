@@ -131,7 +131,7 @@ namespace DuiLib {
 		virtual bool OnTxViewChanged();
 		virtual void OnTxNotify(DWORD iNotify, void *pv);
 
-		bool SetScrollPos(SIZE szPos, bool bMsg = true);
+		bool SetScrollPos(SIZE szPos, bool bMsg = true, bool seeking = false);
 		bool LineUp();
 		bool LineDown();
 		bool LineLeft();

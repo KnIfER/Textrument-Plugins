@@ -154,7 +154,7 @@ namespace DuiLib {
 
 		SIZE GetScrollPos() const;
 		SIZE GetScrollRange() const;
-		bool SetScrollPos(SIZE szPos, bool bMsg = true);
+		bool SetScrollPos(SIZE szPos, bool bMsg = true, bool seeking = false);
 		bool LineUp();
 		bool LineDown();
 		bool LineLeft();
@@ -206,7 +206,7 @@ namespace DuiLib {
 
 
 		int GetScrollStepSize() const;
-		bool SetScrollPos(SIZE szPos, bool bMsg = true);
+		bool SetScrollPos(SIZE szPos, bool bMsg = true, bool seeking = false);
 		void SetPos(RECT rc, bool bNeedInvalidate = true);
 		void DoEvent(TEventUI& event);
 		BOOL SortItems(PULVCompareFunc pfnCompare, UINT_PTR dwData);

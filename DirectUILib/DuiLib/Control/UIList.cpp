@@ -931,7 +931,7 @@ namespace DuiLib {
 		return m_pList->GetScrollRange();
 	}
 
-	bool CListUI::SetScrollPos(SIZE szPos, bool bMsg)
+	bool CListUI::SetScrollPos(SIZE szPos, bool bMsg, bool seeking)
 	{
 		return m_pList->SetScrollPos(szPos, bMsg);
 	}
@@ -1076,7 +1076,7 @@ namespace DuiLib {
 		return CVerticalLayoutUI::GetScrollStepSize();
 	}
 
-	bool CListBodyUI::SetScrollPos(SIZE szPos, bool bMsg)
+	bool CListBodyUI::SetScrollPos(SIZE szPos, bool bMsg, bool seeking)
 	{
 		int cx = 0;
 		int cy = 0;

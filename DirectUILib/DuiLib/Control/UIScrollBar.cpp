@@ -620,13 +620,13 @@ namespace DuiLib
 					if (m_bHorizontal)
 					{
 						scrollPos = GetScrollRange()*1.0*(m_ptLastMouse.x-m_rcItem.left+(m_rcButton1.left - m_rcButton1.right))/(m_rcButton2.left - m_rcButton1.right);
-						if( m_pOwner != NULL ) m_pOwner->SetScrollPos(CDuiSize(scrollPos, m_pOwner->GetScrollPos().cy)); 
+						if( m_pOwner != NULL ) m_pOwner->SetScrollPos(CDuiSize(scrollPos, m_pOwner->GetScrollPos().cy), true, true); 
 						else SetScrollPos(scrollPos);
 					}
 					else
 					{
 						scrollPos = GetScrollRange()*1.0*(m_ptLastMouse.y-m_rcItem.top+(m_rcButton1.top - m_rcButton1.bottom))/(m_rcButton2.top - m_rcButton1.bottom);
-						if( m_pOwner != NULL ) m_pOwner->SetScrollPos(CDuiSize(m_pOwner->GetScrollPos().cx, scrollPos)); 
+						if( m_pOwner != NULL ) m_pOwner->SetScrollPos(CDuiSize(m_pOwner->GetScrollPos().cx, scrollPos), true, true); 
 						else SetScrollPos(scrollPos);
 					}
 					m_nLastScrollPos = scrollPos;
@@ -741,13 +741,13 @@ namespace DuiLib
 			if(m_uThumbState & UISTATE_CAPTURED)
 			{
 				if( !m_bHorizontal ) {
-					if( m_pOwner != NULL ) m_pOwner->SetScrollPos(CDuiSize(m_pOwner->GetScrollPos().cx, \
-						m_nLastScrollPos + m_nLastScrollOffset)); 
+					if( m_pOwner != NULL ) m_pOwner->SetScrollPos(CDuiSize(m_pOwner->GetScrollPos().cx
+						, m_nLastScrollPos + m_nLastScrollOffset), true, true); 
 					else SetScrollPos(m_nLastScrollPos + m_nLastScrollOffset);
 				}
 				else {
-					if( m_pOwner != NULL ) m_pOwner->SetScrollPos(CDuiSize(m_nLastScrollPos + m_nLastScrollOffset, \
-						m_pOwner->GetScrollPos().cy)); 
+					if( m_pOwner != NULL ) m_pOwner->SetScrollPos(CDuiSize(m_nLastScrollPos + m_nLastScrollOffset
+						, m_pOwner->GetScrollPos().cy), true, true); 
 					else SetScrollPos(m_nLastScrollPos + m_nLastScrollOffset);
 				}
 				Invalidate();

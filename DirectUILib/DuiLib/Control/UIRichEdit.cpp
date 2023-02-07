@@ -1859,7 +1859,7 @@ err:
 
 	// 多行非rich格式的richedit有一个滚动条bug，在最后一行是空行时，LineDown和SetScrollPos无法滚动到最后
 	// 引入iPos就是为了修正这个bug
-	bool CRichEditUI::SetScrollPos(SIZE szPos, bool bMsg)
+	bool CRichEditUI::SetScrollPos(SIZE szPos, bool bMsg, bool seeking)
 	{
 		int cx = 0;
 		int cy = 0;

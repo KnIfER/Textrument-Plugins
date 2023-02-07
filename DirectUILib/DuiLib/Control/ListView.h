@@ -49,7 +49,7 @@ namespace DuiLib {
         SIZE EstimateSize(const SIZE & szAvailable);
 
         void SetPos(RECT rc, bool bNeedInvalidate = true) override;
-        virtual bool SetScrollPos(SIZE szPos, bool bMsg = true) override;
+        virtual bool SetScrollPos(SIZE szPos, bool bMsg = true, bool seeking = false) override;
         virtual void DoScroll(int x, int y);
 
         void ProcessScrollBar(SIZE szAvailable, int cxRequired, int cyRequired);

@@ -132,6 +132,9 @@ public:
             tY = -tY + _srcHeight - H;
         }
 
+
+        SetStretchBltMode(hDC, COLORONCOLOR);
+
         StretchDIBits(  hDC, rcItem.left+left, rcItem.top+top, calcW, calcH,
             tX, tY, W, H,
             pDest, &bmpInfo,
@@ -348,6 +351,8 @@ public:
             pList->SetReferenceItemView(refer);
 
             pList->SetAdapter(this);
+
+            //pList->_bUseSmoothScroll = false;
         }
 
         //CHorizontalLayoutUI* menuBar = static_cast<CHorizontalLayoutUI*>(m_pm.FindControl(_T("menuBar")));

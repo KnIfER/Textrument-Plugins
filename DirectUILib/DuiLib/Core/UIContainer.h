@@ -60,7 +60,7 @@ namespace DuiLib {
 
 		virtual SIZE GetScrollPos() const;
 		virtual SIZE GetScrollRange() const;
-		virtual bool SetScrollPos(SIZE szPos, bool bMsg = true);
+		virtual bool SetScrollPos(SIZE szPos, bool bMsg = true, bool seeking = false);
 		virtual void DoScroll(int x, int y);
 		virtual void SetScrollStepSize(int nSize);
 		virtual int GetScrollStepSize() const;
@@ -87,6 +87,9 @@ namespace DuiLib {
 		void SupressChildLayouts(bool value) {
 			_bSupressingChildLayout = value;
 		}
+
+		bool _bUseSmoothScroll;
+
 	protected:
 		virtual void SetFloatPos(int iIndex);
 		virtual void ProcessScrollBar(RECT rc, int cxRequired, int cyRequired);
@@ -106,9 +109,10 @@ namespace DuiLib {
 		QkString	m_sVerticalScrollBarStyle;
 		QkString	m_sHorizontalScrollBarStyle;
 
+
+		int _seeking=false;
 		int _scrollSpeed;
 		int _scrollTarget;
-		bool _bUseSmoothScroll;
 		bool _smoothScrolling;
 		int _scrollY;
 		int _scrollX;
