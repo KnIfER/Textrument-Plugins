@@ -7,14 +7,18 @@ class C360SafeFrameWnd : public WindowImplBase
 {
 public:
 	C360SafeFrameWnd() {
-		_windowless = true;
+		_frameLess = true;
 		_roundwnd = false;
 	};
-	LPCTSTR GetWindowClassName() const { return _T("UIMainFrame"); };
+	LPCTSTR GetWindowClassName() const { return _T("qUIMainFrame"); };
 	UINT GetClassStyle() const { return CS_DBLCLKS; };
 	void OnFinalMessage(HWND /*hWnd*/) { delete this; };
 
 	void InitWindow() {
+		m_pm.GetShadow()->ShowShadow(true);
+		m_pm.GetShadow()->SetSize(10);
+		m_pm.GetShadow()->SetColor(RGB(0,255,0));
+
 		m_pCloseBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("closebtn")));
 		m_pMaxBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("maxbtn")));
 		m_pRestoreBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("restorebtn")));
@@ -120,7 +124,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 {
 	CPaintManagerUI::SetInstance(hInstance);
 	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin"));
-	CPaintManagerUI::SetResourceZip(_T("360SafeRes.zip"));
+	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin//360SafeRes"));
+	//CPaintManagerUI::SetResourceZip(_T("360SafeRes.zip"));
 
 	HRESULT Hr = ::CoInitialize(NULL);
 	if( FAILED(Hr) ) return 0;

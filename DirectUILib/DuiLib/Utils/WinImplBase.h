@@ -26,6 +26,7 @@ namespace DuiLib
 		DUI_DECLARE_MESSAGE_MAP()
 		virtual void OnClick(TNotifyUI& msg);
 		virtual BOOL IsInStaticControl(CControlUI *pControl);
+		CPaintManagerUI m_pm;
 
 	protected:
 		virtual QkString GetSkinType() { return _T(""); }
@@ -33,12 +34,11 @@ namespace DuiLib
 		virtual LPCTSTR GetWindowClassName(void) const = 0 ;
 		virtual LPCTSTR GetManagerName() { return NULL; }
 		virtual LRESULT ResponseDefaultKeyEvent(WPARAM wParam);
-		CPaintManagerUI m_pm;
 
-		bool _windowless = false;
+		bool _frameLess = false;
 		bool _roundwnd = false;
 	public:
-		bool IsWindowLess(){ return _windowless; }
+		bool IsWindowLess(){ return _frameLess; }
 
 		virtual UINT GetClassStyle() const;
 		virtual CControlUI* CreateControl(LPCTSTR pstrClass);

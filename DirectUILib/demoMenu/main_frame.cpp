@@ -34,7 +34,7 @@ const TCHAR* const kRestoreButtonControlName = _T("restorebtn");
 
 MainFrame::MainFrame()
 {
-	//_windowless = true;
+	//_frameLess = true;
 }
 
 MainFrame::~MainFrame()

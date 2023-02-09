@@ -6,7 +6,7 @@ class EditorDemo : public WindowImplBase, public ExtensionAPI
 public:
     EditorDemo() { 
        _roundwnd = false;
-       _windowless = false;
+       _frameLess = false;
     };     
 
     LPCTSTR GetWindowClassName() const override

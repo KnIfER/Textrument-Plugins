@@ -18,7 +18,7 @@ class SkiaTestBox : public WindowImplBase, public INotifyUI
 {
 public:
     SkiaTestBox() { 
-        _windowless = false;
+        _frameLess = false;
     };     
 
     LPCTSTR GetWindowClassName() const override

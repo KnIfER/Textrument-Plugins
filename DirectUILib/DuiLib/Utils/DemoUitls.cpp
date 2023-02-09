@@ -5,7 +5,7 @@ namespace DuiLib
     {
     public:
         UniDemoBox() { 
-            _windowless = false;
+            _frameLess = false;
         };     
 
         LPCTSTR GetWindowClassName() const override

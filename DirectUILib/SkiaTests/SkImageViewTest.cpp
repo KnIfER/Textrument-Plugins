@@ -13,7 +13,7 @@ namespace SK_IMG_VIEW {
     {
     public:
         ImageViewMainForm() {
-            _windowless = false;
+            _frameLess = false;
         };     
 
         LPCTSTR GetWindowClassName() const override
