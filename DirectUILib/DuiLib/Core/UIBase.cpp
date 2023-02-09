@@ -287,11 +287,11 @@ HWND CWindowWnd::Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD 
 		m_hWnd = ::CreateWindowEx(dwExStyle, GetWindowClassName(), pstrName, dwStyle, x, y, cx, cy, hwndParent, hMenu, CPaintManagerUI::GetInstance(), this);
 	}
 
-	if (_this)
-	{
-		LONG styleValue = ::GetWindowLong(*this, GWL_STYLE);
-		::SetWindowLong(*this, GWL_STYLE, styleValue & ~WS_CAPTION);
-	}
+	//if (_this)
+	//{
+	//	LONG styleValue = ::GetWindowLong(*this, GWL_STYLE);
+	//	::SetWindowLong(*this, GWL_STYLE, styleValue & ~WS_CAPTION);
+	//}
 
 	ASSERT(m_hWnd!=NULL);
 	m_hParent = hwndParent;
