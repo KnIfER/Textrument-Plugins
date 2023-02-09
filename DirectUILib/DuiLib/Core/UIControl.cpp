@@ -1525,6 +1525,7 @@ namespace DuiLib {
 				VIEWSTATEMASK_APPLY(VIEWSTATEMASK_RedrawOnFocusChanged, true);
 			}
 			else if( _tcsicmp(pstrName, _T("roundclip")) == 0 ) SetRoundClip(_tcsicmp(pstrValue, _T("true")) == 0);
+			else if( _tcsicmp(pstrName, _T("static")) == 0 ) { VIEWSTATEMASK_APPLY(VIEWSTATEMASK_IsStatic, _tcsicmp(pstrValue, _T("true")) == 0); }
 			else if( _tcsicmp(pstrName, _T("topbordersize")) == 0 ) SetTopBorderSize(ParseInt(pstrValue));
 			else if( _tcsicmp(pstrName, _T("rightbordersize")) == 0 ) SetRightBorderSize(ParseInt(pstrValue));
 

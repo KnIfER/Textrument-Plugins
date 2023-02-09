@@ -2032,6 +2032,13 @@ namespace DuiLib {
 				m_pEventClick = pControl;
 				pControl->SetFocus();
 
+				if(pControl->m_bIsStatic)
+				{
+					ReleaseCapture();
+					::SendMessage(GetRealManager()->GetPaintWindow(), WM_SYSCOMMAND, SC_MOVE | HTCAPTION, 0);
+					//::SetFocus(GetRealManager()->GetPaintWindow());
+				}
+
 				TEventUI event = { 0 };
 				event.Type = UIEVENT_BUTTONDOWN;
 				event.pSender = pControl;
