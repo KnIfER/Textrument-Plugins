@@ -75,19 +75,20 @@ namespace DuiLib
 #if defined(WIN32) && !defined(UNDER_CE)
 	LRESULT WindowImplBase::OnNcActivate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if( ::IsIconic(*this)||!_windowless ) bHandled = FALSE;
+		if( ::IsIconic(*this)||!_frameLess ) bHandled = FALSE;
 		return (wParam == 0) ? TRUE : FALSE;
 	}
 
 	LRESULT WindowImplBase::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if(!_windowless ) bHandled = FALSE;
+		if(!_frameLess ) bHandled = FALSE;
 		return 0;
 	}
 
 	LRESULT WindowImplBase::OnNcPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if(!_windowless ) bHandled = FALSE;
+		//if(!_frameLess ) // fix unwanted round top
+			bHandled = FALSE;
 		return 0;
 	}
 
@@ -140,7 +141,7 @@ namespace DuiLib
 
 	LRESULT WindowImplBase::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if(!_windowless ) {
+		if(!_frameLess ) {
 			bHandled = FALSE;
 			return false;
 		}
@@ -380,9 +381,9 @@ namespace DuiLib
 
 		if (m_pm.MessageHandler(uMsg, wParam, lParam, lRes)) {
 #if defined(WIN32) && !defined(UNDER_CE)
-			if (uMsg==WM_PAINT 
+			if (uMsg==WM_SIZE // WM_PAINT 
 				&& _roundwnd 
-				&& _windowless 
+				&& _frameLess 
 				&& !::IsIconic(*this)
 				)
 			{
