@@ -91,6 +91,16 @@ namespace DuiLib {
 		m_sName = pstrName;
 	}
 
+	UINT CControlUI::GetID() const
+	{
+		return _id;
+	}
+
+	void CControlUI::SetID(UINT id)
+	{
+		_id = id;
+	}
+
 	LPVOID CControlUI::GetInterface(LPCTSTR pstrName)
 	{
 		if( _tcsicmp(pstrName, DUI_CTR_CONTROL) == 0 ) return this;
@@ -601,23 +611,16 @@ namespace DuiLib {
 		}
 	}
 
-	RECT CControlUI::GetAbsolutePos() const
+	RECT CControlUI::GetAbsolutePos()
 	{
-		CControlUI* pParent = GetParent();
 		CDuiRect ret(m_rcItem);
-		if( pParent != NULL ) {
-			RECT rcParentPos = pParent->GetAbsolutePos();
-			ret.Offset(rcParentPos.left, rcParentPos.top);
-		}
-		else {
-			::GetClientRect(_hWnd, &ret);
-			POINT pt{ret.left, ret.top};
-			::ClientToScreen(_hWnd, &pt);
-			ret.right += pt.x - ret.left;
-			ret.bottom += pt.y - ret.top;
-			ret.left = pt.x;
-			ret.top = pt.y;
-		}
+		//::GetClientRect(_hWnd, &ret);
+		POINT pt{ret.left, ret.top};
+		::ClientToScreen(_hWnd, &pt);
+		ret.right += pt.x - ret.left;
+		ret.bottom += pt.y - ret.top;
+		ret.left = pt.x;
+		ret.top = pt.y;
 		return ret;
 	}
 
@@ -962,7 +965,7 @@ namespace DuiLib {
 		return m_pTag;
 	}
 
-	void CControlUI::SetTag(UINT_PTR pTag)
+	void CControlUI::SetTag(LONG_PTR pTag)
 	{
 		m_pTag = pTag;
 	}
@@ -1480,7 +1483,7 @@ namespace DuiLib {
 		{
 			if( _tcsicmp(pstrName, _T("height")) == 0 ) SetFixedHeight(ParseInt(pstrValue));
 			if( _tcsicmp(pstrName, _T("inset")) == 0 ) SetInset(m_rcInset, pstrValue);
-			if( _tcsicmp(pstrName, _T("id")) == 0 ) id = ParseInt(pstrValue);
+			if( _tcsicmp(pstrName, _T("id")) == 0 ) SetID(ParseInt(pstrValue));
 			else if( _tcsicmp(pstrName, _T("minwidth")) == 0 ) SetMinWidth(ParseInt(pstrValue));
 			else if( _tcsicmp(pstrName, _T("minheight")) == 0 ) SetMinHeight(ParseInt(pstrValue));
 			else if( _tcsicmp(pstrName, _T("maxwidth")) == 0 ) SetMaxWidth(ParseInt(pstrValue));
@@ -2117,12 +2120,12 @@ namespace DuiLib {
 			if( static_cast<CControlUI*>(m_items[it]) == pControl ) {
 				NeedUpdate();
 				if( m_bAutoDestroy ) {
-					if( m_bDelayedDestroy && _manager ) _manager->AddDelayedCleanup(pControl);  
-					else if(pControl->m_bCustomWidget){
-						// Intentionally leave blank
-						if(pControl!=this) pControl->Free();
-					}           
-					else delete pControl;
+					//if( m_bDelayedDestroy && _manager ) _manager->AddDelayedCleanup(pControl);  
+					//else if(pControl->m_bCustomWidget){
+					//	// Intentionally leave blank
+					//	if(pControl!=this) pControl->Free();
+					//}           
+					//else delete pControl;
 				}
 				return m_items.Remove(it);
 			}

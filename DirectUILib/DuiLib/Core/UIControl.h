@@ -39,6 +39,8 @@ namespace DuiLib {
 	public:
 		virtual QkString GetName() const;
 		virtual void SetName(LPCTSTR pstrName);
+		virtual UINT GetID() const; 
+		virtual void SetID(UINT id);
 		virtual LPCTSTR GetClass() const;
 		virtual LPVOID GetInterface(LPCTSTR pstrName);
 		virtual UINT GetControlFlags() const;
@@ -163,7 +165,7 @@ namespace DuiLib {
 
 		// 位置相关
 		virtual RECT GetRelativePos() const; // 相对(父控件)位置
-		virtual RECT GetAbsolutePos() const; // 窗口绝对位置
+		virtual RECT GetAbsolutePos(); // 窗口绝对位置
 		virtual RECT GetClientPos() const; // 客户区域（除去scrollbar和inset）
 		virtual const RECT& GetPos() const;
 		virtual void SetPos(RECT rc, bool bNeedInvalidate = true);
@@ -218,7 +220,7 @@ namespace DuiLib {
 		virtual void SetUserData(LPCTSTR pstrText); // 辅助函数，供用户使用
 		virtual void SetUserDataTranslator(LPCTSTR pstrText); // 辅助函数，供用户使用
 		virtual UINT_PTR GetTag() const; // 辅助函数，供用户使用
-		virtual void SetTag(UINT_PTR pTag); // 辅助函数，供用户使用
+		virtual void SetTag(LONG_PTR pTag); // 辅助函数，供用户使用
 
 		// 一些重要的属性 todo 去除虚拟化
 		void SetDirectUI(bool value);
@@ -366,7 +368,7 @@ namespace DuiLib {
 
 		QkString m_sName;
 		CStdPtrArray m_items;
-		UINT id;
+		UINT _id;
 
 		HWND _hWnd;
 		HWND _hParent;
