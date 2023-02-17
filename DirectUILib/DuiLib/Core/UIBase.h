@@ -105,6 +105,7 @@ namespace DuiLib {
 		bool m_bSubclassed;
 		bool m_bUnicode;
 		bool isModal=false;
+		bool bAutoDel=false;
 	};
 
 } // namespace DuiLib

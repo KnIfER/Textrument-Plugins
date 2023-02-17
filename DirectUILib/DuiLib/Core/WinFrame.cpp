@@ -99,7 +99,7 @@ namespace DuiLib {
 			}
 			LRESULT lRes = 0;
 			if( root_layout && m_pm.MessageHandler(uMsg, wParam, lParam, lRes) ) return lRes;
-			if( bHandleCustomMessage && wParent->HandleCustomMessage(uMsg, wParam, lParam, lRes) ) return lRes;
+			if( bHandleCustomMessage && wParent->HandleCustomMessage(uMsg, wParam, lParam, &lRes) ) return lRes;
 			//if( wParent->GetManager()->MessageHandler(uMsg, wParam, lParam, lRes) ) return lRes;
 			return __super::HandleMessage(uMsg, wParam, lParam);
 		}
@@ -158,7 +158,6 @@ namespace DuiLib {
 		}
 	}
 
-
 	LPCTSTR WinFrame::GetClass() const
 	{
 		return L"WinFrame";
@@ -191,11 +190,17 @@ namespace DuiLib {
 	{
 		m_rcItem = rc;
 		//RECT rcTmp; ::GetWindowRect(GetHWND(), &rcTmp);
+		if(IsFloat() && ::GetParent(GetHWND())==NULL) 
+		{
+			RECT pRc{};
+			GetWindowRect(_manager->GetRealManager()->GetPaintWindow(), &pRc);
+			::OffsetRect(&rc, pRc.left, pRc.top);
+		}
+
 		::MoveWindow(GetHWND(), rc.left, rc.top, rc.right - rc.left, 
 			rc.bottom - rc.top, TRUE);
 
 		//((WndBase*)wEmbedded)->GetManager()->GetRoot()->SetPos(rc);
-
 	}
 
 	SIZE WinFrame::EstimateSize(const SIZE& szAvailable)
@@ -233,5 +238,11 @@ namespace DuiLib {
 		_handleMsg = val;
 		if(wEmbedded) 
 			((WndBase*)wEmbedded)->bHandleCustomMessage = val;
+	}
+
+	void WinFrame::SetVisible(bool bVisible)
+	{
+		__super::SetVisible(bVisible);
+		if(_hWnd) ::ShowWindow(_hWnd, bVisible?SW_SHOWNOACTIVATE:SW_HIDE);
 	}
 }

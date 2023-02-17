@@ -14,6 +14,7 @@
 #include <gdiplus.h> 
 #include <strsafe.h>
 
+#include <iostream>
 #include <vector>
 #include <string>
 #include <list>

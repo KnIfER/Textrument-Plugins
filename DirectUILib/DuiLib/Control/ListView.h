@@ -6,7 +6,7 @@ namespace DuiLib {
     class ListViewAdapter {
     public:
         virtual size_t GetItemCount() = 0;
-        virtual CControlUI* CreateItemView() = 0;
+        virtual CControlUI* CreateItemView(CControlUI* parent, int type) = 0;
         virtual void OnBindItemView(CControlUI* view, size_t index) = 0;
     };
 
@@ -19,7 +19,7 @@ namespace DuiLib {
         size_t GetItemCount() {
             return m_items.GetSize();
         };
-        CControlUI* CreateItemView() {
+        CControlUI* CreateItemView(CControlUI* view, int type) {
             return NULL;
         };
         CControlUI* GetItemAt(int position);
@@ -69,7 +69,8 @@ namespace DuiLib {
         // see ListView::Add，添加类表头时，忽略 |iIndex|
         bool AddAt(CControlUI* pControl, int iIndex) override;
 
-        void SetReferenceItemView(CControlUI* view) {  
+        void SetReferenceItemView(CControlUI* view)
+        {  
             m_HiddenItem = view;
         }; 
 

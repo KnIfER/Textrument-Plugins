@@ -581,6 +581,7 @@ LRESULT CWindowWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void CWindowWnd::OnFinalMessage(HWND /*hWnd*/)
 {
+	if(bAutoDel) delete this;
 }
 
 } // namespace DuiLib

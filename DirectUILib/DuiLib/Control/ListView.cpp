@@ -195,7 +195,7 @@ namespace DuiLib {
             }
             if (adapter)
             {
-                m_HiddenItem = adapter->CreateItemView();
+                m_HiddenItem = adapter->CreateItemView(this, 0);
                 if (m_HiddenItem)
                 {
                     auto tmp = new CControlUI; 
@@ -685,7 +685,7 @@ namespace DuiLib {
             }
             else
             {
-                pControl = _adapter->CreateItemView();
+                pControl = _adapter->CreateItemView(this, 0);
                 ASSERT(pControl);
                 // todo check not null
                 if( _manager ) _manager->InitControls(pControl, this);
@@ -735,7 +735,7 @@ namespace DuiLib {
                 }
                 else
                 {
-                    pControl = _adapter->CreateItemView();
+                    pControl = _adapter->CreateItemView(this, 0);
                     // todo check not null
                     if( _manager ) _manager->InitControls(pControl, this);
                 }
