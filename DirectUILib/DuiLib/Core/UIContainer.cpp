@@ -826,9 +826,22 @@ namespace DuiLib
 
 		SIZE szXY = pControl->GetFixedXY();
 		SIZE sz = {pControl->GetFixedWidth(), pControl->GetFixedHeight()};
-
+		if(sz.cx==-1)
+		{
+			sz.cx = GetWidth();
+		}
+		if(sz.cy==-1)
+		{
+			sz.cy = GetHeight();
+		}
 		int nParentWidth = m_rcItem.right - m_rcItem.left;
 		int nParentHeight = m_rcItem.bottom - m_rcItem.top;
+		if(sz.cx==-2 || sz.cy==-2)
+		{
+			SIZE szEst = pControl->EstimateSize({nParentWidth, nParentHeight});
+			if(pControl->GetAutoCalcWidth()) sz.cx = szEst.cx;
+			if(pControl->GetAutoCalcHeight()) sz.cy = szEst.cy;
+		}
 
 		UINT uAlign = pControl->GetFloatAlign();
 		if(uAlign != 0) {
@@ -852,8 +865,8 @@ namespace DuiLib
 			else {
 				::OffsetRect(&rcCtrl, 0, szXY.cy);
 			}
-
 			::OffsetRect(&rcCtrl, m_rcItem.left, m_rcItem.top);
+			//PRINT_RECT(SetFloatPos, rcCtrl, 1);
 			pControl->SetPos(rcCtrl, false);
 		}
 		else {
