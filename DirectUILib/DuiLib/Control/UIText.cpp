@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIText
 #include "UIText.h"
 
 namespace DuiLib
@@ -164,3 +166,6 @@ namespace DuiLib
 		}
 	}
 }
+
+
+#endif

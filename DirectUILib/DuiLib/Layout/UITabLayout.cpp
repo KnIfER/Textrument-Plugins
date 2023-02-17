@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUITabLayout
 #include "UITabLayout.h"
 
 namespace DuiLib
@@ -183,3 +185,6 @@ namespace DuiLib
 		}
 	}
 }
+
+
+#endif

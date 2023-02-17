@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUITileLayout
 #include "UITileLayout.h"
 
 namespace DuiLib
@@ -184,3 +186,6 @@ namespace DuiLib
 		ProcessScrollBar(rc, 0, cyNeeded);
 	}
 }
+
+
+#endif

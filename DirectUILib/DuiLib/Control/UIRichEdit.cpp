@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIRichEdit
 #include "UIRichEdit.h"
 
 #ifdef _USEIMM
@@ -2863,3 +2865,6 @@ err:
 	}
 
 } // namespace DuiLib
+
+
+#endif

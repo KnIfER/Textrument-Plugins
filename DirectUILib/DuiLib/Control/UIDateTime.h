@@ -1,3 +1,5 @@
+#ifdef QkUIDateTime
+
 #ifndef __UIDATETIME_H__
 #define __UIDATETIME_H__
 
@@ -42,3 +44,5 @@ namespace DuiLib
 	};
 }
 #endif // __UIDATETIME_H__
+
+#endif

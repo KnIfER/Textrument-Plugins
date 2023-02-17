@@ -2,6 +2,8 @@
 #include "Core\InsituDebug.h"
 #include "WindowsEx\comctl32.h"
 
+#ifdef QkWinTabbar
+
 extern void TAB_Register();
 
 namespace DuiLib {
@@ -343,3 +345,6 @@ namespace DuiLib {
 		return true;
 	}
 } // namespace DuiLib
+
+
+#endif

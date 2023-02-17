@@ -25,6 +25,9 @@
 #define m_bFillParentWidth          (m_cxyFixed.cx==-1)
 #define m_bFillParentHeight         (m_cxyFixed.cy==-1)
 
+
+#include "Core/QkUIDefine.h"
+
 #include "Utils/Utils.h"
 #include "Utils/unzip.h"
 #include "Utils/VersionHelpers.h"
@@ -52,3 +55,4 @@
 #include "shlwapi.h"
 
 using namespace Gdiplus;
+using namespace std;

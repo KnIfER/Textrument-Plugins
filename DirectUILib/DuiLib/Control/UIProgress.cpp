@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIProgress
 #include "UIProgress.h"
 
 namespace DuiLib
@@ -171,3 +173,6 @@ namespace DuiLib
 		}
 	}
 }
+
+
+#endif

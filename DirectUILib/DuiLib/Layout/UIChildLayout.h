@@ -1,3 +1,5 @@
+#ifdef QkUIChildLayout
+
 #ifndef __UICHILDLAYOUT_H__
 #define __UICHILDLAYOUT_H__
 
@@ -23,3 +25,6 @@ namespace DuiLib
 	};
 } // namespace DuiLib
 #endif // __UICHILDLAYOUT_H__
+
+
+#endif

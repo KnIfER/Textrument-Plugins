@@ -1,3 +1,5 @@
+#ifdef QkListHeader
+
 #pragma once
 namespace DuiLib {
 
@@ -25,3 +27,6 @@ namespace DuiLib {
 	};
 }
 
+
+
+#endif

@@ -1,3 +1,5 @@
+#ifdef QkInputBox
+
 #pragma once
 
 struct _EDIT_STATE;
@@ -92,3 +94,5 @@ namespace DuiLib
 		INT VCENTER_OFFSET;	
 	};
 }
+
+#endif

@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIOption
 #include "UIOption.h"
 
 namespace DuiLib
@@ -448,3 +450,5 @@ namespace DuiLib
 		Invalidate();
 	}
 }
+
+#endif

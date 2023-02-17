@@ -1,3 +1,5 @@
+#ifdef QkUISlider
+
 #ifndef __UISLIDER_H__
 #define __UISLIDER_H__
 
@@ -49,3 +51,5 @@ namespace DuiLib
 }
 
 #endif // __UISLIDER_H__
+
+#endif

@@ -1,3 +1,5 @@
+#ifdef QkUIList
+
 #ifndef __UILIST_H__
 #define __UILIST_H__
 
@@ -262,3 +264,6 @@ namespace DuiLib {
 } // namespace DuiLib
 
 #endif // __UILIST_H__
+
+
+#endif

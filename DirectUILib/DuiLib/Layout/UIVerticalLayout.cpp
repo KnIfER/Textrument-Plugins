@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIVerticalLayout
 #include "UIVerticalLayout.h"
 #include "core/InsituDebug.h"
 
@@ -274,3 +276,6 @@ namespace DuiLib
 	//	CContainerUI::SetAttribute(pstrName, pstrValue);
 	//}
 }
+
+
+#endif

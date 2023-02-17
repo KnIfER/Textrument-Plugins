@@ -1,3 +1,5 @@
+#ifdef QkUIButton
+
 #ifndef __UIBUTTON_H__
 #define __UIBUTTON_H__
 
@@ -132,3 +134,5 @@ namespace DuiLib
 }	// namespace DuiLib
 
 #endif // __UIBUTTON_H__
+
+#endif

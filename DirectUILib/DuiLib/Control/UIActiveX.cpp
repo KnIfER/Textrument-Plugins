@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 
+#ifdef QkUIActiveX
+
 namespace DuiLib {
 #undef m_bFocused
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -1244,3 +1246,5 @@ namespace DuiLib {
 	}
 
 } // namespace DuiLib
+
+#endif

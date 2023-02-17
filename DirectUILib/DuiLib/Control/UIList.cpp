@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 
+#ifdef QkUIList
+
 namespace DuiLib {
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -1311,3 +1313,6 @@ namespace DuiLib {
 		CVerticalLayoutUI::DoEvent(event);
 	}
 } // namespace DuiLib
+
+
+#endif

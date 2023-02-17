@@ -1,3 +1,5 @@
+#ifdef QkSciEditText
+
 //#include "StdAfx.h"
 //#include "UILib.h"
 
@@ -92,3 +94,6 @@ namespace DuiLib {
 		::UpdateWindow(_hWnd);
 	}
 } // namespace DuiLib
+
+
+#endif

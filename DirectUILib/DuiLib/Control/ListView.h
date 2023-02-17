@@ -1,3 +1,5 @@
+#ifdef QkListView
+
 #pragma once
 
 
@@ -111,3 +113,6 @@ namespace DuiLib {
     };
 
 }
+
+
+#endif

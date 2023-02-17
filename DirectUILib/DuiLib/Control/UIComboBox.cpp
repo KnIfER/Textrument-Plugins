@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIComboBox
 #include "UIComboBox.h"
 
 namespace DuiLib
@@ -90,3 +92,6 @@ namespace DuiLib
 		}
 	}
 }
+
+
+#endif

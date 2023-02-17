@@ -1,3 +1,5 @@
+#ifdef QkUIRichEdit
+
 #ifndef __UIRICHEDIT_H__
 #define __UIRICHEDIT_H__
 
@@ -194,3 +196,6 @@ namespace DuiLib {
 } // namespace DuiLib
 
 #endif // __UIRICHEDIT_H__
+
+
+#endif

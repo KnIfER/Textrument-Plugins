@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 
+#ifdef QkListHeader
+
 namespace DuiLib {
 	IMPLEMENT_QKCONTROL(CListHeaderUI)
 
@@ -174,3 +176,5 @@ namespace DuiLib {
 
 	}
 }
+
+#endif

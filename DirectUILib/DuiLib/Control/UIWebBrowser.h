@@ -1,3 +1,5 @@
+#ifdef QkUIWebBrowser
+
 #ifndef __UIWEBBROWSER_H__
 #define __UIWEBBROWSER_H__
 
@@ -172,3 +174,5 @@ namespace DuiLib
 	};
 } // namespace DuiLib
 #endif // __UIWEBBROWSER_H__
+
+#endif

@@ -1,3 +1,5 @@
+#ifdef QkUIText
+
 #ifndef __UITEXT_H__
 #define __UITEXT_H__
 
@@ -34,3 +36,5 @@ namespace DuiLib
 } // namespace DuiLib
 
 #endif //__UITEXT_H__
+
+#endif

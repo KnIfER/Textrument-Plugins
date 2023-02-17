@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkTestButton
 #include "TestButton.h"
 
 namespace DuiLib
@@ -28,3 +30,5 @@ namespace DuiLib
 
 
 }
+
+#endif

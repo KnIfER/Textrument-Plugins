@@ -1,3 +1,5 @@
+#ifdef QkUIComboBox
+
 #ifndef __UICOMBOBOX_H__
 #define __UICOMBOBOX_H__
 
@@ -27,3 +29,6 @@ namespace DuiLib
 }
 
 #endif // __UICOMBOBOX_H__
+
+
+#endif

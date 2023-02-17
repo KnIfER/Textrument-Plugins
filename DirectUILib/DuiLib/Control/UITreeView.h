@@ -1,3 +1,5 @@
+#ifdef QkUITreeView
+
 #ifndef UITreeView_h__
 #define UITreeView_h__
 
@@ -141,3 +143,6 @@ namespace DuiLib
 
 
 #endif // UITreeView_h__
+
+
+#endif

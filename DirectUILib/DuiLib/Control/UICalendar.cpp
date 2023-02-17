@@ -1,4 +1,6 @@
 ﻿#include "StdAfx.h"
+
+#ifdef QkUICalendar
 #include "UICalendar.h"
 
 #include <time.h>
@@ -1766,3 +1768,6 @@ namespace DuiLib
 		mCalendarDlg.ShowModal();
 	}
 }
+
+
+#endif

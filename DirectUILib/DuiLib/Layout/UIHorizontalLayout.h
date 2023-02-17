@@ -1,3 +1,5 @@
+#ifdef QkUIHorizontalLayout
+
 #ifndef __UIHORIZONTALLAYOUT_H__
 #define __UIHORIZONTALLAYOUT_H__
 
@@ -21,3 +23,6 @@ namespace DuiLib
 	};
 }
 #endif // __UIHORIZONTALLAYOUT_H__
+
+
+#endif

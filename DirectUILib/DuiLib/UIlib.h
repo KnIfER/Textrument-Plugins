@@ -122,7 +122,6 @@ typedef std::function<int(void*, UINT, WPARAM, LPARAM)> Listener;
 
 #include "Utils/DemoUitls.h"
 
-
 #pragma comment( lib, "Shlwapi.lib" )
 #pragma comment( lib, "comctl32.lib" )
 #pragma comment( lib, "GdiPlus.lib" )

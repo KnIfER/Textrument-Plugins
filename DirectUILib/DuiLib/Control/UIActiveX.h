@@ -1,3 +1,5 @@
+#ifdef QkUIActiveX
+
 #ifndef __UIACTIVEX_H__
 #define __UIACTIVEX_H__
 
@@ -68,3 +70,6 @@ namespace DuiLib {
 } // namespace DuiLib
 
 #endif // __UIACTIVEX_H__
+
+
+#endif

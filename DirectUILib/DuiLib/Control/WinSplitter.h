@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef QkWinSplitter
+
 namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -38,3 +40,6 @@ namespace DuiLib {
 	};
 
 } // namespace DuiLib
+
+
+#endif

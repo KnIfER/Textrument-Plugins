@@ -1,3 +1,5 @@
+#ifdef QkWinButton
+
 #pragma once
 
 namespace DuiLib {
@@ -27,3 +29,5 @@ namespace DuiLib {
 	};
 
 } // namespace DuiLib
+
+#endif

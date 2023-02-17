@@ -41,12 +41,15 @@ namespace DuiLib
             for (size_t i = 0; i < NamedDemos.size(); i++)
             {
                 LPCTSTR name = (LPCTSTR)NamedDemos[i](NULL, NULL);
-
-                Button* btn = new Button;
+                CControlUI* btn = nullptr;
+#ifdef QkUIButton
+                btn = new Button;
+                ((Button*)btn)->SetType(L"push");
+#endif
+                if(!btn) btn = new CControlUI;
                 btn->SetText(name);
                 buffer.Format(L"%d", i);
                 btn->SetName(buffer);
-                btn->SetType(L"push");
                 btn->SetInset({10, 6, 10, 6});
                 btn->SetAutoCalcHeight(true);
                 CControlUI* pad = new CControlUI;

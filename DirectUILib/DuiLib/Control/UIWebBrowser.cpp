@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIWebBrowser
 #include "UIWebBrowser.h"
 #include <atlconv.h>
 #include <atlcomcli.h>
@@ -753,3 +755,5 @@ namespace DuiLib
 		return (hr);
 	}
 }
+
+#endif

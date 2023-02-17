@@ -1,3 +1,5 @@
+#ifdef QkUIMenu
+
 #ifndef __UIMENU_H__
 #define __UIMENU_H__
 
@@ -400,3 +402,6 @@ protected:
 } // namespace DuiLib
 
 #endif // __UIMENU_H__
+
+
+#endif

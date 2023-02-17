@@ -1,3 +1,5 @@
+#ifdef QkUIAnimation
+
 #ifndef __UIANIMATION_H__
 #define __UIANIMATION_H__
 
@@ -84,3 +86,5 @@ namespace DuiLib {
 } // namespace DuiLib
 
 #endif // __UIANIMATION_H__
+
+#endif

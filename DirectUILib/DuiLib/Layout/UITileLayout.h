@@ -1,3 +1,5 @@
+#ifdef QkUITileLayout
+
 #ifndef __UITILELAYOUT_H__
 #define __UITILELAYOUT_H__
 
@@ -29,3 +31,6 @@ namespace DuiLib
 	};
 }
 #endif // __UITILELAYOUT_H__
+
+
+#endif

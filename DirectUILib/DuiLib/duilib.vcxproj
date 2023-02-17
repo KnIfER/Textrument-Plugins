@@ -258,6 +258,7 @@
     <ClInclude Include="Control\ListHeader.h" />
     <ClInclude Include="Control\ListHeaderItem.h" />
     <ClInclude Include="Control\ListView.h" />
+    <ClInclude Include="Control\QkUIDefine.h" />
     <ClInclude Include="Control\TestButton.h" />
     <ClInclude Include="Control\UIActiveX.h" />
     <ClInclude Include="Control\UIAnimation.h" />
@@ -284,6 +285,8 @@
     <ClInclude Include="Control\WinTabbar.h" />
     <ClInclude Include="Core\ControlFactory.h" />
     <ClInclude Include="Core\InsituDebug.h" />
+    <ClInclude Include="Core\QkUIDefine.h" />
+    <ClInclude Include="Core\QkUIUnDefine.h" />
     <ClInclude Include="Core\UIBase.h" />
     <ClInclude Include="Core\UIContainer.h" />
     <ClInclude Include="Core\UIControl.h" />

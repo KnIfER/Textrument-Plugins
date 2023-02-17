@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkInputBox
 #include "WindowsEx\edit.h"
 #include "core\InsituDebug.h"
 
@@ -655,3 +657,6 @@ namespace DuiLib
 		return m_dwDisabledTextColor;
 	}
 }
+
+
+#endif

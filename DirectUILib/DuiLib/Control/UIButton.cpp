@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIButton
 #include "UIButton.h"
 #include "./WindowsEx/button.h"
 
@@ -719,3 +721,5 @@ namespace DuiLib
 		return btn;
 	}
 }
+
+#endif

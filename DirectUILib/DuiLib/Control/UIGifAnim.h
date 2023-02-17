@@ -1,3 +1,5 @@
+#ifdef QkUIGifAnim
+
 #ifndef GifAnimUI_h__
 #define GifAnimUI_h__
 
@@ -54,3 +56,6 @@ namespace DuiLib
 }
 
 #endif // GifAnimUI_h__
+
+
+#endif

@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 
+#ifdef QkUIList
+
 namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -435,3 +437,5 @@ namespace DuiLib {
 	}
 
 }
+
+#endif

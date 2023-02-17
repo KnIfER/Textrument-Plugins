@@ -1,3 +1,5 @@
+#ifdef QkUIOption
+
 #ifndef __UIOPTION_H__
 #define __UIOPTION_H__
 
@@ -100,3 +102,5 @@ namespace DuiLib
 } // namespace DuiLib
 
 #endif // __UIOPTION_H__
+
+#endif

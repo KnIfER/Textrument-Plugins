@@ -1,3 +1,5 @@
+#ifdef QkUIProgress
+
 #ifndef __UIPROGRESS_H__
 #define __UIPROGRESS_H__
 
@@ -45,3 +47,6 @@ namespace DuiLib
 } // namespace DuiLib
 
 #endif // __UIPROGRESS_H__
+
+
+#endif

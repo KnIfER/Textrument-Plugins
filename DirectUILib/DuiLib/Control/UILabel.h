@@ -1,3 +1,5 @@
+#ifdef QkUILabel
+
 #ifndef __UILABEL_H__
 #define __UILABEL_H__
 
@@ -46,3 +48,5 @@ namespace DuiLib
 }
 
 #endif // __UILABEL_H__
+
+#endif

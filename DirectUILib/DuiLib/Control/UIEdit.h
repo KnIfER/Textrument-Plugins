@@ -1,3 +1,5 @@
+#ifdef QkUIEdit
+
 #ifndef __UIEDIT_H__
 #define __UIEDIT_H__
 
@@ -89,3 +91,5 @@ namespace DuiLib
 	};
 }
 #endif // __UIEDIT_H__
+
+#endif

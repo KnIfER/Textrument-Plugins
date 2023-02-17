@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkWinSplitter
 #include "Core\InsituDebug.h"
 #include "WindowsEx\comctl32.h"
 
@@ -229,3 +231,5 @@ namespace DuiLib {
 
 	}
 } // namespace DuiLib
+
+#endif

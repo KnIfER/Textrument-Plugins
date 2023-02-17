@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUISlider
 #include "UISlider.h"
 
 namespace DuiLib
@@ -299,3 +301,6 @@ namespace DuiLib
 		}
 	}
 }
+
+
+#endif

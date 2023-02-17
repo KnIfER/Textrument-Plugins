@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkWinButton
 #include "Core\InsituDebug.h"
 
 #include "WindowsEx\edit.h"
@@ -209,3 +211,6 @@ namespace DuiLib {
 	}
 
 } // namespace DuiLib
+
+
+#endif

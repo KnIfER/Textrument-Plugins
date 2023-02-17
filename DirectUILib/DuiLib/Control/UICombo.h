@@ -1,3 +1,5 @@
+#ifdef QkUICombo
+
 #ifndef __UICOMBO_H__
 #define __UICOMBO_H__
 
@@ -150,3 +152,6 @@ namespace DuiLib {
 } // namespace DuiLib
 
 #endif // __UICOMBO_H__
+
+
+#endif

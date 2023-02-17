@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkWinFrame
 #include "Core\InsituDebug.h"
 
 namespace DuiLib {
@@ -246,3 +248,5 @@ namespace DuiLib {
 		if(_hWnd) ::ShowWindow(_hWnd, bVisible?SW_SHOWNOACTIVATE:SW_HIDE);
 	}
 }
+
+#endif

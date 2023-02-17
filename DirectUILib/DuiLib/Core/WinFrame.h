@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef QkWinFrame
+
 namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -30,3 +32,5 @@ namespace DuiLib {
 	};
 
 } // namespace DuiLib
+
+#endif

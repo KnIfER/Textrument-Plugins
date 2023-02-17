@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef QkWinTabbar
+
 namespace DuiLib {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -52,3 +54,5 @@ namespace DuiLib {
 	};
 
 } // namespace DuiLib
+
+#endif

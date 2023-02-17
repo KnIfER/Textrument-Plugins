@@ -1145,9 +1145,11 @@ namespace DuiLib {
 			{
 				// Tabbing between controls
 				if( wParam == VK_TAB ) {
+#ifdef QkUIRichEdit
 					if( m_pFocus && m_pFocus->IsVisible() && m_pFocus->IsEnabled() && _tcsstr(m_pFocus->GetClass(), _T("RichEditUI")) != NULL ) {
 						if( static_cast<CRichEditUI*>(m_pFocus)->IsWantTab() ) return false;
 					}
+#endif
 					if( m_pFocus && m_pFocus->IsVisible() && m_pFocus->IsEnabled() && _tcsstr(m_pFocus->GetClass(), _T("WkeWebkitUI")) != NULL ) {
 						return false;
 					}
@@ -2677,13 +2679,14 @@ namespace DuiLib {
 			RebuildFont(pFontInfo);
 		}
 		RebuildFont(&m_SharedResInfo.m_DefaultFontInfo);
-
+#ifdef QkUIRichEdit
 		CStdPtrArray *richEditList = FindSubControlsByClass(GetRoot(), _T("RichEditUI"));
 		for (int i = 0; i < richEditList->GetSize(); i++)
 		{
 			CRichEditUI* pT = static_cast<CRichEditUI*>((*richEditList)[i]);
 			pT->SetFont(0, pT->GetFont());
 		}
+#endif
 	}
 
 	void DuiLib::CPaintManagerUI::RebuildFont(TFontInfo * pFontInfo)

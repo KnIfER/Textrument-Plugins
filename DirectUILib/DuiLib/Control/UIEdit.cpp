@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIEdit
 #include "UIEdit.h"
 
 namespace DuiLib
@@ -690,3 +692,6 @@ namespace DuiLib
 		}
 	}
 }
+
+
+#endif

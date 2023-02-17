@@ -1,4 +1,6 @@
-﻿#ifndef Calendar_h__
+﻿#ifdef QkUICalendar
+
+#ifndef Calendar_h__
 #define Calendar_h__
 
 #include <map>
@@ -176,3 +178,6 @@ namespace DuiLib
 }
 
 #endif // Calendar_h__
+
+
+#endif

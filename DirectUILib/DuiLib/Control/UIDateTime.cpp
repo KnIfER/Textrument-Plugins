@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIDateTime
 #include "UIDateTime.h"
 
 namespace DuiLib
@@ -320,3 +322,6 @@ namespace DuiLib
 		else return CLabelUI::SetAttribute(pstrName, pstrValue);
 	}
 }
+
+
+#endif

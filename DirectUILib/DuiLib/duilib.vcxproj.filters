@@ -16,6 +16,9 @@
     <Filter Include="Drawable">
       <UniqueIdentifier>{1fd2fdd3-b8fb-4ec9-9f96-4a2be50f43eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\QkUI">
+      <UniqueIdentifier>{9b930c90-a364-490a-99ad-d2491957a6eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils\downloadmgr.h">
@@ -220,6 +223,15 @@
     </ClInclude>
     <ClInclude Include="Drawable\drawable.h">
       <Filter>Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\QkUIDefine.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\QkUIUnDefine.h">
+      <Filter>Core\QkUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\QkUIDefine.h">
+      <Filter>Core\QkUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

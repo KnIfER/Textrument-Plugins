@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUITreeView
 #include "UITreeView.h"
 
 #pragma warning( disable: 4251 )
@@ -1263,3 +1265,5 @@ namespace DuiLib
 	}
 
 }
+
+#endif

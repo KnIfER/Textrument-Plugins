@@ -1,3 +1,5 @@
+#ifdef QkSciEditText
+
 #pragma once
 
 #include <string>
@@ -30,3 +32,5 @@ namespace DuiLib {
 	};
 
 } // namespace DuiLib
+
+#endif

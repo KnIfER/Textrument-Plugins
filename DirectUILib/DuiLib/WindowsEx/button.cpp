@@ -41,7 +41,8 @@
  *  Structures/Macros/Definitions
  *  - NMBCHOTITEM
  */
-
+#include "../Core/QkUIDefine.h"
+#ifdef QkUIButton
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
@@ -3598,3 +3599,5 @@ void BUTTON_Register()
         _REGISTERED = true;
     }
 }
+
+#endif

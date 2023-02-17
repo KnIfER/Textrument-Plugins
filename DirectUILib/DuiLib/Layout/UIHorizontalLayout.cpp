@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIHorizontalLayout
 #include "UIHorizontalLayout.h"
 
 namespace DuiLib
@@ -271,3 +273,6 @@ namespace DuiLib
 	//	else CContainerUI::SetAttribute(pstrName, pstrValue);
 	//}
 }
+
+
+#endif

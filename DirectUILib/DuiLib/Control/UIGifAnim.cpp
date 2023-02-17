@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIGifAnim
 #include "UIGifAnim.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -226,3 +228,6 @@ namespace DuiLib
 		m_pGifImage->SelectActiveFrame( &pageGuid, m_nFramePosition );
 	}
 }
+
+
+#endif

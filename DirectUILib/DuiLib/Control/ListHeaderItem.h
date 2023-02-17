@@ -1,3 +1,5 @@
+#ifdef QkUIList
+
 #pragma once
 namespace DuiLib {
 
@@ -68,3 +70,6 @@ namespace DuiLib {
 
 }
 
+
+
+#endif

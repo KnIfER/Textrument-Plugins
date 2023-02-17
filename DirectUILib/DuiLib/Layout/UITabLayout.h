@@ -1,3 +1,5 @@
+#ifdef QkUITabLayout
+
 #ifndef __UITABLAYOUT_H__
 #define __UITABLAYOUT_H__
 
@@ -31,3 +33,6 @@ namespace DuiLib
 	};
 }
 #endif // __UITABLAYOUT_H__
+
+
+#endif

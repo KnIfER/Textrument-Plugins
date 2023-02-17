@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIAnimation
 #include "UIAnimation.h"
 #include <vector>
 #include <algorithm>
@@ -180,3 +182,5 @@ namespace DuiLib {
 	}
 
 } // namespace DuiLib
+
+#endif

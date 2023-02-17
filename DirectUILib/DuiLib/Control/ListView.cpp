@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkListView
 #include "core/InsituDebug.h"
 #include "math.h"
 
@@ -923,3 +925,5 @@ namespace DuiLib {
 
 
 }
+
+#endif

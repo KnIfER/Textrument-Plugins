@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 
+#ifdef QkUIMenu
+
 #include "UIMenu.h"
 
 namespace DuiLib {
@@ -1195,3 +1197,6 @@ namespace DuiLib {
 		return NULL;
 	}
 } // namespace DuiLib
+
+
+#endif

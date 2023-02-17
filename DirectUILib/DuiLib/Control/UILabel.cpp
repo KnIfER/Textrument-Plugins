@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUILabel
 #include "UILabel.h"
 
 #include <atlconv.h>
@@ -313,3 +315,5 @@ namespace DuiLib
 		}
 	}
 }
+
+#endif

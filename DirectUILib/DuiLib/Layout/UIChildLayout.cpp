@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+
+#ifdef QkUIChildLayout
 #include "UIChildLayout.h"
 
 namespace DuiLib
@@ -56,3 +58,6 @@ namespace DuiLib
 		return _T("ChildLayoutUI");
 	}
 } // namespace DuiLib
+
+
+#endif
