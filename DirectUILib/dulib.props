@@ -9,6 +9,7 @@
     <direct_intermediate>$(Configuration)_$(Platform)\</direct_intermediate>
     <direct_bin>$(direct_path)\bin\$(TargetName)$(TargetExt)</direct_bin>
     <direct_includes>$(direct_path)\DuiLib</direct_includes>
+    <project_bin>$(ProjectDir)bin/$(TargetName)$(TargetExt)</project_bin>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
@@ -39,6 +40,9 @@
     </BuildMacro>
     <BuildMacro Include="direct_includes">
       <Value>$(direct_includes)</Value>
+    </BuildMacro>
+    <BuildMacro Include="project_bin">
+      <Value>$(project_bin)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

@@ -355,6 +355,7 @@ public:
         viewTemplate = builder.Create(L"ListViewDemo_item.xml", 0, 0, &m_pm);
 
         copyimage_1("G:\\IMG\\123.png");
+        //copyimage_1("F:\\IMG\\123.jpg");
 
         ListView* pList = static_cast<ListView*>(m_pm.FindControl(_T("vList")));
         if (pList)
@@ -395,7 +396,7 @@ public:
         // return 10000000;
     }
 
-    CControlUI* CreateItemView()
+    CControlUI* CreateItemView(CControlUI* view, int type)
     {
         //return builder.Create(L"ListViewDemo_item.xml", 0, 0, &m_pm);
         CControlUI * ret = new ImageView;

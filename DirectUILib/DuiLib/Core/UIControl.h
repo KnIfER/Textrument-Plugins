@@ -294,6 +294,7 @@ namespace DuiLib {
 		virtual void PaintBorder(HDC hDC);
 
 		virtual void DoPostPaint(HDC hDC, const RECT& rcPaint);
+		virtual void ComputeScroll() {};
 
 		void SetNeedAutoCalcSize();
 

@@ -404,10 +404,75 @@ namespace DuiLib {
         }
     }
 
-    static INT64 TicksLastDraw, TicksPerSecond;
+    static LARGE_INTEGER TicksLastDraw, TicksPerSecond, ticksNow;
 
     UINT_PTR timer_smooth_scroll=0x123;
     int timer_smooth_scroll_interval=10;
+    bool  timer_scrolling;
+
+    bool ListView::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
+    {
+        //if(_headerView) m_items.Add(_headerView);
+        bool ret = __super::DoPaint(hDC, rcPaint, pStopControl);
+        //if(_headerView) m_items.RemoveAt(m_items.GetSize()-1);
+        ComputeScroll();
+        return ret;
+    }
+
+    void ListView::ComputeScroll()
+    {
+       // if(1) return;
+        if(timer_scrolling) return;
+        int scrollY = 0;
+        if (_scrollY)
+        {
+            //scrollY = _scrollY*10*1.2/25;
+            auto delta = abs(_scrollY);
+            _scrollSpeed = delta>60?6
+                :delta>30?3
+                :1;
+            //_scrollSpeed = delta/10;
+            //if(_scrollSpeed<=0) _scrollSpeed=1;
+
+
+            _scrollSpeed = delta / 9;
+            //_scrollSpeed = 1;
+
+            if(_scrollSpeed<=1) _scrollSpeed=1;
+
+            scrollY = _scrollY>0?_scrollSpeed:-_scrollSpeed;
+            if (_seeking  )
+            {
+                scrollY = _scrollY*10*1.2/25;
+            }
+            if (std::abs(scrollY)<1)
+            {
+                scrollY = _scrollY>0?1:-1;
+            }
+            if ((_scrollY-scrollY>0) ^ (_scrollY>0))
+            {
+                scrollY = _scrollY;
+                _scrollY = 0;
+            }
+            else
+            {
+                _scrollY -= scrollY;
+            }
+        }
+        //if(scrollY*_scrollY<0) LogIs("213213");
+        if(scrollY)
+            DoScroll(0, scrollY);
+        if (!_scrollY)
+        {
+            _smoothScrolling = false;
+            // _seeking = false;
+            return;
+        }
+        if(!scrollY)
+        {
+            Invalidate();
+        }
+    }
 
     bool ListView::SetScrollPos(SIZE szPos, bool bMsg, bool seeking)
     {
@@ -457,8 +522,13 @@ namespace DuiLib {
                 //LogIs("TicksPerSecond=%d", TicksPerSecond);
                 if(!_smoothScrolling) {
                     _smoothScrolling = true;
-                    _scrollSpeed = 6;
-                    SetTimer(timer_smooth_scroll, timer_smooth_scroll_interval, true);
+                    _scrollSpeed = 5;
+                    auto delta = abs(_scrollY);
+                    //_scrollSpeed = 1;
+                    if(delta>100) {
+                        timer_scrolling = true;
+                        SetTimer(timer_smooth_scroll, timer_smooth_scroll_interval, true);
+                    }
                 } 
                 else {
                     float spd = 5;
@@ -470,7 +540,9 @@ namespace DuiLib {
                         _scrollSpeed = spd;
                     }
                 }
+                //_scrollSpeed = fabs(_scrollY)/15;
                 _seeking = seeking;
+                ComputeScroll();
             }
             else
             {
@@ -493,8 +565,16 @@ namespace DuiLib {
                 {
                     INT64 tk;
                     scrollY = _scrollY*10*1.2/25;
-                    //scrollY = 1;
+                    //auto delta = abs(_scrollY);
+                    //_scrollSpeed = delta>60?6
+                    //    :delta>30?3
+                    //    :1;
+                    //_scrollSpeed = delta/9;
+                    //_scrollSpeed = max(_scrollSpeed, 15);
+
+                    _scrollSpeed = max(abs(_scrollY) / 9, _scrollSpeed);
                     scrollY = _scrollY>0?_scrollSpeed:-_scrollSpeed;
+                    //scrollY = 1;
                     if (_seeking  )
                     {
                         scrollY = _scrollY*10*1.2/25;
@@ -514,27 +594,23 @@ namespace DuiLib {
                     }
                 }
                 //if(scrollY*_scrollY<0) LogIs("213213");
-                if(scrollY)
-                    DoScroll(0, scrollY);
                 if (!_scrollY)
                 {
                     KillTimer(event.wParam);
+                    timer_scrolling = false;
                     _smoothScrolling = false;
                    // _seeking = false;
+                } 
+                else if(abs(_scrollY) < 30) {
+                    //timer_scrolling = false;
                 }
+                if(scrollY)
+                    DoScroll(0, scrollY);
             }
             return;
         }
         __super::DoEvent(event);
     }
-
-    //bool ListView::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
-    //{
-    //    if(_headerView) m_items.Add(_headerView);
-    //    bool ret = __super::DoPaint(hDC, rcPaint, pStopControl);
-    //    if(_headerView) m_items.RemoveAt(m_items.GetSize()-1);
-    //    return ret;
-    //}
 
     SIZE ListView::EstimateSize(const SIZE & szAvailable)
     {

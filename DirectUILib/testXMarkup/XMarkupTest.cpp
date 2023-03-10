@@ -54,7 +54,7 @@ public:
         {
             return 100;
         }
-        CControlUI* CreateItemView()
+        CControlUI* CreateItemView(CControlUI* view, int type)
         {
             Button* btn = new Button;
             btn->SetText(L"Test");

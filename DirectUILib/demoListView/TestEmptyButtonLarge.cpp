@@ -79,7 +79,7 @@ public:
 	int items=0;
 	QkString itemsBuffer;
 
-    CControlUI* CreateItemView()
+    CControlUI* CreateItemView(CControlUI* view, int type)
     {
         CControlUI* pRoot =  builder.Create(L"WinBtn.xml", 0, 0, &m_pm);
 

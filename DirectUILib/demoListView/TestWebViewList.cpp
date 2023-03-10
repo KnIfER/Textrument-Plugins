@@ -138,7 +138,7 @@ public:
 		//return 1;
     }
 
-    CControlUI* CreateItemView()
+    CControlUI* CreateItemView(CControlUI* view, int type)
     {
         CControlUI* pRoot =  builder.Create(L"webview_item.xml", 0, 0, &m_pm);
 

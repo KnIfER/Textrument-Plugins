@@ -371,12 +371,14 @@ namespace DuiLib
 		int stepSize = m_nScrollStepSize;
 		if (stepSize == 0) {
 			stepSize = 8;
-			if( _manager ) stepSize = _manager->GetDefaultFontInfo()->tm.tmHeight * 3 + 8;
+			if( _manager ) stepSize = ::GetSystemMetrics(SM_CYVSCROLL) * 3 * 2 + 8;
 		}
-		if(_manager )
-			stepSize = _manager->GetDPIObj()->Scale(stepSize);
+		//if(_manager )
+		//	stepSize = _manager->GetDPIObj()->Scale(stepSize);
 
 		return stepSize;
+
+		//return ::GetSystemMetrics(SM_CYVSCROLL);
 	}
 
 	bool CContainerUI::LineUp()

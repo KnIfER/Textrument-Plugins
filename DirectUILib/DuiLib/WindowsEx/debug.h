@@ -65,7 +65,7 @@ inline const std::wstring debugstr_wn(const WCHAR * msg, UINT ln){
 
 inline void nothing(const CHAR* msg, ...){}
 
-#define TRACE(MSG,...) LogIs(3,MSG,__VA_ARGS__) 
+#define TRACE(MSG,...) LogIs(1,MSG,__VA_ARGS__) 
 //#define TRACE nothing
 //#define TRACE(MSG,...) /##/## MSG __VA_ARGS__
 

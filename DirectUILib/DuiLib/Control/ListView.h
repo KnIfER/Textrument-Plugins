@@ -49,6 +49,7 @@ namespace DuiLib {
         LRESULT GetAttribute(LPCTSTR pstrName, LPARAM lParam=0, WPARAM wParam=0);
 
         SIZE EstimateSize(const SIZE & szAvailable);
+        void ComputeScroll() override;
 
         void SetPos(RECT rc, bool bNeedInvalidate = true) override;
         virtual bool SetScrollPos(SIZE szPos, bool bMsg = true, bool seeking = false) override;
@@ -56,7 +57,7 @@ namespace DuiLib {
 
         void ProcessScrollBar(SIZE szAvailable, int cxRequired, int cyRequired);
 
-        //bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
+        bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
 
         void SetAdapter(ListViewAdapter* adapter);
         // 设置列表头（多列分隔）

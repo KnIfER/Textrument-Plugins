@@ -72,7 +72,7 @@ public:
         return 10000000;
     }
 
-    CControlUI* CreateItemView()
+    CControlUI* CreateItemView(CControlUI* view, int type)
     {
         CControlUI* pRoot =  builder.Create(L"ListViewDemo_item_columns.xml", 0, 0, &m_pm);
 
