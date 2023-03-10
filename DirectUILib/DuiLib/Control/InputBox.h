@@ -92,6 +92,9 @@ namespace DuiLib
 		DWORD m_dwTipValueColor;
 		BOOL VCENTER; // only for single line text for now.
 		INT VCENTER_OFFSET;	
+
+		POINT m_ptLastMousePos;
+		INT _timeDblClick;
 	};
 }
 

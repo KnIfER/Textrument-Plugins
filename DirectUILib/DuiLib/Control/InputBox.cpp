@@ -372,6 +372,19 @@ namespace DuiLib
 			break;
 			case UIEVENT_BUTTONDOWN:
 				_manager->SetCapture();
+				if(_timeDblClick) {
+					if(_timeDblClick + GetDoubleClickTime() > GetMessageTime()
+						&& abs(m_ptLastMousePos.x - _manager->m_ptLastMousePos.x) < GetSystemMetrics(SM_CXDOUBLECLK)
+						&& abs(m_ptLastMousePos.y - _manager->m_ptLastMousePos.y) < GetSystemMetrics(SM_CYDOUBLECLK)
+						) {
+						EDIT_LockBuffer(infoPtr);
+						_SelectWholeLine(infoPtr);
+						EDIT_UnlockBuffer(infoPtr, false);
+						ShowCaretIfFocused(false);
+						break;
+					}
+					_timeDblClick = 0;
+				}
 				//__super::DoEvent(event);
 				EDIT_LockBuffer(infoPtr);
 				_LButtonDown(infoPtr, event.wParam, (short)LOWORD(event.lParam), (short)HIWORD(event.lParam));
@@ -395,6 +408,8 @@ namespace DuiLib
 			break;
 			case UIEVENT_DBLCLICK:
 				_manager->SetCapture();
+				_timeDblClick = GetMessageTime();
+				m_ptLastMousePos = _manager->m_ptLastMousePos;
 				_LButtonDblClk(infoPtr);
 				//if(IsEnabled()) GetManager()->ReleaseCapture();
 			break;

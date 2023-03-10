@@ -3563,6 +3563,23 @@ static LRESULT EDIT_WM_KillFocus(HTHEME theme, EDITSTATE *es)
     return 0;
 }
 
+LRESULT _SelectWholeLine(EDITSTATE *es)
+{
+	EDIT_EM_SetSel(es, 0, es->text_length, FALSE);
+	es->bCaptureState = TRUE;
+	if(!es->is_delegate) SetCapture(es->hwndSelf);
+	if (es->is_delegate)
+	{
+		tEditState = es;
+		_timerID = SetTimer(0, 0, TIMER_INTERVAL, (TIMERPROC)EDIT_TimerProc);
+	}
+	else
+	{
+		SetTimer(es->hwndSelf, 0, TIMER_INTERVAL, NULL);
+	}
+	EDIT_EM_ScrollCaretEx(es, es->text_length);
+	return 0;
+}
 
 /*********************************************************************
  *
@@ -3605,7 +3622,7 @@ LRESULT _LButtonDblClk(EDITSTATE *es)
 	EDIT_EM_SetSel(es, st, ed, FALSE);
 	//lxx(set sl dd dd, st, ed)
 	//lxx(set sl dd dd, es->selection_start, es->selection_end)
-	//EDIT_EM_ScrollCaret(es);
+	EDIT_EM_ScrollCaretEx(es, ed);
 	es->region_posx = es->region_posy = 0;
 	if (es->is_delegate)
 	{

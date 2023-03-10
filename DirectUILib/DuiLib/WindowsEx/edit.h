@@ -162,6 +162,8 @@ LRESULT _MouseWheel(EDITSTATE *es, WPARAM wParam, LPARAM lParam);
 
 LRESULT _KeyDown(EDITSTATE *es, INT key);
 
+LRESULT _SelectWholeLine(EDITSTATE *es);
+
 LRESULT _LButtonDblClk(EDITSTATE *es);
 
 void EDIT_WM_ContextMenu(EDITSTATE *es, INT x, INT y);
