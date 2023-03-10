@@ -81,7 +81,13 @@ namespace DuiLib {
             return _recyclePool;
         };
         void DoEvent(TEventUI& event);
+
+        void SelectItem(CControlUI* pRow, CControlUI* pControl);
         //void NeedUpdate();
+
+    public:
+        int _selPos, _selID;
+        CControlUI* _selControl;
     protected:
         ListViewAdapter* _adapter;
         CControlUI* m_HiddenItem;          // 用于计算每个列表项的尺寸

@@ -696,10 +696,10 @@ namespace DuiLib
 			if( (uFlags & UIFIND_HITTEST) == 0 || IsMouseEnabled() ) pResult = Proc(this, pData);
 		}
 		if( pResult == NULL && m_pVerticalScrollBar != NULL ) {
-			if( (uFlags & UIFIND_HITTEST) == 0 || IsMouseEnabled() ) pResult = m_pVerticalScrollBar->FindControl(Proc, pData, uFlags);
+			if( (uFlags & UIFIND_HITTEST) == 0 || IsMouseEnabled() ) pResult = m_pVerticalScrollBar->FindControl(Proc, pData, uFlags&~UIFIND_FOCUSABLE);
 		}
 		if( pResult == NULL && m_pHorizontalScrollBar != NULL ) {
-			if( (uFlags & UIFIND_HITTEST) == 0 || IsMouseEnabled() ) pResult = m_pHorizontalScrollBar->FindControl(Proc, pData, uFlags);
+			if( (uFlags & UIFIND_HITTEST) == 0 || IsMouseEnabled() ) pResult = m_pHorizontalScrollBar->FindControl(Proc, pData, uFlags&~UIFIND_FOCUSABLE);
 		}
 		if( pResult != NULL ) return pResult;
 
@@ -723,6 +723,8 @@ namespace DuiLib
 			}
 		}
 
+		//if( (uFlags & UIFIND_FOCUSABLE) != 0 && !m_bFocusable ) return NULL;
+		if( (uFlags & UIFIND_HITTEST) != 0 && !m_bMouseEnabled ) return NULL;
 		pResult = NULL;
 		if( pResult == NULL && (uFlags & UIFIND_ME_FIRST) == 0 ) {
 			if( (uFlags & UIFIND_HITTEST) == 0 || IsMouseEnabled() ) pResult = Proc(this, pData);

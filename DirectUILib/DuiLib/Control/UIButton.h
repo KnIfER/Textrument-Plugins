@@ -107,7 +107,6 @@ namespace DuiLib
 		DWORD m_dwDisabledBkColor;
 		DWORD m_dwHotTextColor;
 		DWORD m_dwPushedTextColor;
-		DWORD m_dwFocusedTextColor;
 
 		DWORD _focusedBkColor;
 		DWORD _focusedTextColor;

@@ -1895,11 +1895,11 @@ namespace DuiLib {
 					_TrackMouseEvent(&tme);
 					m_bMouseTracking = true;
 				}
+				// 是否移动
+				bool bNeedDrag = true;
 
 				// Generate the appropriate mouse messages
 				POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-				// 是否移动
-				bool bNeedDrag = true;
 				if(m_ptLastMousePos.x == pt.x && m_ptLastMousePos.y == pt.y) {
 					bNeedDrag = false;
 				}
@@ -2014,7 +2014,7 @@ namespace DuiLib {
 				// 查找控件
 				POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 				m_ptLastMousePos = pt;
-				CControlUI* pControl = FindControl(pt);
+				CControlUI* pControl = FindControlEx(pt, UIFIND_FOCUSABLE);
 				if( pControl == NULL ) break;
 				if( pControl->GetManager() != this ) break;
 
@@ -2105,7 +2105,7 @@ namespace DuiLib {
 				CControlUI* pControl = FindControl(pt);
 				if( pControl == NULL ) break;
 				if( pControl->GetManager() != this ) break;
-				pControl->SetFocus();
+				if(false) pControl->SetFocus();
 				SetCapture();
 				TEventUI event = { 0 };
 				event.Type = UIEVENT_RBUTTONDOWN;
@@ -2147,7 +2147,7 @@ namespace DuiLib {
 				CControlUI* pControl = FindControl(pt);
 				if( pControl == NULL ) break;
 				if( pControl->GetManager() != this ) break;
-				pControl->SetFocus();
+				if(false) pControl->SetFocus();
 				SetCapture();
 				TEventUI event = { 0 };
 				event.Type = UIEVENT_MBUTTONDOWN;
@@ -4317,7 +4317,13 @@ namespace DuiLib {
 	CControlUI* CPaintManagerUI::FindControl(POINT pt) const
 	{
 		ASSERT(m_pRoot);
-		return m_pRoot->FindControl(__FindControlFromPoint, &pt, UIFIND_VISIBLE | UIFIND_HITTEST | UIFIND_TOP_FIRST);
+		return m_pRoot->FindControl(__FindControlFromPoint, &pt, UIFIND_VISIBLE | UIFIND_HITTEST | UIFIND_TOP_FIRST | UIFIND_FOCUSABLE);
+	}
+	
+	CControlUI* CPaintManagerUI::FindControlEx(POINT pt, UINT flag) const
+	{
+		ASSERT(m_pRoot);
+		return m_pRoot->FindControl(__FindControlFromPoint, &pt, UIFIND_VISIBLE | UIFIND_HITTEST | UIFIND_TOP_FIRST | flag);
 	}
 
 	CControlUI* CPaintManagerUI::FindControl(LPCTSTR pstrName) const

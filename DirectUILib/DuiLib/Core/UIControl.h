@@ -106,6 +106,8 @@ namespace DuiLib {
 		bool IsRichEvent() const; // Notify Mouse Enter, Mouse Leave, Button Down.
 		void SetRichEvent(bool bEnable); // Notify Mouse Enter, Mouse Leave, Button Down.
 
+		void SetHot(bool val);
+
 		// 图形相关
 		LPCTSTR GetGradient();
 		void SetGradient(LPCTSTR pStrImage);
@@ -355,6 +357,8 @@ namespace DuiLib {
 		int _marked;
 		LONG_FLAG _view_states;
 
+		UINT m_uButtonState;
+
 		TDrawInfo m_tBkImage;
 		TDrawInfo m_tForeImage;	
 
@@ -436,8 +440,6 @@ namespace DuiLib {
 		DWORD m_dwBackColor2;
 		DWORD m_dwBackColor3;
 		DWORD m_dwForeColor;
-
-		UINT m_uButtonState;
 
 
 		// 0=zero_sized; 1=even_sized; 2=hetero_sized

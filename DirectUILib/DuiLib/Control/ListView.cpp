@@ -63,8 +63,12 @@ namespace DuiLib {
         , _scrollOffsetY(0)
         , _heteroHeight(false)
         , _headerView(nullptr)
+        , _selPos(-1)
+        , _selID(-1)
     {
         _bUseSmoothScroll = true;
+
+        m_uButtonState |= UISTATE_CLICKNOTIFY;
 
         // 列表配置
         m_ListInfo.nColumns = 0;
@@ -401,6 +405,7 @@ namespace DuiLib {
 
             // PostUpdate
             //SetTimer(0x112, 10, true);
+            //SetTimer(0x80, 10, false);
         }
     }
 
@@ -637,7 +642,12 @@ namespace DuiLib {
         return {cxFixed, cyFixed};
     }
     HWND _hLeeverse=0;
-    void ListView::SetPos(RECT rc, bool bNeedInvalidate) {
+    void ListView::SetPos(RECT rc, bool bNeedInvalidate) 
+    {
+        bool hot = _manager->m_pEventHover && ::PtInRect(&m_rcItem, _manager->m_ptLastMousePos);
+        if(hot) {
+            _manager->m_pEventHover->SetHot(false);
+        }
         if (!_hLeeverse && _hParent)
         {
             regWndClassInVisible(L"InVisible", CS_HREDRAW | CS_VREDRAW);
@@ -772,6 +782,7 @@ namespace DuiLib {
             m_items.Add(pControl);
             if (!resued)
             {
+                pControl->m_bFocused_NO;
                 _adapter->OnBindItemView(pControl, _scrollPositionY + index);
             }
 
@@ -787,6 +798,16 @@ namespace DuiLib {
             {
                 pControl->SetPos({ rc.left, top, rc.right, top + estSz.cy }, false);
             }
+            bool chHot = false;
+            if(hot) { //  && pControl->IsRichEvent()
+                chHot = ::PtInRect(&pControl->GetPos(), _manager->m_ptLastMousePos);
+                if(chHot) {
+                    hot = false;
+                    //_manager->m_pEventHover = pControl;
+                }
+            }
+            pControl->SetHot(chHot);
+            //pControl->m_bFocused_NO;
             //LogIs("ListView::子项高度计算@%d::%d", _scrollPositionY + index, estSz.cy);
 
             top += estSz.cy;
@@ -1000,6 +1021,18 @@ namespace DuiLib {
     }
 
 
+    void ListView::SelectItem(CControlUI* pRow, CControlUI* pControl)
+    {
+        _selPos = _selID = -1;
+        for (size_t i = 0; i < m_items.GetSize(); i++)
+        {
+            if(m_items[i]==pRow) {
+                _selPos = _scrollPositionY+i;
+                break;
+            }
+        }
+        _selControl = pControl;
+    }
 }
 
 #endif

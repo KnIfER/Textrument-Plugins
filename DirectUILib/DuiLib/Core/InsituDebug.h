@@ -20,6 +20,14 @@ void LogIs(const CHAR* msg, ...);
 
 #define xLogTo(LABEL, ...) LogIs(2|0x20, ""#LABEL"", ##__VA_ARGS__);
 
+#define lxx xLogTo
+
+#define lxxW xLogToW
+
+#define lzz LogTo
+
+#define lzzW LogToW
+
 #define pLogTo(msg) LogIs(1|0x10|0x20, msg);
 
 #define xpLogTo(msg) LogIs(2|0x10|0x20, msg);

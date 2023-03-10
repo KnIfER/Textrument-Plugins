@@ -323,6 +323,15 @@ namespace DuiLib {
 		return m_bRichEvent;
 	}
 
+	void CControlUI::SetHot(bool val)
+	{
+		if((m_uButtonState&UISTATE_HOT) != val)
+		{
+			m_uButtonState &= ~UISTATE_HOT;
+			if(val) m_uButtonState |= UISTATE_HOT;
+		}
+	}
+
 	void CControlUI::SetRichEvent(bool bEnable)
 	{
 		VIEWSTATEMASK_APPLY(VIEWSTATEMASK_RichEvent, bEnable);
@@ -1104,7 +1113,7 @@ namespace DuiLib {
 				}
 			}
 		}
-		
+
 		if( (uFlags & UIFIND_HITTEST) != 0 && (!m_bMouseEnabled || !::PtInRect(&m_rcItem, * static_cast<LPPOINT>(pData))) ) return NULL;
 		return Proc(this, pData);
 	}
@@ -1243,6 +1252,11 @@ namespace DuiLib {
 		}
 		if( event.Type == UIEVENT_TIMER )
 		{
+			if(event.wParam==0x80) {
+				PostMessage(_manager->GetPaintWindow(), WM_MOUSEMOVE, 0, MAKELONG(_manager->m_ptLastMousePos.x, _manager->m_ptLastMousePos.y));
+				KillTimer(event.wParam);
+				return;
+			}
 			_manager->SendNotify(this, DUI_MSGTYPE_TIMER, event.wParam, event.lParam);
 			return;
 		}
@@ -2098,6 +2112,10 @@ namespace DuiLib {
 		if (_manager && ret && _manager->_bIsLayoutOnly)
 		{
 			SetPos(m_rcItem);
+		}
+		if(!m_bIsViewGroup) {
+			pControl->_view_states &= ~VIEWSTATEMASK_Focusable;
+			pControl->_view_states &= ~VIEWSTATEMASK_MouseEnabled;
 		}
 		return ret;   
 	}

@@ -15,7 +15,6 @@ namespace DuiLib
 		, m_iFocusedFont(-1)
 		, m_dwHotTextColor(0)
 		, m_dwPushedTextColor(0)
-		, m_dwFocusedTextColor(0)
 		, m_dwHotBkColor(0)
 		, _focusedBkColor(0)
 		, _focusedTextColor(0)
@@ -295,12 +294,12 @@ namespace DuiLib
 
 	void Button::SetFocusedTextColor(DWORD dwColor)
 	{
-		m_dwFocusedTextColor = dwColor;
+		_focusedTextColor = dwColor;
 	}
 
 	DWORD Button::GetFocusedTextColor() const
 	{
-		return m_dwFocusedTextColor;
+		return _focusedTextColor;
 	}
 
 
@@ -388,10 +387,12 @@ namespace DuiLib
 		else if( _tcsicmp(pstrName, _T("focusbkcolor")) == 0 )
 		{
 			STR2ARGB(pstrValue, _focusedBkColor);
+			_view_states |= VIEWSTATEMASK_RedrawOnFocusChanged;
 		}
 		else if( _tcsicmp(pstrName, _T("focustextcolor")) == 0 )
 		{
 			STR2ARGB(pstrValue, _focusedTextColor);
+			_view_states |= VIEWSTATEMASK_RedrawOnFocusChanged;
 		}
 		else if( _tcsicmp(pstrName, _T("hotbkcolor")) == 0 )
 		{
@@ -422,12 +423,6 @@ namespace DuiLib
 			DWORD clrColor;
 			STR2ARGB(pstrValue, clrColor);
 			SetPushedTextColor(clrColor);
-		}
-		else if( _tcsicmp(pstrName, _T("focusedtextcolor")) == 0 )
-		{
-			DWORD clrColor;
-			STR2ARGB(pstrValue, clrColor);
-			SetFocusedTextColor(clrColor);
 		}
 		else if( _tcsicmp(pstrName, _T("hotfont")) == 0 ) SetHotFont(_ttoi(pstrValue));
 		else if( _tcsicmp(pstrName, _T("hottrack")) == 0 ) SetHotTack(_tcsicmp(pstrValue, _T("true")));

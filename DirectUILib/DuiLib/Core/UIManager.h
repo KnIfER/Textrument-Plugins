@@ -192,6 +192,7 @@ namespace DuiLib {
 #define UIFIND_HITTEST       0x00000004
 #define UIFIND_UPDATETEST    0x00000008
 #define UIFIND_TOP_FIRST     0x00000010
+#define UIFIND_FOCUSABLE     0x00000020
 #define UIFIND_ME_FIRST      0x80000000
 
 	// Flags used for controlling the paint
@@ -202,6 +203,8 @@ namespace DuiLib {
 #define UISTATE_PUSHED       0x00000010
 #define UISTATE_READONLY     0x00000020
 #define UISTATE_CAPTURED     0x00000040
+
+#define UISTATE_CLICKNOTIFY     0x00000080
 
 	typedef struct _StyleDefine
 	{
@@ -577,6 +580,7 @@ namespace DuiLib {
 
 		CControlUI* GetRoot() const;
 		CControlUI* FindControl(POINT pt) const;
+		CControlUI* FindControlEx(POINT pt, UINT flag) const;
 		CControlUI* FindControl(LPCTSTR pstrName) const;
 		CControlUI* FindSubControlByPoint(CControlUI* pParent, POINT pt) const;
 		CControlUI* FindSubControlByName(CControlUI* pParent, LPCTSTR pstrName) const;
@@ -631,6 +635,8 @@ namespace DuiLib {
 
 		POINT m_ptLastMousePos;
 
+		CControlUI* m_pEventHover;
+
 		TResInfo m_ResInfo;
 		static TResInfo m_SharedResInfo;
 	private:
@@ -671,7 +677,6 @@ namespace DuiLib {
 		//
 		CControlUI* m_pRoot;
 		CControlUI* m_pFocus;
-		CControlUI* m_pEventHover;
 		CControlUI* m_pEventClick;
 		CControlUI* m_pEventKey;
 		CControlUI* m_pLastToolTip;
