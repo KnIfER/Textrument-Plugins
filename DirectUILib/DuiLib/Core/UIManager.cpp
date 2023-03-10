@@ -2038,7 +2038,7 @@ namespace DuiLib {
 				{
 					ReleaseCapture();
 					::SendMessage(GetRealManager()->GetPaintWindow(), WM_SYSCOMMAND, SC_MOVE | HTCAPTION, 0);
-					//::SetFocus(GetRealManager()->GetPaintWindow());
+					::SetFocus(GetRealManager()->GetPaintWindow());
 				}
 
 				TEventUI event = { 0 };
