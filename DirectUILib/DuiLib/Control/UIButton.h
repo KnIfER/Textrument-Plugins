@@ -109,6 +109,9 @@ namespace DuiLib
 		DWORD m_dwPushedTextColor;
 		DWORD m_dwFocusedTextColor;
 
+		DWORD _focusedBkColor;
+		DWORD _focusedTextColor;
+
 		//QkString m_sNormalImage;
 		//QkString m_sHotImage;
 		//QkString m_sHotForeImage;

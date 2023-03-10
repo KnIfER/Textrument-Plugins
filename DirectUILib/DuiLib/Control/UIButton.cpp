@@ -17,6 +17,8 @@ namespace DuiLib
 		, m_dwPushedTextColor(0)
 		, m_dwFocusedTextColor(0)
 		, m_dwHotBkColor(0)
+		, _focusedBkColor(0)
+		, _focusedTextColor(0)
 		, m_dwPushedBkColor(0)
 		, m_dwDisabledBkColor(0)
 		, m_iBindTabIndex(-1)
@@ -383,6 +385,14 @@ namespace DuiLib
 		else if( _tcsicmp(pstrName, _T("bindtablayoutname")) == 0 ) BindTabLayoutName(pstrValue);
 		else if( _tcsicmp(pstrName, _T("type")) == 0 ) SetType(pstrValue);
 		else if( _tcsicmp(pstrName, _T("note")) == 0 ) SetNote(pstrValue);
+		else if( _tcsicmp(pstrName, _T("focusbkcolor")) == 0 )
+		{
+			STR2ARGB(pstrValue, _focusedBkColor);
+		}
+		else if( _tcsicmp(pstrName, _T("focustextcolor")) == 0 )
+		{
+			STR2ARGB(pstrValue, _focusedTextColor);
+		}
 		else if( _tcsicmp(pstrName, _T("hotbkcolor")) == 0 )
 		{
 			DWORD clrColor;
@@ -593,7 +603,9 @@ namespace DuiLib
 
 		DWORD clrColor = IsEnabled()?m_dwTextColor:m_dwDisabledTextColor;
 		
-		if( ((m_uButtonState & UISTATE_PUSHED) != 0) && (GetPushedTextColor() != 0) )
+		if( m_bFocused && (_focusedTextColor != 0) )
+			clrColor = _focusedTextColor;
+		else if( ((m_uButtonState & UISTATE_PUSHED) != 0) && (GetPushedTextColor() != 0) )
 			clrColor = GetPushedTextColor();
 		else if( ((m_uButtonState & UISTATE_HOT) != 0) && (GetHotTextColor() != 0) )
 			clrColor = GetHotTextColor();
@@ -618,7 +630,11 @@ namespace DuiLib
 
 	void Button::GetBkFillColor(DWORD & color)
 	{
-		if( (m_uButtonState & UISTATE_DISABLED) != 0 ) 
+		if(m_bFocused) 
+		{
+			if(_focusedBkColor) color = _focusedBkColor;
+		}
+		else if( (m_uButtonState & UISTATE_DISABLED) != 0 ) 
 		{
 			if(m_dwDisabledBkColor) color = m_dwDisabledBkColor;
 		}
