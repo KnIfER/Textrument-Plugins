@@ -125,6 +125,9 @@ typedef struct _EDIT_STATE
 
 	const bool * clip_texts;
 	Listener _listener;
+
+	INT inflatedSt=-1;
+	INT inflatedEd=-1;
 } EDITSTATE;
 
 namespace Edit{

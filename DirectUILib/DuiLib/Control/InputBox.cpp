@@ -377,7 +377,7 @@ namespace DuiLib
 				_LButtonDown(infoPtr, event.wParam, (short)LOWORD(event.lParam), (short)HIWORD(event.lParam));
 				EDIT_UnlockBuffer(infoPtr, false);
 				ShowCaretIfFocused(false);
-				if(IsEnabled()) _manager->ReleaseCapture();
+				//if(IsEnabled()) _manager->ReleaseCapture();
 			break;
 			case UIEVENT_BUTTONUP:
 				_manager->ReleaseCapture();
@@ -396,7 +396,7 @@ namespace DuiLib
 			case UIEVENT_DBLCLICK:
 				_manager->SetCapture();
 				_LButtonDblClk(infoPtr);
-				if(IsEnabled()) GetManager()->ReleaseCapture();
+				//if(IsEnabled()) GetManager()->ReleaseCapture();
 			break;
 			case UIEVENT_CONTEXTMENU:
 				EDIT_WM_ContextMenu(infoPtr, (short)LOWORD(event.lParam), (short)HIWORD(event.lParam));

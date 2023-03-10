@@ -59,6 +59,8 @@ namespace Edit{
 #define SWAP_UINT32(x,y) do { UINT temp = (UINT)(x); (x) = (UINT)(y); (y) = temp; } while(0)
 #define ORDER_UINT(x,y) do { if ((UINT)(y) < (UINT)(x)) SWAP_UINT32((x),(y)); } while(0)
 
+#define TIMER_INTERVAL 64
+
 	static HWND hDelegate = 0;
 	static UINT_PTR _timerID;
 	static EDITSTATE* tEditState = nullptr;
@@ -135,6 +137,7 @@ static INT EDIT_WordBreakProc(EDITSTATE *es, LPWSTR s, INT index, INT count, INT
     INT ret = 0;
 
     //TRACE("EDIT_WordBreakProc::s=%p, index=%d, count=%d, action=%d\n", s, index, count, action);
+	//lxx(123)
 
     if(!s) return 0;
 
@@ -1730,7 +1733,9 @@ void EDIT_SetCaretPos(EDITSTATE *es, INT pos, BOOL after_wrap)
  *	EM_SCROLLCARET
  *
  */
-static void EDIT_EM_ScrollCaret(EDITSTATE *es)
+#define EDIT_EM_ScrollCaret(es) EDIT_EM_ScrollCaretEx(es, es->selection_end)
+
+static void EDIT_EM_ScrollCaretEx(EDITSTATE *es, INT selection_end)
 {
 	if (es->style & ES_MULTILINE) 
 	{
@@ -1742,8 +1747,8 @@ static void EDIT_EM_ScrollCaret(EDITSTATE *es)
 		INT dy = 0;
 		INT dx = 0;
 
-		l = EDIT_EM_LineFromChar(es, es->selection_end);
-		x = (short)LOWORD(EDIT_EM_PosFromChar(es, es->selection_end, es->flags & EF_AFTER_WRAP));
+		l = EDIT_EM_LineFromChar(es, selection_end);
+		x = (short)LOWORD(EDIT_EM_PosFromChar(es, selection_end, es->flags & EF_AFTER_WRAP));
 		vlc = get_vertical_line_count(es);
 		if (l >= es->y_offset + vlc)
 			dy = l - vlc + 1 - es->y_offset;
@@ -1769,14 +1774,14 @@ static void EDIT_EM_ScrollCaret(EDITSTATE *es)
 		INT goal;
 		INT format_width;
 
-		x = (short)LOWORD(EDIT_EM_PosFromChar(es, es->selection_end, FALSE));
+		x = (short)LOWORD(EDIT_EM_PosFromChar(es, selection_end, FALSE));
 		//TRACE("_ScrollCaret::x=%d\n", x);
 		format_width = es->format_rect.right - es->format_rect.left;
 		if (x < es->format_rect.left) {
 			goal = es->format_rect.left + format_width / HSCROLL_FRACTION;
 			do {
 				es->x_offset--;
-				x = (short)LOWORD(EDIT_EM_PosFromChar(es, es->selection_end, FALSE));
+				x = (short)LOWORD(EDIT_EM_PosFromChar(es, selection_end, FALSE));
 			} while ((x < goal) && es->x_offset);
 			/* FIXME: use ScrollWindow() somehow to improve performance */
 			EDIT_UpdateText(es, NULL, TRUE);
@@ -1786,7 +1791,7 @@ static void EDIT_EM_ScrollCaret(EDITSTATE *es)
 			goal = es->format_rect.right - format_width / HSCROLL_FRACTION;
 			do {
 				es->x_offset++;
-				x = (short)LOWORD(EDIT_EM_PosFromChar(es, es->selection_end, FALSE));
+				x = (short)LOWORD(EDIT_EM_PosFromChar(es, selection_end, FALSE));
 				x_last = (short)LOWORD(EDIT_EM_PosFromChar(es, len, FALSE));
 			} while ((x > goal) && (x_last > es->format_rect.right));
 			/* FIXME: use ScrollWindow() somehow to improve performance */
@@ -1794,7 +1799,7 @@ static void EDIT_EM_ScrollCaret(EDITSTATE *es)
 		}
 	}
 
-	EDIT_SetCaretPos(es, es->selection_end, es->flags & EF_AFTER_WRAP);
+	EDIT_SetCaretPos(es, selection_end, es->flags & EF_AFTER_WRAP);
 }
 
 
@@ -1822,6 +1827,16 @@ void EDIT_MoveBackward(EDITSTATE *es, BOOL extend, BOOL fromTimer)
 					ed--;
 			}
 		}
+	}
+	if(es->inflatedSt >= 0) {
+		if(ed <= es->inflatedSt) { // moify selection left
+			EDIT_EM_SetSel(es, ed, es->inflatedEd, FALSE);
+		}
+		if(ed >= es->inflatedEd) { // moify selection right
+			EDIT_EM_SetSel(es, es->inflatedSt, ed, FALSE);
+		}
+		EDIT_EM_ScrollCaretEx(es, ed);
+		return;
 	}
 	EDIT_EM_SetSel(es, extend ? es->selection_start : ed, ed, FALSE);
 	EDIT_EM_ScrollCaret(es);
@@ -3570,23 +3585,36 @@ LRESULT _LButtonDblClk(EDITSTATE *es)
 	l = EDIT_EM_LineFromChar(es, ed);
 	li = EDIT_EM_LineIndex(es, l);
 	ll = EDIT_EM_LineLength(es, ed);
+
+	bool f0 = ed>=0 && es->text[ed-1]==' ';
+	bool f1 = es->text[ed]==' ';
+	//if(f0 || f1)lxx(123);
+	if(!f1 && f0) { // 调整left start, 避免"点不准"
+		ed++;
+	}
+	//INT leftTex, rightTex; suan le
+
 	st = li + EDIT_CallWordBreakProc(es, li, ed - li, ll, WB_LEFT);
 	ed = li + EDIT_CallWordBreakProc(es, li, ed - li, ll, WB_RIGHT);
 	while(ed>st && es->text[ed-1]==' ')
 	{
 		ed--;
 	}
+	es->inflatedSt = st;
+	es->inflatedEd = ed;
 	EDIT_EM_SetSel(es, st, ed, FALSE);
-	EDIT_EM_ScrollCaret(es);
+	//lxx(set sl dd dd, st, ed)
+	//lxx(set sl dd dd, es->selection_start, es->selection_end)
+	//EDIT_EM_ScrollCaret(es);
 	es->region_posx = es->region_posy = 0;
 	if (es->is_delegate)
 	{
 		tEditState = es;
-		_timerID = SetTimer(0, 0, 100, (TIMERPROC)EDIT_TimerProc);
+		_timerID = SetTimer(0, 0, TIMER_INTERVAL, (TIMERPROC)EDIT_TimerProc);
 	}
 	else
 	{
-		SetTimer(es->hwndSelf, 0, 100, NULL);
+		SetTimer(es->hwndSelf, 0, TIMER_INTERVAL, NULL);
 	}
 	return 0;
 }
@@ -3612,11 +3640,11 @@ LRESULT _LButtonDown(EDITSTATE *es, DWORD keys, INT x, INT y)
 	if (es->is_delegate)
 	{
 		tEditState = es;
-		_timerID = SetTimer(0, 0, 90, (TIMERPROC)EDIT_TimerProc);
+		_timerID = SetTimer(0, 0, TIMER_INTERVAL, (TIMERPROC)EDIT_TimerProc);
 	}
 	else
 	{
-		SetTimer(es->hwndSelf, 0, 100, NULL);
+		SetTimer(es->hwndSelf, 0, TIMER_INTERVAL, NULL);
 	}
 
 	if (!es->is_delegate && !(es->flags & EF_FOCUSED))
@@ -3648,6 +3676,7 @@ LRESULT _LButtonUp(EDITSTATE *es)
 		if(es->is_delegate) tEditState = nullptr;
 		if (GetCapture() == es->hwndSelf) ReleaseCapture();
 	}
+	es->inflatedSt = -1;
 	es->bCaptureState = FALSE;
 	return 0;
 }
@@ -3675,10 +3704,10 @@ LRESULT _MouseMove(EDITSTATE *es, INT x, INT y)
 	INT ed;
 	BOOL after_wrap;
 	es->prex = x, es->prey = y;
+	//lxx(:T:X _MouseMove::);
 
     /* If the mouse has been captured by process other than the edit control itself,
-        * the windows edit controls will not select the strings with mouse move.
-        */
+		the windows edit controls will not select the strings with mouse move. */
     if (!es->is_delegate && (!es->bCaptureState || GetCapture() != es->hwndSelf))
 		return 0;
 
@@ -3690,6 +3719,20 @@ LRESULT _MouseMove(EDITSTATE *es, INT x, INT y)
 	es->region_posx = (es->prex < x) ? -1 : ((es->prex > x) ? 1 : 0); // sign(es->prex-x)
 	es->region_posy = (es->prey < y) ? -1 : ((es->prey > y) ? 1 : 0); // sign(es->prey-y)
 	ed = EDIT_CharFromPos(es, x, y, &after_wrap);
+
+	if (es->inflatedSt >= 0) {
+		// 双击后，以单词分隔为单位修改选区域。suan le ba
+		if(ed <= es->inflatedSt) { // moify selection left
+			EDIT_EM_SetSel(es, ed, es->inflatedEd, after_wrap);
+			EDIT_SetCaretPos(es,ed,es->flags & EF_AFTER_WRAP);
+		}
+		if(ed >= es->inflatedEd) { // moify selection right
+			EDIT_EM_SetSel(es, es->inflatedSt, ed, after_wrap);
+			EDIT_SetCaretPos(es,ed,es->flags & EF_AFTER_WRAP);
+		}
+		return 0;
+	}
+
 	//TRACE("_MouseMove_SetSel::x=%d, y=%d\n", x, y);
 	EDIT_EM_SetSel(es, es->selection_start, ed, after_wrap);
 	EDIT_SetCaretPos(es,es->selection_end,es->flags & EF_AFTER_WRAP);

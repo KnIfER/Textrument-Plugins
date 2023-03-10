@@ -66,7 +66,7 @@ inline void printStackTrace(){
 	//dbg::dostream as;
 	using namespace backward;
 	StackTrace st; st.load_here(defStackLevel);
-	st.skip_n_firsts(3);
+	st.skip_n_firsts(4);
 	Printer p;
 	std::stringstream stream;
 	stream.clear();
@@ -82,6 +82,33 @@ inline void printStackTrace(){
 	//cout << c_str << endl;
 }
 
+void* TweakPrintParms(QkString & tmp, int & show, string * buffer1){
+	if(tmp.GetLength()==0) {
+		show |= 0x10;
+		return 0;
+	}
+	tmp.Replace(L"ddl", L"%ld");
+	tmp.Replace(L"dd", L"%d");
+	tmp.Replace(L"ff2", L"%.2f");
+	tmp.Replace(L"ff1", L"%.1f");
+	tmp.Replace(L"ff", L"%f");
+	tmp.Replace(L"rcrc", L"%d %d %d %d");
+	tmp.Replace(L"ss", L"%s");
+	if(tmp.Replace(L":T", L"")>0) {
+		show |= 0x4;
+	}
+	if(tmp.Replace(L":P", L"")>0) {
+		show |= 0x2;
+	}
+	if(tmp.Replace(L":X", L"")>0) {
+		show &= ~0x2;
+		show |= 0x1;
+	}
+	if(buffer1)
+		return (void*)tmp.GetData(*buffer1);
+	return (void*)tmp.GetData();
+}
+
 // flag show :: 0x1 -- log to output. 0x2 -- toast message window. 0x4 -- print stacktrace. 0x10 -- print msg directly. 0x20 -- simlplify format
 void LogIs(int show, HWND hWnd, const TCHAR* msg, va_list & args)
 {
@@ -91,28 +118,25 @@ void LogIs(int show, HWND hWnd, const TCHAR* msg, va_list & args)
 	TCHAR* pBuffer = buffer;
 	QkString tmp;
 	int ret;
+	if(show&0x20) {
+		tmp = msg;
+		msg = (const TCHAR*)TweakPrintParms(tmp, show, 0);
+	}
 	if(show&0x10) {
-		pBuffer = (TCHAR*)msg;
+		if(!msg) {
+			pBuffer = va_arg(args, TCHAR*);
+		} else {
+			pBuffer = (TCHAR*)msg;
+		}
 		ret = lstrlen(pBuffer);
 	} else {
-		if(show&0x20) {
-			QkString tmp = msg;
-			tmp.Replace(L"ddl", L"%ld");
-			tmp.Replace(L"dd", L"%d");
-			tmp.Replace(L"ff2", L"%.2f");
-			tmp.Replace(L"ff1", L"%.1f");
-			tmp.Replace(L"ff", L"%f");
-			tmp.Replace(L"rcrc", L"%d %d %d %d");
-			tmp.Replace(L"ss", L"%s");
-			msg = (const TCHAR*)tmp.GetData();
-		}
 		// https://docs.microsoft.com/en-us/windows/win32/api/strsafe/nf-strsafe-stringcchvprintfw
 		ret = StringCchVPrintfW(buffer, 512, msg, args); 
 	}
 	if (SUCCEEDED(ret))
 	{
 		bool bNeedLF=pBuffer[ret-1]!='\n';
-		if (show&0x1)
+		if (show&0x1 || show&0x4)
 		{
 			::OutputDebugString(pBuffer);
 			if (bNeedLF)
@@ -158,28 +182,25 @@ void LogIs(int show, HWND hWnd, const CHAR* msg, va_list & args)
 	CHAR* pBuffer = buffer;
 	int ret;
 	string buffer1;
+	if(show&0x20) {
+		QkString tmp = msg;
+		msg = (const CHAR*)TweakPrintParms(tmp, show, &buffer1);
+	}
 	if(show&0x10) {
-		pBuffer = (CHAR*)msg;
+		if(!msg) {
+			pBuffer = va_arg(args, CHAR*);
+		} else {
+			pBuffer = (CHAR*)msg;
+		}
 		ret = strlen(pBuffer);
 	} else {
-		if(show&0x20) {
-			QkString tmp = msg;
-			tmp.Replace(L"ddl", L"%ld");
-			tmp.Replace(L"dd", L"%d");
-			tmp.Replace(L"ff2", L"%.2f");
-			tmp.Replace(L"ff1", L"%.1f");
-			tmp.Replace(L"ff", L"%f");
-			tmp.Replace(L"rcrc", L"%d %d %d %d");
-			tmp.Replace(L"ss", L"%s");
-			msg = (const CHAR*)tmp.GetData(buffer1);
-		}
 		// https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/vsprintf-s-vsprintf-s-l-vswprintf-s-vswprintf-s-l?view=msvc-160
 		ret = vsprintf_s(buffer, msg, args);  // negative if an output error occurs.
 	}
 	if (ret>0)
 	{
 		bool bNeedLF=pBuffer[ret-1]!='\n';
-		if (show&0x1)
+		if (show&0x1 || show&0x4)
 		{
 			::OutputDebugStringA(pBuffer);
 			if (bNeedLF)
