@@ -192,7 +192,7 @@ const LONG_FLAG VIEWSTATEMASK_IsStatic      =   0x1LL<<36;
 #define m_bIsViewGroup             (_view_states&VIEWSTATEMASK_IsViewGroup)
 #define m_bAutoDestroy             (_view_states&VIEWSTATEMASK_AutoDestroy)
 #define m_bDelayedDestroy          (_view_states&VIEWSTATEMASK_DelayedDestroy)
-#define m_bUpdateNeeded            (_view_states&VIEWSTATEMASK_UpdateNeeded)
+#define m_bUpdateNeeded            _view_states&VIEWSTATEMASK_UpdateNeeded
 #define m_bEnabledEffect           (_view_states&VIEWSTATEMASK_EnabledEffect)
 #define m_bFloat                   (_view_states&VIEWSTATEMASK_Float)
 #define m_bResourceText            (_view_states&VIEWSTATEMASK_ResourceText)

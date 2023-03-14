@@ -61,7 +61,9 @@ public:
 
             pList->SetAdapter(this);
 
-            pList->SetHeaderView(builder.Create(L"ListViewDemo_ListHeader.xml", 0, 0, &m_pm));
+            //pList->SetAttribute("", "false");
+
+            //pList->SetHeaderView(builder.Create(L"ListViewDemo_ListHeader.xml", 0, 0, &m_pm));
 
         }
     }
@@ -74,6 +76,7 @@ public:
 
     CControlUI* CreateItemView(CControlUI* view, int type)
     {
+        lxx(:T:X 123)
         CControlUI* pRoot =  builder.Create(L"ListViewDemo_item_columns.xml", 0, 0, &m_pm);
 
         if (pRoot == NULL) {
@@ -95,17 +98,17 @@ public:
 
     void OnBindItemView(CControlUI* view, size_t index)
     {
-        CHorizontalLayoutUI* horLayout = dynamic_cast<CHorizontalLayoutUI*>(view);
+        //CHorizontalLayoutUI* horLayout = dynamic_cast<CHorizontalLayoutUI*>(view);
 
-        if (horLayout)
-        {
-            CControlUI* control = horLayout->GetItemAt(0);
-            QkString & label = control->GetText();
-            label.AsBuffer();
-            label.Format(L"当前是第：\r\n%d\r\n行", index);
-            label = L"asdasd\r\nasdads\r\n";
-            control->Invalidate();
-        }
+        //if (horLayout)
+        //{
+        //    CControlUI* control = horLayout->GetItemAt(0);
+        //    QkString & label = control->GetText();
+        //    //label.AsBuffer();
+        //    //label.Format(L"当前是第：\r\n%d\r\n行", index);
+        //   // label = L"asdasd\r\nasdads\r\n";
+        //    control->Invalidate();
+        //}
     }
 
     QkString GetSkinFile() override

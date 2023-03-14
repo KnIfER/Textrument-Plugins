@@ -256,6 +256,7 @@ namespace DuiLib {
 		void NeedUpdate();
 		// Request parent update
 		void NeedParentUpdate();
+		bool ParentNeedUpdate();
 		// Request parent update. If the parent's measurement depends on the children,
 		//	Propagate to ascendents. see RichEdit.
 		void NeedParentAutoUpdate();

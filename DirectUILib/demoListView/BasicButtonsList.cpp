@@ -82,7 +82,14 @@ public:
 
     CControlUI* CreateItemView(CControlUI* view, int type)
     {
-        return builder.Create(L"ListViewDemo_item.xml", 0, 0, &m_pm);
+        lxx(:T:X 123)
+        auto ret = builder.Create(L"ListViewDemo_item.xml", 0, 0, &m_pm);
+        QkString & label = ret->GetText();
+        label.Append(L"\n\n");
+        label.Format(L"btn #%d", type);
+        label.Append(L"\n\n");
+        ret->SetText(label);
+        return ret;
         //return ((Button*)viewTemplate)->Duplicate();
     }
 

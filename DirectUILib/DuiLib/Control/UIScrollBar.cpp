@@ -671,6 +671,7 @@ namespace DuiLib
 			m_nScrollRepeatDelay = 0;
 			m_nLastScrollOffset = 0;
 			_lastMouseBias = 0;
+			if(!_manager->GetRealManager()->_hackTimer)
 			KillTimer(DEFAULT_TIMERID);
 
 			if( m_uThumbState & UISTATE_CAPTURED ) {

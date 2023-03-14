@@ -626,11 +626,12 @@ namespace DuiLib {
 		bool _inflaing;
 		bool _bIsLayoutOnly = false;
 		bool _bIsWinFrame = false;
+		bool _hackTimer = false;
 
 		static HCURSOR hCursorArrow;
 		static HCURSOR hCursorHand;
 
-		std::list<CControlUI*> _UpdateList;
+		CStdPtrArray _UpdateList;
 		std::list<CControlUI*> _WNDList;
 
 		POINT m_ptLastMousePos;

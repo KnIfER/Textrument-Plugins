@@ -18,6 +18,7 @@
 #include <vector>
 #include <string>
 #include <list>
+#include <forward_list>
 #include <set>
 
 #define m_bAutoCalcWidth            (m_cxyFixed.cx==-2)

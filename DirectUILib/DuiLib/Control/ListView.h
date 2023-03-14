@@ -72,14 +72,16 @@ namespace DuiLib {
         // see ListView::Add，添加类表头时，忽略 |iIndex|
         bool AddAt(CControlUI* pControl, int iIndex) override;
 
-        void SetReferenceItemView(CControlUI* view)
-        {  
-            m_HiddenItem = view;
-        }; 
+        void SetReferenceItemView(CControlUI* view);
+        CControlUI* GetReferenceItemView();
 
-        CStdPtrArray & GetRecyclePool() {  
-            return _recyclePool;
-        };
+        void SetItemHeight(int val);
+        int GetItemHeight();
+        void SetItemHeightPercent(float val);
+        float GetItemHeightPercent();
+
+        CStdPtrArray & GetRecyclePool();
+
         void DoEvent(TEventUI& event);
 
         void SelectItem(CControlUI* pRow, CControlUI* pControl);
@@ -113,6 +115,8 @@ namespace DuiLib {
         int _scrollPositionY;
         int _scrollOffsetY;
         bool _heteroHeight;
+        int _itemHeight; // -- -2 : auto  -- -1 : calc fixed itemheight from hiddenItem  -- -3 : use _itemHeightPercent  -- >0 : value of fixed itemheight.  -- otherwise : undefined. (use hiddenItem)
+        float _itemHeightPercent;
 
         CStdPtrArray _recyclePool;
         int _avgHeight;

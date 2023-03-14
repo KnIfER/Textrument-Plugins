@@ -267,7 +267,7 @@
     <ClCompile Include="ImageList.cpp" />
     <ClCompile Include="TestEmptyButtonLarge.cpp" />
     <ClCompile Include="TestListHeader.cpp" />
-    <ClCompile Include="HelloWorld.cpp" />
+    <ClCompile Include="BasicButtonsList.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

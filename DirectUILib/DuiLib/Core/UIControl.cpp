@@ -1155,6 +1155,7 @@ namespace DuiLib {
 	void CControlUI::NeedUpdate()
 	{
 		if( !IsVisible() ) return;
+		if( m_bUpdateNeeded && _manager && _manager->_UpdateList.Find(this)>=0 ) return;
 		_view_states |= VIEWSTATEMASK_UpdateNeeded;
 		Invalidate();
 		// requestParentNeedUpd
@@ -1163,10 +1164,9 @@ namespace DuiLib {
 			_manager->NeedUpdate();
 			if (!_manager->IsPainting())
 			{
-				_manager->_UpdateList.push_back(this);
+				_manager->_UpdateList.Add(this);
 			}
 		}
-		
 	}
 
 	void CControlUI::NeedParentUpdate()
@@ -1181,6 +1181,11 @@ namespace DuiLib {
 		}
 
 		if( _manager != NULL ) _manager->NeedUpdate();
+	}
+
+	bool CControlUI::ParentNeedUpdate()
+	{
+		return _parent && _parent->m_bUpdateNeeded;
 	}
 
 	void CControlUI::NeedParentAutoUpdate()

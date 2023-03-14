@@ -1416,12 +1416,12 @@ namespace DuiLib {
 							}
 							m_pRoot->SetPos(rcRoot, true);
 							bNeedSizeMsg = true;
-							if (_UpdateList.size())
-							{
-								_UpdateList.clear();
-							}
+							//if (!_UpdateList.empty())
+							//	_UpdateList.clear();
+							if(!_UpdateList.IsEmpty())
+								_UpdateList.Empty();
 						}
-						else if(true) // WTF??
+						else if(false) // WTF 直接遍历 true false
 						{
 							CControlUI* pControl = NULL;
 							m_aFoundControls.Empty();
@@ -1432,22 +1432,37 @@ namespace DuiLib {
 								else pControl->SetPos(pControl->GetRelativePos(), true);
 							}
 							bNeedSizeMsg = true;
+							if(!_UpdateList.IsEmpty())
+								_UpdateList.Empty();
 						}
 						else
 						{
 							CControlUI* pControl = NULL;
-							CContainerUI* root = dynamic_cast<CContainerUI*>(m_pRoot);
-							if (root)
+							if (m_pRoot)
 							{
-								auto & list = _UpdateList;
-								while(list.size() && (pControl = list.back())) {
-									if (pControl->IsUpdateNeeded())
-									{ // sanity check
-										if( !pControl->IsFloat() ) pControl->SetPos(pControl->GetPos(), true);
-										else pControl->SetPos(pControl->GetRelativePos(), true);
+								auto size = _UpdateList.GetSize();
+								if(size>0) {
+									for (size_t i = 0; i < size; i++)
+									{
+										pControl = static_cast<CContainerUI*>(_UpdateList[i]);
+										if(pControl->IsUpdateNeeded()) // sanity check
+										{
+											while(pControl->ParentNeedUpdate()) pControl = pControl->GetParent();
+											if( !pControl->IsFloat() ) pControl->SetPos(pControl->GetPos(), true);
+											else pControl->SetPos(pControl->GetRelativePos(), true);
+										}
 									}
-									list.pop_back();
+									_UpdateList.Empty();
 								}
+								//while(!list.empty() && (pControl = list.front())) {
+								//	if(pControl->IsUpdateNeeded()) // sanity check
+								//	{
+								//		while(pControl->ParentNeedUpdate()) pControl = pControl->GetParent();
+								//		if( !pControl->IsFloat() ) pControl->SetPos(pControl->GetPos(), true);
+								//		else pControl->SetPos(pControl->GetRelativePos(), true);
+								//	}
+								//	list.pop_front();
+								//}
 							}
 							bNeedSizeMsg = true;
 						}
@@ -2487,7 +2502,10 @@ namespace DuiLib {
 		}    
 		if (pControl->IsUpdateNeeded())
 		{
-			_UpdateList.remove(pControl);
+			//_UpdateList.remove(pControl);
+			int idx=0;
+			while((idx = _UpdateList.FindEx(pControl, idx))>=0)
+				_UpdateList.Remove(idx);
 		}
 		//if(pControl->GetParent())pControl->GetParent()->Remove(pControl);
 	}
