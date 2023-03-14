@@ -15,9 +15,11 @@ namespace DuiLib {
 		m_dwBackColor = RGB(0, 0, 255);
 		//_view_states &= ~VIEWSTATEMASK_IsDirectUI;
 		_ratio = 0.5f;
-		_horizontal = false;
+		_fixA = false;
+		_horizontal = true;
 		_isDragging = false;
 		_hSplitter = 0;
+		_sizeA = -1;
 	}
 
 	LPCTSTR WinSplitter::GetClass() const
@@ -42,7 +44,7 @@ namespace DuiLib {
 		switch (message)
 		{
 			case WM_SETCURSOR: {
-				if (_horizontal)
+				if (!_horizontal)
 				{
 					::SetCursor(LoadCursor(0, (LPWSTR)IDC_SIZENS));
 					return true;
@@ -57,17 +59,17 @@ namespace DuiLib {
 					CControlUI* pControl_A = static_cast<CControlUI*>(m_items[0]);
 					POINT pt;
 					::GetCursorPos(&pt);
-					if (_horizontal)
+					if (!_horizontal)
 					{
 						_dragSt = pt.y;
 						_dragStSz = GetHeight();
-						_dragStItSz = pControl_A->GetHeight();
+						_dragSizeASt = pControl_A->GetHeight();
 					}
 					else
 					{
 						_dragSt = pt.x;
 						_dragStSz = GetWidth();
-						_dragStItSz = pControl_A->GetWidth();
+						_dragSizeASt = pControl_A->GetWidth();
 					}
 				}
 			} return true;
@@ -82,7 +84,11 @@ namespace DuiLib {
 				{
 					POINT pt;
 					::GetCursorPos(&pt);
-					_ratio = (_dragStItSz+((_horizontal?pt.y:pt.x)-_dragSt))*1.f/_dragStSz;
+					if(_fixA) {
+						_sizeA = _dragSizeASt + ((_horizontal?pt.x:pt.y)-_dragSt);
+						if (_sizeA<0) _sizeA = 0;
+					}
+					else _ratio = (_dragSizeASt+((_horizontal?pt.x:pt.y)-_dragSt))*1.f/_dragStSz;
 					if (_ratio<0)
 					{
 						_ratio = 0;
@@ -171,30 +177,19 @@ namespace DuiLib {
 		{
 			if (_horizontal)
 			{
-				float bottom = rc.bottom;
-				float height = rc.bottom - rc.top;
-				CControlUI* pControl_A = static_cast<CControlUI*>(m_items[0]);
-				CControlUI* pControl_B = static_cast<CControlUI*>(m_items[1]);
-				rc.bottom = rc.top + height*_ratio;
-				if (rc.bottom+sepWidth>bottom)
-				{
-					rc.bottom = bottom-sepWidth;
-				}
-				::MoveWindow(_hSplitter, rc.left, rc.bottom, rc.right-rc.left, sepWidth, TRUE);
-				::UpdateWindow(_hSplitter);
-				pControl_A->SetPos(rc, bNeedInvalidate);
-				
-				rc.top = rc.bottom + sepWidth;
-				rc.bottom = bottom;
-				pControl_B->SetPos(rc, bNeedInvalidate);
-			}
-			else
-			{
 				float right = rc.right;
 				float width = rc.right - rc.left;
 				CControlUI* pControl_A = static_cast<CControlUI*>(m_items[0]);
 				CControlUI* pControl_B = static_cast<CControlUI*>(m_items[1]);
-				rc.right = rc.left + width*_ratio;
+				if(_fixA) {
+					if(_sizeA<0) {
+						SIZE sz = {rc.right-rc.left, rc.bottom-rc.top};
+						_sizeA = pControl_A->EstimateSize(sz).cx;
+					}
+					rc.right = rc.left + _sizeA;
+				} else {
+					rc.right = rc.left + width*_ratio;
+				}
 				if (rc.right+sepWidth>right)
 				{
 					rc.right = right-sepWidth;
@@ -209,6 +204,30 @@ namespace DuiLib {
 				rc.right = right;
 				pControl_B->SetPos(rc, bNeedInvalidate);
 			}
+			else
+			{
+				float bottom = rc.bottom;
+				float height = rc.bottom - rc.top;
+				CControlUI* pControl_A = static_cast<CControlUI*>(m_items[0]);
+				CControlUI* pControl_B = static_cast<CControlUI*>(m_items[1]);
+				if(_fixA) {
+					rc.bottom = rc.top + height*_ratio;
+				} 
+				else {
+					rc.bottom = rc.top + height*_ratio;
+				}
+				if (rc.bottom+sepWidth>bottom)
+				{
+					rc.bottom = bottom-sepWidth;
+				}
+				::MoveWindow(_hSplitter, rc.left, rc.bottom, rc.right-rc.left, sepWidth, TRUE);
+				::UpdateWindow(_hSplitter);
+				pControl_A->SetPos(rc, bNeedInvalidate);
+
+				rc.top = rc.bottom + sepWidth;
+				rc.bottom = bottom;
+				pControl_B->SetPos(rc, bNeedInvalidate);
+			}
 		}
 		else if (m_items.GetSize()==1)
 		{
@@ -221,7 +240,11 @@ namespace DuiLib {
 	{
 		if( _tcsicmp(pstrName, _T("horizon")) == 0 ) {
 			_horizontal = _tcsicmp(pstrValue, _T("true")) == 0;
-		} else {
+		} 
+		else if( _tcsicmp(pstrName, _T("fixa")) == 0 ) {
+			_fixA = _tcsicmp(pstrValue, _T("true")) == 0;
+		} 
+		else {
 			__super::SetAttribute(pstrName, pstrValue);
 		}
 	}

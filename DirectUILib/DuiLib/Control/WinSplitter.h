@@ -32,10 +32,12 @@ namespace DuiLib {
 		WNDPROC _defaultProc;
 		float _ratio;
 		bool _horizontal;
+		bool _fixA;
 		bool _isDragging;
 		long _dragSt;
 		int _dragStSz;
-		int _dragStItSz;
+		int _dragSizeASt;
+		int _sizeA;
 		HWND _hSplitter;
 	};
 
