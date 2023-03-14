@@ -363,7 +363,9 @@ namespace DuiLib {
                 int maxIndex = _adapter->GetItemCount()-1;
                 if (!heteroHeight)
                 {
-                    estSz = m_HiddenItem->EstimateSize(szAvailable);
+                    if(_itemHeight > 0)  estSz.cy = _itemHeight;
+                    else if(_itemHeight == -1) estSz = m_HiddenItem->EstimateSize(szAvailable);
+                    else if(_itemHeight == -3) estSz.cy = szAvailable.cy * _itemHeightPercent;
                     if (estSz.cy==0) estSz.cy=30;
                     itemHeight = estSz.cy;
                     maxIndex = maxIndex - ceil(double(m_available_height) / estSz.cy) + 1;
