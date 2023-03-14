@@ -372,6 +372,12 @@ namespace DuiLib {
                 if (itemHeight && abs(y)/itemHeight>=10)
                 {
                     index = y/itemHeight;
+                    if(heteroHeight && _avgHeight && m_pVerticalScrollBar) { // 直接计算新的位置
+                        int tmp = ((m_pVerticalScrollBar->GetScrollPos()+y)/_avgHeight) - _scrollPositionY;
+                        if(abs(tmp) > abs(index)) {
+                            index = tmp;
+                        }
+                    }
                     newOffsetY = 0;
                     //LogIs("ListView::DoScroll::快速滚动 delta=%d", index, _scrollPositionY + index);
                     //_scrollPositionY = (std::max)(0, (std::min)(maxIndex, _scrollPositionY + y/itemHeight));
@@ -535,26 +541,6 @@ namespace DuiLib {
             m_pHorizontalScrollBar->SetScrollPos(szPos.cx);
             cx = m_pHorizontalScrollBar->GetScrollPos() - iLastScrollPos;
         }
-        if ((cx || cy) && 0)
-        {
-            ::ScrollWindowEx(GetHWND(), cx, -cy, 0, 0, 0, 0, SW_SCROLLCHILDREN);
-            return true;
-        }
-        //if (cy && m_items.GetSize())
-        //{
-        //    bool scroll=false;
-        //    if(cy<0) {
-        //        CControlUI* pControl = (CControlUI*)m_items.GetAt(0);
-        //        if(pControl->GetPos().top+cy>-pControl->GetHeight()
-        //            &&) {
-        //            scroll = true;
-        //        }
-        //    } 
-        //    if(scroll) {
-        //        ::ScrollWindowEx(GetHWND(), cx, -cy, 0, 0, 0, 0, SW_SCROLLCHILDREN);
-        //        return true;
-        //    }
-        //}
         if (cx || cy)
         {
             //LogIs("SetScrollPos:: %d, %d, fY=%d", cx, cy, _scrollY + cy);
@@ -563,15 +549,12 @@ namespace DuiLib {
             {
                 _scrollX += cx;
                 _scrollY += cy;
-                //::QueryPerformanceFrequency((LARGE_INTEGER*)&TicksPerSecond);
-                //::QueryPerformanceCounter((LARGE_INTEGER*)&TicksLastDraw);
-                //LogIs("TicksPerSecond=%d", TicksPerSecond);
                 if(!_smoothScrolling) {
                     _smoothScrolling = true;
                     _scrollSpeed = 5;
                     auto delta = abs(_scrollY);
                     //_scrollSpeed = 1;
-                    if(delta>100) {
+                    if(delta>10) {
                         timer_scrolling = true;
                         SetTimer(timer_smooth_scroll, timer_smooth_scroll_interval, true);
                     }
@@ -773,6 +756,7 @@ namespace DuiLib {
 
         CStdPtrArray children = m_items;
         m_items.Empty();
+        m_positions.Empty();
 
         CControlUI *pControl;
         bool resued;
@@ -825,6 +809,7 @@ namespace DuiLib {
             }
 
             m_items.Add(pControl);
+            m_positions.Add((LPVOID)(_scrollPositionY + index));
             if (!resued)
             {
                 pControl->m_bFocused_NO;
@@ -924,14 +909,18 @@ namespace DuiLib {
             }
         }
             
+        if(m_pVerticalScrollBar) 
+        {
         // 抓住滚动条时，尽量不更新滚动范围。
-        short handleScroll = m_pVerticalScrollBar && !_manager->IsCaptured();
-        if (!handleScroll && m_pVerticalScrollBar )
+        bool userDragging = _manager->IsCaptured();
+        short handleScroll = !userDragging;
+        if ( userDragging )
         {
             _scrollYProxy = m_pVerticalScrollBar->GetScrollPos();
             // 端部处理：移至最顶部或最底部，更新滚动条。
             //if(heteroHeight)
-            if ((_scrollYProxy==0&&_scrollPositionY>0) || (_scrollYProxy>=m_pVerticalScrollBar->GetScrollRange() /*&& _scrollPositionY+m_items.GetSize()<=maxIndex*/))
+            if ((_scrollYProxy==0&&_scrollPositionY>0) 
+                || (_scrollYProxy>=m_pVerticalScrollBar->GetScrollRange() /*&& _scrollPositionY+m_items.GetSize()<=maxIndex*/))
             {
                 // 可是，需要记录差值，否则跳过了很多。
                 handleScroll = 2;
@@ -942,10 +931,12 @@ namespace DuiLib {
         {
             if (heteroHeight)
             {
-                _avgHeight = m_items.GetSize();
-                if (_avgHeight)
+                if (m_items.GetSize())
                 {
-                    _avgHeight = (top - rc.top + _scrollOffsetY) / _avgHeight;
+                    _avgHeight = m_HiddenItem->GetFixedHeight(); // 一致化平均值
+                    if(_avgHeight<=0)
+                        _avgHeight = (top - rc.top + _scrollOffsetY) / m_items.GetSize();
+                    //_avgHeight = 30;
                     m_total_height = _avgHeight*_adapter->GetItemCount();
                     _scrollYProxy = _avgHeight*_scrollPositionY + _scrollOffsetY;
                 }
@@ -956,7 +947,15 @@ namespace DuiLib {
                 m_total_height = _avgHeight*_adapter->GetItemCount();
                 _scrollYProxy = _avgHeight*_scrollPositionY + _scrollOffsetY;
             }
-            //LogIs("SetPos --- %d   pos=%d avg=%d scr=%d", _scrollYProxy, _scrollPositionY, _avgHeight, _scrollY);
+            //lxx(":X SetPos --- dd/dd   pos=dd avg=dd scr=dd", _scrollYProxy, m_total_height, _scrollPositionY, _avgHeight, _scrollY);
+        }
+        long lastPos = (long)m_positions[m_positions.GetSize()-1];
+
+        if(_scrollYProxy +  szAvailable.cy >= m_total_height) {
+            long lastPos = (long)m_positions[m_positions.GetSize()-1];
+            if(lastPos < _adapter->GetItemCount()-1) {
+                m_total_height = _scrollYProxy + szAvailable.cy + (_adapter->GetItemCount()-1-lastPos) * _avgHeight;
+            }
         }
         LONG thumb = handleScroll==2?m_pVerticalScrollBar->GetThumbPosition():0;
         ProcessScrollBar(szAvailable, 0, m_total_height);
@@ -967,41 +966,45 @@ namespace DuiLib {
             // todo 提高精度
             m_pVerticalScrollBar->SetMouseBias(m_pVerticalScrollBar->GetThumbPosition()-thumb);
         }
+        }
+
 
         // 回收没有引用的子项
-        if(!_bHasBasicViewAdapter)
-        while (true)
+        if(!_bHasBasicViewAdapter) 
         {
-            if (reusableCnt>0)
+            while (true)
             {
-                pControl = static_cast<CControlUI*>(children.GetAt(reusableSt));
-                reusableCnt--;
-                reusableSt++;
-            }
-            else if(bkRecyclableCnt>0)
-            {
-                pControl = static_cast<CControlUI*>(children.GetAt(--bkRecyclableCnt));
-            }
-            else if (fwRecyclable-1>reusableSt) // fwRecyclable>=0 && 
-            {
-                pControl = static_cast<CControlUI*>(children.GetAt(--fwRecyclable));
-                if (reusableCnt>0 && fwRecyclable<=reusableEd)
+                if (reusableCnt>0)
                 {
-                    reusableEd--;
+                    pControl = static_cast<CControlUI*>(children.GetAt(reusableSt));
                     reusableCnt--;
+                    reusableSt++;
                 }
+                else if(bkRecyclableCnt>0)
+                {
+                    pControl = static_cast<CControlUI*>(children.GetAt(--bkRecyclableCnt));
+                }
+                else if (fwRecyclable-1>reusableSt) // fwRecyclable>=0 && 
+                {
+                    pControl = static_cast<CControlUI*>(children.GetAt(--fwRecyclable));
+                    if (reusableCnt>0 && fwRecyclable<=reusableEd)
+                    {
+                        reusableEd--;
+                        reusableCnt--;
+                    }
+                }
+                else break;
+                // todo check not null
+                // ShowWindow(pControl->GetHWND(), SW_HIDE);
+                //if(_hLeeverse)SetParent(pControl->GetHWND(), _hLeeverse);
+
+                // SetWindowPos(pControl->GetHWND(), HWND_TOP, 0,0,0,0, SWP_NOMOVE|SWP_NOREDRAW|SWP_NOREPOSITION);
+
+                _recyclePool.Add(pControl);
             }
-            else break;
-            // todo check not null
-           // ShowWindow(pControl->GetHWND(), SW_HIDE);
-           //if(_hLeeverse)SetParent(pControl->GetHWND(), _hLeeverse);
-
-           // SetWindowPos(pControl->GetHWND(), HWND_TOP, 0,0,0,0, SWP_NOMOVE|SWP_NOREDRAW|SWP_NOREPOSITION);
-
-            _recyclePool.Add(pControl);
+            //for (size_t i = 0; i < children.GetSize(); i++)
+            //    if(m_items.Find(children.GetAt(i))<0)_recyclePool.Add(children.GetAt(i));
         }
-        //for (size_t i = 0; i < children.GetSize(); i++)
-        //    if(m_items.Find(children.GetAt(i))<0)_recyclePool.Add(children.GetAt(i));
         _lastScrollPositionY = _scrollPositionY;
 
         if (_headerView)
@@ -1009,12 +1012,12 @@ namespace DuiLib {
             m_items.Add(_headerView);
         }
 
-       // LogIs("ListView::布局完毕::, pos=%d cnt=%d", _scrollPositionY, GetCount());
-        if (GetCount())
-        {
-            RECT rc = GetItemAt(0)->GetPos();
-            //LogIs("ListView::布局完毕::, rect=%d,%d,%d,%d", rc.left, rc.right, rc.top, rc.bottom);
-        }
+        //// LogIs("ListView::布局完毕::, pos=%d cnt=%d", _scrollPositionY, GetCount());
+        //if (GetCount())
+        //{
+        //    RECT rc = GetItemAt(0)->GetPos();
+        //    //LogIs("ListView::布局完毕::, rect=%d,%d,%d,%d", rc.left, rc.right, rc.top, rc.bottom);
+        //}
     }
 
     void ListView::ApplyMultiColumn(CControlUI* pControl, const RECT & rcItem)

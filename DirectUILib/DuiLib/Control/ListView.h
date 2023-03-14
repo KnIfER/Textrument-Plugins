@@ -118,6 +118,7 @@ namespace DuiLib {
         int _itemHeight; // -- -2 : auto  -- -1 : calc fixed itemheight from hiddenItem  -- -3 : use _itemHeightPercent  -- >0 : value of fixed itemheight.  -- otherwise : undefined. (use hiddenItem)
         float _itemHeightPercent;
 
+        CStdPtrArray m_positions;
         CStdPtrArray _recyclePool;
         int _avgHeight;
         TListInfoUI m_ListInfo;
