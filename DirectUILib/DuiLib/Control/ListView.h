@@ -67,7 +67,7 @@ namespace DuiLib {
         // 应用列表头（多列分隔）
         void ApplyMultiColumn(CControlUI* pControl, const RECT & rcItem);
 
-        // 添加类表头；添加普通视图时，需要『普通视图适配器』，若无适配器则自动建立，若不是旧版适配器则添加失败。
+        // -- 添加类表头；-- 添加普通视图，此时需要『普通视图适配器』，若无适配器则自动建立，若不是旧版适配器则添加失败。
         bool Add(CControlUI* pControl) override;
         // see ListView::Add，添加类表头时，忽略 |iIndex|
         bool AddAt(CControlUI* pControl, int iIndex) override;
@@ -79,6 +79,11 @@ namespace DuiLib {
         int GetItemHeight();
         void SetItemHeightPercent(float val);
         float GetItemHeightPercent();
+
+        void SetSmoothScrollMode(bool smooth, bool snapRows);
+        bool GetSmoothScrollEnabled() const;
+        bool GetSnapFirstRowEnabled() const;
+
 
         CStdPtrArray & GetRecyclePool();
 

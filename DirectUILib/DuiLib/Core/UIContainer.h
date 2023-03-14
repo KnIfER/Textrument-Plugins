@@ -89,6 +89,7 @@ namespace DuiLib {
 		}
 
 		bool _bUseSmoothScroll;
+		bool _bSnapFirstRow;
 
 	protected:
 		virtual void SetFloatPos(int iIndex);

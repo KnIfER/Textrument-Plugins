@@ -68,6 +68,7 @@ namespace DuiLib {
         , _selID(-1)
     {
         _bUseSmoothScroll = true;
+        _bSnapFirstRow = false;
 
         m_uButtonState |= UISTATE_CLICKNOTIFY;
 
@@ -166,6 +167,8 @@ namespace DuiLib {
             else if (_tcsicmp(pstrName, _T("itemshowhtml")) == 0) m_ListInfo.bShowHtml = (_tcsicmp(pstrValue, _T("true")) == 0);
             else if (_tcsicmp(pstrName, _T("itemrselected")) == 0) m_ListInfo.bRSelected = (_tcsicmp(pstrValue, _T("true")) == 0);
         }
+        else if (_tcsicmp(pstrName, _T("smoothscroll")) == 0) SetSmoothScrollMode(_tcsicmp(pstrValue, _T("true"))==0, GetSnapFirstRowEnabled());
+        else if (_tcsicmp(pstrName, _T("snapfirstrow")) == 0) SetSmoothScrollMode(GetSmoothScrollEnabled(), _tcsicmp(pstrValue, _T("true"))==0);
         else __super::SetAttribute(pstrName, pstrValue);
     }
 
@@ -335,6 +338,22 @@ namespace DuiLib {
         return _itemHeightPercent;
     }
 
+    void ListView::SetSmoothScrollMode(bool smooth, bool snapRows)
+    {
+        _bUseSmoothScroll = smooth;
+        _bSnapFirstRow = snapRows;
+    }
+
+    bool ListView::GetSmoothScrollEnabled() const
+    {
+        return _bUseSmoothScroll;
+    }
+
+    bool ListView::GetSnapFirstRowEnabled() const
+    {
+        return _bSnapFirstRow;
+    }
+
     CStdPtrArray & ListView::GetRecyclePool() {  
         return _recyclePool;
     }
@@ -353,9 +372,9 @@ namespace DuiLib {
             if(m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible()) 
                 _scrollX = m_pHorizontalScrollBar->GetScrollPos();
 
-            boolean heteroHeight = _heteroHeight;//_heteroHeight;
-
-            if (newOffsetY<0 || newOffsetY>=itemHeight)
+            bool heteroHeight = _heteroHeight;//_heteroHeight;
+            bool firstRowChanged = newOffsetY<0 || newOffsetY>=itemHeight;
+            if ( firstRowChanged )
             {
                 SIZE szAvailable = { m_rcItem.right - m_rcItem.left, m_rcItem.bottom - m_rcItem.top };
                 SIZE estSz;
@@ -450,7 +469,9 @@ namespace DuiLib {
             }
             _scrollOffsetY = newOffsetY;
             //Invalidate();
-            NeedUpdate();
+
+            if( firstRowChanged || !_bSnapFirstRow)
+                NeedUpdate();
 
             // PostUpdate
             //SetTimer(0x112, 10, true);
@@ -693,7 +714,9 @@ namespace DuiLib {
 
         SIZE szAvailable = { rc.right - rc.left, rc.bottom - rc.top };
 
-        int top = rc.top - _scrollOffsetY;
+        int top;
+        if(_bSnapFirstRow) top = rc.top;
+        else top = rc.top - _scrollOffsetY;
         RECT rcCtrl = m_rcItem;
         int hhead = 0;
         if (_headerView)
@@ -951,12 +974,19 @@ namespace DuiLib {
             }
             //lxx(":X SetPos --- dd/dd   pos=dd avg=dd scr=dd", _scrollYProxy, m_total_height, _scrollPositionY, _avgHeight, _scrollY);
         }
-        long lastPos = (long)m_positions[m_positions.GetSize()-1];
 
-        if(_scrollYProxy +  szAvailable.cy >= m_total_height) {
+        if(m_positions.GetSize()>0) 
+        {
             long lastPos = (long)m_positions[m_positions.GetSize()-1];
-            if(lastPos < _adapter->GetItemCount()-1) {
-                m_total_height = _scrollYProxy + szAvailable.cy + (_adapter->GetItemCount()-1-lastPos) * _avgHeight;
+            if(_scrollYProxy +  szAvailable.cy >= m_total_height) {
+                long lastPos = (long)m_positions[m_positions.GetSize()-1];
+                if(lastPos < _adapter->GetItemCount()-1
+                    || static_cast<CControlUI*>(m_items[m_items.GetSize()-1])->GetPos().bottom>GetPos().bottom+1) {
+                    // 追加高度
+                    lastPos = _adapter->GetItemCount()-1-lastPos;
+                    if(lastPos<1) lastPos=1;
+                    m_total_height = _scrollYProxy + szAvailable.cy + lastPos * _avgHeight;
+                }
             }
         }
         LONG thumb = handleScroll==2?m_pVerticalScrollBar->GetThumbPosition():0;
