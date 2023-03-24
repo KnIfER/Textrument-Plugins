@@ -428,10 +428,11 @@ public:
     //CWndShadow* m_pWndShadow;
 };
 
+QkString Name = L"二、Duilib";
 
-
-int DuiLibTest_RunMain(HINSTANCE hInstance, HWND hParent)
+LRESULT RunTest(HINSTANCE hInstance, HWND hParent)
 {
+    if (hInstance==NULL) return (LRESULT)Name.GetData();
     CPaintManagerUI::SetInstance(hInstance);
     CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath());
 
@@ -450,3 +451,5 @@ int DuiLibTest_RunMain(HINSTANCE hInstance, HWND hParent)
     //::CoUninitialize();
     return 0;
 }
+
+static int _auto_reg = AutoRegister(RunTest);

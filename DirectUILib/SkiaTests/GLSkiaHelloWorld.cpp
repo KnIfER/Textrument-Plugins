@@ -2,7 +2,9 @@
 * Skia OpenGl Hello World
 * 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-#include "include/utils/SkRandom.h"
+#include "pch.h"
+
+
 #include "include/utils/SkRandom.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkPath.h"
@@ -588,33 +590,36 @@ namespace GLSkiaHello{
 		};// end switch case
 		return 0;
 	};
+
+	LRESULT RunTest(HINSTANCE hInstance, HWND hParent)
+	{
+		if (hInstance==NULL) return (LRESULT)L"八、GLSkiaHelloWorld";
+		MSG Msg;
+		RECT R;
+		WNDCLASSEX WndClass;
+
+		memset(&WndClass, 0, sizeof(WNDCLASSEX));						// Clear the class record
+		WndClass.cbSize = sizeof(WNDCLASSEX);							// Size of this record
+		WndClass.style = CS_OWNDC;										// Class styles
+		WndClass.lpfnWndProc = OpenGLDemoHandler;						// Handler for this class
+		WndClass.cbClsExtra = 0;										// No extra class data
+		WndClass.cbWndExtra = 0;										// No extra window data
+		WndClass.hInstance = GetModuleHandle(NULL);						// This instance
+		WndClass.hIcon = LoadIcon(0, IDI_APPLICATION);					// Set icon
+		WndClass.hCursor = LoadCursor(0, IDC_ARROW);					// Set cursor
+		WndClass.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);	// Set background brush
+		WndClass.lpszMenuName = NULL;									// No menu yet
+		WndClass.lpszClassName = AppClassName;							// Set class name
+		RegisterClassEx(&WndClass);										// Register the class
+		GetClientRect(GetDesktopWindow(), &R);							// Get desktop area					
+		Wnd = CreateWindowEx(0, AppClassName, _T("OpenGL Demo Program"), 
+			WS_VISIBLE | WS_OVERLAPPEDWINDOW, R.left+300, R.top+300, 
+			R.right-R.left-400, R.bottom-R.top-400,
+			0, 0, 0, NULL);
+		return (0);
+	}
+
+	static int _auto_reg =AutoRegister((DemoEntrySig)RunTest);
+
+
 }
-using namespace GLSkiaHello;
-
-int GLSkiaHello_RunMain(HINSTANCE hInstance, HWND hParent)
-{
-	MSG Msg;
-	RECT R;
-	WNDCLASSEX WndClass;
-
-	memset(&WndClass, 0, sizeof(WNDCLASSEX));						// Clear the class record
-	WndClass.cbSize = sizeof(WNDCLASSEX);							// Size of this record
-	WndClass.style = CS_OWNDC;										// Class styles
-	WndClass.lpfnWndProc = OpenGLDemoHandler;						// Handler for this class
-	WndClass.cbClsExtra = 0;										// No extra class data
-	WndClass.cbWndExtra = 0;										// No extra window data
-	WndClass.hInstance = GetModuleHandle(NULL);						// This instance
-	WndClass.hIcon = LoadIcon(0, IDI_APPLICATION);					// Set icon
-	WndClass.hCursor = LoadCursor(0, IDC_ARROW);					// Set cursor
-	WndClass.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);	// Set background brush
-	WndClass.lpszMenuName = NULL;									// No menu yet
-	WndClass.lpszClassName = AppClassName;							// Set class name
-	RegisterClassEx(&WndClass);										// Register the class
-	GetClientRect(GetDesktopWindow(), &R);							// Get desktop area					
-	Wnd = CreateWindowEx(0, AppClassName, _T("OpenGL Demo Program"), 
-		WS_VISIBLE | WS_OVERLAPPEDWINDOW, R.left+300, R.top+300, 
-		R.right-R.left-400, R.bottom-R.top-400,
-		0, 0, 0, NULL);
-	return (0);
-}
-

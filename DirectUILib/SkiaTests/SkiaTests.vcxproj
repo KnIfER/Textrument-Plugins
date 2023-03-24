@@ -321,6 +321,7 @@
     <ClInclude Include="..\DuiLib\ControlEx\SkImageView.h" />
     <ClInclude Include="..\DuiLib\ControlEx\UIBeautifulSwitch.h" />
     <ClInclude Include="ControlEx.h" />
+    <ClInclude Include="pch.h" />
     <None Include="tools\sk_app\Application.h" />
     <None Include="tools\sk_app\CommandSet.h" />
     <None Include="tools\sk_app\DisplayParams.h" />

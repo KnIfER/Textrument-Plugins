@@ -6,29 +6,7 @@
 * 
 *   —— 由 KnIfER 整理。
 **************************************/
-#include "include/utils/SkRandom.h"
-#include "include/utils/SkRandom.h"
-#include "include/core/SkTypeface.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkImage.h"
-#include "include/core/SKImageInfo.h"
-#include "include/core/SkImageGenerator.h"
-
-#include "include/codec/SkCodec.h"
-
-
-#include "include/core/SkString.h"
-#include "include/core/SkSurface.h"
-#include "include/core/SkFont.h"
-#include "include/core/SkCanvas.h"
-
-#include <windows.h>
-#include <tchar.h>
-
-#include "tools/sk_app/Window.h"
-
-
-#include "../DuiLib/Core/InsituDebug.h"
+#include "pch.h"
 
 
 namespace SK_HELLO {
@@ -162,10 +140,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
-}
 
-int HelloWorld_RunMain(HINSTANCE hInstance, HWND hParent)
+QkString Name = L"一、hello world";
+
+LRESULT RunTest(HINSTANCE hInstance, HWND hParent)
 {
+    if (hInstance==NULL) return (LRESULT)Name.GetData();
     WNDCLASSEX clazz        = {0};
     clazz.cbSize            = sizeof(WNDCLASSEX);
 
@@ -202,3 +182,9 @@ int HelloWorld_RunMain(HINSTANCE hInstance, HWND hParent)
 
     return 0;
 }
+
+static int _auto_reg = AutoRegister(RunTest);
+
+}
+
+

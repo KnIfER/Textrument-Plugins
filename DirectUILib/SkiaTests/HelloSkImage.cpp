@@ -7,34 +7,7 @@
 *   —— 由 KnIfER 整理。
 * 
 **************************************/
-#include "include/utils/SkRandom.h"
-#include "include/utils/SkRandom.h"
-#include "include/core/SkTypeface.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkImage.h"
-#include "include/core/SKImageInfo.h"
-#include "include/core/SkImageGenerator.h"
-
-#include "include/codec/SkCodec.h"
-
-#include "include/core/SkString.h"
-#include "include/core/SkSurface.h"
-#include "include/core/SkFont.h"
-#include "include/core/SkCanvas.h"
-
-#include <windows.h>
-#include <tchar.h>
-
-#include "tools/sk_app/Window.h"
-
-
-#include "..\DuiLib\UIlib.h"
-
-#include "..\DuiLib\Core\UIManager.h"
-
-#include "../DuiLib/Core/InsituDebug.h"
-
-using namespace DuiLib;
+#include "pch.h"
 
 namespace SK_HIMG {
 
@@ -149,11 +122,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
-}
 
 
-int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent)
+QkString Name = L"三、SkImage Hello";
+
+LRESULT RunTest(HINSTANCE hInstance, HWND hParent)
 {
+    if (hInstance==NULL) return (LRESULT)Name.GetData();
     DWORD fileLength;
     char* memFile;
 //#define 从文件加载二进制数据
@@ -259,4 +234,9 @@ int HelloSKIMG_RunMain(HINSTANCE hInstance, HWND hParent)
         return 2;
 
     return 0;
+}
+
+
+static int _auto_reg = AutoRegister(RunTest);
+
 }

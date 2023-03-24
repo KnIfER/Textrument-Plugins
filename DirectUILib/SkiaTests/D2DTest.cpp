@@ -10,6 +10,9 @@
 
 #include <wincodec.h>
 
+extern int DuiLib_AutoRegisterDemo(LPARAM lpFun);
+
+
 namespace D2DT
 {
 	HINSTANCE g_hinst;
@@ -206,57 +209,59 @@ namespace D2DT
 		}
 		return 0;
 	}
-}
 
-using namespace D2DT;
-
-int D2DT_RunMain(HINSTANCE hinst, HWND hParent) 
-{
-	WNDCLASSEX wc;  
-	MSG msg;  
-
-	memset(&wc,0,sizeof(wc));
-	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.lpfnWndProc = WndProc; 
-	wc.hInstance = hinst;
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-	wc.lpszClassName = L"WindowClass";
-	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);  
-	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION); 
-
-	if(!RegisterClassEx(&wc)) 
+	LRESULT RunTest(HINSTANCE hinst, HWND hParent)
 	{
-		MessageBox(NULL, L"Window Registration Failed!", L"Error!",MB_ICONEXCLAMATION|MB_OK);
-		return 0;
+		if (hinst==NULL) return (LRESULT)L"六、D2DTest";
+		WNDCLASSEX wc;  
+		MSG msg;  
+
+		memset(&wc,0,sizeof(wc));
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.lpfnWndProc = WndProc; 
+		wc.hInstance = hinst;
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+		wc.lpszClassName = L"WindowClass";
+		wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);  
+		wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION); 
+
+		if(!RegisterClassEx(&wc)) 
+		{
+			MessageBox(NULL, L"Window Registration Failed!", L"Error!",MB_ICONEXCLAMATION|MB_OK);
+			return 0;
+		}
+
+		g_hinst = hinst;
+
+		g_hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, L"WindowClass", L"Direct2D Demo",WS_VISIBLE|WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, 
+			CW_USEDEFAULT, 
+			640, 
+			480, 
+			NULL, NULL, hinst, NULL);
+
+		if(g_hwnd == NULL) 
+		{
+			MessageBox(NULL, L"Window Creation Failed!", L"Error!",MB_ICONEXCLAMATION|MB_OK);
+			return 0;
+		}
+
+		if(!AppInit()) 
+		{
+			MessageBox(NULL, L"Application Initialisation Failed !", L"Error",MB_ICONEXCLAMATION|MB_OK);
+			return 0;
+		}
+
+		while(GetMessage(&msg, NULL, 0, 0) > 0) 
+		{  
+			TranslateMessage(&msg);  
+			DispatchMessage(&msg); 
+		}
+
+		return msg.wParam;
 	}
 
-	g_hinst = hinst;
+	static int _auto_reg = DuiLib_AutoRegisterDemo((LPARAM)RunTest);
 
-	g_hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, L"WindowClass", L"Direct2D Demo",WS_VISIBLE|WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 
-		CW_USEDEFAULT, 
-		640, 
-		480, 
-		NULL, NULL, hinst, NULL);
-
-	if(g_hwnd == NULL) 
-	{
-		MessageBox(NULL, L"Window Creation Failed!", L"Error!",MB_ICONEXCLAMATION|MB_OK);
-		return 0;
-	}
-
-	if(!AppInit()) 
-	{
-		MessageBox(NULL, L"Application Initialisation Failed !", L"Error",MB_ICONEXCLAMATION|MB_OK);
-		return 0;
-	}
-
-	while(GetMessage(&msg, NULL, 0, 0) > 0) 
-	{  
-		TranslateMessage(&msg);  
-		DispatchMessage(&msg); 
-	}
-
-	return msg.wParam;
 }

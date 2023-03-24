@@ -68,25 +68,29 @@ namespace SK_IMG_VIEW {
     private:
         ImageView* ivTest;
     };
-}
 
-using namespace SK_IMG_VIEW;
+    QkString Name = L"五、SkImageViewTest";
 
-int SKIMG_VIEW_RunMain(HINSTANCE hInstance, HWND hParent)
-{
-    CPaintManagerUI::SetInstance(hInstance);
-    CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath());
+    LRESULT RunTest(HINSTANCE hInstance, HWND hParent)
+    {
+        if (hInstance==NULL) return (LRESULT)Name.GetData();
+        CPaintManagerUI::SetInstance(hInstance);
+        CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath());
 
-    CControlFactory::GetInstance()->RegistControl(TEXT("ImageView"), ImageView::CreateControl);
-    //CControlFactory::GetInstance()->RegistControl(TEXT("ImageView"), SkImageView::CreateControl);
+        CControlFactory::GetInstance()->RegistControl(TEXT("ImageView"), ImageView::CreateControl);
+        //CControlFactory::GetInstance()->RegistControl(TEXT("ImageView"), SkImageView::CreateControl);
 
-    HRESULT Hr = ::CoInitialize(NULL);
-    if( FAILED(Hr) ) return 0;
+        HRESULT Hr = ::CoInitialize(NULL);
+        if( FAILED(Hr) ) return 0;
 
-    ImageViewMainForm* pFrame = new ImageViewMainForm();
-    if( pFrame == NULL ) return 0;
-    pFrame->Create(NULL, _T("Skia ImageView For The DuiLib !!!"), UI_WNDSTYLE_FRAME|WS_CLIPCHILDREN, WS_EX_WINDOWEDGE);
-    pFrame->CenterWindow();
-    pFrame->ShowWindow(true);
-    return 0;
+        ImageViewMainForm* pFrame = new ImageViewMainForm();
+        if( pFrame == NULL ) return 0;
+        pFrame->Create(NULL, _T("Skia ImageView For The DuiLib !!!"), UI_WNDSTYLE_FRAME|WS_CLIPCHILDREN, WS_EX_WINDOWEDGE);
+        pFrame->CenterWindow();
+        pFrame->ShowWindow(true);
+        return 0;
+    }
+
+    static int _auto_reg = AutoRegister(RunTest);
+
 }

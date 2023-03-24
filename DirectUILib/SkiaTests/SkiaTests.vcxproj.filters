@@ -42,6 +42,7 @@
     <ClInclude Include="..\DuiLib\ControlEx\SkImageView.h">
       <Filter>DuiLibEx</Filter>
     </ClInclude>
+    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="skia_app（参考代码，不编译）">

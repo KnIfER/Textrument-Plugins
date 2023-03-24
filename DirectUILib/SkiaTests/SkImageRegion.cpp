@@ -153,11 +153,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
-}
 
+QkString Name = L"四、SkImageRegion";
 
-int SKIMG_RGN_RunMain(HINSTANCE hInstance, HWND hParent)
+LRESULT RunTest(HINSTANCE hInstance, HWND hParent)
 {
+    if (hInstance==NULL) return (LRESULT)Name.GetData();
     DWORD fileLength;
     char* memFile;
 #define 从文件加载二进制数据
@@ -292,4 +293,8 @@ int SKIMG_RGN_RunMain(HINSTANCE hInstance, HWND hParent)
         return 2;
 
     return 0;
+}
+
+
+static int _auto_reg = AutoRegister(RunTest);
 }

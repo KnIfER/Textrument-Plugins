@@ -28,6 +28,8 @@
 #pragma comment(lib,"OpenGl32.lib")
 #pragma comment(lib,"GLU32.lib")
 
+extern int DuiLib_AutoRegisterDemo(LPARAM lpFun);
+
 namespace GLAPPDemo{
 /***************************************************************************
 				 	APP SPECIFIC INTERNAL CONSTANTS
@@ -428,41 +430,41 @@ LRESULT CALLBACK OpenGLDemoHandler (HWND Wnd, UINT Msg, WPARAM wParam, LPARAM lP
    };// end switch case
    return 0;
 };
-}
-using namespace GLAPPDemo;
 
-/* ------------------------------------------------------------------------
-   The application entry point
-   -----------------------------------------------------------------------*/
-int GLDEMO_RunMain(HINSTANCE hInstance, HWND hParent)
-{
-	MSG Msg;
-	RECT R;
-	HWND Wnd;
-	WNDCLASSEX WndClass;
+
+	LRESULT RunTest(HINSTANCE hInstance, HWND hParent)
+	{
+		if (hInstance==NULL) return (LRESULT)L"七、GLAppDemo";
+		MSG Msg;
+		RECT R;
+		HWND Wnd;
+		WNDCLASSEX WndClass;
 	
-	memset(&WndClass, 0, sizeof(WNDCLASSEX));						// Clear the class record
-	WndClass.cbSize = sizeof(WNDCLASSEX);							// Size of this record
-	WndClass.style = CS_OWNDC;										// Class styles
-	WndClass.lpfnWndProc = OpenGLDemoHandler;						// Handler for this class
-	WndClass.cbClsExtra = 0;										// No extra class data
-	WndClass.cbWndExtra = 0;										// No extra window data
-	WndClass.hInstance = GetModuleHandle(NULL);						// This instance
-	WndClass.hIcon = LoadIcon(0, IDI_APPLICATION);					// Set icon
-	WndClass.hCursor = LoadCursor(0, IDC_ARROW);					// Set cursor
-	WndClass.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);	// Set background brush
-	WndClass.lpszMenuName = NULL;									// No menu yet
-	WndClass.lpszClassName = AppClassName;							// Set class name
-	RegisterClassEx(&WndClass);										// Register the class
-	GetClientRect(GetDesktopWindow(), &R);							// Get desktop area					
-   	Wnd = CreateWindowEx(0, AppClassName, _T("OpenGL Demo Program"), 
-		WS_VISIBLE | WS_OVERLAPPEDWINDOW, R.left+50, R.top+50, 
-		R.right-R.left-100, R.bottom-R.top-100,
-		0, 0, 0, NULL);												// Create a window
- 	while (GetMessage(&Msg, 0, 0, 0)){								// Get messages
-		TranslateMessage(&Msg);										// Translate each message
-		DispatchMessage(&Msg);										// Dispatch each message
-	};
-	return (0);
-}
+		memset(&WndClass, 0, sizeof(WNDCLASSEX));						// Clear the class record
+		WndClass.cbSize = sizeof(WNDCLASSEX);							// Size of this record
+		WndClass.style = CS_OWNDC;										// Class styles
+		WndClass.lpfnWndProc = OpenGLDemoHandler;						// Handler for this class
+		WndClass.cbClsExtra = 0;										// No extra class data
+		WndClass.cbWndExtra = 0;										// No extra window data
+		WndClass.hInstance = GetModuleHandle(NULL);						// This instance
+		WndClass.hIcon = LoadIcon(0, IDI_APPLICATION);					// Set icon
+		WndClass.hCursor = LoadCursor(0, IDC_ARROW);					// Set cursor
+		WndClass.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);	// Set background brush
+		WndClass.lpszMenuName = NULL;									// No menu yet
+		WndClass.lpszClassName = AppClassName;							// Set class name
+		RegisterClassEx(&WndClass);										// Register the class
+		GetClientRect(GetDesktopWindow(), &R);							// Get desktop area					
+   		Wnd = CreateWindowEx(0, AppClassName, _T("OpenGL Demo Program"), 
+			WS_VISIBLE | WS_OVERLAPPEDWINDOW, R.left+50, R.top+50, 
+			R.right-R.left-100, R.bottom-R.top-100,
+			0, 0, 0, NULL);												// Create a window
+ 		while (GetMessage(&Msg, 0, 0, 0)){								// Get messages
+			TranslateMessage(&Msg);										// Translate each message
+			DispatchMessage(&Msg);										// Dispatch each message
+		};
+		return (0);
+	}
 
+	static int _auto_reg = DuiLib_AutoRegisterDemo((LPARAM)RunTest);
+
+}

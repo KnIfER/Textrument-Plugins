@@ -100,3 +100,15 @@ namespace DuiLib
     }
 
 }
+
+int DuiLib_AutoRegisterDemo(LPARAM lpFun) {
+    return AutoRegister((DemoEntrySig)lpFun);
+}
+/*
+LRESULT RunTest(HINSTANCE hInstance, HWND hParent)
+{
+if (hInstance==NULL) return (LRESULT)L"七、GLAppDemo";
+……
+	extern int DuiLib_AutoRegisterDemo(LPARAM lpFun);
+	static int _auto_reg = DuiLib_AutoRegisterDemo((LPARAM)RunTest);
+*/
