@@ -17,13 +17,13 @@ public:
 
 		if (event.Type == UIEVENT_SETFOCUS)
 		{
-			m_bFocused = true;
+			m_bFocused_YES;
 			Invalidate();
 			return;
 		}
 		if (event.Type == UIEVENT_KILLFOCUS)
 		{
-			m_bFocused = false;
+			m_bFocused_NO;
 			::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW)));
 			Invalidate();
 			return;
@@ -301,7 +301,7 @@ public:
 
 	virtual void SetInternVisible(bool bVisible = true)
 	{
-		CControlUI::SetInternVisible(bVisible);
+		CControlUI::SetVisible(bVisible);
 		AdjustPos();
 	}
 

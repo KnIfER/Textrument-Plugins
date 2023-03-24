@@ -34,6 +34,7 @@
 #include <tchar.h>	
 #include <commctrl.h>
 
+#include <stdexcept>
 //#include <gl\gl.h>
 #include <glad/glad.h>
 #include <gl\glu.h>	

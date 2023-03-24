@@ -4,7 +4,8 @@
 * 
 **************************************/
 #include "..\DuiLib\UIlib.h"
-#include "..\DuiLib\ControlPro\ImageViewPro.h"
+//#include "..\DuiLib\ControlPro\ImageViewPro.h"
+#include "..\DuiLib\ControlEx\SkImageView.h"
 #include "../DuiLib/Core/InsituDebug.h"
 using namespace DuiLib;
 
@@ -44,7 +45,8 @@ namespace SK_IMG_VIEW {
             ivTest = dynamic_cast<ImageView*>(m_pm.FindControl(L"ivTest"));
             if (ivTest)
             {
-                 ivTest->LoadImageFile("D:\\test.png");
+                 //ivTest->LoadImageFile("D:\\test.png");
+                ivTest->LoadImageFile("D:\\Large-Sample-Image-download-for-Testing.webp");
                // ivTest->LoadImageFile("D:\\Large-Sample-Image-download-for-Testing.jpg");
                 //ivTest->LoadImageFile("C:\\Users\\TEST\\Pictures\\MTkzMDI1NDI2XzExNTk2Njg3MDIx_0.webp");
             }
@@ -75,7 +77,8 @@ int SKIMG_VIEW_RunMain(HINSTANCE hInstance, HWND hParent)
     CPaintManagerUI::SetInstance(hInstance);
     CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath());
 
-    CControlFactory::GetInstance()->RegistControl(TEXT("ImageView"), ImageViewPro::CreateControl);
+    CControlFactory::GetInstance()->RegistControl(TEXT("ImageView"), ImageView::CreateControl);
+    //CControlFactory::GetInstance()->RegistControl(TEXT("ImageView"), SkImageView::CreateControl);
 
     HRESULT Hr = ::CoInitialize(NULL);
     if( FAILED(Hr) ) return 0;

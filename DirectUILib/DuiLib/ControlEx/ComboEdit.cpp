@@ -418,7 +418,7 @@ namespace DuiLib
 			if (!pControl) return FALSE;
 
 			IListItemUI* pListItem = static_cast<IListItemUI*>(pControl->GetInterface(DUI_CTR_LISTITEM));
-			if (pListItem != NULL) pListItem->Select(FALSE); // , bTriggerEvent
+			//if (pListItem != NULL) pListItem->Select(FALSE); // , bTriggerEvent
 			m_iCurSel = -1;
 		}
 		if (iIndex < 0) return FALSE;
@@ -433,7 +433,7 @@ namespace DuiLib
 		if (pListItem == NULL) return FALSE;
 		m_iCurSel = iIndex;
 		if (m_pWindow != NULL || bTakeFocus) pControl->SetFocus();
-		pListItem->Select(TRUE); // , bTriggerEvent
+		//pListItem->Select(TRUE); // , bTriggerEvent
 		if (_manager != NULL && bTriggerEvent) _manager->SendNotify(this, DUI_MSGTYPE_ITEMSELECT, m_iCurSel, iOldSel);
 
 

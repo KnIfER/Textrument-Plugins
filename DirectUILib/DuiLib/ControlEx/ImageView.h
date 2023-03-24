@@ -26,6 +26,8 @@ namespace DuiLib
 
 		virtual int LoadImageFile(CHAR* path);
 
+		bool _interactive = false;
+
 	protected:
 		virtual void ApplyStrechMode(HDC hDC);
 

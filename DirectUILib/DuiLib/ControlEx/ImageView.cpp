@@ -137,7 +137,17 @@ namespace DuiLib {
 
 	void ImageView::ApplyStrechMode(HDC hDC)
 	{
-		SetStretchBltMode(hDC, HALFTONE);
+		//SetStretchBltMode(hDC, HALFTONE);
+		//SetStretchBltMode(hDC, STRETCH_DELETESCANS);
+		if (bPreciseDraw)
+		{
+			SetStretchBltMode(hDC, HALFTONE);
+		}
+		else 
+		{
+			SetStretchBltMode(hDC, COLORONCOLOR);
+			_manager->SetTimer(this, 0x100, 200, true); // 350
+		}
 	}
 
 	//void ImageView::PaintBkColor(HDC hDC)
@@ -305,11 +315,25 @@ namespace DuiLib {
 
 	void ImageView::DoEvent(TEventUI& event)
 	{
+		if (event.Type == UIEVENT_TIMER)
+		{
+			if (event.wParam==0x100)
+			{
+				KillTimer(0x100);
+				bPreciseDraw = true;
+				NeedUpdate();
+				SendMessage(_manager->GetPaintWindow(), WM_PAINT, 0, 0);
+				bPreciseDraw = false;
+				return;
+			}
+		}
 		if (event.Type == UIEVENT_SCROLLWHEEL)
 		{
+			if(!_interactive) return;
 			float delta = 0.25;
 			float scale = _scale;
-			if (LOWORD(event.wParam)==SB_LINEDOWN)
+			int zDelta = (int) (short) HIWORD(event.wParam);
+			if (zDelta < 0)
 			{
 				_scale -= delta;
 				if (_scale <= _minScale)
@@ -345,7 +369,7 @@ namespace DuiLib {
 		}
 		if (event.Type == UIEVENT_SETFOCUS)
 		{
-			m_bFocused = true;
+			m_bFocused_YES;
 			Invalidate();
 			return;
 		}
@@ -367,6 +391,7 @@ namespace DuiLib {
 		}
 		if (event.Type == UIEVENT_MOUSEMOVE)
 		{
+			if(!_interactive) return;
 			if (_moving)
 			{
 				POINT pt;
@@ -387,7 +412,7 @@ namespace DuiLib {
 		}
 		if (event.Type == UIEVENT_KILLFOCUS)
 		{
-			m_bFocused = false;
+			m_bFocused_NO;
 			::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW)));
 			Invalidate();
 			return;

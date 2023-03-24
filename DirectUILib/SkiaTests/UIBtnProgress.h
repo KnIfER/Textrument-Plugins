@@ -126,7 +126,6 @@ namespace DuiLib
 		//按钮控件的矩形区域，用于判断鼠标点击事件
 		RECT					m_rcButton;
 
-		bool					m_bFocused;	
 		//进度条显示数值
 		DWORD					m_dwProgressValue;
 		//文本显示样式

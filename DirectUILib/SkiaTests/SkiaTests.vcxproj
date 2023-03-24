@@ -295,8 +295,8 @@
   <ItemGroup>
     <ClCompile Include="..\DuiLib\ControlEx\ComboEdit.cpp" />
     <ClCompile Include="..\DuiLib\ControlEx\ImageView.cpp" />
+    <ClCompile Include="..\DuiLib\ControlEx\SkImageView.cpp" />
     <ClCompile Include="..\DuiLib\ControlEx\UIBeautifulSwitch.cpp" />
-    <ClCompile Include="..\DuiLib\ControlPro\ImageViewPro.cpp" />
     <ClCompile Include="..\SkiaPlotLib\glad\src\glad.c" />
     <ClCompile Include="D2DTest.cpp" />
     <ClCompile Include="GLSkiaHelloWorld.cpp" />
@@ -318,8 +318,8 @@
   <ItemGroup>
     <ClInclude Include="..\DuiLib\ControlEx\ComboEdit.h" />
     <ClInclude Include="..\DuiLib\ControlEx\ImageView.h" />
+    <ClInclude Include="..\DuiLib\ControlEx\SkImageView.h" />
     <ClInclude Include="..\DuiLib\ControlEx\UIBeautifulSwitch.h" />
-    <ClInclude Include="..\DuiLib\ControlPro\ImageViewPro.h" />
     <ClInclude Include="ControlEx.h" />
     <None Include="tools\sk_app\Application.h" />
     <None Include="tools\sk_app\CommandSet.h" />

@@ -55,6 +55,7 @@ public:
 
     void doTest(TCHAR* ud) 
     {
+        ud = L"T4";
         if( ud == L"T1" ) 
         { 
             HelloWorld_RunMain(CPaintManagerUI::GetInstance(), GetHWND());

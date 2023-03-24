@@ -18,7 +18,7 @@ void LogIs(const CHAR* msg, ...);
 
 #define LogTo(LABEL, ...) LogIs(1|0x20, ""#LABEL"", ##__VA_ARGS__);
 
-#define xLogTo(LABEL, ...) LogIs(2|0x20, ""#LABEL"", ##__VA_ARGS__);
+#define xLogTo(LABEL, ...) LogIs(2|0x20, L""#LABEL"", ##__VA_ARGS__);
 
 #define lxx xLogTo
 
