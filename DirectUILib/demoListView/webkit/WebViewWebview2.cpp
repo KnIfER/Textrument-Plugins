@@ -367,8 +367,8 @@ namespace DuiLib {
 
         void LoadURL(const char * url) 
         {
-            //if(mWebView)
-			//	mWebView->Navigate(QkString(url));
+            if(mWebView)
+				mWebView->Navigate(QkString(url));
         }
 
     private:

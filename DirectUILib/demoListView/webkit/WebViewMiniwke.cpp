@@ -61,7 +61,7 @@ namespace DuiLib {
 
         void LoadURL(const char * url) 
         {
-            //if(mWebView) wkeLoadURL(mWebView, "https://www.baidu.com");
+            if(mWebView) wkeLoadURL(mWebView, "https://www.baidu.com");
         }
 
         HWND __hParent=0;
