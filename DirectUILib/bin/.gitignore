@@ -1,0 +1,6 @@
+*.exe
+*.lib
+*.zip
+*.dmp
+*.WebView2
+LocalStorage
