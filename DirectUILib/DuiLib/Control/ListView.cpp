@@ -354,6 +354,32 @@ namespace DuiLib {
         return _bSnapFirstRow;
     }
 
+    //bool ListView::LineUp()
+    //{
+    //    return __super::LineUp();
+    //}
+
+    bool ListView::LineDown()
+    {
+        SIZE sz = GetScrollPos();
+        if (_bSnapFirstRow && m_items.GetSize())
+        {
+            sz.cy += static_cast<CControlUI*>(m_items[0])->GetHeight();
+        }
+        else sz.cy += GetScrollStepSize();
+        return SetScrollPos(sz);
+        return __super::LineDown();
+    }
+
+    //int ListView::GetScrollStepSize() const
+    //{
+    //    if (_bSnapFirstRow && m_items.GetSize())
+    //    {
+    //        return static_cast<CControlUI*>(m_items[0])->GetHeight();
+    //    }
+    //    return __super::GetScrollStepSize();
+    //}
+
     CStdPtrArray & ListView::GetRecyclePool() {  
         return _recyclePool;
     }
@@ -982,7 +1008,7 @@ namespace DuiLib {
                 long lastPos = (long)m_positions[m_positions.GetSize()-1];
                 if(lastPos < _adapter->GetItemCount()-1
                     || static_cast<CControlUI*>(m_items[m_items.GetSize()-1])->GetPos().bottom>GetPos().bottom+1) {
-                    // 追加高度
+                    // 追加高度 todo
                     lastPos = _adapter->GetItemCount()-1-lastPos;
                     if(lastPos<1) lastPos=1;
                     m_total_height = _scrollYProxy + szAvailable.cy + lastPos * _avgHeight;

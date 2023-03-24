@@ -84,6 +84,9 @@ namespace DuiLib {
         bool GetSmoothScrollEnabled() const;
         bool GetSnapFirstRowEnabled() const;
 
+        //int GetScrollStepSize() const override;
+        //virtual bool LineUp() override;
+        virtual bool LineDown() override;
 
         CStdPtrArray & GetRecyclePool();
 
