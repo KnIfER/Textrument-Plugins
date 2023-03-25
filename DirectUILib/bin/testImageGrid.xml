@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Window mininfo="200,360" size="1800,360">
+<Window >
 	<Include source="scrollbar.xml" />
 	
-	<VBox inset="0,0,0,0" bkcolor="#FFFFFFFF" colorhsl="true" >
-		
-		<ImageView  
-			name="ivTest"
-			width="-1"  
-			height="-1" 
-			bkcolor="#FFFFFFFF" 
-			forecolor="#FFFF0000"  
-			/>
-			
-
-	</VBox>
+	<ListView  
+		name="lv"
+		width="-1"  
+		height="-1" 
+		bkcolor="#FF77FFFF"
+		vscrollbar="true" 
+		hscrollbar="true"
+		/>
 	
 	
 </Window>

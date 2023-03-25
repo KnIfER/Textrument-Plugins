@@ -302,6 +302,7 @@
     <ClCompile Include="GLSkiaHelloWorld.cpp" />
     <ClCompile Include="HelloSkImage.cpp" />
     <ClCompile Include="GLAppDemo.cpp" />
+    <ClCompile Include="SkImageGrid.cpp" />
     <ClCompile Include="SkImageRegion.cpp" />
     <ClCompile Include="SkImageViewTest.cpp" />
     <ClCompile Include="TestDuiLib.cpp" />

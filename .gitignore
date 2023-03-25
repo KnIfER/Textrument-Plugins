@@ -13,7 +13,6 @@ packages
 LocalStorage
 Release_*
 Debug_*
-bin
 TinyXML
 
 *.exe
@@ -27,5 +26,6 @@ imgui.ini
 
 *.map
 *.dll
-DirectUILib/bin/ListViewDemo.exe.WebView2
 miniblink/
+LocationNavigate/bin/*
+

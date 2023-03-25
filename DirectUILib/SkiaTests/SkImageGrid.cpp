@@ -3,14 +3,11 @@
 * ImageView. Pro And Lite. 
 * 
 **************************************/
-#include "..\DuiLib\UIlib.h"
-//#include "..\DuiLib\ControlPro\ImageViewPro.h"
-#include "..\DuiLib\ControlEx\SkImageView.h"
-#include "../DuiLib/Core/InsituDebug.h"
+#include "pch.h"
 using namespace DuiLib;
 
-namespace SK_IMG_VIEW {
-    class ImageViewMainForm : public WindowImplBase, public INotifyUI
+namespace SkImageGrid {
+    class ImageViewMainForm : public WindowImplBase, public INotifyUI, public ListViewAdapter
     {
     public:
         ImageViewMainForm() {
@@ -35,17 +32,7 @@ namespace SK_IMG_VIEW {
             bHandled = TRUE;
             return 0;
         }
-        void InitWindow() override
-        {
-            ivTest = dynamic_cast<ImageView*>(m_pm.FindControl(L"ivTest"));
-            if (ivTest)
-            {
-                 //ivTest->LoadImageFile("D:\\test.png");
-                ivTest->LoadImageFile("D:\\Large-Sample-Image-download-for-Testing.webp");
-               // ivTest->LoadImageFile("D:\\Large-Sample-Image-download-for-Testing.jpg");
-                //ivTest->LoadImageFile("C:\\Users\\TEST\\Pictures\\MTkzMDI1NDI2XzExNTk2Njg3MDIx_0.webp");
-            }
-        }
+
         QkString GetSkinFile() override
         {
             return _T("testImageGrid.xml");
@@ -59,11 +46,46 @@ namespace SK_IMG_VIEW {
             WindowImplBase::Notify(msg);
         }
 
+        void InitWindow() override
+        {
+            pList = dynamic_cast<ListView*>(m_pm.FindControl(L"lv"));
+            if (pList)
+            {
+                pList->SetAdapter(this);
+                pList->SetItemHeight(300);
+                pList->SetSmoothScrollMode(false, false);
+            }
+        }
+
+        size_t GetItemCount() {
+            return 3;
+        }
+        CControlUI* CreateItemView(CControlUI* view, int type) {
+            //lxx(CreateItemView)
+            auto ret = builder.Create(L"testImageGridRow.xml", 0, 0, &m_pm);
+            return ret;
+            //return ((Button*)viewTemplate)->Duplicate();
+        }
+        void OnBindItemView(CControlUI* view, size_t index) {
+            CControlUI* hbox = dynamic_cast<CControlUI*>(view);
+
+            for (size_t i = 0; i < hbox->GetCount(); i++)
+            {
+                ImageView* img = dynamic_cast<ImageView*>(hbox->GetItemAt(i));
+                if (img)
+                {
+                    img->SetInset({10, 10, 10, 10});
+                    //img->LoadImageFile("D:\\Large-Sample-Image-download-for-Testing.webp");
+                    img->LoadImageFile("D:\\女大学生在线求野王哥哥带飞～溪溪甜又乖.webp");
+                }
+            }
+        }
     private:
-        ImageView* ivTest;
+        CDialogBuilder builder;
+        ListView* pList;
     };
 
-    QkString Name = L"五、SkImageViewTest";
+    QkString Name = L"九、SkImageGrid";
 
     LRESULT RunTest(HINSTANCE hInstance, HWND hParent)
     {
@@ -79,7 +101,7 @@ namespace SK_IMG_VIEW {
 
         ImageViewMainForm* pFrame = new ImageViewMainForm();
         if( pFrame == NULL ) return 0;
-        pFrame->Create(NULL, _T("Skia ImageView For The DuiLib !!!"), UI_WNDSTYLE_FRAME|WS_CLIPCHILDREN, WS_EX_WINDOWEDGE);
+        pFrame->Create(NULL, _T("Skia ImageView Grid"), UI_WNDSTYLE_FRAME, WS_EX_APPWINDOW , 0, 0, 800, 500);
         pFrame->CenterWindow();
         pFrame->ShowWindow(true);
         return 0;

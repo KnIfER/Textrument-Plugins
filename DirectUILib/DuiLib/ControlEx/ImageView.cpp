@@ -283,7 +283,7 @@ namespace DuiLib {
 			StretchBlt(hDC, left, top, calcW, calcH
 				, hdcMem, tX, tY, W, H, SRCCOPY);
 #else
-			StretchDIBits(  hDC, left, top, calcW, calcH,
+			StretchDIBits(  hDC, left+rt.left, top+rt.top, calcW, calcH,
 				tX, tY, W, H,
 				bmpInfo->bmiColors, bmpInfo,
 				DIB_RGB_COLORS, SRCCOPY );
@@ -295,11 +295,11 @@ namespace DuiLib {
 			int lnCnt=0;
 			QkString text;
 			text.Format(L"scale=%f", _scale);
-			TextOut(hDC, 5, 5+fontHeight*(lnCnt++), text.GetData(), text.GetLength());
+			TextOut(hDC, rt.left+5, rt.top+5+fontHeight*(lnCnt++), text.GetData(), text.GetLength());
 			text.Format(L"translation= %d, %d", _translationX, _translationY);
-			TextOut(hDC, 5, 5+fontHeight*(lnCnt++), text.GetData(), text.GetLength());
+			TextOut(hDC, rt.left+5, rt.top+5+fontHeight*(lnCnt++), text.GetData(), text.GetLength());
 			text.Format(L"drawSize= %d, %d", drawWidth, drawHeight);
-			TextOut(hDC, 5, 5+fontHeight*(lnCnt++), text.GetData(), text.GetLength());
+			TextOut(hDC, rt.left+5, rt.top+5+fontHeight*(lnCnt++), text.GetData(), text.GetLength());
 #endif
 		}
 	}

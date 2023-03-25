@@ -1,54 +1,80 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="HelloWorld.cpp" />
     <ClCompile Include="..\DuiLib\ControlEx\ComboEdit.cpp">
-      <Filter>DuiLibEx</Filter>
+      <Filter>src\DuiLibEx</Filter>
     </ClCompile>
     <ClCompile Include="..\DuiLib\ControlEx\UIBeautifulSwitch.cpp">
-      <Filter>DuiLibEx</Filter>
+      <Filter>src\DuiLibEx</Filter>
     </ClCompile>
     <ClCompile Include="TestDuiLib.cpp">
-      <Filter>DuiLibEx</Filter>
+      <Filter>src\DuiLibEx</Filter>
     </ClCompile>
-    <ClCompile Include="_SkiaTests.cpp" />
-    <ClCompile Include="HelloSkImage.cpp" />
-    <ClCompile Include="SkImageRegion.cpp" />
-    <ClCompile Include="SkImageViewTest.cpp" />
-    <ClCompile Include="D2DTest.cpp" />
     <ClCompile Include="..\DuiLib\ControlEx\ImageView.cpp">
-      <Filter>DuiLibEx</Filter>
+      <Filter>src\DuiLibEx</Filter>
     </ClCompile>
-    <ClCompile Include="GLAppDemo.cpp" />
-    <ClCompile Include="GLSkiaHelloWorld.cpp" />
-    <ClCompile Include="..\SkiaPlotLib\glad\src\glad.c" />
     <ClCompile Include="..\DuiLib\ControlEx\SkImageView.cpp">
-      <Filter>DuiLibEx</Filter>
+      <Filter>src\DuiLibEx</Filter>
+    </ClCompile>
+    <ClCompile Include="_SkiaTests.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="D2DTest.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SkiaPlotLib\glad\src\glad.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="GLAppDemo.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="GLSkiaHelloWorld.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="HelloSkImage.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="HelloWorld.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="SkImageRegion.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="SkImageViewTest.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="SkImageGrid.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\DuiLib\ControlEx\ComboEdit.h">
-      <Filter>DuiLibEx</Filter>
+      <Filter>src\DuiLibEx</Filter>
     </ClInclude>
     <ClInclude Include="ControlEx.h">
-      <Filter>DuiLibEx</Filter>
+      <Filter>src\DuiLibEx</Filter>
     </ClInclude>
     <ClInclude Include="..\DuiLib\ControlEx\UIBeautifulSwitch.h">
-      <Filter>DuiLibEx</Filter>
+      <Filter>src\DuiLibEx</Filter>
     </ClInclude>
     <ClInclude Include="..\DuiLib\ControlEx\ImageView.h">
-      <Filter>DuiLibEx</Filter>
+      <Filter>src\DuiLibEx</Filter>
     </ClInclude>
     <ClInclude Include="..\DuiLib\ControlEx\SkImageView.h">
-      <Filter>DuiLibEx</Filter>
+      <Filter>src\DuiLibEx</Filter>
     </ClInclude>
-    <ClInclude Include="pch.h" />
+    <ClInclude Include="pch.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="skia_app（参考代码，不编译）">
       <UniqueIdentifier>{4b85108c-1284-47c4-842d-bd8f1662df60}</UniqueIdentifier>
     </Filter>
-    <Filter Include="DuiLibEx">
+    <Filter Include="src">
+      <UniqueIdentifier>{3a684f64-d4f1-4785-8f1e-036a12068c49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\DuiLibEx">
       <UniqueIdentifier>{40b234a0-6151-44ae-90f3-823239c8d2d4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
