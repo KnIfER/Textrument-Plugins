@@ -51,13 +51,13 @@ namespace SkImageGrid {
             {
                 pList->SetAdapter(this);
                 pList->SetItemHeight(300);
-                pList->SetItemHeight(-2);
+                //pList->SetItemHeight(-2);
                 pList->SetSmoothScrollMode(true, false);
             }
         }
 
         size_t GetItemCount() {
-            return 3;
+            return 1;
         }
         CControlUI* CreateItemView(CControlUI* view, int type) {
             //lxx(CreateItemView)
@@ -76,7 +76,7 @@ namespace SkImageGrid {
                     img->SetInset({10, 10, 10, 10});
                     //img->SetBorderSize({10, 10, 10, 10});
                     //img->LoadImageFile("D:\\Large-Sample-Image-download-for-Testing.webp");
-                    img->LoadImageFile("D:\\女大学生在线求野王哥哥带飞～溪溪甜又乖.webp");
+                    img->LoadImageFile("D:\\MUSE\\卡通\\头像_1024.png");
                 }
             }
         }

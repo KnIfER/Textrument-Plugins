@@ -53,7 +53,7 @@ namespace DuiLib {
 
         void SetPos(RECT rc, bool bNeedInvalidate = true) override;
         virtual bool SetScrollPos(SIZE szPos, bool bMsg = true, bool seeking = false) override;
-        virtual void DoScroll(int x, int y);
+        virtual void DoScroll(int x, int y) override;
 
         void ProcessScrollBar(SIZE szAvailable, int cxRequired, int cyRequired);
 
