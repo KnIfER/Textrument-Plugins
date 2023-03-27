@@ -1,17 +1,17 @@
-<HBox height="100">
+<HBox height="200">
 	<ImageView
-		bkcolor="#FFFF11ee" 
+		bkcolor="#bFFFFFFF" 
 		/>
 		
-	<PAD width="10"/>
+	<PAD width="1"/>
 	
 	<ImageView
-		bkcolor="#FFFFFFFF" 
+		bkcolor="#bFFFFFFF" 
 		/>
 		
-	<PAD width="10"/>
+	<PAD width="1"/>
 		
 	<ImageView
-		bkcolor="#FFFFFFFF" 
+		bkcolor="#bFFFFFFF" 
 		/>
 </HBox>

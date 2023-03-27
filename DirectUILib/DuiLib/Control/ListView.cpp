@@ -522,7 +522,7 @@ namespace DuiLib {
 
     void ListView::ComputeScroll()
     {
-       // if(1) return;
+        //if(1) return;
         if(timer_scrolling) return;
         int scrollY = 0;
         if (_scrollY)
@@ -534,18 +534,14 @@ namespace DuiLib {
                 :1;
             //_scrollSpeed = delta/10;
             //if(_scrollSpeed<=0) _scrollSpeed=1;
-
-
             _scrollSpeed = delta / 9;
             //_scrollSpeed = 1;
-
             if(_scrollSpeed<=1) _scrollSpeed=1;
 
-            scrollY = _scrollY>0?_scrollSpeed:-_scrollSpeed;
-            if (_seeking  )
-            {
+            if (_seeking)
                 scrollY = _scrollY*10*1.2/25;
-            }
+            else
+                scrollY = _scrollY>0?_scrollSpeed:-_scrollSpeed;
             if (std::abs(scrollY)<1)
             {
                 scrollY = _scrollY>0?1:-1;
@@ -781,6 +777,12 @@ namespace DuiLib {
             {
                 _scrollPositionY = maxIndexFixed;
             }
+            int tmp = estSz.cy*(maxIndex-_scrollPositionY+1);
+            if (tmp < m_available_height+_scrollOffsetY)
+            {
+                _scrollOffsetY = tmp - m_available_height;
+                top = rc.top - _scrollOffsetY;
+            }
         }
 
         // place children with different height.
@@ -898,9 +900,9 @@ namespace DuiLib {
         }
         // 贴底重排，子项充足时，避免最后一项的底部还有空间
         //if(false)
-        if (heteroHeight && top<rc.bottom && _scrollPositionY>0)
+        if (heteroHeight && top<rc.bottom)
         {
-            top += _scrollOffsetY;
+            top += _scrollOffsetY; // the bottom front of the item matrix.
             _scrollOffsetY = 0;
             while(top<rc.bottom && _scrollPositionY>0)
             {
@@ -949,6 +951,7 @@ namespace DuiLib {
             {
                 _scrollOffsetY = top-rc.bottom;
             }
+            else _scrollOffsetY = 0;
             int top = rc.top - _scrollOffsetY + hhead;
             for (size_t i = 0, length=m_items.GetSize(); i < length; i++)
             {

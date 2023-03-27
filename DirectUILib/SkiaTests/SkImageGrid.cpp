@@ -1,6 +1,4 @@
-/****** SKia Decode PNG Region Test *********
-* 
-* ImageView. Pro And Lite. 
+/****** FT Explorer demo_0 *********
 * 
 **************************************/
 #include "pch.h"
@@ -53,7 +51,8 @@ namespace SkImageGrid {
             {
                 pList->SetAdapter(this);
                 pList->SetItemHeight(300);
-                pList->SetSmoothScrollMode(false, false);
+                pList->SetItemHeight(-2);
+                pList->SetSmoothScrollMode(true, false);
             }
         }
 
@@ -75,6 +74,7 @@ namespace SkImageGrid {
                 if (img)
                 {
                     img->SetInset({10, 10, 10, 10});
+                    //img->SetBorderSize({10, 10, 10, 10});
                     //img->LoadImageFile("D:\\Large-Sample-Image-download-for-Testing.webp");
                     img->LoadImageFile("D:\\女大学生在线求野王哥哥带飞～溪溪甜又乖.webp");
                 }

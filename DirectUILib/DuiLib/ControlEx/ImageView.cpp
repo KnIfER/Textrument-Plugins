@@ -157,7 +157,7 @@ namespace DuiLib {
 	void ImageView::PaintBkImage(HDC hDC)
 	{
 		RECT rt = m_rcItem;
-
+		ApplyInsetToRect(rt);
 		if (!::IsRectEmpty(&rt))
 		{
 			int drawWidth = rt.right - rt.left;
@@ -329,7 +329,10 @@ namespace DuiLib {
 		}
 		if (event.Type == UIEVENT_SCROLLWHEEL)
 		{
-			if(!_interactive) return;
+			if(!_interactive) {
+				__super::DoEvent(event);
+				return;
+			}
 			float delta = 0.25;
 			float scale = _scale;
 			int zDelta = (int) (short) HIWORD(event.wParam);
