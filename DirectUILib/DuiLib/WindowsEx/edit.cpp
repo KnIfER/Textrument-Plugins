@@ -2040,26 +2040,26 @@ static void EDIT_MoveUp_ML(EDITSTATE *es, BOOL extend)
  */
 static void EDIT_MoveWordBackward(EDITSTATE *es, BOOL extend)
 {
-	INT s = es->selection_start;
-	INT e = es->selection_end;
+	INT st = es->selection_start;
+	INT ed = es->selection_end;
 	INT l;
 	INT ll;
 	INT li;
 
-	l = EDIT_EM_LineFromChar(es, e);
-	ll = EDIT_EM_LineLength(es, e);
+	l = EDIT_EM_LineFromChar(es, ed);
+	ll = EDIT_EM_LineLength(es, ed);
 	li = EDIT_EM_LineIndex(es, l);
-	if (e - li == 0) {
+	if (ed - li == 0) {
 		if (l) {
 			li = EDIT_EM_LineIndex(es, l - 1);
-			e = li + EDIT_EM_LineLength(es, li);
+			ed = li + EDIT_EM_LineLength(es, li);
 		}
 	} else {
-		e = li + EDIT_CallWordBreakProc(es, li, e - li, ll, WB_LEFT);
+		ed = li + EDIT_CallWordBreakProc(es, li, ed - li, ll, WB_LEFT);
 	}
 	if (!extend)
-		s = e;
-	EDIT_EM_SetSel(es, s, e, FALSE);
+		st = ed;
+	EDIT_EM_SetSel(es, st, ed, FALSE);
 	EDIT_EM_ScrollCaret(es);
 }
 
@@ -2234,7 +2234,7 @@ static void EDIT_PaintLine(EDITSTATE *es, HDC dc, INT line, BOOL rev)
 	else if (rev && (s != e) && ((es->flags & EF_FOCUSED) || (es->style & ES_NOHIDESEL))) 
 	{
 		x += EDIT_PaintText(es, dc, x, y, line, 0, s - li, FALSE);
-		x += EDIT_PaintText(es, dc, x, y, line, s - li, e - s, TRUE); // 绘制区域
+		x += EDIT_PaintText(es, dc, x, y, line, s - li, e - s, TRUE); // 绘制选区
 		x += EDIT_PaintText(es, dc, x, y, line, e - li, li + ll - e, FALSE);
 	} else
 		x += EDIT_PaintText(es, dc, x, y, line, 0, ll, FALSE);
@@ -3622,6 +3622,9 @@ LRESULT _LButtonDblClk(EDITSTATE *es)
 	while(ed>st && es->text[ed-1]==' ')
 	{
 		ed--;
+	}
+	if(ed > st+1) {
+		if(es->text[st]=='\\') st++;
 	}
 	es->inflatedSt = st;
 	es->inflatedEd = ed;
