@@ -3623,8 +3623,9 @@ LRESULT _LButtonDblClk(EDITSTATE *es)
 	{
 		ed--;
 	}
-	if(ed > st+1) {
+	if(ed > st+1) { // leave left \ alone
 		if(es->text[st]=='\\') st++;
+		else if(es->text[ed-1]==':') ed--;
 	}
 	es->inflatedSt = st;
 	es->inflatedEd = ed;
