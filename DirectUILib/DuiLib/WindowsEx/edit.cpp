@@ -3116,11 +3116,29 @@ LRESULT _Char(EDITSTATE *es, WCHAR c)
 			EDIT_EM_ReplaceSel(es, TRUE, L"\t", 1, TRUE, TRUE);
 		}
 		break;
+	case 127 :
+		if (control)
+		{
+			EDIT_EM_SetSel(es, (UINT)-1, 0, FALSE);
+			EDIT_MoveWordBackward(es, true);
+			EDIT_WM_Clear(es);
+		}
+		break;
 	case VK_BACK:
-		if (!(es->style & ES_READONLY) && !control) {
-			if (es->selection_start != es->selection_end)
+		if (!(es->style & ES_READONLY)) {
+			if (es->selection_start != es->selection_end) 
+			{
 				EDIT_WM_Clear(es);
-			else {
+				break;
+			}
+			if (control)
+			{
+				EDIT_EM_SetSel(es, (UINT)-1, 0, FALSE);
+				EDIT_MoveWordBackward(es, true);
+				EDIT_WM_Clear(es);
+			}
+			else
+			{
 				/* delete character left of caret */
 				EDIT_EM_SetSel(es, (UINT)-1, 0, FALSE);
 				EDIT_MoveBackward(es, TRUE);
