@@ -53,6 +53,7 @@
 #include "edit.h"
 
 namespace Edit{
+	bool _systemScriptDraw = 1;
 
 //WINE_DEFAULT_DEBUG_CHANNEL(edit);
 
@@ -261,7 +262,7 @@ static SCRIPT_STRING_ANALYSIS EDIT_UpdateUniscribeData_linedef(EDITSTATE *es, HD
 		HFONT old_font = NULL;
 		HDC udc = dc;
 		SCRIPT_TABDEF tabdef;
-		HRESULT hr;
+		HRESULT hr = -1;
 
 		if (!udc)
 			udc = GetDC(es->hwndSelf);
@@ -273,10 +274,13 @@ static SCRIPT_STRING_ANALYSIS EDIT_UpdateUniscribeData_linedef(EDITSTATE *es, HD
 		tabdef.pTabStops = es->tabs;
 		tabdef.iTabOrigin = 0;
 
-		hr = ScriptStringAnalyse(udc, &es->text[index], line_def->net_length,
-                                         (1.5*line_def->net_length+16), -1,
-                                         SSA_LINK|SSA_FALLBACK|SSA_GLYPHS|SSA_TAB, -1,
-                                         NULL, NULL, NULL, &tabdef, NULL, &line_def->ssa);
+		if (_systemScriptDraw)
+		{
+			hr = ScriptStringAnalyse(udc, &es->text[index], line_def->net_length,
+				(1.5*line_def->net_length+16), -1,
+				SSA_LINK|SSA_FALLBACK|SSA_GLYPHS|SSA_TAB, -1,
+				NULL, NULL, NULL, &tabdef, NULL, &line_def->ssa);
+		}
 		
 		if (FAILED(hr))
 		{
@@ -309,6 +313,7 @@ static SCRIPT_STRING_ANALYSIS EDIT_UpdateUniscribeData_linedef(EDITSTATE *es, HD
 
 static SCRIPT_STRING_ANALYSIS EDIT_UpdateUniscribeData(EDITSTATE *es, HDC dc, INT line)
 {
+	//if(!_systemScriptDraw) return 0;
 	LINEDEF *line_def;
 
 	if (!(es->style & ES_MULTILINE))
@@ -2092,7 +2097,7 @@ static void EDIT_MoveWordForward(EDITSTATE *es, BOOL extend)
 /*********************************************************************
  *
  *	EDIT_PaintText
- *
+ *	|rev| reverse color 
  */
 static INT EDIT_PaintText(EDITSTATE *es, HDC dc, INT x, INT y, INT line, INT col, INT count, BOOL rev)
 {
@@ -2112,12 +2117,12 @@ static INT EDIT_PaintText(EDITSTATE *es, HDC dc, INT x, INT y, INT line, INT col
 	BkColor = GetBkColor(dc);
 	TextColor = GetTextColor(dc);
 	if (rev) {
-	        if (es->composition_len == 0)
-	        {
+	    if (es->composition_len == 0)
+	    {
 			SetBkColor(dc, GetSysColor(COLOR_HIGHLIGHT));
 			SetTextColor(dc, GetSysColor(COLOR_HIGHLIGHTTEXT));
 			SetBkMode( dc, OPAQUE);
-	        }
+	    }
 		else
 		{
 			HFONT current = (HFONT)GetCurrentObject(dc,OBJ_FONT);
@@ -2125,7 +2130,7 @@ static INT EDIT_PaintText(EDITSTATE *es, HDC dc, INT x, INT y, INT line, INT col
 			underline_font.lfUnderline = TRUE;
 			hUnderline = CreateFontIndirectW(&underline_font);
 			old_font = (HFONT)SelectObject(dc,hUnderline);
-	        }
+	    }
 	}
 	li = EDIT_EM_LineIndex(es, line);
 	if (es->style & ES_MULTILINE) {
@@ -2136,7 +2141,8 @@ static INT EDIT_PaintText(EDITSTATE *es, HDC dc, INT x, INT y, INT line, INT col
 		GetTextExtentPoint32W(dc, es->text + li + col, count, &size);
 		ret = size.cx;
 	}
-	if (rev) {
+	if (rev) 
+	{
 		if (es->composition_len == 0)
 		{
 			SetBkColor(dc, BkColor);
@@ -2149,7 +2155,7 @@ static INT EDIT_PaintText(EDITSTATE *es, HDC dc, INT x, INT y, INT line, INT col
 				SelectObject(dc,old_font);
 			if (hUnderline)
 				DeleteObject(hUnderline);
-	        }
+	    }
 	}
 	return ret;
 }
@@ -2228,7 +2234,7 @@ static void EDIT_PaintLine(EDITSTATE *es, HDC dc, INT line, BOOL rev)
 	else if (rev && (s != e) && ((es->flags & EF_FOCUSED) || (es->style & ES_NOHIDESEL))) 
 	{
 		x += EDIT_PaintText(es, dc, x, y, line, 0, s - li, FALSE);
-		x += EDIT_PaintText(es, dc, x, y, line, s - li, e - s, TRUE);
+		x += EDIT_PaintText(es, dc, x, y, line, s - li, e - s, TRUE); // 绘制区域
 		x += EDIT_PaintText(es, dc, x, y, line, e - li, li + ll - e, FALSE);
 	} else
 		x += EDIT_PaintText(es, dc, x, y, line, 0, ll, FALSE);
