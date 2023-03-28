@@ -473,6 +473,7 @@ namespace DuiLib
 
 #define LONG_FLAG __int64
 #define STR(QKSTR) ((LPCWSTR)QKSTR)
+#define STRW(QKSTR) ((LPCWSTR)QkString(QKSTR))
 #define PRINT_RECT(LABEL, rc, way) LogIs(way, ""#LABEL" (%d, %d, %d, %d)", rc.left, rc.top, rc.right, rc.bottom);
 
 #define DrawImageAt(hdc, str, dest) DrawImage(hdc, str, dest)

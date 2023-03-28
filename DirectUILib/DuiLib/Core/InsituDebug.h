@@ -20,7 +20,11 @@ void LogIs(const CHAR* msg, ...);
 
 #define xLogTo(LABEL, ...) LogIs(2|0x20, L""#LABEL"", ##__VA_ARGS__);
 
+#define lpp(QKSTR) LogIs(2|0x20, L"", STR(QKSTR));
+
 #define lxx xLogTo
+
+#define lxxx LogTo
 
 #define lxxW xLogToW
 
