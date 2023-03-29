@@ -14,7 +14,7 @@ typedef struct _FileInfo
     FILETIME ftLastWriteTime;
 } FileInfo;
 
-typedef struct
+typedef struct _tmpStrPtrCpm
 {
     bool operator()( const QkString & s1, const QkString & s2 ) const
     {
@@ -81,3 +81,13 @@ protected:
     string pathbuffer;
     QkString Pathbuffer;
 };
+
+namespace DuiLib{
+
+BOOL PathIsRootW(LPCWSTR pPath);
+
+BOOL PathRemoveFileSpecW(LPWSTR pFile);
+
+BOOL PathCanonicalizeW(LPWSTR lpszDst, LPCWSTR lpszSrc);
+
+}

@@ -417,5 +417,8 @@
     <ClCompile Include="Drawable\drawable.cpp">
       <Filter>Drawable</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\PathUtilsEx.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

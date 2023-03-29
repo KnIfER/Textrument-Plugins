@@ -244,6 +244,7 @@
     <ClCompile Include="Utils\DemoUitls.cpp" />
     <ClCompile Include="Utils\DPI.cpp" />
     <ClCompile Include="Utils\DragDropImpl.cpp" />
+    <ClCompile Include="Utils\PathUtilsEx.cpp" />
     <ClCompile Include="Utils\PathUtils.cpp" />
     <ClCompile Include="Utils\TrayIcon.cpp" />
     <ClCompile Include="Utils\UIDelegate.cpp" />

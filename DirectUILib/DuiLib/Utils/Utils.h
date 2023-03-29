@@ -192,7 +192,7 @@ namespace DuiLib
 		//	return *this;
 		//};
 		LPCTSTR GetData() const;
-		LPCSTR GetData(std::string & buffer) const;
+		LPCSTR GetData(std::string & buffer, int offset=0, int length=-1) const;
 		static LPCSTR GetData(std::string & buffer, LPCWSTR pStr);
 
 		void SetAt(int nIndex, TCHAR ch);
@@ -233,6 +233,7 @@ namespace DuiLib
 		QkString Left(int nLength) const;
 		QkString Mid(int iPos, int nLength = -1) const;
 		void MidFast(int iPos, int nLength = -1);
+		//QkString * MidFake(int iPos, int nLength = -1);
 		QkString Right(int nLength) const;
 
 		int Find(TCHAR ch, int iPos = 0) const;

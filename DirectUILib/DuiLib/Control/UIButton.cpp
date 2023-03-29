@@ -625,7 +625,7 @@ namespace DuiLib
 
 	void Button::GetBkFillColor(DWORD & color)
 	{
-		if(m_bFocused) 
+		if(m_bFocused && _focusedBkColor!=0) 
 		{
 			if(_focusedBkColor) color = _focusedBkColor;
 		}
@@ -641,6 +641,7 @@ namespace DuiLib
 		{
 			if(m_dwHotBkColor) color = m_dwHotBkColor;
 		}
+		//color = _focusedBkColor;
 	}
 
 

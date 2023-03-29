@@ -644,6 +644,7 @@ namespace DuiLib {
 			return NULL;
 		}
 
+#ifdef MODULE_SKIA_RENDERER
 		if (svg)
 		{
 			//lxx(svg)
@@ -656,6 +657,7 @@ namespace DuiLib {
 			data->svgDom = SkSVGDOM::MakeFromStream(*stream);
 			return data;
 		}
+#endif
 
 		LPBYTE pImage = NULL;
 		int x,y,n;

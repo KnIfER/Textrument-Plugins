@@ -424,7 +424,7 @@ namespace DuiLib
 
 	QkString::~QkString()
 	{
-		if( m_pstr != m_szBuffer ) free(m_pstr);
+		if( m_pstr != m_szBuffer && _capacity) free(m_pstr);
 	}
 
 	size_t QkString::GetLength() const
@@ -600,7 +600,7 @@ namespace DuiLib
 		return m_pstr;
 	}
 
-	LPCSTR QkString::GetData(std::string & buffer) const
+	LPCSTR QkString::GetData(std::string & buffer, int offset, int length) const
 	{
 		size_t max_cap = GetLength()*2.5;
 		if (buffer.capacity()<max_cap)
@@ -609,7 +609,9 @@ namespace DuiLib
 		}
 		max_cap = buffer.capacity() - 1;
 		CHAR* data = (CHAR*)buffer.c_str();
-		size_t len = ::WideCharToMultiByte(::GetACP(), 0, GetData(), GetLength(), data, max_cap, NULL, NULL);
+		if(length==-1)
+			length = GetLength();
+		size_t len = ::WideCharToMultiByte(::GetACP(), 0, GetData()+offset, length, data, max_cap, NULL, NULL);
 		if(len==0) {
 			int max_cap_ = max_cap;
 			max_cap = GetLength()*4;
