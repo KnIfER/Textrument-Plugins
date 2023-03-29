@@ -771,12 +771,13 @@ namespace DuiLib
 				if(clipchildren)
 				{
 #ifdef MODULE_SKIA_RENDERER
-					_manager->GetSkiaCanvas()->save();
-					SkRect rect = {rcTemp.left, rcTemp.top, rcTemp.right, rcTemp.bottom};
-					_manager->GetSkiaCanvas()->clipRect(rect);
+					//_manager->GetSkiaCanvas()->save();
+					//SkRect rect = {rcTemp.left, rcTemp.top, rcTemp.right, rcTemp.bottom};
+					//_manager->GetSkiaCanvas()->clipRect(rect);
 #endif
 					CRenderClip::GenerateClip(hDC, rcTemp, childClip);
 				}
+				//bool stopped = false; // { stopped=true; break; }
 				for( int it = 0; it < m_items.GetSize(); it++ ) {
 					CControlUI* pControl = static_cast<CControlUI*>(m_items[it]);
 					if( pControl == pStopControl ) return false;
@@ -794,10 +795,10 @@ namespace DuiLib
 					}
 				}
 #ifdef MODULE_SKIA_RENDERER
-				if(clipchildren)
-				{
-					_manager->GetSkiaCanvas()->restore();
-				}
+				//if(clipchildren)
+				//{
+				//	_manager->GetSkiaCanvas()->restore();
+				//}
 #endif
 			}
 		}

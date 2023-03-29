@@ -15,6 +15,13 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkColorFilter.h"
+
+
+#include "modules/skottie/include/Skottie.h"
+#include "modules/svg/include/SkSVGDOM.h"
+#include "modules/svg/include/SkSVGG.h"
 
 #include <windows.h>
 #include <tchar.h>

@@ -535,12 +535,14 @@ namespace DuiLib {
 	{
 		LPBYTE pData = NULL;
 		DWORD dwSize = 0;
+		bool svg = false;
 		do 
 		{
 			if( type == NULL ) {
 				QkString sFile = CPaintManagerUI::GetResourcePath();
 				if( CPaintManagerUI::GetResourceZip().IsEmpty() ) {
 					sFile += bitmap.m_lpstr;
+					svg = sFile.EndWith(L".svg");
 					HANDLE hFile = ::CreateFile(sFile.GetData(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, \
 						FILE_ATTRIBUTE_NORMAL, NULL);
 					if( hFile == INVALID_HANDLE_VALUE ) break;
@@ -577,6 +579,7 @@ namespace DuiLib {
 					ZIPENTRY ze; 
 					int i = 0; 
 					QkString key = bitmap.m_lpstr;
+					svg = key.EndWith(L".svg");
 					key.Replace(_T("\\"), _T("/"));
 					if( FindZipItem(hz, key, true, &i, &ze) != 0 ) break;
 					dwSize = ze.unc_size;
@@ -639,6 +642,19 @@ namespace DuiLib {
 		if (!pData)
 		{
 			return NULL;
+		}
+
+		if (svg)
+		{
+			//lxx(svg)
+			TImageInfo* data = new TImageInfo;
+			data->pBits = NULL;
+			data->pSrcBits = NULL;
+			data->nX = 24;
+			data->nY = 24;
+			auto stream = SkMemoryStream::MakeDirect(pData, dwSize);
+			data->svgDom = SkSVGDOM::MakeFromStream(*stream);
+			return data;
 		}
 
 		LPBYTE pImage = NULL;
@@ -1535,6 +1551,13 @@ namespace DuiLib {
 		// 根据对齐方式计算目标区域
 		MakeImageDest(rcItem, szDraw, pDrawInfo->iAlign, pDrawInfo->rcPadding, rcDraw);
 
+		if (pDrawInfo->delta!=0)
+		{
+			rcDraw.left += pDrawInfo->delta;
+			rcDraw.right += pDrawInfo->delta;
+			rcDraw.top += pDrawInfo->delta;
+			rcDraw.bottom += pDrawInfo->delta;
+		}
 
 		RECT rcTemp;
 		if( !::IntersectRect(&rcTemp, &rcItem, &rcItem) ) return true;
@@ -1558,10 +1581,23 @@ namespace DuiLib {
 
 
 #ifdef MODULE_SKIA_RENDERER
-		if(true)
-			CRenderEngine::DrawSkImage(pManager, data, rcItem, rcPaint, rcBmpPart, rcCorner, pManager->IsLayered() ? true : data->bAlpha, bFade, bHole, bTiledX, bTiledY);
-		else
+		if(data->svgDom)
+		{
+			data->svgDom->setContainerSize(SkSize::Make(rcDraw.right-rcDraw.left, rcDraw.bottom-rcDraw.top));
+			//data->svgDom->setContainerSize(SkSize::Make(100, 100));
+
+			auto canvas = pManager->GetSkiaCanvas();
+			canvas->translate(rcDraw.left, rcDraw.top);
+			data->svgDom->render(canvas);
+
+			return true;
+		}
 #endif
+//#ifdef MODULE_SKIA_RENDERER
+//		if(true)
+//			CRenderEngine::DrawSkImage(pManager, data, rcItem, rcPaint, rcBmpPart, rcCorner, pManager->IsLayered() ? true : data->bAlpha, bFade, bHole, bTiledX, bTiledY);
+//		else
+//#endif
 			CRenderEngine::DrawImage(hDC, data->hBitmap, rcDraw, rcPaint, rcBmpPart, rcCorner, pManager->IsLayered() ? true : data->bAlpha, pDrawInfo->uFade, pDrawInfo->bHole, pDrawInfo->bTiledX, pDrawInfo->bTiledY);
 
 		//if (false)

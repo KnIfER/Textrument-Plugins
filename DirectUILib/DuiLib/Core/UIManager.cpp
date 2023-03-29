@@ -1188,6 +1188,31 @@ namespace DuiLib {
 		return false;
 	}
 
+#ifdef MODULE_SKIA_RENDERER
+	SkCanvas* CPaintManagerUI::GetSkiaCanvas()
+	{
+		if (!_skCanvas)
+		{
+			RECT rcClient = { 0 };
+			::GetClientRect(m_hWndPaint, &rcClient);
+			DWORD dwWidth = rcClient.right;
+			DWORD dwHeight = rcClient.bottom;
+			// BGRA
+			SkImageInfo info = SkImageInfo::Make(dwWidth, dwHeight, kBGRA_8888_SkColorType,kPremul_SkAlphaType); 
+			_skSurf = SkSurface::MakeRasterDirect(info
+				, m_pOffscreenBits
+				, dwWidth * sizeof(uint32_t));
+			_skCanvas = _skSurf->getCanvas();
+			if (_skCanvas)
+			{
+				_skCanvas->translate(0, dwHeight);
+				_skCanvas->scale(1, -1);
+			}
+		}
+		return _skCanvas;
+	}
+#endif
+
 	bool CPaintManagerUI::MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lRes)
 	{
 		if( m_hWndPaint == NULL ) return false;
@@ -1563,17 +1588,7 @@ namespace DuiLib {
 					ASSERT(m_hDcOffscreen);
 					ASSERT(m_hbmpOffscreen);
 #ifdef MODULE_SKIA_RENDERER
-					// BGRA
-					SkImageInfo info = SkImageInfo::Make(dwWidth, dwHeight, kBGRA_8888_SkColorType,kPremul_SkAlphaType); 
-					_skSurf = SkSurface::MakeRasterDirect(info
-						, m_pOffscreenBits
-						, dwWidth * sizeof(uint32_t));
-					_skCanvas = _skSurf->getCanvas();
-					if (_skCanvas)
-					{
-						_skCanvas->translate(0, dwHeight);
-						_skCanvas->scale(1, -1);
-					}
+					_skCanvas = 0;
 #endif
 				}
 				// Begin Windows paint

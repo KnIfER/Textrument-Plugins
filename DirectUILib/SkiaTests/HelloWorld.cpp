@@ -22,8 +22,18 @@ int Paint_Type = 2;
 size_t bmpSize = 0;
 
 DWORD lastDrawTm;
+sk_sp<SkPicture> svgPicture = 0;
+sk_sp<SkSVGDOM> dom;
+SkRandom random;
 
 BITMAPINFO* bmpInfo = NULL;
+
+sk_sp<SkPicture> getPictureFromSVG(sk_sp<SkSVGDOM> & dom, int width, int height) {
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(width, height);
+    dom->render(canvas);
+    return recorder.finishRecordingAsPicture();
+}
 
 void Draw(SkCanvas* canvas,int w,int h) {
     SkPaint paint;
@@ -47,6 +57,54 @@ void Draw(SkCanvas* canvas,int w,int h) {
     string.appendf(" bmpSize=%.2f", bmpSize*1.0/1024/1024);
 
     canvas->drawString(string, 1, 16, font, textpaint);
+
+
+    // Load the SVG file
+    //sk_sp<skottie::Animation> animation = skottie::Animation::Builder()
+    //        .makeFromFile("D:\\domain.svg");
+
+    //if (animation)
+    //{
+    //    // Draw the SVG onto the canvas
+    //    auto rc = SkRect::MakeXYWH(0, 0, 100, 100);
+    //    animation->render(canvas, &rc);
+    //}
+
+
+    if (dom)
+    {
+        dom->getRoot();
+        dom->setContainerSize(SkSize::Make(w, h));
+        //svgPicture = getPictureFromSVG(dom, w, h);
+
+        // Find the path node by ID
+       sk_sp<SkSVGNode> node = *dom->findNodeById("path");
+       if (node)
+       {
+           // Set the fill color attribute
+           // SkColorSetA(SkColors::kYellow.toSkColor(), 0xFF)
+           //SkString colorStr("#ffff");
+           //colorStr.appendHex(rand()%0xff);
+           //if(colorStr.size()<7) colorStr.append("0");
+           //lxx(ss, STRW(colorStr.c_str()))
+
+           SkColor color = SkColorSetARGB(0xFF, random.nextRangeScalar(0x77, 0xEE), random.nextRangeScalar(0x99, 0xFF), random.nextRangeScalar(0x77, 0xEE));
+           SkString colorString;
+           colorString.printf("#%02X%02X%02X", SkColorGetR(color), SkColorGetG(color), SkColorGetB(color));
+
+           node->setAttribute("fill", colorString.c_str());
+       }
+
+       dom->render(canvas);
+    }
+    //if(svgPicture) {
+    //    SkPaint paint;
+    //    paint.setColorFilter(SkColorFilters::Blend(
+    //        SkColors::kYellow.toSkColor(),      
+    //        SkBlendMode::kSrcIn)); 
+
+    //    canvas->drawPicture(svgPicture, 0, &paint);
+    //}
 
     canvas->flush(); //这函数是用于GPU surface。这里其实不需要。例如使用OpenGL的上下文。
 }
@@ -162,6 +220,14 @@ LRESULT RunTest(HINSTANCE hInstance, HWND hParent)
 
     if( FAILED(RegisterClassEx(&clazz)) )
         return 1;
+
+
+
+    SkString path("D:\\domain.svg");
+    auto stream = SkFILEStream::Make("D:\\domain.svg");
+    if (stream) {
+        dom = SkSVGDOM::MakeFromStream(*stream);
+    }
 
     SK_HELLO::_hWnd = CreateWindow(L"SkiaWin32",                          /* the '...if(FAILED(...' part will perform the 'return 2;' command if there was an error during the creation of the window.*/
         L"Skia Win32 Demo",                                   /* This is the actual name shown in the 'title bar' of the window. The L before the quotes, simplified, means its UNICODE.    */

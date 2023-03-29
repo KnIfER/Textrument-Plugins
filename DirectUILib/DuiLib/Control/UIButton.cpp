@@ -697,24 +697,17 @@ namespace DuiLib
 			const TImageInfo* pImage = _manager->GetImageEx(m_tForeImage.sName, m_tForeImage.sResType, m_tForeImage.dwMask, _stateIcon.bHSL);
 			if(pImage != NULL)
 			{
-				RECT rcItem = m_rcItem; // todo FIXME draw oversize
 				bool draw = true;
+				int delta = 0;
 				BYTE uFade = m_tForeImage.uFade;
 				if( (m_uButtonState & UISTATE_DISABLED)) {
 					m_tForeImage.uFade = uFade / 2;
 				}
 				else if((m_uButtonState & UISTATE_PUSHED)) {
-					int delta = 1;
-					rcItem.left += delta;
-					rcItem.right += delta;
-					rcItem.top += delta;
-					rcItem.bottom += delta;
+					delta = 1;
 				}
-				else draw = false;
-				if( !draw || !DrawImage(hDC, m_tForeImage, &rcItem) )
-				{
-					DrawImage(hDC, m_tForeImage);
-				}
+				m_tForeImage.delta = delta;
+				DrawImage(hDC, m_tForeImage);
 				m_tForeImage.uFade = uFade;
 			}
 		}

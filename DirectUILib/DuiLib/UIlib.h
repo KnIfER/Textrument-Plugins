@@ -34,7 +34,7 @@
 #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 
-//#define MODULE_SKIA_RENDERER
+#define MODULE_SKIA_RENDERER
 #ifdef MODULE_SKIA_RENDERER
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkRandom.h"
@@ -51,6 +51,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkCanvas.h"
+#include "modules/svg/include/SkSVGDOM.h"
+#include "modules/svg/include/SkSVGG.h"
 #endif
 
 #include "Core/UICore.h"

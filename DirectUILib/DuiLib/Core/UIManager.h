@@ -257,7 +257,9 @@ namespace DuiLib {
 		QkString sResType;
 		DWORD dwMask;
 		LPBYTE pBmBits;
-
+#ifdef MODULE_SKIA_RENDERER
+		sk_sp<SkSVGDOM> svgDom;
+#endif
 	} TImageInfo;
 
 	// Structure for relative position to the parent
@@ -287,6 +289,7 @@ namespace DuiLib {
 		bool bTiledX;
 		bool bTiledY;
 		bool bHSL;
+		int delta;
 
 		CDuiSize szIcon;
 		RECT rcPadding;
@@ -617,8 +620,8 @@ namespace DuiLib {
 		void RemoveAllEffectStyle();
 		//const RECT & GetPaintRect() {return _rcPaint;};
 
-#ifdef SKIA_RENDERER
-		SkCanvas* GetSkiaCanvas(){ return _skCanvas; };
+#ifdef MODULE_SKIA_RENDERER
+		SkCanvas* GetSkiaCanvas();
 		SkPaint & GetSkiaFillPaint(){ return _fillpaint; };
 #endif
 
@@ -764,7 +767,7 @@ namespace DuiLib {
 		static CStdPtrArray m_aPreMessages;
 		static CStdPtrArray m_aPlugins;
 
-#ifdef SKIA_RENDERER
+#ifdef MODULE_SKIA_RENDERER
 		sk_sp<SkSurface> _skSurf;
 		SkCanvas* _skCanvas;
 		SkPaint _fillpaint;
