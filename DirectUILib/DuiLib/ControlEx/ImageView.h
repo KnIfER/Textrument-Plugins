@@ -24,7 +24,13 @@ namespace DuiLib
 
 		void PaintForeImage(HDC hDC) override;
 
+		virtual int cleanUp();
+
 		virtual int LoadImageFile(CHAR* path);
+
+		virtual int LoadIconForFile(CHAR* path);
+
+		virtual int LoadThumbnailForFile(CHAR* path);
 
 		bool _interactive = false;
 
@@ -59,5 +65,6 @@ namespace DuiLib
 		bool _moving = false;
 		int _moveLastX = 0;
 		int _moveLastY = 0;
+		IShellItemImageFactory *_imageFactory;
 	};
 }

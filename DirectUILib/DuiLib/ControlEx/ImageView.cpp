@@ -1,3 +1,7 @@
+#if defined _M_IX86
+#define SKIP_SKIA_RENDERER
+#endif
+#ifndef SKIP_SKIA_RENDERER
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkRandom.h"
 #include "include/core/SkTypeface.h"
@@ -12,7 +16,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkCanvas.h"
-
+#endif
 
 #include <windows.h>
 #include <vfw.h>
@@ -33,6 +37,7 @@ namespace DuiLib {
 
 	int ImageView::LoadImageFile(CHAR* path) 
 	{
+#ifndef SKIP_SKIA_RENDERER
 		std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
 
 		auto codec = SkCodec::MakeFromStream(std::move(stream));
@@ -131,8 +136,106 @@ namespace DuiLib {
 
 			return 0;
 		}
-
+#endif
 		return -2;
+	}
+
+	BOOL GetIconDimensions(__in HICON hico, __out SIZE *psiz)
+	{
+		ICONINFO ii;
+		BOOL fResult = GetIconInfo(hico, &ii);
+		if (fResult) {
+			BITMAP bm;
+			fResult = GetObject(ii.hbmMask, sizeof(bm), &bm) == sizeof(bm);
+			if (fResult) {
+				psiz->cx = bm.bmWidth;
+				psiz->cy = ii.hbmColor ? bm.bmHeight : bm.bmHeight / 2;
+			}
+			if (ii.hbmMask)  DeleteObject(ii.hbmMask);
+			if (ii.hbmColor) DeleteObject(ii.hbmColor);
+		}
+		return fResult;
+	}
+
+	int ImageView::cleanUp()
+	{
+		if(hBitmap) {
+			DeleteObject(hBitmap);
+			hBitmap = 0;
+		}
+		//if(_imageFactory) {
+		//	_imageFactory->Release();
+		//	_imageFactory = 0;
+		//}
+		return 0;
+	}
+
+	int ImageView::LoadThumbnailForFile(CHAR* path)
+	{
+		//cleanUp();
+		//HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+		QkString filePath = path;
+		int ret = 1;
+		HRESULT hr = SHCreateItemFromParsingName(filePath, NULL, IID_PPV_ARGS(&_imageFactory));
+		if (hr == S_OK)
+		{
+			int sz = 128;
+			LONG flag = SIIGBF_BIGGERSIZEOK 
+				| SIIGBF_THUMBNAILONLY 
+				//| SIIGBF_ICONONLY 
+				| SIIGBF_RESIZETOFIT;
+			SIZE size = {sz, sz};
+			HBITMAP hTmpBitmap = NULL;
+			hr = _imageFactory->GetImage(size, flag, &hTmpBitmap);
+			ret = 2;
+			if (hr == S_OK) {
+				_srcWidth = size.cx;
+				_srcHeight = size.cy;
+				BITMAP bm; 
+				hr = GetObject(hTmpBitmap, sizeof(BITMAP), &bm);
+				if (hr) {
+					_srcWidth = bm.bmWidth;
+					_srcHeight = bm.bmHeight;
+				}
+				ret = 0;
+				if(hTmpBitmap) {
+					DeleteObject(hBitmap);
+					hBitmap = hTmpBitmap;
+				}
+			}
+			if(_imageFactory)
+				_imageFactory->Release();
+		}
+		//CoUninitialize();
+		return ret;
+	}
+
+	int ImageView::LoadIconForFile(CHAR* path)
+	{
+		cleanUp();
+		SHFILEINFOA info;
+		if (SHGetFileInfoA(path, FILE_ATTRIBUTE_NORMAL, &info, sizeof(info),
+			SHGFI_ICON 
+			| SHGFI_LARGEICON
+			//| SHGFI_TYPENAME
+			| SHGFI_USEFILEATTRIBUTES
+			| SHGFI_SYSICONINDEX
+		))
+		{
+
+			ICONINFO icon;
+			SIZE iconSz;
+			GetIconInfo(info.hIcon, &icon);
+			GetIconDimensions(info.hIcon, &iconSz);
+
+			_srcWidth = iconSz.cx;
+			_srcHeight = iconSz.cy;
+
+			_bNewImage = true;
+
+			hBitmap = icon.hbmColor;
+		}
+		return 0;
 	}
 
 	void ImageView::ApplyStrechMode(HDC hDC)
@@ -283,13 +386,31 @@ namespace DuiLib {
 			StretchBlt(hDC, left, top, calcW, calcH
 				, hdcMem, tX, tY, W, H, SRCCOPY);
 #else
-			StretchDIBits(  hDC, left+rt.left, top+rt.top, calcW, calcH,
-				tX, tY, W, H,
-				bmpInfo->bmiColors, bmpInfo,
-				DIB_RGB_COLORS, SRCCOPY );
+			if (hBitmap)
+			{
+				if (!hdcMem)
+					hdcMem = CreateCompatibleDC(NULL);
+				::SelectObject(hdcMem, hBitmap);
+
+				BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+				typedef BOOL (WINAPI *LPALPHABLEND)(HDC, int, int, int, int,HDC, int, int, int, int, BLENDFUNCTION);
+				static LPALPHABLEND lpAlphaBlend = (LPALPHABLEND) ::GetProcAddress(::GetModuleHandle(_T("msimg32.dll")), "AlphaBlend");
+
+				lpAlphaBlend(hDC, left+rt.left, top+rt.top, calcW, calcH
+					, hdcMem, tX, tY, W, H, bf);
+				//StretchBlt(hDC, left+rt.left, top+rt.top, calcW, calcH
+				//	, hdcMem, tX, tY, W, H, SRCCOPY);
+			}
+			else if(bmpInfo)
+			{
+				StretchDIBits(  hDC, left+rt.left, top+rt.top, calcW, calcH,
+					tX, tY, W, H,
+					bmpInfo->bmiColors, bmpInfo,
+					DIB_RGB_COLORS, SRCCOPY );
+			}
 #endif
 
-#define 调试图片控件
+//#define 调试图片控件
 #ifdef 调试图片控件
 			int fontHeight = 20;
 			int lnCnt=0;

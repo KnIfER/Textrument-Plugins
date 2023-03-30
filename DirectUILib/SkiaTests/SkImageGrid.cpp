@@ -76,7 +76,9 @@ namespace SkImageGrid {
                     img->SetInset({10, 10, 10, 10});
                     //img->SetBorderSize({10, 10, 10, 10});
                     //img->LoadImageFile("D:\\Large-Sample-Image-download-for-Testing.webp");
-                    img->LoadImageFile("D:\\MUSE\\卡通\\头像_1024.png");
+                    
+                    //img->LoadImageFile("D:\\MUSE\\卡通\\头像_1024.png");
+                    img->LoadThumbnailForFile("D:\\MUSE\\卡通\\头像_1024.png");
                 }
             }
         }

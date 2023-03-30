@@ -212,6 +212,27 @@ namespace Tests
 			DWORD dwNumber = 0xFF123456;
 			Assert::IsTrue(dwNumber>0x00FFFFFF);
 		}
+		
+#include <string.h>
+#include <locale.h>
+
+		TEST_METHOD(sort_strcoll)
+		{
+			setlocale(LC_COLLATE, "zh_CN.utf8"); // Set the locale to US English
+			const char* s1 = "我";
+			const char* s2 = "们";
+			int result = strcoll(s1, s2);
+			if (result < 0) {
+				_buffer.Format(L"%s comes before %s\n", STRW(s1), STRW(s2));
+				lpp(_buffer);
+			} else if (result > 0) {
+				_buffer.Format(L"%s comes after %s\n", STRW(s1), STRW(s2));
+				lpp(_buffer);
+			} else {
+				_buffer.Format(L"%s equal %s\n", STRW(s1), STRW(s2));
+				lpp(_buffer);
+			}
+		}
 
 
 	};
