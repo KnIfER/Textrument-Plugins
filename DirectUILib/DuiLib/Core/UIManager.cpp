@@ -1598,6 +1598,7 @@ namespace DuiLib {
 				}
 				PAINTSTRUCT ps = { 0 };
 				HDC hdc_ = ::BeginPaint(m_hWndPaint, &ps);
+				if(ps.hdc)
 				if( m_bOffscreenPaint )  {
 					HBITMAP hOldBitmap = (HBITMAP) ::SelectObject(m_hDcOffscreen, m_hbmpOffscreen);
 					int iSaveDC = ::SaveDC(m_hDcOffscreen);
@@ -1813,8 +1814,11 @@ namespace DuiLib {
 				}
 				//当对话框尺寸变化时 删除动画 job
 				if( m_anim.IsAnimating() ) m_anim.CancelJobs();
-				//m_bUpdateNeeded = true;
-				if( m_pRoot != NULL ) m_pRoot->NeedUpdate();
+				if (LOWORD(lParam)>0 && HIWORD(lParam)>0)
+				{
+					//m_bUpdateNeeded = true;
+					if( m_pRoot != NULL ) m_pRoot->NeedUpdate();
+				}
 			}
 			return true;
 		case WM_TIMER:

@@ -150,9 +150,11 @@ namespace DuiLib {
 			if (fResult) {
 				psiz->cx = bm.bmWidth;
 				psiz->cy = ii.hbmColor ? bm.bmHeight : bm.bmHeight / 2;
+				psiz->cy = bm.bmHeight;
 			}
 			if (ii.hbmMask)  DeleteObject(ii.hbmMask);
 			if (ii.hbmColor) DeleteObject(ii.hbmColor);
+			DeleteObject(&bm);
 		}
 		return fResult;
 	}
@@ -177,34 +179,38 @@ namespace DuiLib {
 		QkString filePath = path;
 		int ret = 1;
 		HRESULT hr = SHCreateItemFromParsingName(filePath, NULL, IID_PPV_ARGS(&_imageFactory));
-		if (hr == S_OK)
+		if (_imageFactory)
 		{
-			int sz = 128;
-			LONG flag = SIIGBF_BIGGERSIZEOK 
-				| SIIGBF_THUMBNAILONLY 
-				//| SIIGBF_ICONONLY 
-				| SIIGBF_RESIZETOFIT;
-			SIZE size = {sz, sz};
-			HBITMAP hTmpBitmap = NULL;
-			hr = _imageFactory->GetImage(size, flag, &hTmpBitmap);
-			ret = 2;
-			if (hr == S_OK) {
-				_srcWidth = size.cx;
-				_srcHeight = size.cy;
-				BITMAP bm; 
-				hr = GetObject(hTmpBitmap, sizeof(BITMAP), &bm);
-				if (hr) {
-					_srcWidth = bm.bmWidth;
-					_srcHeight = bm.bmHeight;
+			if (hr == S_OK)
+			{
+				int sz = 128;
+				LONG flag = SIIGBF_BIGGERSIZEOK 
+					| SIIGBF_THUMBNAILONLY 
+					//| SIIGBF_ICONONLY 
+					| SIIGBF_RESIZETOFIT;
+				SIZE size = {sz, sz};
+				HBITMAP hTmpBitmap = NULL;
+				hr = _imageFactory->GetImage(size, flag, &hTmpBitmap);
+				ret = 2;
+				if (hr == S_OK && hTmpBitmap) {
+					_srcWidth = size.cx;
+					_srcHeight = size.cy;
+					BITMAP bm; 
+					hr = GetObject(hTmpBitmap, sizeof(BITMAP), &bm);
+					if (hr) {
+						_srcWidth = bm.bmWidth;
+						_srcHeight = bm.bmHeight;
+					}
+					DeleteObject(&bm);
+					ret = 0;
+					if(hTmpBitmap) {
+						if(hBitmap) DeleteObject(hBitmap);
+						hBitmap = hTmpBitmap;
+					}
 				}
-				ret = 0;
-				if(hTmpBitmap) {
-					DeleteObject(hBitmap);
-					hBitmap = hTmpBitmap;
-				}
+
 			}
-			if(_imageFactory)
-				_imageFactory->Release();
+			_imageFactory->Release();
 		}
 		//CoUninitialize();
 		return ret;
@@ -214,6 +220,7 @@ namespace DuiLib {
 	{
 		cleanUp();
 		SHFILEINFOA info;
+		
 		if (SHGetFileInfoA(path, FILE_ATTRIBUTE_NORMAL, &info, sizeof(info),
 			SHGFI_ICON 
 			| SHGFI_LARGEICON
@@ -224,7 +231,7 @@ namespace DuiLib {
 		{
 
 			ICONINFO icon;
-			SIZE iconSz;
+			SIZE iconSz{128,128};
 			GetIconInfo(info.hIcon, &icon);
 			GetIconDimensions(info.hIcon, &iconSz);
 
@@ -233,7 +240,11 @@ namespace DuiLib {
 
 			_bNewImage = true;
 
+			if (icon.hbmMask)  DeleteObject(icon.hbmMask);
+
 			hBitmap = icon.hbmColor;
+
+			DestroyIcon(info.hIcon);
 		}
 		return 0;
 	}

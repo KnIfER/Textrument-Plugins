@@ -208,6 +208,7 @@ namespace DuiLib {
             if (adapter)
             {
                 m_HiddenItem = adapter->CreateItemView(this, 0);
+                m_HiddenItem->_view_states |= VIEWSTATEMASK_IsStatic;
                 if (m_HiddenItem)
                 {
                     auto tmp = new CControlUI; 
@@ -564,6 +565,18 @@ namespace DuiLib {
         {
             _smoothScrolling = false;
             // _seeking = false;
+            if(_manager->GetRealManager()->_hackTimer) {
+                //SetScrollPos({0, scrollY<0?m_pVerticalScrollBar->GetScrollRange():0});
+                if (scrollY>0 && m_pVerticalScrollBar->GetScrollPos() < m_pVerticalScrollBar->GetScrollRange()-100
+                    || m_pVerticalScrollBar->GetScrollPos()<=10 && scrollY<0)
+                {
+                    _scrollY = 100;
+                    DoScroll(0, 50);
+                } else {
+                    _scrollY = -100;
+                    DoScroll(0, -50);
+                }
+            }
             return;
         }
         if(!scrollY)
