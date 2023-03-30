@@ -1162,7 +1162,7 @@ namespace DuiLib {
 		if( _manager) 
 		{
 			_manager->NeedUpdate();
-			if (!_manager->IsPainting())
+			//if (!_manager->IsPainting())
 			{
 				_manager->_UpdateList.Add(this);
 			}

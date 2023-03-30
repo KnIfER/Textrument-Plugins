@@ -1,4 +1,5 @@
 #include <windows.h>
+#define SKIP_SKIA_RENDERER
 #include "..\DuiLib\UIlib.h"
 #include "..\DuiLib\ControlEx\UIBeautifulSwitch.h"
 

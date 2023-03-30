@@ -14,9 +14,10 @@ namespace DuiLib {
 	{
 		if (hDC)
 		{
-			ASSERT(::GetObjectType(hDC)==OBJ_DC || ::GetObjectType(hDC)==OBJ_MEMDC);
-			ASSERT(::GetObjectType(hRgn)==OBJ_REGION);
-			ASSERT(::GetObjectType(hOldRgn)==OBJ_REGION);
+			//lxxx(dd dd dd, ::GetObjectType(hDC), ::GetObjectType(hRgn), ::GetObjectType(hOldRgn))
+			//ASSERT(::GetObjectType(hDC)==OBJ_DC || ::GetObjectType(hDC)==OBJ_MEMDC);
+			//ASSERT(::GetObjectType(hRgn)==OBJ_REGION);
+			//ASSERT(::GetObjectType(hOldRgn)==OBJ_REGION);
 			::SelectClipRgn(hDC, hOldRgn);
 			::DeleteObject(hOldRgn);
 			::DeleteObject(hRgn);

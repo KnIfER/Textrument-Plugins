@@ -509,7 +509,7 @@ namespace DuiLib {
 
     UINT_PTR timer_smooth_scroll=0x123;
     int timer_smooth_scroll_interval=10;
-    bool  smoother_mode = 0;
+    bool  smoother_mode = 1;
     bool  timer_scrolling;
 
     bool ListView::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
@@ -622,7 +622,6 @@ namespace DuiLib {
             else
             {
                 DoScroll(0, cy);
-                //NeedUpdate();
             }
             return true;
         }
@@ -1023,7 +1022,7 @@ namespace DuiLib {
             }
         }
         LONG thumb = handleScroll==2?m_pVerticalScrollBar->GetThumbPosition():0;
-        if(!_smoothScrolling)
+        if(!_smoothScrolling || smoother_mode)
             ProcessScrollBar(szAvailable, 0, m_total_height);
 
         if (handleScroll==2)

@@ -1476,6 +1476,7 @@ namespace DuiLib {
 											if( !pControl->IsFloat() ) pControl->SetPos(pControl->GetPos(), true);
 											else pControl->SetPos(pControl->GetRelativePos(), true);
 										}
+										size = _UpdateList.GetSize();
 									}
 									_UpdateList.Empty();
 								}

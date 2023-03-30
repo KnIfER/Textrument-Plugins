@@ -29,13 +29,13 @@
 #elif defined _M_IA64
 #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='ia64' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #elif defined _M_X64
+#define MODULE_SKIA_RENDERER
 #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #else
 #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 
 #ifndef SKIP_SKIA_RENDERER
-//#define MODULE_SKIA_RENDERER
 #ifdef MODULE_SKIA_RENDERER
 #include "include/core/SkTypeface.h"
 #include "include/core/SkPath.h"
