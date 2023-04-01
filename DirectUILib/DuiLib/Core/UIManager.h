@@ -294,6 +294,7 @@ namespace DuiLib {
 		CDuiSize szIcon;
 		RECT rcPadding;
 		SHORT iAlign;
+		TImageInfo* image;
 	} TDrawInfo;
 
 	typedef struct UILIB_API tagTPercentInfo
@@ -494,8 +495,9 @@ namespace DuiLib {
 
 		const TImageInfo* GetImage(LPCTSTR bitmap);
 		const TImageInfo* GetImageEx(LPCTSTR bitmap, LPCTSTR type = NULL, DWORD mask = 0, bool bUseHSL = false, HINSTANCE instance = NULL);
-		const TImageInfo* AddImage(LPCTSTR bitmap, LPCTSTR type = NULL, DWORD mask = 0, bool bUseHSL = false, bool bShared = false, HINSTANCE instance = NULL);
-		const TImageInfo* AddImage(LPCTSTR bitmap, HBITMAP hBitmap, int iWidth, int iHeight, bool bAlpha, bool bShared = false);
+		const TImageInfo* GetImageForDrawInfo(const TDrawInfo* pDrawInfo, bool bUseHSL = false, HINSTANCE instance = NULL);
+		const TImageInfo* AddImageOrLoadIntoDrawInfo(LPCTSTR bitmap, LPCTSTR type = NULL, DWORD mask = 0, bool bUseHSL = false, bool bShared = false, HINSTANCE instance = NULL, TDrawInfo* pDrawInfo = NULL);
+		const TImageInfo* AddImageBitmap(LPCTSTR bitmap, HBITMAP hBitmap, int iWidth, int iHeight, bool bAlpha, bool bShared = false);
 		void RemoveImage(LPCTSTR bitmap, bool bShared = false);
 		void RemoveAllImages(bool bShared = false);
 		static void ReloadSharedImages();

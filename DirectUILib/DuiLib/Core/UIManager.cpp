@@ -311,6 +311,11 @@ namespace DuiLib {
 		bTiledX = false;
 		bTiledY = false;
 		bHSL = false;
+		if (image)
+		{
+			image = NULL;
+			delete image;
+		}
 
 		szIcon.cx = szIcon.cy = 0;
 		iAlign = 0;
@@ -3822,27 +3827,59 @@ namespace DuiLib {
 
 	const TImageInfo* CPaintManagerUI::GetImageEx(LPCTSTR bitmap, LPCTSTR type, DWORD mask, bool bUseHSL, HINSTANCE instance)
 	{
+		if( bitmap == NULL || bitmap[0] == _T('\0') ) return NULL;
 		if(_parent)
 		{
 			return _parent->GetImageEx(bitmap, type, mask, bUseHSL, instance);
 		}
 		const TImageInfo* data = GetImage(bitmap);
 		if( !data ) {
-			if( AddImage(bitmap, type, mask, bUseHSL, false, instance) ) {
+			if( AddImageOrLoadIntoDrawInfo(bitmap, type, mask, bUseHSL, false, instance, 0) ) {
 				if (m_bForceUseSharedRes) data = static_cast<TImageInfo*>(m_SharedResInfo.m_ImageHash.Find(bitmap));
 				else data = static_cast<TImageInfo*>(m_ResInfo.m_ImageHash.Find(bitmap)); 
 			}
 		}
-
 		return data;
 	}
 
-	const TImageInfo* CPaintManagerUI::AddImage(LPCTSTR bitmap, LPCTSTR type, DWORD mask, bool bUseHSL, bool bShared, HINSTANCE instance)
+	const TImageInfo* CPaintManagerUI::GetImageForDrawInfo(const TDrawInfo* pDrawInfo, bool bUseHSL, HINSTANCE instance)
+	{
+		if(_parent)
+		{
+			return _parent->GetImageForDrawInfo(pDrawInfo, bUseHSL, instance);
+		}
+		if (pDrawInfo->sName.IsEmpty()) return NULL;
+		bool load = pDrawInfo->sName.EndWith(L".svg");
+		const TImageInfo* data;
+		LPCTSTR bitmap = pDrawInfo->sName;
+		LPCTSTR type = pDrawInfo->sResType.IsEmpty()?NULL:STR(pDrawInfo->sResType);
+		if (load)
+		{
+			data = pDrawInfo->image;
+			if( !data ) {
+				AddImageOrLoadIntoDrawInfo(bitmap, type, pDrawInfo->dwMask, bUseHSL, false, instance, (TDrawInfo*)pDrawInfo);
+				data = pDrawInfo->image;
+			}
+		} 
+		else
+		{
+			data = GetImage(bitmap);
+			if( !data ) {
+				if( AddImageOrLoadIntoDrawInfo(bitmap, type, pDrawInfo->dwMask, bUseHSL, false, instance, 0) ) {
+					if (m_bForceUseSharedRes) data = static_cast<TImageInfo*>(m_SharedResInfo.m_ImageHash.Find(bitmap));
+					else data = static_cast<TImageInfo*>(m_ResInfo.m_ImageHash.Find(bitmap)); 
+				}
+			}
+		}
+		return data;
+	}
+
+	const TImageInfo* CPaintManagerUI::AddImageOrLoadIntoDrawInfo(LPCTSTR bitmap, LPCTSTR type, DWORD mask, bool bUseHSL, bool bShared, HINSTANCE instance, TDrawInfo* pDrawInfo)
 	{
 		LogIs(L"AddImage:: %s %s", bitmap?bitmap:L"",type?type:L"" );
 		if(_parent)
 		{
-			return _parent->AddImage(bitmap, type, mask, bUseHSL, bShared, instance);
+			return _parent->AddImageOrLoadIntoDrawInfo(bitmap, type, mask, bUseHSL, bShared, instance, pDrawInfo);
 		}
 		if( bitmap == NULL || bitmap[0] == _T('\0') ) return NULL;
 
@@ -3851,11 +3888,11 @@ namespace DuiLib {
 			if( isdigit(*bitmap) ) {
 				LPTSTR pstr = NULL;
 				int iIndex = _tcstol(bitmap, &pstr, 10);
-				data = CRenderEngine::LoadImageStr(iIndex, type, mask, instance);
+				data = CRenderEngine::LoadImageStr(iIndex, type, mask, instance, pDrawInfo);
 			}
 		}
 		else {
-			data = CRenderEngine::LoadImageStr(bitmap, NULL, mask, instance);
+			data = CRenderEngine::LoadImageStr(bitmap, NULL, mask, instance, pDrawInfo);
 		}
 
 		if( data == NULL ) {
@@ -3872,7 +3909,11 @@ namespace DuiLib {
 		if( m_bUseHSL ) CRenderEngine::AdjustImage(true, data, m_H, m_S, m_L);
 		if (data)
 		{
-			if (bShared || m_bForceUseSharedRes)
+			if (pDrawInfo)
+			{
+				((TDrawInfo*)pDrawInfo)->image = data;
+			}
+			else if (bShared || m_bForceUseSharedRes)
 			{
 				TImageInfo* pOldImageInfo = static_cast<TImageInfo*>(m_SharedResInfo.m_ImageHash.Find(bitmap));
 				if (pOldImageInfo)
@@ -3905,11 +3946,11 @@ namespace DuiLib {
 		return data;
 	}
 
-	const TImageInfo* CPaintManagerUI::AddImage(LPCTSTR bitmap, HBITMAP hBitmap, int iWidth, int iHeight, bool bAlpha, bool bShared)
+	const TImageInfo* CPaintManagerUI::AddImageBitmap(LPCTSTR bitmap, HBITMAP hBitmap, int iWidth, int iHeight, bool bAlpha, bool bShared)
 	{
 		if(_parent)
 		{
-			return _parent->AddImage(bitmap, hBitmap, iWidth, iHeight, bAlpha, bShared);
+			return _parent->AddImageBitmap(bitmap, hBitmap, iWidth, iHeight, bAlpha, bShared);
 		}
 		// 因无法确定外部HBITMAP格式，不能使用hsl调整
 		if( bitmap == NULL || bitmap[0] == _T('\0') ) return NULL;
@@ -4574,6 +4615,7 @@ namespace DuiLib {
 		m_bUsedVirtualWnd = bUsed;
 	}
 
+
 	const TImageInfo* CPaintManagerUI::GetImageString(LPCTSTR pStrImage, LPCTSTR pStrModify)
 	{
 		QkString sName = pStrImage;
@@ -4626,7 +4668,10 @@ namespace DuiLib {
 				if( *pStrImage++ != _T(' ') ) break;
 			}
 		}
+#if false
 		return GetImageEx(sName, sImageResType, dwMask);
+#endif
+		return 0;
 	}
 
 	bool CPaintManagerUI::EnableDragDrop(bool bEnable)

@@ -661,7 +661,7 @@ namespace DuiLib
 		if(!_stateIcon.sName.IsEmpty())
 		{
 			// 根据按下状态在不同位置绘制 StateImage
-			const TImageInfo* pImage = _manager->GetImageEx(_stateIcon.sName, _stateIcon.sResType, _stateIcon.dwMask, _stateIcon.bHSL);
+			const TImageInfo* pImage = _manager->GetImageForDrawInfo(&_stateIcon, _stateIcon.bHSL);
 			if(pImage != NULL)
 			{
 				RECT rcItem = m_rcItem; // todo FIXME draw oversize
@@ -695,7 +695,7 @@ namespace DuiLib
 		if(!m_tForeImage.sName.IsEmpty())
 		{
 			// 根据按下状态在不同位置绘制 StateImage
-			const TImageInfo* pImage = _manager->GetImageEx(m_tForeImage.sName, m_tForeImage.sResType, m_tForeImage.dwMask, _stateIcon.bHSL);
+			const TImageInfo* pImage = _manager->GetImageForDrawInfo(&m_tForeImage, _stateIcon.bHSL);
 			if(pImage != NULL)
 			{
 				bool draw = true;

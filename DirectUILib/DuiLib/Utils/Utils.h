@@ -243,8 +243,8 @@ namespace DuiLib
 		void Trim();
 		void Split(const QkString & delim, std::vector<QkString> & ret);
 
-		bool StartWith(const QkString & prefix, bool ignoreCase=false, int toffset=0);
-		bool EndWith(const QkString & other, bool ignoreCase=false);
+		bool StartWith(const QkString & prefix, bool ignoreCase=false, int toffset=0) const;
+		bool EndWith(const QkString & other, bool ignoreCase=false) const;
 
 		int __cdecl Format(LPCTSTR pstrFormat, ...);
 		int __cdecl SmallFormat(LPCTSTR pstrFormat, ...);

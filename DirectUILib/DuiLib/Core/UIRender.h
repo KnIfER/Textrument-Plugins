@@ -30,13 +30,13 @@ namespace DuiLib {
 		static DWORD AdjustColor(DWORD dwColor, short H, short S, short L);
 		static HBITMAP CreateARGB32Bitmap(HDC hDC, int cx, int cy, BYTE** pBits);
 		static void AdjustImage(bool bUseHSL, TImageInfo* imageInfo, short H, short S, short L);
-		static TImageInfo* LoadImageStr(STRINGorID bitmap, LPCTSTR type = NULL, DWORD mask = 0, HINSTANCE instance = NULL, int bytesPerPixel = 4);
+		static TImageInfo* LoadImageStr(STRINGorID bitmap, LPCTSTR type = NULL, DWORD mask = 0, HINSTANCE instance = NULL, int bytesPerPixel = 4, TDrawInfo* pDrawInfo = NULL);
 #ifdef USE_XIMAGE_EFFECT
 		static CxImage *LoadGifImageX(STRINGorID bitmap, LPCTSTR type = NULL, DWORD mask = 0);
 #endif
 		static void FreeImage(TImageInfo* bitmap, bool bDelete = true);
-		static TImageInfo* LoadImageStr(LPCTSTR pStrImage, LPCTSTR type = NULL, DWORD mask = 0, HINSTANCE instance = NULL);
-		static TImageInfo* LoadImageStr(UINT nID, LPCTSTR type = NULL, DWORD mask = 0, HINSTANCE instance = NULL);
+		static TImageInfo* LoadImageStr(LPCTSTR pStrImage, LPCTSTR type = NULL, DWORD mask = 0, HINSTANCE instance = NULL, TDrawInfo* pDrawInfo = NULL);
+		static TImageInfo* LoadImageStr(UINT nID, LPCTSTR type = NULL, DWORD mask = 0, HINSTANCE instance = NULL, TDrawInfo* pDrawInfo = NULL);
 
 		static Gdiplus::Image*	GdiplusLoadImage(LPCTSTR pstrPath);
 		static Gdiplus::Image* GdiplusLoadImage(LPVOID pBuf, size_t dwSize);
@@ -55,7 +55,7 @@ namespace DuiLib {
 			const QkString& sImageResType, RECT rcItem, RECT rcBmpPart, RECT rcCorner, DWORD dwMask, BYTE bFade, \
 			bool bHole, bool bTiledX, bool bTiledY, HINSTANCE instance = NULL);
 		// ParseImageString
-		static const TImageInfo* GetImageInfo(CPaintManagerUI* pManager, const TDrawInfo* pDrawInfo, HINSTANCE instance = NULL);
+		//static const TImageInfo* GetImageInfo(CPaintManagerUI* pManager, const TDrawInfo* pDrawInfo, HINSTANCE instance = NULL);
 		static bool DrawImageInfo(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, const TDrawInfo* pDrawInfo, const RECT* rcDest = NULL, HINSTANCE instance = NULL);
 		static bool DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, const RECT* rcDest = NULL, HINSTANCE instance = NULL);
 

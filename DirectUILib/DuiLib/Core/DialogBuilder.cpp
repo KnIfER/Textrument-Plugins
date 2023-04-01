@@ -252,7 +252,7 @@ namespace DuiLib {
 								shared = (_tcsicmp(pstrValue, _T("true")) == 0);
 							}
 						}
-						if( pImageName ) pManager->AddImage(pImageName, pImageResType, mask, false, shared);
+						if( pImageName ) pManager->AddImageOrLoadIntoDrawInfo(pImageName, pImageResType, mask, false, shared);
 					}
 					else if( _tcsicmp(pstrClass, _T("Font")) == 0 ) 
 					{

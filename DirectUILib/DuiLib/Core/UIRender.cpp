@@ -3,6 +3,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "..\Utils\stb_image.h"
 
+#define NANOSVG_IMPLEMENTATION
+#define NANOSVGRAST_IMPLEMENTATION
+#include "utils/nanosvg.h"
+#include "utils/nanosvgrast.h"
+
 ///////////////////////////////////////////////////////////////////////////////////////
 namespace DuiLib {
 
@@ -535,7 +540,7 @@ namespace DuiLib {
 		return dwColor;
 	}
 
-	TImageInfo* CRenderEngine::LoadImageStr(STRINGorID bitmap, LPCTSTR type, DWORD mask, HINSTANCE instance, int bytesPerPixel)
+	TImageInfo* CRenderEngine::LoadImageStr(STRINGorID bitmap, LPCTSTR type, DWORD mask, HINSTANCE instance, int bytesPerPixel, TDrawInfo* pDrawInfo)
 	{
 		LPBYTE pData = NULL;
 		DWORD dwSize = 0;
@@ -648,9 +653,9 @@ namespace DuiLib {
 			return NULL;
 		}
 
-#ifdef MODULE_SKIA_RENDERER
 		if (svg)
 		{
+#ifdef MODULE_SKIA_RENDERER
 			//lxx(svg)
 			TImageInfo* data = new TImageInfo;
 			data->pBits = NULL;
@@ -660,8 +665,76 @@ namespace DuiLib {
 			auto stream = SkMemoryStream::MakeDirect(pData, dwSize);
 			data->svgDom = SkSVGDOM::MakeFromStream(*stream);
 			return data;
-		}
 #endif
+#ifdef NANOSVG_IMPLEMENTATION
+			NSVGimage* psvg = nsvgParse((char*)pData, "px", 96.0f);
+			if (psvg==NULL)
+				return NULL;
+			NSVGrasterizer* rast = nsvgCreateRasterizer();
+			if (rast == NULL)
+				return NULL;
+			int x = 24, y = 24;
+			if (pDrawInfo)
+			{
+				x = pDrawInfo->szIcon.cx;
+				y = pDrawInfo->szIcon.cy;
+			}
+			float fX = ((float)x) / (psvg->width);
+			float fY = ((float)y) / (psvg->height);
+			float fScale = (fX<=fY) ? fX : fY;
+			LPBYTE pImage = (LPBYTE)malloc(x * y * 4);
+
+			nsvgRasterize(rast, psvg, 0.0, 0.0, fScale, pImage, x, y, x * 4);
+
+			//
+			BITMAPINFO bmi;
+			::ZeroMemory(&bmi, sizeof(BITMAPINFO));
+			bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+			bmi.bmiHeader.biWidth = x;
+			bmi.bmiHeader.biHeight = -y;
+			bmi.bmiHeader.biPlanes = 1;
+			bmi.bmiHeader.biBitCount = 32;
+			bmi.bmiHeader.biCompression = BI_RGB;
+			bmi.bmiHeader.biSizeImage = x * y * 4;
+
+			LPBYTE pDest = NULL;
+			HBITMAP hBitmap = ::CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, (void**)&pDest, NULL, 0);
+			if( !hBitmap )
+				return NULL;
+
+			for( int i = 0; i < x * y; i++ ) 
+			{
+				pDest[i*4 + 3] = pImage[i*4 + 3];
+				if( pDest[i*4 + 3] < 255 )
+				{
+					pDest[i*4] = (BYTE)(DWORD(pImage[i*4 + 2])*pImage[i*4 + 3]/255);
+					pDest[i*4 + 1] = (BYTE)(DWORD(pImage[i*4 + 1])*pImage[i*4 + 3]/255);
+					pDest[i*4 + 2] = (BYTE)(DWORD(pImage[i*4])*pImage[i*4 + 3]/255); 
+				}
+				else
+				{
+					pDest[i*4] = pImage[i*4 + 2];
+					pDest[i*4 + 1] = pImage[i*4 + 1];
+					pDest[i*4 + 2] = pImage[i*4]; 
+				}
+			}
+
+			free(pImage);
+
+			nsvgDeleteRasterizer(rast);	
+			nsvgDelete(psvg);
+
+			TImageInfo* data = new TImageInfo;
+			data->pBmBits = pDest;
+			data->pBits = NULL;
+			data->pSrcBits = NULL;
+			data->hBitmap = hBitmap;
+			data->nX = x;
+			data->nY = y;
+			data->bAlpha = 1;
+			return data;
+#endif
+		}
 
 		LPBYTE pImage = NULL;
 		int x,y,n;
@@ -729,6 +802,7 @@ namespace DuiLib {
 		data->bAlpha = bAlphaChannel;
 		return data;
 	}
+
 #ifdef USE_XIMAGE_EFFECT
 	static DWORD LoadImage2Memory(const STRINGorID &bitmap, LPCTSTR type,LPBYTE &pData)
 	{
@@ -964,7 +1038,7 @@ namespace DuiLib {
 		return pImage;
 	}
 
-	TImageInfo* CRenderEngine::LoadImageStr(LPCTSTR pStrImage, LPCTSTR type, DWORD mask, HINSTANCE instance)
+	TImageInfo* CRenderEngine::LoadImageStr(LPCTSTR pStrImage, LPCTSTR type, DWORD mask, HINSTANCE instance, TDrawInfo* pDrawInfo)
 	{	
 		if(pStrImage == NULL) 
 		{
@@ -974,12 +1048,12 @@ namespace DuiLib {
 		{
 			pStrImage = CResourceManager::GetInstance()->MapImagePath(pStrImage);
 		}
-		return LoadImageStr(STRINGorID(pStrImage), type, mask, instance);
+		return LoadImageStr(STRINGorID(pStrImage), type, mask, instance, 4, pDrawInfo);
 	}
 
-	TImageInfo* CRenderEngine::LoadImageStr(UINT nID, LPCTSTR type, DWORD mask, HINSTANCE instance)
+	TImageInfo* CRenderEngine::LoadImageStr(UINT nID, LPCTSTR type, DWORD mask, HINSTANCE instance, TDrawInfo* pDrawInfo)
 	{
-		return LoadImageStr(STRINGorID(nID), type, mask, instance);
+		return LoadImageStr(STRINGorID(nID), type, mask, instance, 4, pDrawInfo);
 	}
 
 	Gdiplus::Image* CRenderEngine::GdiplusLoadImage( LPVOID pBuf,size_t dwSize )
@@ -1529,7 +1603,7 @@ namespace DuiLib {
 	{
 		if( pManager == NULL || hDC == NULL || pDrawInfo == NULL ) return false;
 
-		const TImageInfo* data = GetImageInfo(pManager, pDrawInfo, instance);
+		const TImageInfo* data = pManager->GetImageForDrawInfo(pDrawInfo, instance);
 		if(!data) return false;
 		RECT rcDraw; // 默认绘制于 rcItem
 		CDuiSize szDraw{};
@@ -1634,23 +1708,6 @@ namespace DuiLib {
 		//	pManager->GetSkiaCanvas()->drawImageRect(skImage, rect, options);
 		//}
 		return true;
-	}
-
-	const TImageInfo* CRenderEngine::GetImageInfo(CPaintManagerUI* pManager, const TDrawInfo* pDrawInfo, HINSTANCE instance)
-	{
-		//sconst TDrawInfo* pDrawInfo = pManager->GetDrawInfo(pStrImage);
-		if( pManager == NULL || pDrawInfo == NULL ) return false;
-		if (pDrawInfo->sName.IsEmpty()) {
-			return NULL;
-		}
-		const TImageInfo* data = NULL;
-		if( pDrawInfo->sResType.IsEmpty() ) {
-			data = pManager->GetImageEx(pDrawInfo->sName, NULL, pDrawInfo->dwMask, false, instance);
-		}
-		else {
-			data = pManager->GetImageEx(pDrawInfo->sName, pDrawInfo->sResType, pDrawInfo->dwMask, false, instance);
-		}
-		return data;  
 	}
 
 	bool CRenderEngine::DrawImageString(HDC hDC, CPaintManagerUI* pManager, const RECT& rcItem, const RECT& rcPaint, LPCTSTR pStrImage, const RECT* rcDest, HINSTANCE instance)
@@ -2423,5 +2480,4 @@ namespace DuiLib {
 			HSLtoRGB((DWORD*)(imageInfo->pBits + i*4), fH, fS, fL);
 		}
 	}
-
 } // namespace DuiLib

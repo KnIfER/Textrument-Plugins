@@ -79,9 +79,9 @@ void CScrCaptureWnd::Init()
 	::SetWindowPos(GetHWND(), NULL, m_rcWindow.left, m_rcWindow.top, m_rcWindow.right-m_rcWindow.left, m_rcWindow.bottom-m_rcWindow.top, SWP_NOZORDER);
 
 	HBITMAP hDesktopBmp = CreateDesktopBitmap(GetHWND());
-	m_pm.AddImage(_T("desktopimage"), hDesktopBmp, m_rcWindow.right-m_rcWindow.left, m_rcWindow.bottom-m_rcWindow.top, false);
+	m_pm.AddImageBitmap(_T("desktopimage"), hDesktopBmp, m_rcWindow.right-m_rcWindow.left, m_rcWindow.bottom-m_rcWindow.top, false);
 	HBITMAP hDesktopBmpMask = CreateDesktopMaskBitmap(GetHWND());
-	m_pm.AddImage(_T("desktopimagemask"), hDesktopBmpMask, m_rcWindow.right-m_rcWindow.left, m_rcWindow.bottom-m_rcWindow.top, true);
+	m_pm.AddImageBitmap(_T("desktopimagemask"), hDesktopBmpMask, m_rcWindow.right-m_rcWindow.left, m_rcWindow.bottom-m_rcWindow.top, true);
 
 	m_pDesktopImage->SetBkImage(_T("desktopimage"));
 	m_pDesktopMask->SetBkImage(_T("desktopimagemask"));
