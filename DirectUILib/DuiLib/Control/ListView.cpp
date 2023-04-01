@@ -189,6 +189,7 @@ namespace DuiLib {
             if (m_HiddenItem)
             {
                 delete m_HiddenItem;
+                m_HiddenItem = 0;
                 CControlUI *pControl;
                 for (size_t i = 0, length=m_items.GetSize(); i < length; i++)
                 {
@@ -218,6 +219,7 @@ namespace DuiLib {
                     NeedUpdate();
                 }
             }
+            else _bHasBasicViewAdapter = _adapter = new ListBasicViewAdapter(this);
         }
     }
 
@@ -565,6 +567,8 @@ namespace DuiLib {
         {
             _smoothScrolling = false;
             // _seeking = false;
+//#define DEBUG_MEMORY
+#ifdef DEBUG_MEMORY
             if(_manager->GetRealManager()->_hackTimer) {
                 //SetScrollPos({0, scrollY<0?m_pVerticalScrollBar->GetScrollRange():0});
                 if (scrollY>0 && m_pVerticalScrollBar->GetScrollPos() < m_pVerticalScrollBar->GetScrollRange()-100
@@ -577,6 +581,7 @@ namespace DuiLib {
                     DoScroll(0, -50);
                 }
             }
+#endif
             return;
         }
         if(!scrollY)

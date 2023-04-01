@@ -1262,6 +1262,11 @@ namespace DuiLib {
 				KillTimer(event.wParam);
 				return;
 			}
+			if(event.wParam==0x81) {
+				Invalidate();
+				KillTimer(event.wParam);
+				return;
+			}
 			_manager->SendNotify(this, DUI_MSGTYPE_TIMER, event.wParam, event.lParam);
 			return;
 		}
