@@ -448,7 +448,8 @@ namespace DuiLib {
                         //todo !!! 
                         if (heteroHeight) 
                         {
-                            firstVisible = GetViewOfType(type);
+                            firstVisible = type==0?m_HiddenItem:GetViewOfType(type);
+                            //firstVisible = GetViewOfType(type);
                             _adapter->OnBindItemView(firstVisible, _scrollPositionY + index, type, true);
                             estSz = firstVisible->EstimateSize(szAvailable);
                             itemHeight = estSz.cy;
@@ -472,7 +473,8 @@ namespace DuiLib {
                             int type = _adapter->GetViewType(_scrollPositionY + index);
                             if (index>=size)
                             {
-                                firstVisible = GetViewOfType(type);
+                                firstVisible = type==0?m_HiddenItem:GetViewOfType(type);
+                                //firstVisible = GetViewOfType(type);
                                 _adapter->OnBindItemView(firstVisible, _scrollPositionY + index, type, true);
                                 estSz = firstVisible->EstimateSize(szAvailable);
                                 itemHeight = estSz.cy;
@@ -516,6 +518,7 @@ namespace DuiLib {
 
     CControlUI* ListView::GetViewOfType(int type)
     {
+        //return m_HiddenItem;
         if (type>=0 && type<_recyclePool.size())
         {
             auto & recyclePool = _recyclePool[type];
@@ -524,6 +527,7 @@ namespace DuiLib {
                 return (CControlUI*)recyclePool[recyclePool.GetSize()-1];
             }
             CControlUI* ret = _adapter->CreateItemView(this, type);
+            if( _manager ) _manager->InitControls(ret, this);
             recyclePool.Add(ret);
             return ret;
         }
