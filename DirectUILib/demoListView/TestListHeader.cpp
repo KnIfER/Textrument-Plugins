@@ -96,7 +96,7 @@ public:
         //return ((Button*)viewTemplate)->Duplicate();
     }
 
-    void OnBindItemView(CControlUI* view, size_t index)
+    void OnBindItemView(CControlUI* view, size_t index, size_t type, bool pseudoBind)
     {
         //CHorizontalLayoutUI* horLayout = dynamic_cast<CHorizontalLayoutUI*>(view);
 

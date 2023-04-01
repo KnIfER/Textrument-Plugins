@@ -408,7 +408,7 @@ public:
         //return ((Button*)viewTemplate)->Duplicate();
     }
 
-    void OnBindItemView(CControlUI* view, size_t index)
+    void OnBindItemView(CControlUI* view, size_t index, size_t type, bool pseudoBind)
     {
         CControlUI* btn = dynamic_cast<CControlUI*>(view);
 

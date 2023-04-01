@@ -9,7 +9,9 @@ namespace DuiLib {
     public:
         virtual size_t GetItemCount() = 0;
         virtual CControlUI* CreateItemView(CControlUI* parent, int type) = 0;
-        virtual void OnBindItemView(CControlUI* view, size_t index) = 0;
+        virtual void OnBindItemView(CControlUI* view, size_t index, size_t type, bool pseudoBind) = 0;
+        virtual size_t GetViewTypeCount(){return 1;};
+        virtual size_t GetViewType(size_t index){return 0;};
     };
 
     // 普通视图适配器。使用此类适配器，列表内部不回收视图。
@@ -26,7 +28,7 @@ namespace DuiLib {
         };
         CControlUI* GetItemAt(int position);
         void AddView(CControlUI* view, int index=-1);
-        void OnBindItemView(CControlUI* view, size_t index) { }
+        void OnBindItemView(CControlUI* view, size_t index, size_t type, bool pseudoBind) { }
     protected:
         CStdPtrArray m_items;
         ListView* _parent;
@@ -54,6 +56,7 @@ namespace DuiLib {
         void SetPos(RECT rc, bool bNeedInvalidate = true) override;
         virtual bool SetScrollPos(SIZE szPos, bool bMsg = true, bool seeking = false) override;
         virtual void DoScroll(int x, int y) override;
+        CControlUI* GetViewOfType(int type);
 
         void ProcessScrollBar(SIZE szAvailable, int cxRequired, int cyRequired);
 
@@ -94,7 +97,6 @@ namespace DuiLib {
 
         void SelectItem(CControlUI* pRow, CControlUI* pControl);
         //void NeedUpdate();
-
     public:
         int _selPos, _selID;
         CControlUI* _selControl;
@@ -127,7 +129,8 @@ namespace DuiLib {
         float _itemHeightPercent;
 
         CStdPtrArray m_positions;
-        CStdPtrArray _recyclePool;
+        CStdPtrArray m_viewTypes;
+        std::vector<CStdPtrArray> _recyclePool;
         int _avgHeight;
         TListInfoUI m_ListInfo;
     };

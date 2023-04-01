@@ -65,7 +65,7 @@ namespace SkImageGrid {
             return ret;
             //return ((Button*)viewTemplate)->Duplicate();
         }
-        void OnBindItemView(CControlUI* view, size_t index) {
+        void OnBindItemView(CControlUI* view, size_t index, size_t type, bool pseudoBind) {
             CControlUI* hbox = dynamic_cast<CControlUI*>(view);
 
             for (size_t i = 0; i < hbox->GetCount(); i++)

@@ -164,7 +164,7 @@ public:
         //return ((Button*)viewTemplate)->Duplicate();
     }
 
-    void OnBindItemView(CControlUI* view, size_t index)
+    void OnBindItemView(CControlUI* view, size_t index, size_t type, bool pseudoBind)
     {
         WebViewInterface* browser = dynamic_cast<WebViewInterface*>(view);
         if(browser) browser->LoadURL("http://www.baidu.com");

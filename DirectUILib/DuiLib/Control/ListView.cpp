@@ -197,14 +197,17 @@ namespace DuiLib {
                     pControl->SetAutoDestroy(true);
                     delete pControl;
                 }
-                for (size_t i = 0, length=_recyclePool.GetSize(); i < length; i++)
+                for (size_t i = 0; i < _recyclePool.size(); i++)
                 {
-                    pControl = static_cast<CControlUI*>(_recyclePool.GetAt(i));
-                    pControl->SetAutoDestroy(true);
-                    delete pControl;
+                    for (size_t j = 0, length=_recyclePool[i].GetSize(); j < length; i++)
+                    {
+                        pControl = static_cast<CControlUI*>(_recyclePool[i][j]);
+                        pControl->SetAutoDestroy(true);
+                        delete pControl;
+                    }
+                    _recyclePool[i].Empty();
                 }
                 m_items.Empty();
-                _recyclePool.Empty();
             }
             if (adapter)
             {
@@ -218,6 +221,7 @@ namespace DuiLib {
                     if( _manager ) _manager->InitControls(m_HiddenItem, this);
                     NeedUpdate();
                 }
+                _recyclePool.resize(adapter->GetViewTypeCount());
             }
             else _bHasBasicViewAdapter = _adapter = new ListBasicViewAdapter(this);
         }
@@ -384,7 +388,7 @@ namespace DuiLib {
     //}
 
     CStdPtrArray & ListView::GetRecyclePool() {  
-        return _recyclePool;
+        return _recyclePool[0];
     }
 
 
@@ -440,11 +444,12 @@ namespace DuiLib {
                         && index>-1024)
                     {
                         --index;
+                        int type = _adapter->GetViewType(_scrollPositionY + index);
                         //todo !!! 
                         if (heteroHeight) 
                         {
-                            firstVisible = m_HiddenItem;
-                            _adapter->OnBindItemView(firstVisible, _scrollPositionY + index);
+                            firstVisible = GetViewOfType(type);
+                            _adapter->OnBindItemView(firstVisible, _scrollPositionY + index, type, true);
                             estSz = firstVisible->EstimateSize(szAvailable);
                             itemHeight = estSz.cy;
                         }
@@ -464,10 +469,11 @@ namespace DuiLib {
                         //todo !!! 
                         if (heteroHeight) 
                         {
+                            int type = _adapter->GetViewType(_scrollPositionY + index);
                             if (index>=size)
                             {
-                                firstVisible = m_HiddenItem;
-                                _adapter->OnBindItemView(firstVisible, _scrollPositionY + index);
+                                firstVisible = GetViewOfType(type);
+                                _adapter->OnBindItemView(firstVisible, _scrollPositionY + index, type, true);
                                 estSz = firstVisible->EstimateSize(szAvailable);
                                 itemHeight = estSz.cy;
                             }
@@ -506,6 +512,22 @@ namespace DuiLib {
             //SetTimer(0x112, 10, true);
             //SetTimer(0x80, 10, false);
         }
+    }
+
+    CControlUI* ListView::GetViewOfType(int type)
+    {
+        if (type>=0 && type<_recyclePool.size())
+        {
+            auto & recyclePool = _recyclePool[type];
+            if (recyclePool.GetSize()>0)
+            {
+                return (CControlUI*)recyclePool[recyclePool.GetSize()-1];
+            }
+            CControlUI* ret = _adapter->CreateItemView(this, type);
+            recyclePool.Add(ret);
+            return ret;
+        }
+        return m_HiddenItem;
     }
 
     static LARGE_INTEGER TicksLastDraw, TicksPerSecond, ticksNow;
@@ -829,8 +851,10 @@ namespace DuiLib {
         int delta_index=delta;
 
         CStdPtrArray children = m_items;
+        CStdPtrArray viewTypes = m_viewTypes;
         m_items.Empty();
         m_positions.Empty();
+        m_viewTypes.Empty();
 
         CControlUI *pControl;
         bool resued;
@@ -839,6 +863,7 @@ namespace DuiLib {
             && _scrollPositionY + index <= maxIndex 
             && index<4096)
         {
+            size_t viewType = _adapter->GetViewType(index);
             // 是否复用了相同位置的视图（无需重新绑定）
             resued = false;
             if (reusableCnt>0 && delta_index>=reusableSt && delta_index<=reusableEd)
@@ -852,42 +877,47 @@ namespace DuiLib {
             {
                 pControl = static_cast<ListBasicViewAdapter*>(_adapter)->GetItemAt(_scrollPositionY + index);
             }
-            else if(_recyclePool.GetSize()>0)
+            else 
             {
-                pControl = static_cast<CControlUI*>(_recyclePool.RemoveAt(_recyclePool.GetSize()-1));
-              //  ShowWindow(pControl->GetHWND(), SW_SHOWNOACTIVATE);
-                //if()
-                //SetParent(pControl->GetHWND(), _hWnd);
-               // SetWindowPos(pControl->GetHWND(), HWND_BOTTOM, 0,0,0,0, SWP_NOMOVE|SWP_NOREDRAW|SWP_NOREPOSITION);
-            }
-            else if(bkRecyclableCnt>0)
-            {
-                pControl = static_cast<CControlUI*>(children.GetAt(--bkRecyclableCnt));
-            }
-            else if (fwRecyclable-1>reusableSt) // fwRecyclable>=0 && 
-            {
-                pControl = static_cast<CControlUI*>(children.GetAt(fwRecyclable-1));
-                if (reusableCnt>0 && fwRecyclable-1<=reusableEd)
+                auto & recyclePool = _recyclePool[viewType];
+                if(recyclePool.GetSize()>0)
                 {
-                    reusableEd--;
-                    reusableCnt--;
+                    pControl = static_cast<CControlUI*>(recyclePool.RemoveAt(recyclePool.GetSize()-1));
+                    //  ShowWindow(pControl->GetHWND(), SW_SHOWNOACTIVATE);
+                    //if()
+                    //SetParent(pControl->GetHWND(), _hWnd);
+                    // SetWindowPos(pControl->GetHWND(), HWND_BOTTOM, 0,0,0,0, SWP_NOMOVE|SWP_NOREDRAW|SWP_NOREPOSITION);
                 }
-                fwRecyclable--;
-            }
-            else
-            {
-                pControl = _adapter->CreateItemView(this, 0);
-                ASSERT(pControl);
-                // todo check not null
-                if( _manager ) _manager->InitControls(pControl, this);
+                else if(bkRecyclableCnt>0 && viewType==(size_t)viewTypes.GetAt(bkRecyclableCnt-1))
+                {
+                    pControl = static_cast<CControlUI*>(children.GetAt(--bkRecyclableCnt));
+                }
+                else if (fwRecyclable-1>reusableSt && viewType==(size_t)viewTypes.GetAt(fwRecyclable-1)) // fwRecyclable>=0 && 
+                {
+                    pControl = static_cast<CControlUI*>(children.GetAt(fwRecyclable-1));
+                    if (reusableCnt>0 && fwRecyclable-1<=reusableEd)
+                    {
+                        reusableEd--;
+                        reusableCnt--;
+                    }
+                    fwRecyclable--;
+                }
+                else
+                {
+                    pControl = _adapter->CreateItemView(this, viewType);
+                    ASSERT(pControl);
+                    // todo check not null
+                    if( _manager ) _manager->InitControls(pControl, this);
+                }
             }
 
             m_items.Add(pControl);
             m_positions.Add((LPVOID)(_scrollPositionY + index));
+            m_viewTypes.Add((LPVOID)(viewType));
             if (!resued)
             {
                 pControl->m_bFocused_NO;
-                _adapter->OnBindItemView(pControl, _scrollPositionY + index);
+                _adapter->OnBindItemView(pControl, _scrollPositionY + index, viewType, false);
             }
 
             if (heteroHeight)
@@ -929,21 +959,23 @@ namespace DuiLib {
             {
 
                 --_scrollPositionY;
+                size_t viewType = _adapter->GetViewType(_scrollPositionY);
+                auto & recyclePool = _recyclePool[viewType];
                 if(_bHasBasicViewAdapter)
                 {
                     pControl = static_cast<ListBasicViewAdapter*>(_adapter)->GetItemAt(_scrollPositionY);
                 }
-                else if (reusableCnt>0)
+                else if (reusableCnt>0 && viewType==(size_t)viewTypes.GetAt(reusableSt))
                 {
                     pControl = static_cast<CControlUI*>(children.GetAt(reusableSt));
                     reusableCnt--;
                     reusableSt++;
                 }
-                else if(bkRecyclableCnt>0)
+                else if(bkRecyclableCnt>0 && viewType==(size_t)viewTypes.GetAt(bkRecyclableCnt-1))
                 {
                     pControl = static_cast<CControlUI*>(children.GetAt(--bkRecyclableCnt));
                 }
-                else if (fwRecyclable-1>reusableSt) // fwRecyclable>=0 && 
+                else if (fwRecyclable-1>reusableSt && viewType==(size_t)viewTypes.GetAt(fwRecyclable-1)) // fwRecyclable>=0 && 
                 {
                     pControl = static_cast<CControlUI*>(children.GetAt(--fwRecyclable));
                     if (reusableCnt>0 && fwRecyclable<=reusableEd)
@@ -952,18 +984,20 @@ namespace DuiLib {
                         reusableCnt--;
                     }
                 }
-                else if(_recyclePool.GetSize()>0)
+                else if(recyclePool.GetSize()>0)
                 {
-                    pControl = static_cast<CControlUI*>(_recyclePool.RemoveAt(_recyclePool.GetSize()-1));
+                    pControl = static_cast<CControlUI*>(recyclePool.RemoveAt(recyclePool.GetSize()-1));
                 }
                 else
                 {
-                    pControl = _adapter->CreateItemView(this, 0);
+                    pControl = _adapter->CreateItemView(this, viewType);
                     // todo check not null
                     if( _manager ) _manager->InitControls(pControl, this);
                 }
                 m_items.InsertAt(0, pControl);
-                _adapter->OnBindItemView(pControl, _scrollPositionY);
+                m_positions.InsertAt(0, (LPVOID)(_scrollPositionY));
+                m_viewTypes.InsertAt(0, (LPVOID)(viewType));
+                _adapter->OnBindItemView(pControl, _scrollPositionY, viewType, false);
                 estSz = pControl->EstimateSize(szAvailable);
 
                 top += estSz.cy;
@@ -1057,19 +1091,23 @@ namespace DuiLib {
         {
             while (true)
             {
+                size_t viewType = 0;
                 if (reusableCnt>0)
                 {
                     pControl = static_cast<CControlUI*>(children.GetAt(reusableSt));
+                    viewType = (size_t)viewTypes[reusableSt];
                     reusableCnt--;
                     reusableSt++;
                 }
                 else if(bkRecyclableCnt>0)
                 {
                     pControl = static_cast<CControlUI*>(children.GetAt(--bkRecyclableCnt));
+                    viewType = (size_t)viewTypes[bkRecyclableCnt];
                 }
                 else if (fwRecyclable-1>reusableSt) // fwRecyclable>=0 && 
                 {
                     pControl = static_cast<CControlUI*>(children.GetAt(--fwRecyclable));
+                    viewType = (size_t)viewTypes[fwRecyclable];
                     if (reusableCnt>0 && fwRecyclable<=reusableEd)
                     {
                         reusableEd--;
@@ -1083,7 +1121,7 @@ namespace DuiLib {
 
                 // SetWindowPos(pControl->GetHWND(), HWND_TOP, 0,0,0,0, SWP_NOMOVE|SWP_NOREDRAW|SWP_NOREPOSITION);
 
-                _recyclePool.Add(pControl);
+                _recyclePool[viewType].Add(pControl);
             }
             //for (size_t i = 0; i < children.GetSize(); i++)
             //    if(m_items.Find(children.GetAt(i))<0)_recyclePool.Add(children.GetAt(i));

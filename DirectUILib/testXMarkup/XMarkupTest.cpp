@@ -62,7 +62,7 @@ public:
             return btn;
 
         }
-        void OnBindItemView(CControlUI* view, size_t index)
+        void OnBindItemView(CControlUI* view, size_t index, size_t type, bool pseudoBind)
         {
             Button* btn = dynamic_cast<Button*>(view);
 
